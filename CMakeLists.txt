@@ -50,6 +50,8 @@ if(TARGET cemu_tests)
     target_compile_definitions(libcemu PRIVATE CEMU_CPU_TEST_MODE=1)
 endif()
 
-target_compile_definitions(cemu_tests PRIVATE CEMU_CPU_TEST_MODE=1)
+target_compile_definitions(cemu_tests PRIVATE
+    TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/"
+)
 
 add_test(NAME cemu_tests COMMAND cemu_tests)

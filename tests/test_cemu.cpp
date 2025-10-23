@@ -10,9 +10,8 @@
 using json = nlohmann::json;
 namespace fs = std::filesystem;
 
-static const fs::path kTestDir = "C:\\Users\\evanw\\cemu\\tests\\GameboyCPUTests\\v2";
+static const fs::path kTestDir = fs::path(TEST_DIR) / "GameboyCPUTests/v2";
 
-/// Helper: load a JSON file
 json loadJson(const fs::path& path) {
     std::ifstream f(path);
     if (!f.is_open())
@@ -22,7 +21,6 @@ json loadJson(const fs::path& path) {
     return j;
 }
 
-/// Helper: write RAM according to [[addr, value], ...]
 void applyRam(MMU& mmu, const json& ramList) {
     for (const auto& pair : ramList) {
         u16 addr = pair[0].get<u16>();
@@ -31,7 +29,6 @@ void applyRam(MMU& mmu, const json& ramList) {
     }
 }
 
-/// Helper: verify RAM contents
 void verifyRam(const MMU& mmu, const json& ramList, const std::string& opcodeName) {
     for (const auto& pair : ramList) {
         u16 addr = pair[0].get<u16>();
@@ -43,7 +40,6 @@ void verifyRam(const MMU& mmu, const json& ramList, const std::string& opcodeNam
     }
 }
 
-/// Helper: verify CPU registers
 void verifyRegisters(const CPU& cpu, const json& expected, const std::string& opcodeName) {
     EXPECT_EQ(cpu.A.get(), expected["a"].get<u8>()) << "Test name: " << opcodeName;
     EXPECT_EQ(cpu.B.get(), expected["b"].get<u8>()) << "Test name: " << opcodeName;
@@ -57,7 +53,6 @@ void verifyRegisters(const CPU& cpu, const json& expected, const std::string& op
     EXPECT_EQ(cpu.SP.get(), expected["sp"].get<u16>()) << "Test name: " << opcodeName;
 }
 
-/// Apply an `"initial"` block to CPU/MMU
 void applyInitialState(GameBoy& gb, const json& init) {
     auto& cpu = *gb.cpu;
     auto& mmu = *gb.mmu;
@@ -76,7 +71,6 @@ void applyInitialState(GameBoy& gb, const json& init) {
     applyRam(mmu, init["ram"]);
 }
 
-/// Parameterized test for a single test file
 class GameboyCpuFileTest : public ::testing::TestWithParam<fs::path> { };
 
 TEST_P(GameboyCpuFileTest, RunAllCases) {
@@ -98,7 +92,6 @@ TEST_P(GameboyCpuFileTest, RunAllCases) {
     }
 }
 
-/// Dynamically instantiate one test per JSON file
 INSTANTIATE_TEST_SUITE_P(
     CpuTests,
     GameboyCpuFileTest,
