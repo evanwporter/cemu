@@ -19,12 +19,6 @@ enum class PPU_MODES {
     DRAWING_PIXELS,
 };
 
-constexpr uint CLOCKS_PER_HBLANK = 204; // Mode 0
-constexpr uint CLOCKS_PER_SCANLINE_OAM = 80; // Mode 2
-constexpr uint CLOCKS_PER_SCANLINE_VRAM = 172; // Mode 3
-constexpr uint CLOCKS_PER_SCANLINE = (CLOCKS_PER_SCANLINE_OAM + CLOCKS_PER_SCANLINE_VRAM + CLOCKS_PER_HBLANK);
-constexpr uint CLOCKS_PER_VBLANK = 4560; // Mode 1
-
 class PPU {
 public:
     explicit PPU(GameBoy& gb);
@@ -113,7 +107,6 @@ public:
                 draw_bg_line(LY);
                 draw_window_line(LY);
             }
-            break;
             break;
 
         case PPU_MODES::HORIZONTAL_BLANK: // HBlank
