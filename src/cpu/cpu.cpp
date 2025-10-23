@@ -155,3 +155,63 @@ void CPU::executeOpcode(u8 opcode) {
         std::cerr << "Unhandled opcode 0x" << std::hex << +opcode << "\n";
     }
 }
+
+bool CPU::handle_interrupt(u8 interrupt_bit, u16 interrupt_vector, u8 fired_interrupts) {
+    if (!check_bit(fired_interrupts, interrupt_bit))
+        return false;
+
+    interrupt_flag.set_bit(interrupt_bit, false);
+
+    stack_push(PC.get());
+    PC.set(interrupt_vector);
+
+    interruptsEnabled = false;
+    halted = false;
+
+    return true;
+}
+
+void CPU::handle_interrupts() {
+    u8 fired_interrupts = interrupt_flag.get() & interrupt_enabled.get();
+
+    if (!fired_interrupts)
+        return;
+
+    if (halted && fired_interrupts != 0x0) {
+        halted = false;
+    }
+
+    if (!interruptsEnabled)
+        return;
+
+    // Handle in priority order
+    if (handle_interrupt(0, 0x0040, fired_interrupts))
+        return; // VBlank
+    if (handle_interrupt(1, 0x0048, fired_interrupts))
+        return; // LCD STAT
+    if (handle_interrupt(2, 0x0050, fired_interrupts))
+        return; // Timer
+    if (handle_interrupt(3, 0x0058, fired_interrupts))
+        return; // Serial
+    if (handle_interrupt(4, 0x0060, fired_interrupts))
+        return; // Joypad
+}
+
+void CPU::stack_push(u16 value) {
+    --SP;
+    gb.mmu->write(SP.get(), static_cast<u8>((value >> 8) & 0xFF));
+
+    --SP;
+    gb.mmu->write(SP.get(), static_cast<u8>(value & 0xFF));
+}
+
+u16 CPU::stack_pop() {
+    u8 low = gb.mmu->read(SP.get());
+    SP.set(SP.get() + 1);
+    ++SP;
+
+    u8 high = gb.mmu->read(SP.get());
+    ++SP;
+
+    return static_cast<u16>((high << 8) | low);
+}

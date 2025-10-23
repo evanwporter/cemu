@@ -62,7 +62,31 @@ u8 MMU::read(const Address& addr) const {
 
     // FFFF: Interrupt enable register
     else if (addr == 0xFFFF)
-        return interruptEnable;
+        return gb.cpu->interrupt_enabled.get();
+
+    // FFFF: Interrupt enable register
+    else if (addr == 0xFF0F)
+        return gb.cpu->interrupt_flag.get();
+
+    // FF4B: Window X register
+    else if (addr == 0xFF4B)
+        gb.ppu->WX.get();
+
+    // FF4A: Window Y register
+    else if (addr == 0xFF4A)
+        gb.ppu->WY.get();
+
+    // FF43: Scroll X register
+    else if (addr == 0xFF43)
+        gb.ppu->SCX.get();
+
+    // FF42: Scroll Y register
+    else if (addr == 0xFF42)
+        gb.ppu->SCY.get();
+
+    // FF40: LCDC register
+    else if (addr == 0xFF40)
+        gb.ppu->LCDC.get();
 
     // fallback for invalid address
     return 0xFF;
@@ -124,5 +148,29 @@ void MMU::write(const Address& addr, const u8 val) {
 
     // FFFF: Interrupt enable register
     else if (addr == 0xFFFF)
-        interruptEnable = val;
+        gb.cpu->interrupt_enabled.set(val);
+
+    // FF0F: Interrupt flag register
+    else if (addr == 0xFF0F)
+        gb.cpu->interrupt_flag.set(val);
+
+    // FF4B: Window X register
+    else if (addr == 0xFF4B)
+        gb.ppu->WX.set(val);
+
+    // FF4A: Window Y register
+    else if (addr == 0xFF4A)
+        gb.ppu->WY.set(val);
+
+    // FF43: Scroll X register
+    else if (addr == 0xFF43)
+        gb.ppu->SCX.set(val);
+
+    // FF42: Scroll Y register
+    else if (addr == 0xFF42)
+        gb.ppu->SCY.set(val);
+
+    // FF40: LCDC register
+    else if (addr == 0xFF40)
+        gb.ppu->LCDC.set(val);
 }

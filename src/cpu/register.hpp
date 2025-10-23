@@ -13,14 +13,13 @@ public:
     u8 get() const { return value; }
     void set(u8 v) { value = v; }
 
-    // Access individual bits
-    bool getBit(int bit) const {
+    bool get_bit(int bit) const {
         if (bit < 0 || bit > 7)
             throw std::out_of_range("bit index out of range");
         return (value >> bit) & 1;
     }
 
-    void setBit(int bit, bool state) {
+    void set_bit(int bit, bool state) {
         if (bit < 0 || bit > 7)
             throw std::out_of_range("bit index out of range");
         if (state)

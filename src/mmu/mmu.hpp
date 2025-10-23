@@ -27,7 +27,4 @@ private:
 
     /// 127 bytes of high RAM (FF80–FFFE)
     std::array<u8, 0x7F> hram {};
-
-    /// Interrupt enable register
-    u8 interruptEnable = 0;
 };

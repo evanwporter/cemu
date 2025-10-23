@@ -1,3 +1,5 @@
+#pragma once
+#include <cstddef>
 #include <cstdint>
 
 /// 8-bit unsigned
@@ -11,3 +13,13 @@ using s8 = int8_t;
 
 /// 16-bit signed
 using s16 = int16_t;
+
+/// 32-bit unsigned
+using uint = std::size_t;
+
+enum class GBColors {
+    Color1,
+    Color2,
+    Color3,
+    Color4
+};

@@ -4,10 +4,22 @@
 #include <sstream>
 #include <string>
 
+constexpr uint LCDC_ADDR = 0xFF40;
+constexpr uint SCX_ADDR = 0xFF41;
+constexpr uint SCY_ADDR = 0xFF42;
+constexpr uint WX_ADDR = 0xFF4B;
+constexpr uint WY_ADDR = 0xFF4A;
+
 class Address {
 public:
     constexpr explicit Address(const u16 location) :
         location(location) { }
+
+    constexpr explicit Address(const u16 location, const u16 offset) :
+        location(location - offset) { }
+
+    constexpr explicit Address(const u16 location, const Address& offset) :
+        location(location - offset.value()) { }
 
     constexpr operator u16() const { return location; }
 
@@ -19,6 +31,29 @@ public:
         std::ostringstream ss;
         ss << '$' << std::uppercase << std::setfill('0') << std::setw(4) << std::hex << static_cast<int>(location);
         return ss.str();
+    }
+
+    constexpr Address operator+(uint offset) const { return Address(location + offset); }
+    constexpr Address operator-(uint offset) const { return Address(location - offset); }
+    constexpr Address operator+(int offset) const { return Address(location + offset); }
+    constexpr Address operator-(int offset) const { return Address(location - offset); }
+    constexpr Address operator+(u16 offset) const { return Address(location + offset); }
+    constexpr Address operator-(u16 offset) const { return Address(location - offset); }
+    constexpr Address operator+(const Address& other) const { return Address(location + other.location); }
+    constexpr Address operator-(const Address& other) const { return Address(location - other.location); }
+
+    constexpr Address& operator+=(u16 offset) {
+        location += offset;
+        return *this;
+    }
+
+    constexpr Address& operator-=(u16 offset) {
+        location -= offset;
+        return *this;
+    }
+
+    constexpr Address operator*(u16 scale) const {
+        return Address(location * scale);
     }
 
     // Region helpers

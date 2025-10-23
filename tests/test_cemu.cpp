@@ -100,7 +100,7 @@ INSTANTIATE_TEST_SUITE_P(
         for (auto& entry : fs::directory_iterator(kTestDir)) {
             if (entry.path().extension() == ".json") {
                 files.push_back(entry.path());
-                break;
+                // break;
             }
         }
         return files;

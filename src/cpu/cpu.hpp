@@ -47,6 +47,15 @@ public:
     u8 fetch_byte_from_pc();
     u16 fetch_word_from_pc();
 
+    Register8 interrupt_flag;
+    Register8 interrupt_enabled;
+
+    bool handle_interrupt(u8 interrupt_bit, u16 interrupt_vector, u8 fired_interrupts);
+    void handle_interrupts();
+
+    u16 stack_pop();
+    void stack_push(u16 value);
+
 private:
     GameBoy& gb;
 };
