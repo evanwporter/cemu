@@ -1,4 +1,5 @@
 #pragma once
+#include "address.hpp"
 #include "types.hpp"
 #include <string>
 #include <vector>
@@ -12,6 +13,9 @@ public:
 
     u8 read(u16 address) const { return 0; };
     void write(u16 address, u8 value) { };
+
+    u8 read(Address& address) const { return 0; };
+    void write(Address& address, u8 value) { };
 
 private:
     std::vector<u8> rom;

@@ -1,6 +1,7 @@
 #pragma once
 #include <array>
 
+#include "address.hpp"
 #include "cartridge.hpp"
 #include "types.hpp"
 
@@ -10,9 +11,13 @@ class MMU {
 public:
     MMU(GameBoy& gb);
 
-    u8 read(u16 addr) const;
+    u8 read(const u16 addr) const;
 
-    void write(u16 addr, u8 value);
+    u8 read(const Address& addr) const;
+
+    void write(const Address& addr, const u8 value);
+
+    void write(const u16 addr, const u8 value);
 
 private:
     GameBoy& gb;

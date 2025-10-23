@@ -1,4 +1,5 @@
 #pragma once
+#include "address.hpp"
 #include "types.hpp"
 
 class GameBoy;
@@ -8,8 +9,8 @@ public:
     explicit IO(GameBoy& gb);
     ~IO() = default;
 
-    u8 read(u16 address) const { return 0; };
-    void write(u16 address, u8 value) { };
+    u8 read(const Address& address) const { return 0; };
+    void write(const Address& address, const u8 value) { };
 
 private:
     GameBoy& gb;

@@ -1,4 +1,5 @@
 #include "mmu/mmu.hpp"
+#include "address.hpp"
 #include "gameboy.hpp"
 
 MMU::MMU(GameBoy& gb) :
@@ -6,7 +7,11 @@ MMU::MMU(GameBoy& gb) :
 
 static std::array<u8, 0x10000> flatMemory {};
 
-u8 MMU::read(u16 addr) const {
+u8 MMU::read(const u16 addr) const {
+    return read(Address(addr));
+}
+
+u8 MMU::read(const Address& addr) const {
 
     if (!gb.cartridge && !gb.ppu && !gb.io)
         return flatMemory[addr];
@@ -21,7 +26,7 @@ u8 MMU::read(u16 addr) const {
 
     // 8000–9FFF: VRAM
     else if (addr <= 0x9FFF)
-        return gb.ppu->readVRAM(addr - 0x8000);
+        return gb.ppu->readVRAM(addr);
 
     // A000–BFFF: External RAM
     else if (addr <= 0xBFFF)
@@ -29,19 +34,19 @@ u8 MMU::read(u16 addr) const {
 
     // C000–CFFF: Work RAM bank 0
     else if (addr <= 0xCFFF)
-        return wram[addr - 0xC000];
+        return wram[addr.value(0xC000)];
 
     // D000–DFFF: Work RAM bank 1 (CGB only)
     else if (addr <= 0xDFFF)
-        return wram[addr - 0xC000]; // mirror same region for now
+        return wram[addr.value(0xC000)]; // mirror same region for now
 
     // E000–FDFF: Echo RAM (mirror of C000–DDFF)
     else if (addr <= 0xFDFF)
-        return wram[addr - 0xE000];
+        return wram[addr.value(0xE000)];
 
     // FE00–FE9F: Sprite attribute table (OAM)
     else if (addr <= 0xFE9F)
-        return gb.ppu->readOAM(addr - 0xFE00);
+        return gb.ppu->readOAM(addr);
 
     // FEA0–FEFF: Not usable
     else if (addr <= 0xFEFF)
@@ -63,10 +68,11 @@ u8 MMU::read(u16 addr) const {
     return 0xFF;
 }
 
-// ---------------------
-//   WRITE
-// ---------------------
-void MMU::write(u16 addr, u8 val) {
+void MMU::write(const u16 addr, const u8 val) {
+    write(Address(addr), val);
+}
+
+void MMU::write(const Address& addr, const u8 val) {
     if (!gb.cartridge && !gb.ppu && !gb.io) {
         flatMemory[addr] = val;
         return;
@@ -82,7 +88,7 @@ void MMU::write(u16 addr, u8 val) {
 
     // 8000–9FFF: VRAM
     else if (addr <= 0x9FFF)
-        gb.ppu->writeVRAM(addr - 0x8000, val);
+        gb.ppu->writeVRAM(addr, val);
 
     // A000–BFFF: External RAM
     else if (addr <= 0xBFFF)
@@ -90,19 +96,19 @@ void MMU::write(u16 addr, u8 val) {
 
     // C000–CFFF: Work RAM bank 0
     else if (addr <= 0xCFFF)
-        wram[addr - 0xC000] = val;
+        wram[addr.value(0xC000)] = val;
 
     // D000–DFFF: Work RAM bank 1
     else if (addr <= 0xDFFF)
-        wram[addr - 0xC000] = val;
+        wram[addr.value(0xC000)] = val;
 
     // E000–FDFF: Echo RAM (mirror of C000–DDFF)
     else if (addr <= 0xFDFF)
-        wram[addr - 0xE000] = val;
+        wram[addr.value(0xE000)] = val;
 
     // FE00–FE9F: Sprite attribute table (OAM)
     else if (addr <= 0xFE9F)
-        gb.ppu->writeOAM(addr - 0xFE00, val);
+        gb.ppu->writeOAM(addr, val);
 
     // FEA0–FEFF: Not usable
     else if (addr <= 0xFEFF)
@@ -114,7 +120,7 @@ void MMU::write(u16 addr, u8 val) {
 
     // FF80–FFFE: High RAM
     else if (addr <= 0xFFFE)
-        hram[addr - 0xFF80] = val;
+        hram[addr.value(0xFF80)] = val;
 
     // FFFF: Interrupt enable register
     else if (addr == 0xFFFF)
