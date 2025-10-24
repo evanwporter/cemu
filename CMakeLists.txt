@@ -32,7 +32,6 @@ target_link_libraries(cemu PRIVATE libcemu SDL3::SDL3)
 
 set(TEST_SOURCES 
     tests/test_cemu.cpp
-    tests/cpu.cpp
 )
 
 include(FetchContent)
