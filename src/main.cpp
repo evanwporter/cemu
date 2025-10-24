@@ -59,16 +59,16 @@ int main(int argc, char** argv) {
                 uint8_t r, g, b;
                 switch (color) {
                 case GBColors::Color1:
-                    r = g = b = 255;
+                    r = g = b = 0;
                     break;
                 case GBColors::Color2:
-                    r = g = b = 170;
-                    break;
-                case GBColors::Color3:
                     r = g = b = 85;
                     break;
+                case GBColors::Color3:
+                    r = g = b = 170;
+                    break;
                 case GBColors::Color4:
-                    r = g = b = 0;
+                    r = g = b = 255;
                     break;
                 }
 

@@ -1,6 +1,7 @@
 #include "mmu/mmu.hpp"
 #include "address.hpp"
 #include "cartridge/cartridge.hpp"
+#include "defines.hpp"
 #include "gameboy.hpp"
 
 MMU::MMU(GameBoy& gb) :
@@ -14,15 +15,14 @@ u8 MMU::read(const u16 addr) const {
 
 u8 MMU::read(const Address& addr) const {
 
-    if (!gb.cartridge && !gb.ppu && !gb.io)
-        return flatMemory[addr];
+    // return flatMemory[addr];
 
     // FFFF: Interrupt enable register
-    if (addr == 0xFFFF)
+    if (addr == INTERRUPT_ENABLE)
         return gb.cpu->interrupt_enabled.get();
 
     // FFFF: Interrupt enable register
-    else if (addr == 0xFF0F)
+    else if (addr == INTERRUPT_FLAG)
         return gb.cpu->interrupt_flag.get();
 
     // FF4B: Window X register
@@ -41,17 +41,29 @@ u8 MMU::read(const Address& addr) const {
     else if (addr == 0xFF42)
         return gb.ppu->SCY.get();
 
-    // FF40: LCDC register
+    // FF40: LCD control register
     else if (addr == 0xFF40)
-        return gb.ppu->LCDC.get();
+        return gb.ppu->lcd_control.get();
+
+    // FF41: LCD status register
+    else if (addr == 0xFF41)
+        return gb.ppu->lcd_status.get();
+
+    // FF44: LY register
+    else if (addr == 0xFF44)
+        return gb.ppu->LY;
+
+    // FF45 LY compare register
+    else if (addr == LY_COMPARE)
+        return gb.ppu->LY_compare;
 
     // 0000–3FFF: ROM bank 0
-    if (addr <= 0x3FFF)
-        return gb.cartridge->read(addr);
+    else if (addr <= 0x3FFF)
+        return gb.cartridge->read_rom(addr);
 
     // 4000–7FFF: switchable ROM bank
     else if (addr <= 0x7FFF)
-        return gb.cartridge->read(addr);
+        return gb.cartridge->read_rom(addr);
 
     // 8000–9FFF: VRAM
     else if (addr <= 0x9FFF)
@@ -59,7 +71,7 @@ u8 MMU::read(const Address& addr) const {
 
     // A000–BFFF: External RAM
     else if (addr <= 0xBFFF)
-        return gb.cartridge->read(addr);
+        return gb.cartridge->read_ram(addr);
 
     // C000–CFFF: Work RAM bank 0
     else if (addr <= 0xCFFF)
@@ -71,6 +83,7 @@ u8 MMU::read(const Address& addr) const {
 
     // E000–FDFF: Echo RAM (mirror of C000–DDFF)
     else if (addr <= 0xFDFF)
+        // TODO: add warning for using echo RAM
         return wram[addr.value(0xE000)];
 
     // FE00–FE9F: Sprite attribute table (OAM)
@@ -79,7 +92,8 @@ u8 MMU::read(const Address& addr) const {
 
     // FEA0–FEFF: Not usable
     else if (addr <= 0xFEFF)
-        return 0xFF;
+        // turn on only for test cases that need it
+        return unusable_ram[addr.value() - 0xFEA0];
 
     // FF00–FF7F: I/O registers
     else if (addr <= 0xFF7F)
@@ -98,10 +112,8 @@ void MMU::write(const u16 addr, const u8 val) {
 }
 
 void MMU::write(const Address& addr, const u8 val) {
-    if (!gb.cartridge && !gb.ppu && !gb.io) {
-        flatMemory[addr] = val;
-        return;
-    }
+    // flatMemory[addr] = val;
+    // return;
 
     // FFFF: Interrupt enable register
     if (addr == 0xFFFF) {
@@ -127,9 +139,15 @@ void MMU::write(const Address& addr, const u8 val) {
         return;
     }
 
-    // FF43: Scroll X register
-    else if (addr == 0xFF43) {
-        gb.ppu->SCX.set(val);
+    // FF40: LCD control register
+    else if (addr == 0xFF40) {
+        gb.ppu->lcd_control.set(val);
+        return;
+    }
+
+    // FF41: LCD status register
+    else if (addr == 0xFF41) {
+        gb.ppu->lcd_status.set(val);
         return;
     }
 
@@ -139,19 +157,31 @@ void MMU::write(const Address& addr, const u8 val) {
         return;
     }
 
-    // FF40: LCDC register
-    else if (addr == 0xFF40) {
-        gb.ppu->LCDC.set(val);
+    // FF43: Scroll X register
+    else if (addr == 0xFF43) {
+        gb.ppu->SCX.set(val);
+        return;
+    }
+
+    // FF44: LY register
+    else if (addr == 0xFF44) {
+        gb.ppu->LY = val;
+        return;
+    }
+
+    // FF45 LY compare register
+    else if (addr == LY_COMPARE) {
+        gb.ppu->LY_compare = val;
         return;
     }
 
     // 0000–3FFF: ROM bank 0 (control writes go to MBC)
     else if (addr <= 0x3FFF)
-        gb.cartridge->write(addr, val);
+        gb.cartridge->write_rom(addr, val);
 
     // 4000–7FFF: switchable ROM bank
     else if (addr <= 0x7FFF)
-        gb.cartridge->write(addr, val);
+        gb.cartridge->write_rom(addr, val);
 
     // 8000–9FFF: VRAM
     else if (addr <= 0x9FFF)
@@ -159,19 +189,22 @@ void MMU::write(const Address& addr, const u8 val) {
 
     // A000–BFFF: External RAM
     else if (addr <= 0xBFFF)
-        gb.cartridge->write(addr, val);
+        gb.cartridge->write_ram(addr, val);
 
     // C000–CFFF: Work RAM bank 0
     else if (addr <= 0xCFFF)
-        wram[addr.value(0xC000)] = val;
+        wram[addr.value(0xC000)]
+            = val;
 
     // D000–DFFF: Work RAM bank 1
     else if (addr <= 0xDFFF)
-        wram[addr.value(0xC000)] = val;
+        wram[addr.value(0xC000)]
+            = val;
 
     // E000–FDFF: Echo RAM (mirror of C000–DDFF)
     else if (addr <= 0xFDFF)
-        wram[addr.value(0xE000)] = val;
+        wram[addr.value(0xE000)]
+            = val;
 
     // FE00–FE9F: Sprite attribute table (OAM)
     else if (addr <= 0xFE9F)
@@ -179,7 +212,7 @@ void MMU::write(const Address& addr, const u8 val) {
 
     // FEA0–FEFF: Not usable
     else if (addr <= 0xFEFF)
-        return; // ignored
+        unusable_ram[addr.value() - 0xFEA0] = val;
 
     // FF00–FF7F: I/O Registers
     else if (addr <= 0xFF7F)

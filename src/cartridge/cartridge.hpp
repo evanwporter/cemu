@@ -1,4 +1,5 @@
 #pragma once
+#include <array>
 #include <cstdint>
 #include <fstream>
 #include <stdexcept>
@@ -18,7 +19,6 @@ public:
         const std::streamsize size = file.tellg();
         file.seekg(0, std::ios::beg);
 
-        rom.resize(size);
         if (!file.read(reinterpret_cast<char*>(rom.data()), size))
             return false;
 
@@ -28,16 +28,31 @@ public:
         return true;
     }
 
-    uint8_t read(const Address& addr) const {
+    uint8_t read_rom(const Address& addr) const {
         return rom[addr.value()];
     }
 
-    void write(const Address& addr, u8 value) {
+    void write_rom(const Address& addr, u8 value) {
         // can't write to ROM-only cartridge
-        (void)addr;
-        (void)value;
+        // (void)addr;
+        // (void)value;
+        // TODO: add warning
+        rom[addr.value()] = value;
+    }
+
+    uint8_t read_ram(const Address& addr) const {
+        return ram[addr.value() - 0xA000];
+    }
+
+    void write_ram(const Address& addr, u8 value) {
+        // can't write to ROM-only cartridge
+        // (void)addr;
+        // (void)value;
+        // TODO: add warning
+        ram[addr.value() - 0xA000] = value;
     }
 
 private:
-    std::vector<uint8_t> rom;
+    std::array<u8, 0x8000> rom {};
+    std::array<u8, 0x2000> ram {};
 };

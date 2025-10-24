@@ -29,28 +29,28 @@ void applyRam(MMU& mmu, const json& ramList) {
     }
 }
 
-void verifyRam(const MMU& mmu, const json& ramList, const std::string& opcodeName) {
+void verifyRam(const MMU& mmu, const json& ramList, const std::string& test_name) {
     for (const auto& pair : ramList) {
         u16 addr = pair[0].get<u16>();
         u8 expected = pair[1].get<u8>();
         u8 actual = mmu.read(addr);
         ASSERT_EQ(actual, expected)
             << "RAM mismatch at 0x" << std::hex << addr
-            << " during opcode \"" << opcodeName << "\"";
+            << " during test \"" << test_name << "\"";
     }
 }
 
-void verifyRegisters(const CPU& cpu, const json& expected, const std::string& opcodeName) {
-    EXPECT_EQ(cpu.A.get(), expected["a"].get<u8>()) << "Test name: " << opcodeName;
-    EXPECT_EQ(cpu.B.get(), expected["b"].get<u8>()) << "Test name: " << opcodeName;
-    EXPECT_EQ(cpu.C.get(), expected["c"].get<u8>()) << "Test name: " << opcodeName;
-    EXPECT_EQ(cpu.D.get(), expected["d"].get<u8>()) << "Test name: " << opcodeName;
-    EXPECT_EQ(cpu.E.get(), expected["e"].get<u8>()) << "Test name: " << opcodeName;
-    EXPECT_EQ(cpu.F.get(), expected["f"].get<u8>()) << "Test name: " << opcodeName;
-    EXPECT_EQ(cpu.H.get(), expected["h"].get<u8>()) << "Test name: " << opcodeName;
-    EXPECT_EQ(cpu.L.get(), expected["l"].get<u8>()) << "Test name: " << opcodeName;
-    EXPECT_EQ(cpu.PC.get(), expected["pc"].get<u16>() - 1) << "Test name: " << opcodeName;
-    EXPECT_EQ(cpu.SP.get(), expected["sp"].get<u16>()) << "Test name: " << opcodeName;
+void verifyRegisters(const CPU& cpu, const json& expected, const std::string& test_name) {
+    EXPECT_EQ(cpu.A.get(), expected["a"].get<u8>()) << "Test name: " << test_name;
+    EXPECT_EQ(cpu.B.get(), expected["b"].get<u8>()) << "Test name: " << test_name;
+    EXPECT_EQ(cpu.C.get(), expected["c"].get<u8>()) << "Test name: " << test_name;
+    EXPECT_EQ(cpu.D.get(), expected["d"].get<u8>()) << "Test name: " << test_name;
+    EXPECT_EQ(cpu.E.get(), expected["e"].get<u8>()) << "Test name: " << test_name;
+    EXPECT_EQ(cpu.F.get(), expected["f"].get<u8>()) << "Test name: " << test_name;
+    EXPECT_EQ(cpu.H.get(), expected["h"].get<u8>()) << "Test name: " << test_name;
+    EXPECT_EQ(cpu.L.get(), expected["l"].get<u8>()) << "Test name: " << test_name;
+    EXPECT_EQ(cpu.PC.get(), expected["pc"].get<u16>() - 1) << "Test name: " << test_name;
+    EXPECT_EQ(cpu.SP.get(), expected["sp"].get<u16>()) << "Test name: " << test_name;
 }
 
 void applyInitialState(GameBoy& gb, const json& init) {
@@ -85,10 +85,10 @@ TEST_P(GameboyCpuFileTest, RunAllCases) {
 
         gb.cpu->step();
 
-        const std::string opcodeName = testCase["name"].get<std::string>();
+        const std::string test_name = testCase["name"].get<std::string>();
 
-        verifyRegisters(*gb.cpu, testCase["final"], opcodeName);
-        verifyRam(*gb.mmu, testCase["final"]["ram"], opcodeName);
+        verifyRegisters(*gb.cpu, testCase["final"], test_name);
+        verifyRam(*gb.mmu, testCase["final"]["ram"], test_name);
     }
 }
 

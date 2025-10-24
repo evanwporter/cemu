@@ -12,7 +12,7 @@ constexpr uint WY_ADDR = 0xFF4A;
 
 class Address {
 public:
-    constexpr explicit Address(const u16 location) :
+    constexpr Address(const u16 location) :
         location(location) { }
 
     constexpr explicit Address(const u16 location, const u16 offset) :

@@ -26,4 +26,6 @@ private:
 
     /// 127 bytes of high RAM (FF80–FFFE)
     std::array<u8, 0x7F> hram {};
+
+    std::array<u8, 0x60> unusable_ram {}; // 0xFEA0–0xFEFF
 };
