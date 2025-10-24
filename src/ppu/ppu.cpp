@@ -245,13 +245,77 @@ void PPU::vblank() {
     }
 }
 
-// Optional helper (reusable in multiple modes)
-void PPU::check_lyc() {
-    u8 LY_compare = mmu.read(LY_COMPARE);
-    const bool coincidence = (LY == LY_compare);
-    lcd_status.set_bit(6, coincidence);
+void PPU::draw_window_line(const int line) {
+    if (!window_enabled() || line < WY)
+        return;
 
-    if (coincidence && lcd_status.get_bit(2)) {
-        gb.cpu->interrupt_flag.set_bit(1, true);
+    const Address tile_map_base = window_tile_map_area()
+        ? TILE_MAP_AREA_1
+        : TILE_MAP_AREA_0;
+
+    const Address tile_data_base = bg_window_tile_data_area()
+        ? TILE_DATA_AREA_0
+        : TILE_DATA_AREA_1;
+
+    int winLine = line - WY;
+    int tileY = winLine / 8;
+    int fineY = winLine % 8;
+
+    TileSet tiles;
+    tiles.load(mmu, tile_data_base);
+
+    TileMap tilemap;
+    tilemap.load(mmu, tile_map_base);
+
+    for (int x = WX - 7; x < LCD_WIDTH; ++x) {
+        if (x < 0)
+            continue;
+
+        int winX = x - (WX - 7);
+        int tileX = winX / 8;
+        int fineX = winX % 8;
+
+        u8 tileId = tilemap.get_tile_id(tileX, tileY);
+        if (!bg_window_tile_data_area())
+            tileId = static_cast<s8>(tileId) + 128;
+
+        const Tile& tile = tiles.get(tileId);
+        framebuffer[line][x] = tile.pixel(fineX, fineY);
+    }
+}
+
+void PPU::draw_bg_line(const int line) {
+    if (!bg_enabled())
+        return;
+
+    const Address tile_map_base = bg_tile_map_area()
+        ? TILE_MAP_AREA_1
+        : TILE_MAP_AREA_0;
+
+    const Address tileDataBase = bg_window_tile_data_area()
+        ? TILE_DATA_AREA_0 // 0x8000–8FFF
+        : TILE_DATA_AREA_1; // 0x8800–97FF
+
+    int bgY = (SCY + line) & 0xFF;
+    int tileY = bgY / 8;
+    int fineY = bgY % 8;
+
+    TileSet tiles;
+    tiles.load(mmu, tileDataBase);
+
+    TileMap tilemap;
+    tilemap.load(mmu, tile_map_base);
+
+    for (int x = 0; x < LCD_WIDTH; ++x) {
+        int bgX = (SCX + x) & 0xFF;
+        int tileX = bgX / 8;
+        int fineX = bgX % 8;
+
+        u8 tileId = tilemap.get_tile_id(tileX, tileY);
+        if (!bg_window_tile_data_area())
+            tileId = static_cast<s8>(tileId) + 128;
+
+        const Tile& tile = tiles.get(tileId);
+        framebuffer[line][x] = tile.pixel(fineX, fineY);
     }
 }

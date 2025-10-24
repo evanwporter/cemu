@@ -58,11 +58,6 @@ public:
     static constexpr Address TILE_MAP_AREA_0 = 0x9800; // { 0x9800, VRAM_START };
     static constexpr Address TILE_MAP_AREA_1 = 0x9C00; // { 0x9C00, VRAM_START };
 
-    // u8 readVRAM(const Address& address) const {
-    //     const u16 base = (address >= 0x8800 && address < 0x9800) ? 0x8800 : 0x8000;
-    //     const u16 idx = address - base;
-    //     return vram[idx];
-    // }
     u8 readVRAM(const Address& address) const {
         const u16 idx = (address - 0x8000).value();
         return vram[idx];
@@ -111,12 +106,6 @@ public:
 
     void step(const uint cycles);
 
-    void oam_scan();
-    void draw_pixels();
-    void check_lyc();
-    void vblank();
-    void hblank();
-
     GBColors get_pixel(int x, int y) const;
 
 private:
@@ -132,82 +121,14 @@ private:
 
     std::array<std::array<GBColors, LCD_WIDTH>, LCD_HEIGHT> framebuffer {};
 
-    void draw_bg_line(const int line) {
-        if (!bg_enabled())
-            return;
-
-        const Address tile_map_base = bg_tile_map_area()
-            ? TILE_MAP_AREA_1
-            : TILE_MAP_AREA_0;
-
-        const Address tileDataBase = bg_window_tile_data_area()
-            ? TILE_DATA_AREA_0 // 0x8000–8FFF
-            : TILE_DATA_AREA_1; // 0x8800–97FF
-
-        int bgY = (SCY + line) & 0xFF;
-        int tileY = bgY / 8;
-        int fineY = bgY % 8;
-
-        TileSet tiles;
-        tiles.load(mmu, tileDataBase);
-
-        TileMap tilemap;
-        tilemap.load(mmu, tile_map_base);
-
-        for (int x = 0; x < LCD_WIDTH; ++x) {
-            int bgX = (SCX + x) & 0xFF;
-            int tileX = bgX / 8;
-            int fineX = bgX % 8;
-
-            u8 tileId = tilemap.get_tile_id(tileX, tileY);
-            if (!bg_window_tile_data_area())
-                tileId = static_cast<s8>(tileId) + 128;
-
-            const Tile& tile = tiles.get(tileId);
-            framebuffer[line][x] = tile.pixel(fineX, fineY);
-        }
-    }
-
-    void draw_window_line(const int line) {
-        if (!window_enabled() || line < WY)
-            return;
-
-        const Address tile_map_base = window_tile_map_area()
-            ? TILE_MAP_AREA_1
-            : TILE_MAP_AREA_0;
-
-        const Address tile_data_base = bg_window_tile_data_area()
-            ? TILE_DATA_AREA_0
-            : TILE_DATA_AREA_1;
-
-        int winLine = line - WY;
-        int tileY = winLine / 8;
-        int fineY = winLine % 8;
-
-        TileSet tiles;
-        tiles.load(mmu, tile_data_base);
-
-        TileMap tilemap;
-        tilemap.load(mmu, tile_map_base);
-
-        for (int x = WX - 7; x < LCD_WIDTH; ++x) {
-            if (x < 0)
-                continue;
-
-            int winX = x - (WX - 7);
-            int tileX = winX / 8;
-            int fineX = winX % 8;
-
-            u8 tileId = tilemap.get_tile_id(tileX, tileY);
-            if (!bg_window_tile_data_area())
-                tileId = static_cast<s8>(tileId) + 128;
-
-            const Tile& tile = tiles.get(tileId);
-            framebuffer[line][x] = tile.pixel(fineX, fineY);
-        }
-    }
-
+    void draw_bg_line(const int line);
+    void draw_window_line(const int line);
     void draw_sprites(const int line);
 
     void requestVBlankInterrupt();
+
+    void oam_scan();
+    void draw_pixels();
+    void vblank();
+    void hblank();
 };
