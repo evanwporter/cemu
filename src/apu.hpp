@@ -3,6 +3,7 @@
 
 class GameBoy;
 
+// Audio Processing Unit
 class APU {
 public:
     explicit APU(GameBoy& gb);

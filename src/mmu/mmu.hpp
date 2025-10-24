@@ -2,7 +2,6 @@
 #include <array>
 
 #include "address.hpp"
-#include "cartridge.hpp"
 #include "types.hpp"
 
 class GameBoy;

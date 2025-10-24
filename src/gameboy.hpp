@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "apu.hpp"
-#include "cartridge.hpp"
+#include "cartridge/cartridge.hpp"
 #include "cpu/cpu.hpp"
 #include "io.hpp"
 #include "mmu/mmu.hpp"
@@ -35,4 +35,5 @@ public:
     // Lifecycle
     void reset();
     void step();
+    void load(const std::string& path);
 };

@@ -1,5 +1,6 @@
 #include "mmu/mmu.hpp"
 #include "address.hpp"
+#include "cartridge/cartridge.hpp"
 #include "gameboy.hpp"
 
 MMU::MMU(GameBoy& gb) :
