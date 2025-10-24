@@ -175,21 +175,3 @@ void MMU::write(const Address& addr, const u8 val) {
     else if (addr == 0xFF40)
         gb.ppu->LCDC.set(val);
 }
-
-void PPU::reset() {
-    // Control registers
-    LCDC.set(0x91); // LCD on, BG on, window off, etc. (typical boot value)
-    SCX.set(0x00);
-    SCY.set(0x00);
-    WX.set(0x00);
-    WY.set(0x00);
-
-    // Internal counters
-    LY = 0;
-    cycle_count = 0;
-    mode = PPU_MODES::OAM_SCAN;
-
-    // Clear framebuffer
-    for (auto& row : framebuffer)
-        row.fill(GBColors::Color1);
-}

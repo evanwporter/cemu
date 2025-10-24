@@ -16,10 +16,11 @@ public:
     GameBoy() {
         mmu = std::make_unique<MMU>(*this);
         cpu = std::make_unique<CPU>(*this);
+        cartridge = std::make_unique<Cartridge>();
+        ppu = std::make_unique<PPU>(*this);
+        io = std::make_unique<IO>(*this);
 
-        ppu = nullptr;
         apu = nullptr;
-        io = nullptr;
         timer = nullptr;
     }
 

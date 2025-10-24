@@ -5,8 +5,7 @@ class GameBoy;
 
 class Timer {
 public:
-    explicit Timer(GameBoy& gb);
-    ~Timer() = default;
+    Timer(GameBoy& gb);
 
     void reset();
     void step();

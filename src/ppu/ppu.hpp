@@ -48,11 +48,15 @@ public:
     static constexpr Address TILE_MAP_AREA_0 { 0x9800, VRAM_START };
     static constexpr Address TILE_MAP_AREA_1 { 0x9C00, VRAM_START };
 
-    u8 readVRAM(const u16 offset) const { return 0; };
-    void writeVRAM(const u16 offset, const u8 value) { };
-
-    u8 readVRAM(const Address& address) const { return 0; };
-    void writeVRAM(const Address& address, const u8 value) { };
+    u8 readVRAM(const Address& address) const {
+        const u16 base = (address >= 0x8800 && address < 0x9800) ? 0x8800 : 0x8000;
+        const u16 idx = address - base;
+        return vram[idx];
+    }
+    void writeVRAM(const Address& address, const u8 value) {
+        const u16 idx = (address - 0x8000).value();
+        vram[idx] = value;
+    }
 
     u8 readOAM(const Address& address) const { return 0; };
     void writeOAM(const Address& address, const u8 value) { };
@@ -144,6 +148,9 @@ private:
     PPU_MODES mode = PPU_MODES::OAM_SCAN;
 
     uint cycle_count = 0;
+
+    std::array<u8, 0x2000> vram {}; // 0x8000–0x9FFF (8 KiB)
+    std::array<u8, 0x00A0> oam {}; // 0xFE00–0xFE9F (160 bytes)
 
     // Current scanline
     uint LY = 0;
