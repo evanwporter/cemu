@@ -50,6 +50,7 @@ jobs:
     - name: Setup vcpkg
       uses: lukka/run-vcpkg@v11
       with:
+        vcpkgGitCommitId: 2024.05.24
         runVcpkgInstall: true
 
     - name: Set reusable strings
