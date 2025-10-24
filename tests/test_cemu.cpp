@@ -100,11 +100,14 @@ INSTANTIATE_TEST_SUITE_P(
         int tmp = 0;
         for (auto& entry : fs::directory_iterator(kTestDir)) {
             if (entry.path().extension() == ".json") {
+                const auto filename = entry.path().filename().string();
+                if (filename == "cb.json")
+                    continue;
+
                 files.push_back(entry.path());
-                // break;
                 tmp++;
-                if (tmp == 191)
-                    break;
+                // if (tmp == 191)
+                //     break;
             }
         }
         return files;

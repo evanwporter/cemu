@@ -392,18 +392,8 @@ void Opcodes::CCF() {
 // RST — Restart (Call fixed address)
 // ====================================
 void Opcodes::RST(u8 opcode) {
-    // Each RST opcode encodes its vector in bits 3–5
-    u16 target = (opcode & 0b00111000); // 0x00, 0x08, 0x10, ... 0x38
-
-    // Push current PC onto stack
-    u16 sp = cpu.SP.get();
-    u16 pc = cpu.PC.get();
-
-    gb.mmu->write(--sp, (pc >> 8) & 0xFF); // high byte
-    gb.mmu->write(--sp, pc & 0xFF); // low byte
-    cpu.SP.set(sp);
-
-    // Jump to target address
+    const u16 target = opcode & 0x38;
+    cpu.stack_push(cpu.PC.get());
     cpu.PC.set(target);
 }
 
@@ -595,5 +585,153 @@ void Opcodes::RET_cc(u8 opcode) {
         cpu.PC.set(addr);
     }
 }
+// https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#JP_cc,a16
+void Opcodes::JP_cc_a16(u8 opcode) {
+    u16 addr = cpu.fetch_word_from_pc();
 
-// ---
+    bool shouldJump = false;
+    switch ((opcode >> 3) & 0x03) { // Bits 4–3
+    case 0: // NZ
+        shouldJump = !flags::zero(cpu.F);
+        break;
+    case 1: // Z
+        shouldJump = flags::zero(cpu.F);
+        break;
+    case 2: // NC
+        shouldJump = !flags::carry(cpu.F);
+        break;
+    case 3: // C
+        shouldJump = flags::carry(cpu.F);
+        break;
+    }
+
+    if (shouldJump) {
+        cpu.PC.set(addr);
+    }
+}
+
+void Opcodes::CALL(u8 opcode, bool conditional) {
+    u16 addr = cpu.fetch_word_from_pc();
+    if (conditional) {
+        cpu.stack_push(cpu.PC.get());
+        cpu.PC.set(addr);
+    }
+}
+
+void Opcodes::CALL_cc_a16(u8 opcode) {
+    bool shouldJump = false;
+    switch ((opcode >> 3) & 0x03) {
+    case 0:
+        shouldJump = !flags::zero(cpu.F);
+        break; // NZ
+    case 1:
+        shouldJump = flags::zero(cpu.F);
+        break; // Z
+    case 2:
+        shouldJump = !flags::carry(cpu.F);
+        break; // NC
+    case 3:
+        shouldJump = flags::carry(cpu.F);
+        break; // C
+    }
+    CALL(opcode, shouldJump);
+}
+
+void Opcodes::RET() {
+    u16 addr = cpu.stack_pop();
+    cpu.PC.set(addr);
+}
+
+void Opcodes::JP_HL() {
+    cpu.PC.set(cpu.HL.get());
+}
+
+void Opcodes::LD_SP_HL() {
+    cpu.SP.set(cpu.HL.get());
+}
+
+void Opcodes::JP_a16() {
+    u16 addr = cpu.fetch_word_from_pc();
+    cpu.PC.set(addr);
+}
+
+void Opcodes::PREFIX_CB() {
+    // TODO
+}
+
+// ====================================
+// ALU operations with immediate (A, n8)
+// ====================================
+void Opcodes::ALU_n8(u8 opcode) {
+    u8 value = cpu.fetch_byte_from_pc();
+
+    switch (opcode) {
+    case 0xC6: // ADD A, n8
+        ADD(value);
+        break;
+
+    case 0xCE: // ADC A, n8
+        ADC(value);
+        break;
+
+    case 0xD6: // SUB n8
+        SUB(value);
+        break;
+
+    case 0xDE: // SBC A, n8
+        SBC(value);
+        break;
+
+    case 0xE6: // AND n8
+        AND(value);
+        break;
+
+    case 0xEE: // XOR n8
+        XOR(value);
+        break;
+
+    case 0xF6: // OR n8
+        OR(value);
+        break;
+
+    case 0xFE: // CP n8
+        CP(value);
+        break;
+    }
+}
+
+void Opcodes::LD_A16_A() {
+    u16 addr = cpu.fetch_word_from_pc();
+    gb.mmu->write(addr, cpu.A.get());
+}
+
+void Opcodes::LD_A_A16() {
+    u16 addr = cpu.fetch_word_from_pc();
+    cpu.A.set(gb.mmu->read(addr));
+}
+
+void Opcodes::ADD_SP_e8() {
+    s8 offset = static_cast<s8>(cpu.fetch_byte_from_pc());
+    u16 sp = cpu.SP.get();
+    u16 result = sp + offset;
+
+    flags::setZero(cpu.F, false);
+    flags::setSubtract(cpu.F, false);
+    flags::setHalfCarry(cpu.F, ((sp ^ offset ^ (result & 0xFFFF)) & 0x10) != 0);
+    flags::setCarry(cpu.F, ((sp ^ offset ^ (result & 0xFFFF)) & 0x100) != 0);
+
+    cpu.SP.set(result);
+}
+
+void Opcodes::LD_HL_SP_e8() {
+    s8 offset = static_cast<s8>(cpu.fetch_byte_from_pc());
+    u16 sp = cpu.SP.get();
+    u16 result = sp + offset;
+
+    cpu.HL.set(result);
+
+    flags::setZero(cpu.F, false);
+    flags::setSubtract(cpu.F, false);
+    flags::setHalfCarry(cpu.F, ((sp ^ offset ^ (result & 0xFFFF)) & 0x10) != 0);
+    flags::setCarry(cpu.F, ((sp ^ offset ^ (result & 0xFFFF)) & 0x100) != 0);
+}

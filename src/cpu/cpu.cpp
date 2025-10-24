@@ -84,16 +84,96 @@ void CPU::executeOpcode(u8 opcode) {
         opcodes.RET_cc(opcode);
         return;
 
-        // case 0x0A: // LD A,(BC)
-        // case 0x1A: // LD A,(DE)
-        // case 0x2A: // LD A,(HL+)
-        // case 0x3A: // LD A,(HL-)
-        //     opcodes.LD_A_r16(opcode);
-        //     break;
+    case 0xC2:
+    case 0xD2:
+    case 0xCA:
+    case 0xDA:
+        opcodes.JP_cc_a16(opcode);
+        return;
+
+    case 0xC9:
+        opcodes.RET();
+        return;
+
+    case 0xE9:
+        opcodes.JP_HL();
+        return;
+
+    case 0xFB:
+        gb.cpu->interruptsEnabled = true;
+        return; // EI
+
+    case 0xF3:
+        gb.cpu->interruptsEnabled = false;
+        return; // DI
+
+    case 0xC3:
+        opcodes.JP_a16();
+        return;
+
+    case 0xCD:
+        opcodes.CALL(opcode, true);
+        return;
+
+    case 0xC4:
+    case 0xCC:
+    case 0xD4:
+    case 0xDC:
+        opcodes.CALL_cc_a16(opcode);
+        return;
+
+    case 0xE0: {
+        u8 n = fetch_byte_from_pc();
+        gb.mmu->write(0xFF00 + n, A.get());
+        return;
+    }
+
+    case 0xF0: {
+        u8 n = fetch_byte_from_pc();
+        A.set(gb.mmu->read(0xFF00 + n));
+        return;
+    }
+
+    case 0xE2:
+        gb.mmu->write(0xFF00 + C.get(), A.get());
+        return;
+    case 0xF2:
+        A.set(gb.mmu->read(0xFF00 + C.get()));
+        return;
+
+    case 0xEA: // LD (a16),A
+        opcodes.LD_A16_A();
+        return;
+
+    case 0xFA: // LD A,(a16)
+        opcodes.LD_A_A16();
+        return;
+
+    case 0xE8: // ADD SP, e8
+        opcodes.ADD_SP_e8();
+        return;
+
+    case 0xF8: // LD HL, SP+e8
+        opcodes.LD_HL_SP_e8();
+        return;
+
+    case 0xD9: // RETI
+        opcodes.RET();
+        interruptsEnabled = true;
+        return;
+
+    case 0xF9: // LD SP,HL
+        opcodes.LD_SP_HL();
+        return;
+    }
+
+    if ((opcode & 0xC7) == 0xC6) { // matches C6, CE, D6, DE, E6, EE, F6, FE
+        opcodes.ALU_n8(opcode);
+        return;
     }
 
     // Handles rows 0x to 3x
-    if (0x00 <= opcode && opcode <= 0x3F) {
+    else if (0x00 <= opcode && opcode <= 0x3F) {
         const u8 column = opcode & 0x0F;
         switch (column) {
         case 0x01:
@@ -153,7 +233,7 @@ void CPU::executeOpcode(u8 opcode) {
         const u8 column = opcode & 0x0F;
         switch (column) {
         case 0x07:
-        case 0x17:
+        case 0x0F:
             opcodes.RST(opcode);
             break;
 

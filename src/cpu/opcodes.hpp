@@ -56,6 +56,31 @@ public:
 
     void RET_cc(u8 opcode);
 
+    void JP_cc_a16(u8 opcode);
+
+    void CALL_cc_a16(u8 opcode);
+    void CALL(u8 opcode, bool conditional);
+
+    void RET();
+
+    void JP_HL();
+
+    void LD_SP_HL();
+
+    void JP_a16();
+
+    // TODO
+    void PREFIX_CB();
+
+    void ALU_n8(u8 opcode);
+
+    void LD_A16_A();
+    void LD_A_A16();
+
+    void ADD_SP_e8();
+
+    void LD_HL_SP_e8();
+
     // -----------------
 
 private:
