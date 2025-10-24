@@ -15,7 +15,9 @@ using s8 = int8_t;
 using s16 = int16_t;
 
 /// 32-bit unsigned
-using uint = std::size_t;
+#ifndef _UINT_T
+using uint = unsigned int;
+#endif
 
 enum class GBColors {
     Color1,
