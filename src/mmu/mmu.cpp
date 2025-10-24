@@ -27,23 +27,23 @@ u8 MMU::read(const Address& addr) const {
 
     // FF4B: Window X register
     else if (addr == 0xFF4B)
-        gb.ppu->WX.get();
+        return gb.ppu->WX.get();
 
     // FF4A: Window Y register
     else if (addr == 0xFF4A)
-        gb.ppu->WY.get();
+        return gb.ppu->WY.get();
 
     // FF43: Scroll X register
     else if (addr == 0xFF43)
-        gb.ppu->SCX.get();
+        return gb.ppu->SCX.get();
 
     // FF42: Scroll Y register
     else if (addr == 0xFF42)
-        gb.ppu->SCY.get();
+        return gb.ppu->SCY.get();
 
     // FF40: LCDC register
     else if (addr == 0xFF40)
-        gb.ppu->LCDC.get();
+        return gb.ppu->LCDC.get();
 
     // 0000–3FFF: ROM bank 0
     if (addr <= 0x3FFF)
@@ -103,8 +103,50 @@ void MMU::write(const Address& addr, const u8 val) {
         return;
     }
 
+    // FFFF: Interrupt enable register
+    if (addr == 0xFFFF) {
+        gb.cpu->interrupt_enabled.set(val);
+        return;
+    }
+
+    // FF0F: Interrupt flag register
+    else if (addr == 0xFF0F) {
+        gb.cpu->interrupt_flag.set(val);
+        return;
+    }
+
+    // FF4B: Window X register
+    else if (addr == 0xFF4B) {
+        gb.ppu->WX.set(val);
+        return;
+    }
+
+    // FF4A: Window Y register
+    else if (addr == 0xFF4A) {
+        gb.ppu->WY.set(val);
+        return;
+    }
+
+    // FF43: Scroll X register
+    else if (addr == 0xFF43) {
+        gb.ppu->SCX.set(val);
+        return;
+    }
+
+    // FF42: Scroll Y register
+    else if (addr == 0xFF42) {
+        gb.ppu->SCY.set(val);
+        return;
+    }
+
+    // FF40: LCDC register
+    else if (addr == 0xFF40) {
+        gb.ppu->LCDC.set(val);
+        return;
+    }
+
     // 0000–3FFF: ROM bank 0 (control writes go to MBC)
-    if (addr <= 0x3FFF)
+    else if (addr <= 0x3FFF)
         gb.cartridge->write(addr, val);
 
     // 4000–7FFF: switchable ROM bank
@@ -146,32 +188,4 @@ void MMU::write(const Address& addr, const u8 val) {
     // FF80–FFFE: High RAM
     else if (addr <= 0xFFFE)
         hram[addr.value(0xFF80)] = val;
-
-    // FFFF: Interrupt enable register
-    else if (addr == 0xFFFF)
-        gb.cpu->interrupt_enabled.set(val);
-
-    // FF0F: Interrupt flag register
-    else if (addr == 0xFF0F)
-        gb.cpu->interrupt_flag.set(val);
-
-    // FF4B: Window X register
-    else if (addr == 0xFF4B)
-        gb.ppu->WX.set(val);
-
-    // FF4A: Window Y register
-    else if (addr == 0xFF4A)
-        gb.ppu->WY.set(val);
-
-    // FF43: Scroll X register
-    else if (addr == 0xFF43)
-        gb.ppu->SCX.set(val);
-
-    // FF42: Scroll Y register
-    else if (addr == 0xFF42)
-        gb.ppu->SCY.set(val);
-
-    // FF40: LCDC register
-    else if (addr == 0xFF40)
-        gb.ppu->LCDC.set(val);
 }
