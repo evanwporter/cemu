@@ -46,11 +46,13 @@ private:
 
 class Register16 {
 public:
-    Register16() {
-    }
+    Register16(Register8& high, Register8& low) :
+        high_(high), low_(low) { }
+
     u16 get() const {
         return (static_cast<u16>(high_.get()) << 8) | low_.get();
     }
+
     void set(u16 v) {
         high_.set(static_cast<u8>(v >> 8));
         low_.set(static_cast<u8>(v & 0xFF));
@@ -71,8 +73,8 @@ public:
     // clang-format on
 
 private:
-    Register8 high_;
-    Register8 low_;
+    Register8& high_;
+    Register8& low_;
 };
 
 using FlagRegister = Register8;

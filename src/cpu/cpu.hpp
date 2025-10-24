@@ -8,6 +8,14 @@ class GameBoy;
 
 class CPU {
 public:
+    // 8-bit registers
+    Register8 A, B, C, D, E, H, L;
+    FlagRegister F;
+
+    // Backing bytes for SP and PC
+    Register8 SP_high, SP_low;
+    Register8 PC_high, PC_low;
+
     // 16-bit register pairs
     Register16 AF;
     Register16 BC;
@@ -20,16 +28,12 @@ public:
     /// Program Counter
     Register16 PC;
 
-    // 8-bit registers
-    Register8 &A, &B, &C, &D, &E, &H, &L;
-    FlagRegister& F;
-
     // constructor
     CPU(GameBoy& gb) :
-        A(AF.high()), B(BC.high()),
-        C(BC.low()), D(DE.high()),
-        E(DE.low()), H(HL.high()),
-        L(HL.low()), F(AF.low()),
+        AF(A, F), BC(B, C),
+        DE(D, E), HL(H, L),
+        SP(SP_high, SP_low),
+        PC(PC_high, PC_low),
         opcodes(gb, *this),
         gb(gb) { }
 
@@ -58,4 +62,7 @@ public:
 
 private:
     GameBoy& gb;
+
+    // Not meant to ever be used. I just need somewhere to hold ownership of these registers.
+    Register8 _S, _P1, _P2, _C;
 };

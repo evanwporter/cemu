@@ -54,6 +54,8 @@ public:
     void CPL();
     void CCF();
 
+    void RET_cc(u8 opcode);
+
     // -----------------
 
 private:

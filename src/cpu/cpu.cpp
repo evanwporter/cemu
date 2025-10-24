@@ -76,6 +76,20 @@ void CPU::executeOpcode(u8 opcode) {
     case 0x3F:
         opcodes.CCF();
         return;
+
+    case 0xC0: // RET NZ
+    case 0xD0: // RET NC
+    case 0xC8: // RET Z
+    case 0xD8: // RET C
+        opcodes.RET_cc(opcode);
+        return;
+
+        // case 0x0A: // LD A,(BC)
+        // case 0x1A: // LD A,(DE)
+        // case 0x2A: // LD A,(HL+)
+        // case 0x3A: // LD A,(HL-)
+        //     opcodes.LD_A_r16(opcode);
+        //     break;
     }
 
     // Handles rows 0x to 3x
@@ -207,7 +221,6 @@ void CPU::stack_push(u16 value) {
 
 u16 CPU::stack_pop() {
     u8 low = gb.mmu->read(SP.get());
-    SP.set(SP.get() + 1);
     ++SP;
 
     u8 high = gb.mmu->read(SP.get());

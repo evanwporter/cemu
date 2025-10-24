@@ -33,12 +33,10 @@ public:
         return ss.str();
     }
 
-    constexpr Address operator+(uint offset) const { return Address(location + offset); }
-    constexpr Address operator-(uint offset) const { return Address(location - offset); }
-    constexpr Address operator+(int offset) const { return Address(location + offset); }
-    constexpr Address operator-(int offset) const { return Address(location - offset); }
-    constexpr Address operator+(u16 offset) const { return Address(location + offset); }
-    constexpr Address operator-(u16 offset) const { return Address(location - offset); }
+    constexpr Address operator+(const int offset) const { return Address(location + offset); }
+    constexpr Address operator-(const int offset) const { return Address(location - offset); }
+    constexpr Address operator+(const u16 offset) const { return Address(location + offset); }
+    constexpr Address operator-(const u16 offset) const { return Address(location - offset); }
     constexpr Address operator+(const Address& other) const { return Address(location + other.location); }
     constexpr Address operator-(const Address& other) const { return Address(location - other.location); }
 

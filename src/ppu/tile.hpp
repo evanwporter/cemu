@@ -13,10 +13,10 @@ public:
     GBColors pixel(uint x, uint y) const;
 
     void load(const MMU& mmu, Address& baseAddr) {
-        for (uint y = 0; y < TILE_HEIGHT_PX; ++y) {
+        for (u16 y = 0; y < TILE_HEIGHT_PX; ++y) {
             u8 low = mmu.read(baseAddr + y * 2);
             u8 high = mmu.read(baseAddr + y * 2 + 1);
-            for (uint x = 0; x < TILE_WIDTH_PX; ++x) {
+            for (u16 x = 0; x < TILE_WIDTH_PX; ++x) {
                 u8 loBit = (low >> (7 - x)) & 1;
                 u8 hiBit = (high >> (7 - x)) & 1;
                 pixels[y][x] = static_cast<GBColors>((hiBit << 1) | loBit);

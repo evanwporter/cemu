@@ -9,20 +9,6 @@ inline u8 decodePairIndex(u8 opcode) {
     return (opcode >> 4) & 0b11;
 }
 
-inline Register16& Opcodes::getPairFromOpcode(u8 opcode) {
-    switch (decodePairIndex(opcode)) {
-    case 0:
-        return cpu.BC;
-    case 1:
-        return cpu.DE;
-    case 2:
-        return cpu.HL;
-    case 3:
-        return cpu.SP;
-    }
-    return cpu.SP; // fallback, never reached
-}
-
 Opcodes::Opcodes(GameBoy& gb, CPU& cpu) :
     regTable { &cpu.B, &cpu.C, &cpu.D, &cpu.E, &cpu.H, &cpu.L, nullptr, &cpu.A },
     gb(gb),
@@ -80,35 +66,76 @@ u16 Opcodes::resolveAddressFromPair(u8 opcode) {
     return 0;
 }
 
+// ====================================
+// LD (r16),A  [0x02, 0x12, 0x22, 0x32]
+// ====================================
+// https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#LD__r16_,A
 void Opcodes::LD_r16_A(u8 opcode) {
-    u16 addr = resolveAddressFromPair(opcode);
-    gb.mmu->write(addr, cpu.A.get());
+    switch (opcode) {
+    case 0x02: // LD (BC),A
+        gb.mmu->write(cpu.BC.get(), cpu.A.get());
+        break;
 
-#ifndef CEMU_CPU_TEST_MODE
-    if (opcode == 0x22) // LD (HL+),A
-        ++cpu.HL;
-    else if (opcode == 0x32) // LD (HL-),A
-        --cpu.HL;
-#endif
+    case 0x12: // LD (DE),A
+        gb.mmu->write(cpu.DE.get(), cpu.A.get());
+        break;
+
+    case 0x22: // LD (HL+),A
+        gb.mmu->write(cpu.HL.get(), cpu.A.get());
+        ++cpu.HL; // post-increment HL
+        break;
+
+    case 0x32: // LD (HL−),A
+        gb.mmu->write(cpu.HL.get(), cpu.A.get());
+        --cpu.HL; // post-decrement HL
+        break;
+    }
 }
 
+// ====================================
+// LD A,(r16)  [0x0A, 0x1A, 0x2A, 0x3A]
+// ====================================
+// https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#LD_A,_r16_
 void Opcodes::LD_A_r16(u8 opcode) {
-    u16 addr = resolveAddressFromPair(opcode);
-    cpu.A.set(gb.mmu->read(addr));
+    switch (opcode) {
+    case 0x0A: // LD A,(BC)
+        cpu.A.set(gb.mmu->read(cpu.BC.get()));
+        break;
 
-#ifndef CEMU_CPU_TEST_MODE
-    if (opcode == 0x2A) // LD A,(HL+)
-        ++cpu.HL;
-    else if (opcode == 0x3A) // LD A,(HL-)
-        --cpu.HL;
-#endif
+    case 0x1A: // LD A,(DE)
+        cpu.A.set(gb.mmu->read(cpu.DE.get()));
+        break;
+
+    case 0x2A: // LD A,(HL+)
+        cpu.A.set(gb.mmu->read(cpu.HL.get()));
+        ++cpu.HL; // post-increment
+        break;
+
+    case 0x3A: // LD A,(HL−)
+        cpu.A.set(gb.mmu->read(cpu.HL.get()));
+        --cpu.HL; // post-decrement
+        break;
+    }
 }
 
 // https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#LD_rr,d16
 void Opcodes::LD_r16_n16(u8 opcode) {
     const u16 value = cpu.fetch_word_from_pc();
 
-    getPairFromOpcode(opcode).set(value);
+    switch (opcode) {
+    case 0x01:
+        cpu.BC.set(value);
+        break; // LD BC, d16
+    case 0x11:
+        cpu.DE.set(value);
+        break; // LD DE, d16
+    case 0x21:
+        cpu.HL.set(value);
+        break; // LD HL, d16
+    case 0x31:
+        cpu.SP.set(value);
+        break; // LD SP, d16
+    }
 }
 
 // ====================================
@@ -522,6 +549,36 @@ void Opcodes::SUB(u8 value) {
     flags::setSubtract(cpu.F, true);
     flags::setHalfCarry(cpu.F, ((aVal & 0x0F) - (value & 0x0F)) < 0);
     flags::setCarry(cpu.F, aVal < value);
+}
+
+// ====================================
+// RET NZ / RET NC — Conditional Returns
+// ====================================
+// https://rgbds.gbdev.io/docs/v0.9.4/gbz80.7#RET_cc
+void Opcodes::RET_cc(u8 opcode) {
+    bool condition = false;
+
+    switch (opcode) {
+    case 0xC0: // RET NZ
+        condition = !flags::zero(cpu.F);
+        break;
+    case 0xD0: // RET NC
+        condition = !flags::carry(cpu.F);
+        break;
+    case 0xC8: // RET Z
+        condition = flags::zero(cpu.F);
+        break;
+    case 0xD8: // RET C
+        condition = flags::carry(cpu.F);
+        break;
+    default:
+        return;
+    }
+
+    if (condition) {
+        u16 addr = cpu.stack_pop();
+        cpu.PC.set(addr);
+    }
 }
 
 // ---
