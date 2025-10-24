@@ -17,6 +17,34 @@ u8 MMU::read(const Address& addr) const {
     if (!gb.cartridge && !gb.ppu && !gb.io)
         return flatMemory[addr];
 
+    // FFFF: Interrupt enable register
+    if (addr == 0xFFFF)
+        return gb.cpu->interrupt_enabled.get();
+
+    // FFFF: Interrupt enable register
+    else if (addr == 0xFF0F)
+        return gb.cpu->interrupt_flag.get();
+
+    // FF4B: Window X register
+    else if (addr == 0xFF4B)
+        gb.ppu->WX.get();
+
+    // FF4A: Window Y register
+    else if (addr == 0xFF4A)
+        gb.ppu->WY.get();
+
+    // FF43: Scroll X register
+    else if (addr == 0xFF43)
+        gb.ppu->SCX.get();
+
+    // FF42: Scroll Y register
+    else if (addr == 0xFF42)
+        gb.ppu->SCY.get();
+
+    // FF40: LCDC register
+    else if (addr == 0xFF40)
+        gb.ppu->LCDC.get();
+
     // 0000–3FFF: ROM bank 0
     if (addr <= 0x3FFF)
         return gb.cartridge->read(addr);
@@ -60,34 +88,6 @@ u8 MMU::read(const Address& addr) const {
     // FF80–FFFE: High RAM
     else if (addr <= 0xFFFE)
         return hram[addr - 0xFF80];
-
-    // FFFF: Interrupt enable register
-    else if (addr == 0xFFFF)
-        return gb.cpu->interrupt_enabled.get();
-
-    // FFFF: Interrupt enable register
-    else if (addr == 0xFF0F)
-        return gb.cpu->interrupt_flag.get();
-
-    // FF4B: Window X register
-    else if (addr == 0xFF4B)
-        gb.ppu->WX.get();
-
-    // FF4A: Window Y register
-    else if (addr == 0xFF4A)
-        gb.ppu->WY.get();
-
-    // FF43: Scroll X register
-    else if (addr == 0xFF43)
-        gb.ppu->SCX.get();
-
-    // FF42: Scroll Y register
-    else if (addr == 0xFF42)
-        gb.ppu->SCY.get();
-
-    // FF40: LCDC register
-    else if (addr == 0xFF40)
-        gb.ppu->LCDC.get();
 
     // fallback for invalid address
     return 0xFF;
@@ -174,4 +174,22 @@ void MMU::write(const Address& addr, const u8 val) {
     // FF40: LCDC register
     else if (addr == 0xFF40)
         gb.ppu->LCDC.set(val);
+}
+
+void PPU::reset() {
+    // Control registers
+    LCDC.set(0x91); // LCD on, BG on, window off, etc. (typical boot value)
+    SCX.set(0x00);
+    SCY.set(0x00);
+    WX.set(0x00);
+    WY.set(0x00);
+
+    // Internal counters
+    LY = 0;
+    cycle_count = 0;
+    mode = PPU_MODES::OAM_SCAN;
+
+    // Clear framebuffer
+    for (auto& row : framebuffer)
+        row.fill(GBColors::Color1);
 }

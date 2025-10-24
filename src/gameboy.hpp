@@ -33,7 +33,10 @@ public:
     std::unique_ptr<MMU> mmu;
 
     // Lifecycle
-    void reset();
+    void reset() {
+        cpu->reset();
+        ppu->reset();
+    }
     void step();
     void load(const std::string& path);
 };

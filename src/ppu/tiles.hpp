@@ -10,7 +10,7 @@ const uint TILE_WIDTH_PX = 8;
 
 class Tile {
 public:
-    GBColors pixel(uint x, uint y) const;
+    GBColors pixel(int x, int y) const;
 
     void load(const MMU& mmu, Address& baseAddr) {
         for (u16 y = 0; y < TILE_HEIGHT_PX; ++y) {

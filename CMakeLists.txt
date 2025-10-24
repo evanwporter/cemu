@@ -13,7 +13,12 @@ set(LIB_SOURCES
     src/cpu/cpu.cpp
     src/cpu/opcodes.cpp
     src/mmu/mmu.cpp
+    src/gameboy.cpp
+    src/ppu/ppu.cpp
+    src/ppu/tiles.cpp
 )
+
+find_package(SDL3 CONFIG REQUIRED)
 
 add_library(libcemu STATIC ${LIB_SOURCES})
 
@@ -23,7 +28,7 @@ set(EXE_SOURCES
 
 add_executable(cemu ${EXE_SOURCES})
 
-target_link_libraries(cemu PRIVATE libcemu)
+target_link_libraries(cemu PRIVATE libcemu SDL3::SDL3)
 
 set(TEST_SOURCES 
     tests/test_cemu.cpp

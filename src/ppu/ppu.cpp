@@ -10,3 +10,7 @@ void PPU::requestVBlankInterrupt() {
     u8 ifReg = mmu.read(0xFF0F);
     mmu.write(0xFF0F, ifReg | VBLANK_BIT);
 }
+
+GBColors PPU::get_pixel(int x, int y) const {
+    return framebuffer[y][x];
+}

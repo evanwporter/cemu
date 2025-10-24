@@ -1,6 +1,6 @@
-#include "tile.hpp"
+#include "tiles.hpp"
 #include "types.hpp"
 
-GBColors Tile::pixel(uint x, uint y) const {
+GBColors Tile::pixel(int x, int y) const {
     return pixels[y][x];
 }

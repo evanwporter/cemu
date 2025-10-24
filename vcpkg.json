@@ -2,6 +2,7 @@
   "name": "sparse",
   "version": "1.0.0",
   "dependencies": [
-    "nlohmann-json"
+    "nlohmann-json",
+    "sdl3"
   ]
 }

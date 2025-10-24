@@ -4,15 +4,18 @@
 #include "cpu/cpu.hpp"
 #include "cpu/opcodes.hpp"
 #include "gameboy.hpp"
+#include "opcode_cycles.hpp"
 #include "types.hpp"
 
-void CPU::step() {
+u8 CPU::step() {
     if (halted)
-        return;
+        return 0;
 
     u8 opcode = fetch_byte_from_pc();
 
     executeOpcode(opcode);
+
+    return opcode_cycles[opcode];
 }
 
 u8 CPU::fetch_byte_from_pc() {
@@ -307,4 +310,24 @@ u16 CPU::stack_pop() {
     ++SP;
 
     return static_cast<u16>((high << 8) | low);
+}
+
+void CPU::reset() {
+    A.set(0x01);
+    F.set(0xB0);
+    B.set(0x00);
+    C.set(0x13);
+    D.set(0x00);
+    E.set(0xD8);
+    H.set(0x01);
+    L.set(0x4D);
+
+    SP.set(0xFFFE);
+    PC.set(0x0100); // skip BIOS
+
+    interrupt_enabled.set(0x00);
+    interrupt_flag.set(0x00);
+
+    interruptsEnabled = false;
+    halted = false;
 }

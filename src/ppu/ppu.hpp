@@ -3,7 +3,7 @@
 
 #include "address.hpp"
 #include "cpu/register.hpp"
-#include "tile.hpp"
+#include "tiles.hpp"
 #include "types.hpp"
 #include "util/bitops.hpp"
 
@@ -134,6 +134,8 @@ public:
             break;
         }
     }
+
+    GBColors get_pixel(int x, int y) const;
 
 private:
     GameBoy& gb;

@@ -39,7 +39,7 @@ public:
 
     // CPU control methods
     void reset();
-    void step(); // executes one instruction
+    u8 step();
 
     bool interruptsEnabled = false;
     bool halted = false;
