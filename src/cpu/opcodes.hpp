@@ -70,8 +70,6 @@ private:
 
     inline u16 resolveAddressFromPair(u8 opcode);
 
-    inline Register16& getPairFromOpcode(u8 opcode);
-
     void ADC(u8 value);
     void SUB(u8 value);
     void ADD(u8 value);

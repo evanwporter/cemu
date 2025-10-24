@@ -233,9 +233,24 @@ void Opcodes::ALU(const u8 opcode) {
 // ADD HL, r16
 // ====================================
 void Opcodes::ADD_HL_r16(u8 opcode) {
-    Register16& src = getPairFromOpcode(opcode);
     u16 hlVal = cpu.HL.get();
-    u16 value = src.get();
+    u16 value = 0;
+
+    // Bits 5–4 select the 16-bit register pair
+    switch ((opcode >> 4) & 0b11) {
+    case 0: // 00 — BC
+        value = cpu.BC.get();
+        break;
+    case 1: // 01 — DE
+        value = cpu.DE.get();
+        break;
+    case 2: // 10 — HL
+        value = cpu.HL.get();
+        break;
+    case 3: // 11 — SP
+        value = cpu.SP.get();
+        break;
+    }
 
     unsigned result = hlVal + value;
 
