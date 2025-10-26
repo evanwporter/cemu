@@ -13,9 +13,6 @@ namespace fs = std::filesystem;
 
 static const fs::path kTestDir = fs::path(TEST_DIR) / "GameboyCPUTests/v2";
 
-static constexpr size_t MEM_SIZE = 0x10000; // 64KB total Game Boy address space
-using MemBuffer = std::array<u8, MEM_SIZE>;
-
 json loadJson(const fs::path& path) {
     std::ifstream f(path);
     if (!f.is_open())
