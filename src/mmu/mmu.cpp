@@ -5,9 +5,8 @@
 #include "io/io.hpp"
 #include "io/serial.hpp"
 #include "ppu/ppu.hpp"
-#include "timer.hpp"
+#include "timer/timer.hpp"
 #include "util/log.hpp"
-
 
 MMU::MMU(Gameboy& inGb, Options& inOptions) :
     gb(inGb),

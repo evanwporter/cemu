@@ -1,15 +1,15 @@
 #pragma once
 
+#include <functional>
+#include <memory>
+
 #include "cpu/cpu.hpp"
 #include "io/io.hpp"
 #include "io/serial.hpp"
 #include "options.hpp"
 #include "ppu/ppu.hpp"
-#include "timer.hpp"
+#include "timer/timer.hpp"
 #include "util/log.hpp"
-
-#include <functional>
-#include <memory>
 
 using should_close_callback_t = std::function<bool()>;
 

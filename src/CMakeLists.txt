@@ -7,9 +7,10 @@ add_subdirectory(util)
 add_subdirectory(ppu)
 add_subdirectory(io)
 add_subdirectory(mmu)
+add_subdirectory(apu)
+add_subdirectory(timer)
 
 target_sources(libcemu PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/address.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gameboy.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/timer.cpp
 )
