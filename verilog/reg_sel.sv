@@ -1,4 +1,5 @@
-function automatic void decode_read_sel(input reg_sel_t reg_sel, input cpu_regs_t regs,
+function automatic void decode_read_sel(input reg_sel_t reg_sel,  //
+                                        input cpu_regs_t regs,  //
                                         input logic [7:0] imm8, input logic [15:0] imm16,
                                         output logic [15:0] selected_val,
                                         output logic [15:0] mem_addr, output logic mem_read_req);
