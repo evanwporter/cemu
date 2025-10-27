@@ -182,11 +182,14 @@ module CPU (
               // TODO: We need to move the IMM8, IMM16, ADDR_IMM8, ADDR_IMM16 handling
               // outside of the decode_read_sel function. Then when these modes are triggered
               // we need to read the value from memory here first before proceeding.
+              // The same needs to be done for the write side as well.
 
               // TODO: Add a 16bit read mode to MMU.
 
               // TODO: Allow selected value to be 8bit or 16bit depending on operation
-
+              // The only time we need 16bit reads is for immediate 16bit values which
+              // is for loading values directly into registers.
+              // This should also be done for the write side as well.
 
               if (mem_read_req_d) begin
                 // TODO: Check if MMU is idle if its not then we have to wait
@@ -196,6 +199,7 @@ module CPU (
                 // we place the address into a global state here so 
                 // we can use it on the next cycle (if needed)
                 mem_addr_q <= mem_addr_d;
+
               end else begin
                 // we place the selected value directly into the sel_val_q
                 // so we can use it in the next state/cycle
