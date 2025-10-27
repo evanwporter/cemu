@@ -50,20 +50,6 @@ void Opcodes::LD_r8_n8(u8 opcode) {
     writeOperand8(dst, value);
 }
 
-u16 Opcodes::resolveAddressFromPair(u8 opcode) {
-    switch (decodePairIndex(opcode)) {
-    case 0:
-        return cpu.BC.value();
-    case 1:
-        return cpu.DE.value();
-    case 2:
-        return cpu.HL.value();
-    case 3:
-        return cpu.SP.value();
-    }
-    return 0;
-}
-
 // ====================================
 // LD (r16),A  [0x02, 0x12, 0x22, 0x32]
 // ====================================
@@ -320,7 +306,6 @@ void Opcodes::rotate_A(u8 opcode) {
 
     cpu.A.set(result);
 
-    // Update flags using new flag system
     flags::set_zero(cpu.F, false);
     flags::set_subtract(cpu.F, false);
     flags::set_half_carry(cpu.F, false);
