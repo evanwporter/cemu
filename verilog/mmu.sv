@@ -7,8 +7,8 @@ module MMU (
     input logic [ 7:0] data_in,
 
     output logic [7:0] data_out
-
 );
+
   //  64 KB block RAM 
   logic [7:0] mem[0:16'hFFFF];
 

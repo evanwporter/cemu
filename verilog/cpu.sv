@@ -18,6 +18,59 @@ typedef enum logic [2:0] {
   EX_DONE
 } execute_state_t;
 
+typedef struct packed {
+  logic [7:0]  a;
+  logic [7:0]  f;
+  logic [7:0]  b;
+  logic [7:0]  c;
+  logic [7:0]  d;
+  logic [7:0]  e;
+  logic [7:0]  h;
+  logic [7:0]  l;
+  logic [15:0] sp;
+  logic [15:0] pc;
+} cpu_regs_t;
+
+// AF pair
+function automatic logic [15:0] get_af(cpu_regs_t regs);
+  return {regs.a, regs.f};
+endfunction
+
+function automatic void set_af(ref cpu_regs_t regs, logic [15:0] val);
+  regs.a = val[15:8];
+  regs.f = val[7:0];
+endfunction
+
+// BC pair
+function automatic logic [15:0] get_bc(cpu_regs_t regs);
+  return {regs.b, regs.c};
+endfunction
+
+function automatic void set_bc(ref cpu_regs_t regs, logic [15:0] val);
+  regs.b = val[15:8];
+  regs.c = val[7:0];
+endfunction
+
+// DE pair
+function automatic logic [15:0] get_de(cpu_regs_t regs);
+  return {regs.d, regs.e};
+endfunction
+
+function automatic void set_de(ref cpu_regs_t regs, logic [15:0] val);
+  regs.d = val[15:8];
+  regs.e = val[7:0];
+endfunction
+
+// HL pair
+function automatic logic [15:0] get_hl(cpu_regs_t regs);
+  return {regs.h, regs.l};
+endfunction
+
+function automatic void set_hl(ref cpu_regs_t regs, logic [15:0] val);
+  regs.h = val[15:8];
+  regs.l = val[7:0];
+endfunction
+
 module CPU (
     input logic clk,
     input logic reset,
@@ -31,26 +84,14 @@ module CPU (
 );
   // verilog_format: off
 
-  // CPU Registers
-  logic [7:0] reg_a, reg_f;
-  logic [7:0] reg_b, reg_c;
-  logic [7:0] reg_d, reg_e;
-  logic [7:0] reg_h, reg_l;
-  logic [15:0] reg_sp;  // Stack Pointer
-  logic [15:0] reg_pc;  // Program Counter
-
-  // Derived 16-bit pairs
-  wire [15:0] reg_af = {reg_a, reg_f};
-  wire [15:0] reg_bc = {reg_b, reg_c};
-  wire [15:0] reg_de = {reg_d, reg_e};
-  wire [15:0] reg_hl = {reg_h, reg_l};
+  cpu_regs_t regs;
 
   state_t state;
   fetch_state_t fetch_state;
   execute_state_t ex_state;
 
   // Temporary data
-  logic [7:0] opcode;
+  logic [7:0] opcode_q;
 
   control_word_t control_rom[0:255];
 
@@ -60,10 +101,10 @@ module CPU (
   // Temporaries that must persist across ex states
   logic [15:0] sel_val_q;
   logic [15:0] mem_addr_q;
-  logic [7:0]  mmu_read_latch;
+  logic [7:0] mmu_read_latch;
   logic [15:0] new_val_q;
-  logic        write_enable_q;
-  logic [7:0]  imm8_q;
+  logic write_enable_q;
+  logic [7:0] imm8_q;
   logic [15:0] imm16_q;
 
   // verilog_format: on
@@ -92,8 +133,9 @@ module CPU (
 
             FETCH_WAIT: begin
               if (mmu_bus_op == BUS_FINISHED_OP) begin
-                opcode <= mmu_read_data;
+                opcode_q <= mmu_read_data;
                 mmu_bus_op <= BUS_IDLE;
+                reg_pc <= reg_pc + 1;
                 fetch_state <= FETCH_REQUEST;
                 state <= DECODE;
               end
@@ -103,7 +145,6 @@ module CPU (
 
         DECODE: begin
           cw <= control_rom[opcode];
-          reg_pc <= reg_pc + 1;
           read_en <= 1'b0;
           state <= EXECUTE;
         end
@@ -121,10 +162,11 @@ module CPU (
               // boolean indicating whether a memory read is required
               logic mem_read_req;
 
-              decode_read_sel(cw.src_sel,  //
-                              reg_a, reg_b, reg_c, reg_d, reg_e, reg_h, reg_l, reg_sp, reg_pc,
-                              immediate_data, immediate_data16,  //
-                              selected_val_d, mem_addr_d, mem_read_req);
+              decode_read_sel(cw.src_sel, regs_q,  // full register file
+                              imm8_q, imm16_q,  // immediates
+                              selected_val_d,  // out: value
+                              mem_addr_d,  // out: address (if memory indirect)
+                              mem_read_req_d);
 
               mem_addr_q <= mem_addr_d;
 
@@ -158,18 +200,20 @@ module CPU (
               logic [15:0] mem_addr_d;
 
               // Data we write
-              logic [ 7:0] mem_wdata_d;
+              logic [7:0] mem_write_data_d;
 
               // Memory write request flag (do we need to write to MMU)
-              logic        mem_write_req_d;
+              logic mem_write_req_d;
 
-              decode_write_sel(clk, write_enable, cw.dst_sel, new_val, reg_a, reg_b, reg_c, reg_d,
-                               reg_e, reg_h, reg_l, reg_sp, reg_pc, immediate_data,
-                               immediate_data16, addr, data_out, mem_write_req);
+              decode_write_sel(write_enable_q, cw.dst_sel, new_val_q, regs_q,  // input regs
+                               imm8_q, imm16_q, regs_next,  // out: updated regs
+                               mem_addr_d, mem_data_d, mem_write_req_d);
 
               if (mem_write_req) begin
+                mmu_addr <= mem_addr_d;
+                mmu_write_data <= mem_write_data_d;
                 mmu_bus_op <= BUS_WRITE;
-                ex_state   <= EX_WAIT_WRITE;
+                ex_state <= EX_WAIT_WRITE;
               end else begin
                 ex_state <= EX_DONE;
               end
