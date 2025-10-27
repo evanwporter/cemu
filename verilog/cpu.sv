@@ -209,7 +209,7 @@ module CPU (
               end
             end
 
-            // ADD ANOTHER STATE CALLED WAIT TO READ
+            // TODO: ADD ANOTHER STATE CALLED WAIT TO READ
 
             // We wait here for the MMU to finish reading
             EX_WAIT_READ: begin
