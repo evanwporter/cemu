@@ -1,9 +1,10 @@
+`include "types.sv"
+
 module MMU (
     input logic clk,
     input logic reset,
 
     // request
-    input logic req_valid,
     input bus_op_t req_op,
     input bus_size_t req_size,
     input logic [15:0] req_addr,
@@ -21,7 +22,7 @@ module MMU (
     foreach (mem[i]) mem[i] = 8'h00;
   end
 
-  typedef enum logic [1:0] {
+  typedef enum logic [2:0] {
     S_IDLE,
     S_READ_LOW,
     S_READ_HIGH,
@@ -38,21 +39,21 @@ module MMU (
 
   always_ff @(posedge clk) begin
     if (reset) begin
-      state      <= S_IDLE;
-      resp_done  <= 1'b0;
-      resp_rdata <= '0;
-      addr_q     <= '0;
-      wdata_q    <= '0;
-      op_q       <= BUS_OP_IDLE;
-      size_q     <= BUS_SIZE_BYTE;
+      state          <= S_IDLE;
+      resp_done      <= 1'b0;
+      resp_read_data <= '0;
+      addr_q         <= '0;
+      wdata_q        <= '0;
+      op_q           <= BUS_OP_IDLE;
+      size_q         <= BUS_SIZE_BYTE;
     end else begin
       resp_done <= 1'b0;
 
       unique case (state)
         S_IDLE: begin
-          if (req_valid && req_op != BUS_OP_IDLE) begin
+          if (req_op != BUS_OP_IDLE) begin
             addr_q  <= req_addr;
-            wdata_q <= req_wdata;
+            wdata_q <= req_write_data;
             op_q    <= req_op;
             size_q  <= req_size;
 
@@ -69,14 +70,14 @@ module MMU (
           if (size_q == BUS_SIZE_WORD) begin
             state <= S_READ_HIGH;
           end else begin
-            resp_rdata <= {8'h00, mem[addr_q]};
-            resp_done  <= 1'b1;
-            state      <= S_IDLE;
+            resp_read_data <= {8'h00, mem[addr_q]};
+            resp_done      <= 1'b1;
+            state          <= S_IDLE;
           end
         end
 
         S_READ_HIGH: begin
-          resp_rdata <= {mem[addr_q+1], rdata_q};
+          resp_read_data <= {mem[addr_q+1], rdata_q};
           resp_done <= 1'b1;
           state <= S_IDLE;
         end
