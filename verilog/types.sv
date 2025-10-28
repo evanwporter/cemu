@@ -1,3 +1,6 @@
+`ifndef TYPES_SV
+`define TYPES_SV 
+
 typedef struct packed {
   logic [7:0]  a,  f,  b, c, d, e, h, l;
   logic [15:0] sp, pc;
@@ -13,3 +16,5 @@ typedef enum logic {
   BUS_SIZE_BYTE,  // 8-bit transfer
   BUS_SIZE_WORD   // 16-bit transfer
 } bus_size_t;
+
+`endif  // TYPES_SV

@@ -1,3 +1,11 @@
+`ifndef GAMEBOY_SV
+`define GAMEBOY_SV 
+
+`include "types.sv"
+`include "CPU.sv"
+`include "MMU.sv"
+
+
 module Gameboy (
     input logic clk,
     input logic reset
@@ -15,9 +23,12 @@ module Gameboy (
   CPU cpu (
       .clk(clk),
       .reset(reset),
-      .mmu_data_in(mem_to_cpu),
-      .mmu_data_out(cpu_to_mem),
-      .mmu_bus_op(mmu_bus_op),
+      .mmu_req_op(mmu_req_op),
+      .mmu_req_size(mmu_req_size),
+      .mmu_req_addr(mmu_req_addr),
+      .mmu_req_wdata(mmu_req_write_data),
+      .mmu_resp_done(resp_done),
+      .mmu_resp_rdata(resp_read_data)
   );
 
   MMU mmu (
@@ -33,3 +44,5 @@ module Gameboy (
       .resp_rdata(mmu_resp_rdata)
   );
 endmodule
+
+`endif  // GAMEBOY_SV

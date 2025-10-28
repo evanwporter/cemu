@@ -1,3 +1,6 @@
+`ifndef MMU_SV
+`define MMU_SV 
+
 `include "types.sv"
 
 module MMU (
@@ -14,6 +17,8 @@ module MMU (
     output logic resp_done,
     output logic [15:0] resp_read_data
 );
+
+  // TODO I need to add a port for PPU access
 
   //  64 KB block RAM 
   logic [7:0] mem[0:16'hFFFF];
@@ -70,6 +75,7 @@ module MMU (
           if (size_q == BUS_SIZE_WORD) begin
             state <= S_READ_HIGH;
           end else begin
+            // this also clears out whatever is in the high byte of the read data
             resp_read_data <= {8'h00, mem[addr_q]};
             resp_done      <= 1'b1;
             state          <= S_IDLE;
@@ -102,3 +108,5 @@ module MMU (
   end
 
 endmodule
+
+`endif  // MMU_SV
