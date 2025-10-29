@@ -193,9 +193,12 @@ def gen_jr_control_word(ops: list[dict]) -> dict:
 def gen_jp_control_word(ops: list[dict]) -> dict:
     cond_enable, cond_type, cond_value = ("1'b0", "2'b00", "1'b0")
 
-    if len(ops) == 2 and ops[0]["name"].upper() in ("NZ", "Z", "NC", "C"):
-        cond_enable, cond_type, cond_value = parse_condition(ops[0]["name"])
-        target_op = ops[1]
+    if len(ops) == 2:
+        if ops[0]["name"].upper() in ("NZ", "Z", "NC", "C"):
+            cond_enable, cond_type, cond_value = parse_condition(ops[0]["name"])
+            target_op = ops[1]
+        else:
+            raise ValueError()
     else:
         # JP a16 or JP (HL)
         target_op = ops[0]
@@ -265,6 +268,56 @@ def gen_rotate_control_word(mnem: str, ops: list[dict]) -> dict:
             dst = "REG_A"
         cw["src_sel"] = dst
         cw["dst_sel"] = dst
+
+    return cw
+
+
+def gen_call_ret_rst_control_word(mnem: str, ops: list[dict]) -> dict:
+    mnem = mnem.upper()
+    cond_enable, cond_type, cond_value = ("1'b0", "2'b00", "1'b0")
+
+    cw = {
+        "src_sel": "REG_NONE",
+        "dst_sel": "REG_NONE",
+        "alu_op": "ALU_NONE",
+        "rot_op": "ROT_NONE",
+        "pc_load": "1'b0",
+        "pc_src": "REG_NONE",
+        "sp_push": "1'b0",
+        "sp_pop": "1'b0",
+        "flag_zero": "UNTOUCHED",
+        "flag_subtract": "UNTOUCHED",
+        "flag_half_carry": "UNTOUCHED",
+        "flag_carry": "UNTOUCHED",
+        "cond_enable": cond_enable,
+        "cond_type": cond_type,
+        "cond_value": cond_value,
+    }
+
+    if len(ops) >= 1 and ops[0]["name"].upper() in ("NZ", "Z", "NC", "C"):
+        cond_enable, cond_type, cond_value = parse_condition(ops[0]["name"])
+        cw["cond_enable"] = cond_enable
+        cw["cond_type"] = cond_type
+        cw["cond_value"] = cond_value
+
+    if mnem == "CALL":
+        target_op = ops[-1]
+        cw["src_sel"] = reg_sel(target_op)
+        cw["dst_sel"] = "REG_PC"
+        cw["sp_push"] = "1'b1"
+        cw["pc_load"] = "1'b1"
+
+    elif mnem == "RET":
+        cw["src_sel"] = "REG_NONE"
+        cw["dst_sel"] = "REG_PC"
+        cw["sp_pop"] = "1'b1"
+        cw["pc_load"] = "1'b1"
+
+    elif mnem == "RST":
+        cw["src_sel"] = "REG_IMM16"
+        cw["dst_sel"] = "REG_PC"
+        cw["sp_push"] = "1'b1"
+        cw["pc_load"] = "1'b1"
 
     return cw
 
@@ -384,6 +437,8 @@ def main():
             cw = gen_jp_control_word(ops)
         elif mnem == "JR":
             cw = gen_jr_control_word(ops)
+        elif mnem in ("CALL", "RET"):
+            cw = gen_call_ret_rst_control_word(mnem, ops)
         elif mnem in ("RLCA", "RLA", "RRCA", "RRA"):
             cw = gen_rotate_control_word(mnem, ops)
         else:
