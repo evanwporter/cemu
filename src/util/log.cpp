@@ -16,8 +16,6 @@
 
 #include "log.hpp"
 
-#include "string_utils.hpp"
-
 #include <cstdarg>
 
 Logger global_logger;
