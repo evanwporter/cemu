@@ -3,6 +3,7 @@
 
 `include "types.sv"
 `include "opcodes.sv"
+`include "control_words.sv"
 
 `define DEFINE_REG_PAIR(PAIR, HI, LO) \
   function automatic logic [15:0] get_``PAIR``(cpu_regs_t regs); \
@@ -66,8 +67,6 @@ module CPU (
   // Temporary data
   logic [7:0] opcode_q;
 
-  control_word_t control_rom[0:255];
-
   // current control word
   control_word_t cw;
 
@@ -118,7 +117,7 @@ module CPU (
         end
 
         DECODE: begin
-          cw <= control_rom[opcode_q];
+          cw <= control_words[opcode_q];
           state <= EXECUTE;
         end
 

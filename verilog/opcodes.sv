@@ -76,7 +76,7 @@ typedef enum logic [1:0] {
 
 typedef struct packed {
   // --------------- Memory Interface ---------------
-  logic post_delta_t;  // Auto-increment/deincrement pointer (for HL+, etc.)
+  post_delta_t post_delta;  // Auto-increment/deincrement pointer (for HL+, etc.)
 
   // --------------- Data Path ---------------
   reg_sel_t src_sel;  // Source register or immediate
