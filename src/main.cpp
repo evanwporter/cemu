@@ -138,7 +138,7 @@ static void process_events() {
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
         case SDL_KEYDOWN:
-            if (event.key.repeat == true) {
+            if (static_cast<bool>(event.key.repeat)) {
                 break;
             }
             if (auto button_pressed = get_gb_button(event.key.keysym.sym); button_pressed) {
@@ -146,7 +146,7 @@ static void process_events() {
             }
             break;
         case SDL_KEYUP:
-            if (event.key.repeat == true) {
+            if (static_cast<bool>(event.key.repeat)) {
                 break;
             }
             if (auto button_released = get_gb_button(event.key.keysym.sym); button_released) {
@@ -186,12 +186,12 @@ static bool is_closed() {
     return should_exit;
 }
 
-inline void get_cli_options(int argc, char* argv[]) {
-    argparse::ArgumentParser program("muuk");
+int main(int argc, char* argv[]) {
+    argparse::ArgumentParser program("cemu");
 
     program.add_description("A Game Boy emulator");
 
-    // ROM file (positional argument)
+    // ROM file
     program.add_argument("rom")
         .help("Path to the ROM file to run");
 
@@ -211,7 +211,7 @@ inline void get_cli_options(int argc, char* argv[]) {
         .default_value(false)
         .implicit_value(true);
 
-    program.add_argument("--whole-framebuffer")
+    program.add_argument("--full-framebuffer")
         .help("Show the full framebuffer instead of the visible window")
         .default_value(false)
         .implicit_value(true);
@@ -238,18 +238,14 @@ inline void get_cli_options(int argc, char* argv[]) {
     cli_options.options.trace = program.get<bool>("--trace");
     cli_options.options.disable_logs = program.get<bool>("--silent");
     cli_options.options.headless = program.get<bool>("--headless");
-    cli_options.options.show_full_framebuffer = program.get<bool>("--whole-framebuffer");
+    cli_options.options.show_full_framebuffer = program.get<bool>("--full-framebuffer");
     cli_options.options.exit_on_infinite_jr = program.get<bool>("--exit-on-infinite-jr");
     cli_options.options.print_serial = program.get<bool>("--print-serial-output");
-}
-
-int main(int argc, char* argv[]) {
-    get_cli_options(argc, argv);
 
     SDL_Init(SDL_INIT_VIDEO);
 
     window = SDL_CreateWindow(
-        "gbemu",
+        "cemu",
         SDL_WINDOWPOS_UNDEFINED,
         SDL_WINDOWPOS_UNDEFINED,
         width,
