@@ -29,6 +29,23 @@ const char* COLOR_WARNING = "\033[1;33m";
 const char* COLOR_ERROR = "\033[1;31m";
 const char* COLOR_RESET = "\033[0m";
 
+std::string str_format(const char* fmt, va_list args) {
+    char buf[8192];
+    vsnprintf(buf, 8192, fmt, args);
+    return std::string(buf);
+}
+
+std::string str_format(const char* fmt, ...) {
+    char buf[8192];
+    va_list args;
+
+    va_start(args, fmt);
+    vsnprintf(buf, 8192, fmt, args);
+    va_end(args);
+
+    return std::string(buf);
+}
+
 void Logger::log(LogLevel level, const char* fmt, ...) {
     if (!should_log(level)) {
         return;
