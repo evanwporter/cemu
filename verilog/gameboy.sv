@@ -17,31 +17,33 @@ module Gameboy (
   logic [15:0] mmu_req_write_data;
 
   // MMU response signals
-  logic resp_done;
-  logic [15:0] resp_read_data;
+  logic mmu_resp_done;
+  logic [15:0] mmu_resp_read_data;
 
   CPU cpu (
-      .clk(clk),
+      .clk  (clk),
       .reset(reset),
+
       .mmu_req_op(mmu_req_op),
       .mmu_req_size(mmu_req_size),
       .mmu_req_addr(mmu_req_addr),
       .mmu_req_wdata(mmu_req_write_data),
-      .mmu_resp_done(resp_done),
-      .mmu_resp_rdata(resp_read_data)
+
+      .mmu_resp_done (mmu_resp_done),
+      .mmu_resp_rdata(mmu_resp_read_data)
   );
 
   MMU mmu (
       .clk  (clk),
       .reset(reset),
 
-      .req_op   (mmu_req_op),
-      .req_size (mmu_req_size),
-      .req_addr (mmu_req_addr),
-      .req_wdata(mmu_req_wdata),
+      .req_op(mmu_req_op),
+      .req_size(mmu_req_size),
+      .req_addr(mmu_req_addr),
+      .req_write_data(mmu_req_write_data),
 
-      .resp_valid(mmu_resp_valid),
-      .resp_rdata(mmu_resp_rdata)
+      .resp_done(mmu_resp_done),
+      .resp_read_data(mmu_resp_read_data)
   );
 endmodule
 

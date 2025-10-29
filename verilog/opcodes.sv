@@ -1,3 +1,6 @@
+`ifndef OPCODES_SV
+`define OPCODES_SV 
+
 typedef enum logic [4:0] {
   ALU_NONE,
   ALU_ADD,
@@ -34,6 +37,7 @@ typedef enum logic [4:0] {
   REG_E,
   REG_H,
   REG_L,
+  REG_FLAGS, // Flag register
 
   REG_AF,
   REG_BC,
@@ -53,9 +57,7 @@ typedef enum logic [4:0] {
   REG_ADDR_HL,  // Memory at address [HL]
   REG_ADDR_BC,  // Memory at address [BC]
   REG_ADDR_DE,  // Memory at address [DE]
-  REG_ADDR_SP,  // Memory at address [SP]
-
-  REG_FLAGS  // Flag register (for internal condition checks)
+  REG_ADDR_SP   // Memory at address [SP]
 } reg_sel_t;
 
 
@@ -111,3 +113,5 @@ typedef struct packed {
 // dst_sel	    Destination register for data read
 // mem_read	    Memory read at addr_sel
 // mem_write	  Memory write to addr_sel
+
+`endif  // OPCODES_SV

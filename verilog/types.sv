@@ -2,7 +2,8 @@
 `define TYPES_SV 
 
 typedef struct packed {
-  logic [7:0]  a,  f,  b, c, d, e, h, l;
+  logic [7:0] a, b, c, d, e, h, l;
+  logic [7:0] flags;
   logic [15:0] sp, pc;
 } cpu_regs_t;
 

@@ -14,7 +14,7 @@
     regs.``LO`` = val[7:0]; \
   endfunction
 
-`DEFINE_REG_PAIR(af, a, f)
+`DEFINE_REG_PAIR(af, a, flags)
 `DEFINE_REG_PAIR(bc, b, c)
 `DEFINE_REG_PAIR(de, d, e)
 `DEFINE_REG_PAIR(hl, h, l)
@@ -108,7 +108,7 @@ module CPU (
 
             FETCH_WAIT: begin
               if (mmu_resp_done) begin
-                opcode_q <= mmu_resp_rdata;
+                opcode_q <= mmu_resp_rdata[7:0];
                 regs.pc <= regs.pc + 1;
                 fetch_state <= FETCH_REQUEST;
                 state <= DECODE;
@@ -182,6 +182,10 @@ module CPU (
                   selected_val_q <= {8'h00, regs.l};
                   ex_next_state  <= EX_NEXT_OP;
                 end
+                REG_FLAGS: begin
+                  selected_val_q <= {8'h00, regs.flags};
+                  ex_next_state  <= EX_NEXT_OP;
+                end
 
                 REG_AF: begin
                   selected_val_q <= get_af(regs);
@@ -230,6 +234,13 @@ module CPU (
                   mmu_req_addr  <= regs.sp;
                   ex_next_state <= EX_NEXT_ADDR;
                 end
+
+                REG_NONE: begin
+                  selected_val_q <= 16'b0;
+                  ex_next_state  <= EX_NEXT_OP;
+                end
+
+                default: ex_next_state <= EX_NEXT_OP;
               endcase
 
               // TODO: We need to move the IMM8, IMM16, ADDR_IMM8, ADDR_IMM16 handling
@@ -271,7 +282,7 @@ module CPU (
                   selected_val_q <= mmu_resp_rdata;
                   ex_state <= EX_OP;
                 end else if (cw.src_sel == REG_ADDR_IMM8) begin
-                  mmu_req_addr <= {8'hFF, mmu_resp_rdata};
+                  mmu_req_addr <= {8'hFF, mmu_resp_rdata[7:0]};
                   mmu_req_size <= BUS_SIZE_BYTE;
                   mmu_req_op <= BUS_OP_READ;
                   ex_state <= EX_WAIT_READ_ADDR;
@@ -316,16 +327,20 @@ module CPU (
 
               // Determine write destination
               unique case (cw.dst_sel)
+                // TODO: Check whether its possible to write a full 16bit 
+                // value to an immediate address
+                // Check whether its possible for there to be 8 bit immediate
+                // address writes
 
                 // Immediate destinations — need to read address from instruction first
-                REG_IMM8, REG_ADDR_IMM8: begin
-                  mmu_req_addr <= regs.pc;
-                  mmu_req_size <= BUS_SIZE_BYTE;
-                  mmu_req_op <= BUS_OP_READ;
-                  ex_next_state <= EX_NEXT_IMM;
+                REG_IMM8: begin
+                  mem_addr_d <= regs.pc;
+                  mem_write_data_d <= selected_val_q[7:0];
+                  mem_write_req_d <= 1'b1;
+                  ex_next_state <= EX_NEXT_ADDR;
                 end
 
-                REG_IMM16, REG_ADDR_IMM16: begin
+                REG_ADDR_IMM16: begin
                   mmu_req_addr <= regs.pc;
                   mmu_req_size <= BUS_SIZE_WORD;
                   mmu_req_op <= BUS_OP_READ;
@@ -334,31 +349,31 @@ module CPU (
 
                 // Register writes (no memory access)
                 REG_A: begin
-                  regs.a = selected_val_q[7:0];
+                  regs.a <= selected_val_q[7:0];
                   ex_next_state <= EX_NEXT_OP;
                 end
                 REG_B: begin
-                  regs.b = selected_val_q[7:0];
-                  ex_next_state = EX_NEXT_OP;
+                  regs.b <= selected_val_q[7:0];
+                  ex_next_state <= EX_NEXT_OP;
                 end
                 REG_C: begin
-                  regs.c = selected_val_q[7:0];
+                  regs.c <= selected_val_q[7:0];
                   ex_next_state <= EX_NEXT_OP;
                 end
                 REG_D: begin
-                  regs.d = selected_val_q[7:0];
-                  ex_next_state = EX_NEXT_OP;
+                  regs.d <= selected_val_q[7:0];
+                  ex_next_state <= EX_NEXT_OP;
                 end
                 REG_E: begin
-                  regs.e = selected_val_q[7:0];
+                  regs.e <= selected_val_q[7:0];
                   ex_next_state <= EX_NEXT_OP;
                 end
                 REG_H: begin
-                  regs.h = selected_val_q[7:0];
-                  ex_next_state = EX_NEXT_OP;
+                  regs.h <= selected_val_q[7:0];
+                  ex_next_state <= EX_NEXT_OP;
                 end
                 REG_L: begin
-                  regs.l = selected_val_q[7:0];
+                  regs.l <= selected_val_q[7:0];
                   ex_next_state <= EX_NEXT_OP;
                 end
 
@@ -376,43 +391,47 @@ module CPU (
                 end
                 REG_HL: begin
                   set_hl(regs, selected_val_q);
-                  ex_next_state = EX_NEXT_OP;
+                  ex_next_state <= EX_NEXT_OP;
                 end
 
                 REG_SP: begin
-                  regs.sp = selected_val_q;
+                  regs.sp <= selected_val_q;
                   ex_next_state <= EX_NEXT_OP;
                 end
                 REG_PC: begin
-                  regs.pc = selected_val_q;
+                  regs.pc <= selected_val_q;
                   ex_next_state <= EX_NEXT_OP;
                 end
 
                 // Memory-indirects
                 REG_ADDR_HL: begin
-                  mem_addr_d       = get_hl(regs);
-                  mem_write_data_d = selected_val_q[7:0];
-                  mem_write_req_d  = 1'b1;
-                  ex_next_state    = EX_NEXT_ADDR;
+                  mem_addr_d       <= get_hl(regs);
+                  mem_write_data_d <= selected_val_q[7:0];
+                  mem_write_req_d  <= 1'b1;
+                  ex_next_state    <= EX_NEXT_ADDR;
                 end
                 REG_ADDR_BC: begin
-                  mem_addr_d       = get_bc(regs);
-                  mem_write_data_d = selected_val_q[7:0];
-                  mem_write_req_d  = 1'b1;
-                  ex_next_state    = EX_NEXT_ADDR;
+                  mem_addr_d       <= get_bc(regs);
+                  mem_write_data_d <= selected_val_q[7:0];
+                  mem_write_req_d  <= 1'b1;
+                  ex_next_state    <= EX_NEXT_ADDR;
                 end
                 REG_ADDR_DE: begin
-                  mem_addr_d       = get_de(regs);
-                  mem_write_data_d = selected_val_q[7:0];
-                  mem_write_req_d  = 1'b1;
-                  ex_next_state    = EX_NEXT_ADDR;
+                  mem_addr_d       <= get_de(regs);
+                  mem_write_data_d <= selected_val_q[7:0];
+                  mem_write_req_d  <= 1'b1;
+                  ex_next_state    <= EX_NEXT_ADDR;
                 end
                 REG_ADDR_SP: begin
-                  mem_addr_d       = regs.sp;
-                  mem_write_data_d = selected_val_q[7:0];
-                  mem_write_req_d  = 1'b1;
-                  ex_next_state    = EX_NEXT_ADDR;
+                  mem_addr_d       <= regs.sp;
+                  mem_write_data_d <= selected_val_q[7:0];
+                  mem_write_req_d  <= 1'b1;
+                  ex_next_state    <= EX_NEXT_ADDR;
                 end
+
+                REG_IMM_S8, REG_ADDR_IMM8, REG_IMM16, REG_NONE: ex_next_state <= EX_NEXT_OP;
+
+                default: ex_next_state <= EX_NEXT_OP;
 
               endcase
 
@@ -423,7 +442,7 @@ module CPU (
                 end
                 EX_NEXT_ADDR: begin
                   mmu_req_addr  <= mem_addr_d;
-                  mmu_req_wdata <= mem_write_data_d;
+                  mmu_req_wdata <= {8'h00, mem_write_data_d};
                   mmu_req_op    <= BUS_OP_WRITE;
                   ex_state      <= EX_WAIT_WRITE_ADDR;
                 end
@@ -435,15 +454,18 @@ module CPU (
 
             EX_WAIT_WRITE_IMM: begin
               if (mmu_resp_done) begin
-                // We just fetched the immediate address to write to
-                if (cw.dst_sel == REG_ADDR_IMM8) begin
-                  mmu_req_addr  <= {8'hFF, mmu_resp_rdata};
-                  mmu_req_wdata <= selected_val_q[7:0];
+                if (cw.src_sel == REG_IMM8 || cw.src_sel == REG_IMM16) begin
+                  selected_val_q <= mmu_resp_rdata;
+                  ex_state <= EX_OP;
+                end  // We fetched immediate address to write to
+                else if (cw.dst_sel == REG_ADDR_IMM8) begin
+                  mmu_req_addr  <= {8'hFF, mmu_resp_rdata[7:0]};
+                  mmu_req_wdata <= {8'h00, selected_val_q[7:0]};
                   mmu_req_op    <= BUS_OP_WRITE;
                   ex_state      <= EX_WAIT_WRITE_ADDR;
                 end else if (cw.dst_sel == REG_ADDR_IMM16) begin
                   mmu_req_addr  <= mmu_resp_rdata;
-                  mmu_req_wdata <= selected_val_q[7:0];
+                  mmu_req_wdata <= {8'h00, selected_val_q[7:0]};
                   mmu_req_op    <= BUS_OP_WRITE;
                   ex_state      <= EX_WAIT_WRITE_ADDR;
                 end
