@@ -115,9 +115,9 @@ module CPU (
               !eval_condition(
                   control_word.cycles[cycle_count].cond, regs.flags
               ))
-            // Condition failed; skip rest of instruction
-            cycle_count <= control_word.num_cycles;
-          else if (cycle_count == control_word.num_cycles) cycle_count <= '0;
+            // Condition failed; skip to 5th cycle (which has the final cycle instruction)
+            cycle_count <= MAX_CYCLES_PER_INSTR - 1;
+          else if (cycle_count >= control_word.num_cycles) cycle_count <= '0;
           else cycle_count <= cycle_count + 1;
 
           t_phase <= T1;
