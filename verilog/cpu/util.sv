@@ -143,7 +143,7 @@ function automatic logic eval_condition(input cond_t cond, input logic [7:0] fla
   carry_flag = flags[4];
 
   unique case (cond)
-    COND_NONE: eval_condition = 1'b1;     // always true
+    COND_NONE: eval_condition = 1'b1;
     COND_NZ:   eval_condition = ~zero_flag;
     COND_Z:    eval_condition =  zero_flag;
     COND_NC:   eval_condition = ~carry_flag;

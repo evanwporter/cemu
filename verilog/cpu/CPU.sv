@@ -7,7 +7,7 @@
 `include "cpu/util.sv"
 
 `define DEFINE_REG_PAIR(PAIR, HI, LO) \
-  function automatic logic [15:0] get_``PAIR``(cpu_regs_t regs); \
+  function automatic logic [15:0] get_``PAIR``(ref cpu_regs_t regs); \
     return {regs.``HI``, regs.``LO``}; \
   endfunction \
   \
