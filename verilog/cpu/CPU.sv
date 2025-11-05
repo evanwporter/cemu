@@ -97,7 +97,6 @@ module CPU (
         end
 
         T4: begin
-          t_phase <= T1;
 
           // applies the idu op to the address bus
           apply_idu_op(control_word.cycles[cycle_count].addr_src,

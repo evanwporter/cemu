@@ -157,28 +157,8 @@ task automatic apply_misc_op(input misc_ops_t op, input misc_src_t dst_sel,
   logic [15:0] src_val;
 
   case (op)
-    MISC_OP_R16_COPY: begin
-      // Select source 16-bit value
-      unique case (src_sel)
-        MISC_SRC_PC: src_val = regs.pc;
-        MISC_SRC_SP: src_val = regs.sp;
-        MISC_SRC_WZ: src_val = {regs.w, regs.z};
-        MISC_SRC_HL: src_val = {regs.h, regs.l};
-        MISC_SRC_DE: src_val = {regs.d, regs.e};
-        MISC_SRC_BC: src_val = {regs.b, regs.c};
-        default:     src_val = 16'h0000;
-      endcase
-
-      // Write to destination
-      unique case (dst_sel)
-        MISC_SRC_PC: regs.pc <= src_val;
-        MISC_SRC_SP: regs.sp <= src_val;
-        MISC_SRC_WZ: {regs.w, regs.z} <= src_val;
-        MISC_SRC_HL: {regs.h, regs.l} <= src_val;
-        MISC_SRC_DE: {regs.d, regs.e} <= src_val;
-        MISC_SRC_BC: {regs.b, regs.c} <= src_val;
-        default: ;
-      endcase
+    MISC_OP_WZ_TO_PC: begin
+      regs.pc <= {regs.w, regs.z};
     end
 
     default: ;  // nothing to do

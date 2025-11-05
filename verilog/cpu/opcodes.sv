@@ -89,7 +89,7 @@ typedef enum logic [2:0] {
   MISC_OP_EI,
   MISC_OP_DI,
   MISC_OP_COND_CHECK,
-  MISC_OP_R16_COPY
+  MISC_OP_WZ_TO_PC
 } misc_ops_t;
 
 typedef enum logic [2:0] {
@@ -118,9 +118,6 @@ typedef struct packed {
 
   cond_t cond;  // condition for this cycle
 
-  misc_src_t misc_src;  // source for miscellaneous operations
-  misc_src_t misc_dst;  // destination for miscellaneous operations
-
 } cycle_t;
 
 // Maximum number of cycles per instruction
@@ -144,8 +141,6 @@ typedef struct packed {
     alu_src:      ALU_SRC_NONE, \
     misc_op:      MISC_OP_NONE, \
     cond:         COND_NONE, \
-    misc_dst:     MISC_SRC_NONE, \
-    misc_src:     MISC_SRC_NONE  \
 }
 
 `endif  // OPCODES_SV

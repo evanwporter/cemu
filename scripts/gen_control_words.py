@@ -21,8 +21,6 @@ DEFAULT_FIELDS = {
     "alu_src": "ALU_SRC_NONE",
     "misc_op": "MISC_OP_NONE",
     "cond": "COND_NONE",
-    "misc_dst": "MISC_SRC_NONE",
-    "misc_src": "MISC_SRC_NONE",
 }
 
 
@@ -102,9 +100,8 @@ for src in registers:
     opcode_comments[opcode] = f"LD (HL), {src}"
 
 
-def make_jp_cc_nn(cond_name: str):
-    cond_sv = conditions[cond_name]
-    return [
+def make_jp_nn(cond_sv: str | None = None):
+    cycles = [
         {
             "addr_src": "ADDR_PC",
             "data_bus_src": "DATA_BUS_SRC_Z",
@@ -116,31 +113,33 @@ def make_jp_cc_nn(cond_name: str):
             "data_bus_src": "DATA_BUS_SRC_W",
             "data_bus_op": "DATA_BUS_OP_READ",
             "idu_op": "IDU_OP_INC",
-            "misc_op": "MISC_OP_COND_CHECK",
-            "cond": cond_sv,
         },
         {
             "addr_src": "ADDR_NONE",
-            "data_bus_src": "DATA_BUS_SRC_NONE",
             "data_bus_op": "DATA_BUS_OP_ALU_ONLY",
-            "misc_op": "MISC_OP_R16_COPY",
-            "misc_dst": "MISC_SRC_PC",
-            "misc_src": "MISC_SRC_WZ",
+            "misc_op": "MISC_OP_WZ_TO_PC",
         },
-        {  # M4: write low byte to PC (if taken)
+        {
             "addr_src": "ADDR_PC",
             "data_bus_src": "DATA_BUS_SRC_IR",
             "data_bus_op": "DATA_BUS_OP_READ",
             "idu_op": "IDU_OP_INC",
         },
         None,
-        {  # M6: write low byte to PC (if taken)
+        None,
+    ]
+
+    if cond_sv:
+        cycles[1]["misc_op"] = "MISC_OP_COND_CHECK"
+        cycles[1]["cond"] = cond_sv
+        cycles[5] = {
             "addr_src": "ADDR_PC",
             "data_bus_src": "DATA_BUS_SRC_IR",
             "data_bus_op": "DATA_BUS_OP_READ",
             "idu_op": "IDU_OP_INC",
-        },
-    ]
+        }
+
+    return cycles
 
 
 conditional_jumps = {
@@ -151,8 +150,139 @@ conditional_jumps = {
 }
 
 for opcode, cond_name in conditional_jumps.items():
-    control_words[opcode] = make_jp_cc_nn(cond_name)
+    control_words[opcode] = make_jp_nn(conditions[cond_name])
     opcode_comments[opcode] = f"JP {cond_name}, nn"
+
+# Unconditional
+control_words[0xC3] = make_jp_nn()
+opcode_comments[0xC3] = "JP nn"
+
+
+def make_call_nn(cond_sv: str | None = None):
+    cycles = [
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_Z",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+        },
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_W",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+        },
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_src": "DATA_BUS_SRC_PC_HIGH",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_DEC",
+        },
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_src": "DATA_BUS_SRC_PC_LOW",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_DEC",
+            "misc_op": "MISC_OP_WZ_TO_PC",
+        },
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "data_bus_src": "DATA_BUS_SRC_IR",
+            "idu_op": "IDU_OP_INC",
+        },
+    ]
+
+    if cond_sv:
+        cycles[1]["misc_op"] = "MISC_OP_COND_CHECK"
+        cycles[1]["cond"] = cond_sv
+
+    return cycles
+
+
+conditional_call = {
+    0xC4: "NZ",
+    0xCC: "Z",
+    0xD4: "NC",
+    0xDC: "C",
+}
+
+for opcode, cond_name in conditional_call.items():
+    control_words[opcode] = make_call_nn(conditions[cond_name])
+    opcode_comments[opcode] = f"CALL {cond_name}, nn"
+
+# Unconditional CALL
+control_words[0xCD] = make_call_nn()
+opcode_comments[0xCD] = "CALL nn"
+
+
+def make_ret(cond_sv: str | None = None):
+    cycles = [
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_src": "DATA_BUS_SRC_Z",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+        },
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_src": "DATA_BUS_SRC_W",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+        },
+        {
+            "addr_src": "ADDR_NONE",
+            "data_bus_op": "DATA_BUS_OP_ALU_ONLY",
+            "misc_op": "MISC_OP_WZ_TO_PC",
+        },
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_IR",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+        },
+        None,
+        None,
+    ]
+
+    if cond_sv:
+        cycles.insert(
+            0,
+            {
+                "addr_src": "ADDR_NONE",
+                "data_bus_op": "DATA_BUS_OP_ALU_ONLY",
+                "misc_op": "MISC_OP_COND_CHECK",
+                "cond": cond_sv,
+            },
+        )
+
+        # Fill last slot for “not taken” alignment
+        cycles[5] = {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_IR",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+        }
+
+        return cycles[:-1]
+
+    return cycles
+
+
+conditional_rets = {
+    0xC0: "NZ",
+    0xC8: "Z",
+    0xD0: "NC",
+    0xD8: "C",
+}
+
+for opcode, cond_name in conditional_rets.items():
+    control_words[opcode] = make_ret(conditions[cond_name])
+    opcode_comments[opcode] = f"RET {cond_name}"
+
+# Unconditional RET
+control_words[0xC9] = make_ret()
+opcode_comments[0xC9] = "RET"
 
 
 def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
@@ -172,6 +302,15 @@ def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
     )
 
 
+def count_real_cycles(cycles: list) -> int:
+    count = 0
+    for c in cycles:
+        if not c:
+            break
+        count += 1
+    return count
+
+
 def generate_sv(control_words, opcode_comments) -> str:
     lines = []
     lines.append("`ifndef CONTROL_WORDS_SV\n`define CONTROL_WORDS_SV\n")
@@ -188,7 +327,8 @@ def generate_sv(control_words, opcode_comments) -> str:
         lines.append(f"    8'h{opcode:02X}: '{{  //{comment_str}\n")
 
         if cycles:
-            lines.append(f"        num_cycles : 3'd{len(cycles)},\n")
+            num_real = count_real_cycles(cycles)
+            lines.append(f"        num_cycles : 3'd{num_real},\n")
             lines.append("        cycles : '{\n")
 
             for i in range(MAX_CYCLES):
