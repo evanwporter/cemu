@@ -1,3 +1,6 @@
+`ifndef CPU_UTIL_SV
+`define CPU_UTIL_SV 
+
 function automatic logic [15:0] pick_addr(input address_src_t s, input cpu_regs_t r);
   unique case (s)
     ADDR_PC: pick_addr = r.pc;
@@ -119,7 +122,7 @@ function automatic void apply_alu_op(input alu_op_t op, input alu_src_t dst_sel,
 endfunction
 
 
-// Load a byte into a selected 8-bit register
+// Load data bus into selected 8-bit register
 task automatic load_reg_from_byte(input data_bus_src_t dst_sel, input logic [7:0] data_bus,
                                   ref cpu_regs_t regs);
   unique case (dst_sel)
@@ -133,3 +136,6 @@ task automatic load_reg_from_byte(input data_bus_src_t dst_sel, input logic [7:0
     default: ;
   endcase
 endtask
+
+
+`endif  // CPU_UTIL_SV

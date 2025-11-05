@@ -111,14 +111,14 @@ module CPU (
           MMU_req_read  <= 1'b0;
           MMU_req_write <= 1'b0;
 
-          if (cycle_count == control_word.num_cycles) begin
-            // Move to next instruction
-            cycle_count  <= '0;
-            control_word <= control_words[regs.IR];
-          end else begin
-            // Move to next microcycle
-            cycle_count <= cycle_count + 1;
-          end
+          if (control_word.cycles[cycle_count].misc_op == MISC_OP_COND_CHECK &&  //
+              !eval_condition(
+                  control_word.cycles[cycle_count].cond, regs.flags
+              ))
+            // Condition failed; skip rest of instruction
+            cycle_count <= control_word.num_cycles;
+          else if (cycle_count == control_word.num_cycles) cycle_count <= '0;
+          else cycle_count <= cycle_count + 1;
 
           t_phase <= T1;
 

@@ -80,8 +80,17 @@ typedef enum logic [2:0] {
   MISC_OP_NONE,
   MISC_OP_HALT,
   MISC_OP_EI,
-  MISC_OP_DI
+  MISC_OP_DI,
+  MISC_OP_COND_CHECK
 } misc_ops_t;
+
+typedef enum logic [2:0] {
+  COND_NONE,
+  COND_NZ,  // not zero
+  COND_Z,  // zero
+  COND_NC,  // not carry
+  COND_C  // carry
+} cond_t;
 
 // Corresponds to one m-cycle
 typedef struct packed {
@@ -96,6 +105,10 @@ typedef struct packed {
   // A = A op B
   alu_src_t alu_dst;
   alu_src_t alu_src;
+
+  misc_ops_t misc_op;  // miscellaneous operation
+
+  cond_t cond;  // condition for this cycle
 
 } cycle_t;
 
@@ -117,13 +130,9 @@ typedef struct packed {
     idu_op:       IDU_OP_NONE, \
     alu_op:       ALU_OP_NONE, \
     alu_dst:      ALU_SRC_NONE, \
-    alu_src:      ALU_SRC_NONE \
+    alu_src:      ALU_SRC_NONE, \
+    misc_op:      MISC_OP_NONE, \
+    cond:         COND_NONE \
 }
-
-// addr_sel	    Which register drives the address bus (e.g., HL, PC, SP)
-// src_sel	    Source of the data to be written (register or immediate)
-// dst_sel	    Destination register for data read
-// mem_read	    Memory read at addr_sel
-// mem_write	  Memory write to addr_sel
 
 `endif  // OPCODES_SV

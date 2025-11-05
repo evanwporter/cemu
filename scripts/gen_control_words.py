@@ -27,6 +27,8 @@ for dst in registers:
                 "alu_op": "ALU_OP_COPY",
                 "alu_dst": f"ALU_SRC_{dst}",
                 "alu_src": f"ALU_SRC_{src}",
+                "misc_op": "MISC_OP_NONE",
+                "cond": "COND_NONE",
             }
         ]
         control_words[opcode] = cycles
@@ -48,6 +50,8 @@ for dst in registers:
             "alu_op": "ALU_OP_NONE",
             "alu_dst": "ALU_SRC_NONE",
             "alu_src": "ALU_SRC_NONE",
+            "misc_op": "MISC_OP_NONE",
+            "cond": "COND_NONE",
         },
         {
             "addr_src": "ADDR_PC",
@@ -57,6 +61,8 @@ for dst in registers:
             "alu_op": "ALU_OP_COPY",
             "alu_dst": f"ALU_SRC_{dst}",
             "alu_src": "ALU_SRC_Z",
+            "misc_op": "MISC_OP_NONE",
+            "cond": "COND_NONE",
         },
     ]
     control_words[opcode] = cycles
@@ -76,6 +82,8 @@ for src in registers:
             "alu_op": "ALU_OP_NONE",
             "alu_dst": "ALU_SRC_NONE",
             "alu_src": "ALU_SRC_NONE",
+            "misc_op": "MISC_OP_NONE",
+            "cond": "COND_NONE",
         },
         {
             "addr_src": "ADDR_PC",
@@ -85,6 +93,8 @@ for src in registers:
             "alu_op": "ALU_OP_NONE",
             "alu_dst": "ALU_SRC_NONE",
             "alu_src": "ALU_SRC_NONE",
+            "misc_op": "MISC_OP_NONE",
+            "cond": "COND_NONE",
         },
     ]
     control_words[opcode] = cycles
