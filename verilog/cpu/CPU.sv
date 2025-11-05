@@ -108,6 +108,7 @@ module CPU (
                        control_word.cycles[cycle_count].alu_dst,
                        control_word.cycles[cycle_count].alu_src, regs);
 
+          // applies the misc op to the specified registers
           apply_misc_op(control_word.cycles[cycle_count].misc_op,
                         control_word.cycles[cycle_count].misc_src,
                         control_word.cycles[cycle_count].misc_dst, regs);
