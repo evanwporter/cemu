@@ -108,6 +108,10 @@ module CPU (
                        control_word.cycles[cycle_count].alu_dst,
                        control_word.cycles[cycle_count].alu_src, regs);
 
+          apply_misc_op(control_word.cycles[cycle_count].misc_op,
+                        control_word.cycles[cycle_count].misc_src,
+                        control_word.cycles[cycle_count].misc_dst, regs);
+
           MMU_req_read  <= 1'b0;
           MMU_req_write <= 1'b0;
 
