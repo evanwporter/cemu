@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(src)
+add_subdirectory(verilog)
 
 set(EXE_SOURCES
   src/main.cpp
@@ -54,3 +55,7 @@ target_compile_definitions(cemu_tests PRIVATE
 target_link_options(cemu_tests PRIVATE "/FORCE:MULTIPLE")
 
 add_test(NAME cemu_tests COMMAND cemu_tests)
+
+find_package(Verilator REQUIRED HINTS $ENV{VERILATOR_ROOT})
+
+add_executable(vemu sim/main.cpp)

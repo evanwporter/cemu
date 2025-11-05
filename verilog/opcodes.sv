@@ -60,7 +60,7 @@ typedef enum logic [4:0] {
   ALU_OP_DEC
 } alu_op_t;
 
-typedef enum logic [2:0] {
+typedef enum logic [3:0] {
   ALU_SRC_NONE,
   ALU_SRC_A,
   ALU_SRC_B,
@@ -69,6 +69,9 @@ typedef enum logic [2:0] {
   ALU_SRC_E,
   ALU_SRC_H,
   ALU_SRC_L,
+
+  ALU_SRC_W,
+  ALU_SRC_Z,
 
   ALU_SRC_MEM
 } alu_src_t;
@@ -91,21 +94,31 @@ typedef struct packed {
   alu_op_t alu_op;  // ALU operation to perform
 
   // A = A op B
-  alu_src_t alu_src_A;
-  alu_src_t alu_src_B;
+  alu_src_t alu_dst;
+  alu_src_t alu_src;
 
 } cycle_t;
 
 // Maximum number of cycles per instruction
 parameter int MAX_CYCLES_PER_INSTR = 6;
 
+typedef logic [2:0] cycle_count_t;
+
 // A control word is the set of all micro-cycles that make up one instruction
 typedef struct packed {
-  cycle_t     cycles[MAX_CYCLES_PER_INSTR];  // sequence of M-cycles
-  logic [2:0] num_cycles;                    // number of valid cycles (1–6)
+  cycle_t [MAX_CYCLES_PER_INSTR-1:0] cycles;
+  logic [2:0]                        num_cycles;  // number of valid cycles (1–6)
 } control_word_t;
 
-
+`define DEFAULT_CYCLE '{ \
+    addr_src:     ADDR_NONE, \
+    data_bus_src: DATA_BUS_SRC_NONE, \
+    data_bus_op:  DATA_BUS_OP_ALU_ONLY, \
+    idu_op:       IDU_OP_NONE, \
+    alu_op:       ALU_OP_NONE, \
+    alu_dst:      ALU_SRC_NONE, \
+    alu_src:      ALU_SRC_NONE \
+}
 
 // addr_sel	    Which register drives the address bus (e.g., HL, PC, SP)
 // src_sel	    Source of the data to be written (register or immediate)

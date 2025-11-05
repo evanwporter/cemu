@@ -2,8 +2,8 @@
 `define GAMEBOY_SV 
 
 `include "types.sv"
-`include "CPU.sv"
-`include "MMU.sv"
+`include "cpu/CPU.sv"
+`include "mmu/MMU.sv"
 
 module Gameboy (
     input logic clk,

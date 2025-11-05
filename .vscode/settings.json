@@ -112,6 +112,7 @@
   ],
   "[systemverilog]": {
     "editor.defaultFormatter": "bmpenuelas.systemverilog-formatter-vscode",
+    // "editor.defaultFormatter": "teros-technology.teroshdl",
     "editor.formatOnSave": true
   },
   "python.testing.cwd": "${workspaceFolder}/test/external",

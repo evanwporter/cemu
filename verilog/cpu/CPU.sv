@@ -4,6 +4,7 @@
 `include "types.sv"
 `include "opcodes.sv"
 `include "control_words.sv"
+`include "cpu/util.sv"
 
 `define DEFINE_REG_PAIR(PAIR, HI, LO) \
   function automatic logic [15:0] get_``PAIR``(cpu_regs_t regs); \
@@ -26,7 +27,10 @@ module CPU (
     input logic reset,
 
     output logic [15:0] addr_bus,
-    inout  logic [ 7:0] data_bus
+    inout  logic [ 7:0] data_bus,
+
+    output logic MMU_req_read,
+    output logic MMU_req_write
 );
 
   cpu_regs_t regs;
@@ -35,9 +39,6 @@ module CPU (
   cycle_count_t cycle_count;
 
   t_phase_t t_phase;
-
-  logic MMU_req_read;
-  logic MMU_req_write;
 
   // CPU-side bus control
   logic cpu_drive_data;
@@ -115,13 +116,13 @@ module CPU (
                        control_word.cycles[cycle_count].alu_dst,
                        control_word.cycles[cycle_count].alu_src, regs);
 
-          mmu_req_read  <= 1'b0;
-          mmu_req_write <= 1'b0;
+          MMU_req_read  <= 1'b0;
+          MMU_req_write <= 1'b0;
 
           if (cycle_count == control_word.num_cycles) begin
             // Move to next instruction
             cycle_count  <= '0;
-            control_word <= get_control_word(regs.IR);
+            control_word <= control_words[regs.IR];
           end else begin
             // Move to next microcycle
             cycle_count <= cycle_count + 1;

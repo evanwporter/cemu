@@ -3,8 +3,22 @@
 
 typedef struct packed {
   logic [7:0] a, b, c, d, e, h, l;
+
+  // Temporary storage during operations
+  logic [7:0] w, z;
+
+  // Instruction Register
+  logic [7:0] IR;
+
+  // Interrupt Enable
+  logic [7:0] IE;
+
   logic [7:0] flags;
   logic [15:0] sp, pc;
+
+  // stack pointer
+  logic [7:0] sph, spl;
+
 } cpu_regs_t;
 
 typedef enum logic [1:0] {
@@ -17,5 +31,13 @@ typedef enum logic {
   BUS_SIZE_BYTE,  // 8-bit transfer
   BUS_SIZE_WORD   // 16-bit transfer
 } bus_size_t;
+
+typedef enum logic [1:0] {
+  T1,
+  T2,
+  T3,
+  T4
+} t_phase_t;
+
 
 `endif  // TYPES_SV
