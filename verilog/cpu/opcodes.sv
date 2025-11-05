@@ -1,7 +1,7 @@
 `ifndef OPCODES_SV
 `define OPCODES_SV 
 
-typedef enum logic [3:0] {
+typedef enum logic [2:0] {
   ADDR_NONE,
   ADDR_AF,
   ADDR_BC,
@@ -12,7 +12,7 @@ typedef enum logic [3:0] {
   ADDR_WZ
 } address_src_t;
 
-typedef enum logic [2:0] {
+typedef enum logic [1:0] {
   DATA_BUS_OP_READ,
   DATA_BUS_OP_WRITE,
   DATA_BUS_OP_ALU_ONLY

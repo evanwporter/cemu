@@ -14,7 +14,7 @@ conditions = {
 DEFAULT_FIELDS = {
     "addr_src": "ADDR_NONE",
     "data_bus_src": "DATA_BUS_SRC_NONE",
-    "data_bus_op": "DATA_BUS_OP_ALU_ONLY",
+    "data_bus_op": "DATA_BUS_OP_NONE",
     "idu_op": "IDU_OP_NONE",
     "alu_op": "ALU_OP_NONE",
     "alu_dst": "ALU_SRC_NONE",
@@ -116,7 +116,7 @@ def make_jp_nn(cond_sv: str | None = None):
         },
         {
             "addr_src": "ADDR_NONE",
-            "data_bus_op": "DATA_BUS_OP_ALU_ONLY",
+            "data_bus_op": "DATA_BUS_OP_NONE",
             "misc_op": "MISC_OP_WZ_TO_PC",
         },
         {
@@ -232,7 +232,7 @@ def make_ret(cond_sv: str | None = None):
         },
         {
             "addr_src": "ADDR_NONE",
-            "data_bus_op": "DATA_BUS_OP_ALU_ONLY",
+            "data_bus_op": "DATA_BUS_OP_NONE",
             "misc_op": "MISC_OP_WZ_TO_PC",
         },
         {
@@ -250,7 +250,7 @@ def make_ret(cond_sv: str | None = None):
             0,
             {
                 "addr_src": "ADDR_NONE",
-                "data_bus_op": "DATA_BUS_OP_ALU_ONLY",
+                "data_bus_op": "DATA_BUS_OP_NONE",
                 "misc_op": "MISC_OP_COND_CHECK",
                 "cond": cond_sv,
             },

@@ -79,7 +79,7 @@ module CPU (
               MMU_req_read   <= 1'b0;
               cpu_drive_data <= 1'b1;  // CPU drives for write
             end
-            DATA_BUS_OP_ALU_ONLY: begin
+            DATA_BUS_OP_NONE: begin
               MMU_req_write  <= 1'b0;
               MMU_req_read   <= 1'b0;
               cpu_drive_data <= 1'b0;  // No bus activity
