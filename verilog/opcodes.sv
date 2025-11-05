@@ -1,110 +1,109 @@
 `ifndef OPCODES_SV
 `define OPCODES_SV 
 
-typedef enum logic [4:0] {
-  ALU_NONE,
-  ALU_ADD,
-  ALU_SUB,
-  ALU_AND,
-  ALU_OR,
-  ALU_XOR,
-  ALU_INC,
-  ALU_DEC,
-  ALU_SRA,
-  ALU_SRL,
-  ALU_SLA,
-  ALU_SWAP
-} alu_op_t;
+typedef enum logic [3:0] {
+  ADDR_NONE,
+  ADDR_AF,
+  ADDR_BC,
+  ADDR_DE,
+  ADDR_HL,
+  ADDR_PC,
+  ADDR_SP,
+  ADDR_WZ
+} address_src_t;
+
+typedef enum logic [2:0] {
+  DATA_BUS_OP_READ,
+  DATA_BUS_OP_WRITE,
+  DATA_BUS_OP_ALU_ONLY
+} data_bus_op_t;
 
 typedef enum logic [3:0] {
-  ROT_NONE,
-  ROT_RLCA,
-  ROT_RLA,
-  ROT_RRCA,
-  ROT_RRA,
-  ROT_RLC,
-  ROT_RRC,
-  ROT_RL,
-  ROT_RR
-} rot_op_t;
+  DATA_BUS_SRC_NONE,
+  DATA_BUS_SRC_IR,
+
+  DATA_BUS_SRC_ALU,
+
+  DATA_BUS_SRC_A,
+  DATA_BUS_SRC_B,
+  DATA_BUS_SRC_C,
+  DATA_BUS_SRC_D,
+  DATA_BUS_SRC_E,
+  DATA_BUS_SRC_H,
+  DATA_BUS_SRC_L,
+
+  DATA_BUS_SRC_W,
+  DATA_BUS_SRC_Z,
+
+  DATA_BUS_SRC_SPH,
+  DATA_BUS_SRC_SPL
+
+} data_bus_src_t;
+
+typedef enum logic [2:0] {
+  IDU_OP_NONE,
+  IDU_OP_INC,
+  IDU_OP_DEC
+} idu_op_t;
 
 typedef enum logic [4:0] {
-  REG_NONE,
-  REG_A,
-  REG_B,
-  REG_C,
-  REG_D,
-  REG_E,
-  REG_H,
-  REG_L,
-  REG_FLAGS, // Flag register
+  ALU_OP_NONE,
+  ALU_OP_COPY,
+  ALU_OP_ADD,
+  ALU_OP_ADC,
+  ALU_OP_SUB,
+  ALU_OP_SBC,
+  ALU_OP_AND,
+  ALU_OP_OR,
+  ALU_OP_XOR,
+  ALU_OP_INC,
+  ALU_OP_DEC
+} alu_op_t;
 
-  REG_AF,
-  REG_BC,
-  REG_DE,
-  REG_HL,
+typedef enum logic [2:0] {
+  ALU_SRC_NONE,
+  ALU_SRC_A,
+  ALU_SRC_B,
+  ALU_SRC_C,
+  ALU_SRC_D,
+  ALU_SRC_E,
+  ALU_SRC_H,
+  ALU_SRC_L,
 
-  REG_SP,
-  REG_PC,
+  ALU_SRC_MEM
+} alu_src_t;
 
-  REG_IMM8,
-  REG_IMM16,
-  REG_IMM_S8, // Signed 8-bit immediate
+typedef enum logic [2:0] {
+  MISC_OP_NONE,
+  MISC_OP_HALT,
+  MISC_OP_EI,
+  MISC_OP_DI
+} misc_ops_t;
 
-  REG_ADDR_IMM8,  // Memory at immediate 8-bit address (added to 0xFF00)
-  REG_ADDR_IMM16, // Memory at immediate 16-bit address
-
-  REG_ADDR_HL,  // Memory at address [HL]
-  REG_ADDR_BC,  // Memory at address [BC]
-  REG_ADDR_DE,  // Memory at address [DE]
-  REG_ADDR_SP   // Memory at address [SP]
-} reg_sel_t;
-
-
-typedef enum logic [1:0] {
-  SAME_FLAG,
-  RESET,
-  SET,
-  UNTOUCHED
-} flag_update_t;
-
-typedef enum logic [1:0] {
-  POST_INC,
-  POST_NO_CHANGE,
-  POST_DEC
-} post_delta_t;
-
+// Corresponds to one m-cycle
 typedef struct packed {
-  // --------------- Memory Interface ---------------
-  post_delta_t post_delta;  // Auto-increment/deincrement pointer (for HL+, etc.)
+  address_src_t addr_src;  // source for address bus
+  data_bus_src_t data_bus_src;  // source for data bus
+  data_bus_op_t data_bus_op;  // read or write to memory / direction
 
-  // --------------- Data Path ---------------
-  reg_sel_t src_sel;  // Source register or immediate
-  reg_sel_t dst_sel;  // Destination register
-  alu_op_t  alu_op;   // ALU operation (if any)
-  logic     signed_;  // Treat src immediate as signed (for ADD, etc.)
-  rot_op_t  rot_op;   // Rotate/shift operation (if any)
+  idu_op_t idu_op;  // IDU operation to perform on the ADDR bus
 
-  // --------------- Control Flow ---------------
-  logic     pc_load;  // Load PC (used for JP, CALL, RET, etc.)
-  reg_sel_t pc_src;   // Source for new PC
-  logic     sp_push;  // Push current PC onto stack
-  logic     sp_pop;   // Pop PC from stack
+  alu_op_t alu_op;  // ALU operation to perform
 
-  // --------------- Flags ---------------
-  flag_update_t flag_zero;        // Update Zero flag (Z)
-  flag_update_t flag_subtract;    // Update Subtract flag (N)
-  flag_update_t flag_half_carry;  // Update Half Carry flag (H)
-  flag_update_t flag_carry;       // Update Carry flag (C)
+  // A = A op B
+  alu_src_t alu_src_A;
+  alu_src_t alu_src_B;
 
-  // --------------- Conditional ---------------
-  logic       cond_enable;  // 1 = instruction uses conditional branch
-  logic [1:0] cond_type;    // which flag: 00=Z, 01=C, 10=N, 11=H
-  logic       cond_value;   // 0 or 1: required flag value to branch
+} cycle_t;
+
+// Maximum number of cycles per instruction
+parameter int MAX_CYCLES_PER_INSTR = 6;
+
+// A control word is the set of all micro-cycles that make up one instruction
+typedef struct packed {
+  cycle_t     cycles[MAX_CYCLES_PER_INSTR];  // sequence of M-cycles
+  logic [2:0] num_cycles;                    // number of valid cycles (1–6)
 } control_word_t;
-
-// write from A
-// read to A
 
 
 
