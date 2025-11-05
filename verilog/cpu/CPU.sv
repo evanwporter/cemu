@@ -2,7 +2,7 @@
 `define CPU_SV 
 
 `include "types.sv"
-`include "opcodes.sv"
+`include "cpu/opcodes.sv"
 `include "control_words.sv"
 `include "cpu/util.sv"
 
