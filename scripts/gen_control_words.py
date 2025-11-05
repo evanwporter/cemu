@@ -123,7 +123,7 @@ def make_jp_cc_nn(cond_name: str):
             "addr_src": "ADDR_NONE",
             "data_bus_src": "DATA_BUS_SRC_NONE",
             "data_bus_op": "DATA_BUS_OP_ALU_ONLY",
-            "misc_op": "MISC_R16_R16_COPY",
+            "misc_op": "MISC_OP_R16_R16_COPY",
             "misc_dst": "MISC_SRC_PC",
             "misc_src": "MISC_SRC_WZ",
         },

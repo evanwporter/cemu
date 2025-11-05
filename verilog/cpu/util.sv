@@ -137,5 +137,20 @@ task automatic load_reg_from_byte(input data_bus_src_t dst_sel, input logic [7:0
   endcase
 endtask
 
+function automatic logic eval_condition(input cond_t cond, input logic [7:0] flags);
+  logic zero_flag, carry_flag;
+  zero_flag  = flags[7];
+  carry_flag = flags[4];
+
+  unique case (cond)
+    COND_NONE: eval_condition = 1'b1;     // always true
+    COND_NZ:   eval_condition = ~zero_flag;
+    COND_Z:    eval_condition =  zero_flag;
+    COND_NC:   eval_condition = ~carry_flag;
+    COND_C:    eval_condition =  carry_flag;
+    default:   eval_condition = 1'b1;
+  endcase
+endfunction
+
 
 `endif  // CPU_UTIL_SV
