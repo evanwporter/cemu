@@ -28,11 +28,11 @@ task automatic apply_idu_op(input address_src_t s, input idu_op_t op, inout cpu_
   unique case (op)
     IDU_OP_INC: begin
       unique case (s)
-        ADDR_PC: r.pc++;
-        ADDR_SP: r.sp++;
-        ADDR_HL: {r.h, r.l} = {r.h, r.l} + 16'd1;
-        ADDR_BC: {r.b, r.c} = {r.b, r.c} + 16'd1;
-        ADDR_DE: {r.d, r.e} = {r.d, r.e} + 16'd1;
+        ADDR_PC: r.pc <= r.pc + 16'd1;
+        ADDR_SP: r.sp <= r.sp + 16'd1;
+        ADDR_HL: {r.h, r.l} <= {r.h, r.l} + 16'd1;
+        ADDR_BC: {r.b, r.c} <= {r.b, r.c} + 16'd1;
+        ADDR_DE: {r.d, r.e} <= {r.d, r.e} + 16'd1;
         default: ;
       endcase
     end
@@ -117,3 +117,19 @@ function automatic void apply_alu_op(input alu_op_t op, input alu_src_t dst_sel,
     default:   ;  // do nothing
   endcase
 endfunction
+
+
+// Load a byte into a selected 8-bit register
+task automatic load_reg_from_byte(input data_bus_src_t dst_sel, input logic [7:0] data_bus,
+                                  ref cpu_regs_t regs);
+  unique case (dst_sel)
+    DATA_BUS_SRC_A: regs.a <= data_bus;
+    DATA_BUS_SRC_B: regs.b <= data_bus;
+    DATA_BUS_SRC_C: regs.c <= data_bus;
+    DATA_BUS_SRC_D: regs.d <= data_bus;
+    DATA_BUS_SRC_E: regs.e <= data_bus;
+    DATA_BUS_SRC_H: regs.h <= data_bus;
+    DATA_BUS_SRC_L: regs.l <= data_bus;
+    default: ;
+  endcase
+endtask

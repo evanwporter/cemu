@@ -14,7 +14,7 @@ module MMU (
 
   logic [7:0] memory[0:65535];
 
-  // Tri-state handling: only drive when CPU requests a read
+  // Only drive when CPU requests a read
   always_comb begin
     if (req_read) data_bus = memory[addr_bus];
     else data_bus = 'z;  // release bus otherwise

@@ -91,16 +91,7 @@ module CPU (
 
         T3: begin
           if (control_word.cycles[cycle_count].data_bus_op == DATA_BUS_OP_READ) begin
-            unique case (control_word.cycles[cycle_count].data_bus_src)
-              DATA_BUS_SRC_A: regs.a <= data_bus;  // latch byte to an internal register
-              DATA_BUS_SRC_B: regs.b <= data_bus;
-              DATA_BUS_SRC_C: regs.c <= data_bus;
-              DATA_BUS_SRC_D: regs.d <= data_bus;
-              DATA_BUS_SRC_E: regs.e <= data_bus;
-              DATA_BUS_SRC_H: regs.h <= data_bus;
-              DATA_BUS_SRC_L: regs.l <= data_bus;
-              default: ;
-            endcase
+            load_reg_from_byte(control_word.cycles[cycle_count].data_bus_src, data_bus, regs);
           end
           t_phase <= T4;
         end
@@ -112,6 +103,7 @@ module CPU (
           apply_idu_op(control_word.cycles[cycle_count].addr_src,
                        control_word.cycles[cycle_count].idu_op, regs);
 
+          // applies the alu op to the specified registers
           apply_alu_op(control_word.cycles[cycle_count].alu_op,
                        control_word.cycles[cycle_count].alu_dst,
                        control_word.cycles[cycle_count].alu_src, regs);
