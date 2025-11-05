@@ -40,13 +40,13 @@ typedef enum logic [3:0] {
 
 } data_bus_src_t;
 
-typedef enum logic [2:0] {
+typedef enum logic [1:0] {
   IDU_OP_NONE,
   IDU_OP_INC,
   IDU_OP_DEC
 } idu_op_t;
 
-typedef enum logic [4:0] {
+typedef enum logic [3:0] {
   ALU_OP_NONE,
   ALU_OP_COPY,
   ALU_OP_ADD,
@@ -101,6 +101,7 @@ typedef enum logic [2:0] {
 } cond_t;
 
 // Corresponds to one m-cycle
+// Try to keep it under 32 bits for efficiency
 typedef struct packed {
   address_src_t addr_src;  // source for address bus
   data_bus_src_t data_bus_src;  // source for data bus
