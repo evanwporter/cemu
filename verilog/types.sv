@@ -1,7 +1,11 @@
 `ifndef TYPES_SV
 `define TYPES_SV 
 
+`ifdef VERILATOR
+typedef struct {
+`else
 typedef struct packed {
+`endif
   logic [7:0] a, b, c, d, e, h, l;
 
   // Temporary storage during operations

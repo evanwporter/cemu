@@ -33,17 +33,24 @@ module CPU (
     output logic MMU_req_write
 );
 
+  /// The CPU register
   cpu_regs_t regs;
 
+  /// Current control word; instructions being executed
   control_word_t control_word;
+
+  /// Curent machine cycle within instruction
   cycle_count_t cycle_count;
 
+  /// Current t-cycle within machine cycle
   t_phase_t t_phase;
 
   // CPU-side bus control
   logic cpu_drive_data;
   logic [7:0] cpu_wdata;
   logic [7:0] cpu_rdata;
+
+  localparam cycle_count_t MAX_CYCLE_INDEX = MAX_CYCLES_PER_INSTR - 1;
 
   // CPU drives bus only on writes; otherwise Hi-Z and MMU can drive
   assign data_bus = cpu_drive_data ? cpu_wdata : 'z;
@@ -108,9 +115,7 @@ module CPU (
                        control_word.cycles[cycle_count].alu_src, regs);
 
           // applies the misc op to the specified registers
-          apply_misc_op(control_word.cycles[cycle_count].misc_op,
-                        control_word.cycles[cycle_count].misc_src,
-                        control_word.cycles[cycle_count].misc_dst, regs);
+          apply_misc_op(control_word.cycles[cycle_count].misc_op, regs);
 
           MMU_req_read  <= 1'b0;
           MMU_req_write <= 1'b0;
@@ -120,7 +125,7 @@ module CPU (
                   control_word.cycles[cycle_count].cond, regs.flags
               ))
             // Condition failed; skip to 5th cycle (which has the final cycle instruction)
-            cycle_count <= MAX_CYCLES_PER_INSTR - 1;
+            cycle_count <= MAX_CYCLE_INDEX;
           else if (cycle_count >= control_word.num_cycles) cycle_count <= '0;
           else cycle_count <= cycle_count + 1;
 

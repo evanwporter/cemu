@@ -15,7 +15,7 @@ typedef enum logic [2:0] {
 typedef enum logic [1:0] {
   DATA_BUS_OP_READ,
   DATA_BUS_OP_WRITE,
-  DATA_BUS_OP_ALU_ONLY
+  DATA_BUS_OP_NONE
 } data_bus_op_t;
 
 typedef enum logic [3:0] {
@@ -35,8 +35,11 @@ typedef enum logic [3:0] {
   DATA_BUS_SRC_W,
   DATA_BUS_SRC_Z,
 
-  DATA_BUS_SRC_SPH,
-  DATA_BUS_SRC_SPL
+  DATA_BUS_SRC_SP_HIGH,
+  DATA_BUS_SRC_SP_LOW,
+
+  DATA_BUS_SRC_PC_HIGH,
+  DATA_BUS_SRC_PC_LOW
 
 } data_bus_src_t;
 
@@ -121,27 +124,27 @@ typedef struct packed {
 
 } cycle_t;
 
-// Maximum number of cycles per instruction
-parameter int MAX_CYCLES_PER_INSTR = 6;
-
 typedef logic [2:0] cycle_count_t;
+
+// Maximum number of cycles per instruction
+parameter cycle_count_t MAX_CYCLES_PER_INSTR = 6;
 
 // A control word is the set of all micro-cycles that make up one instruction
 typedef struct packed {
   cycle_t [MAX_CYCLES_PER_INSTR-1:0] cycles;
-  logic [2:0]                        num_cycles;  // number of valid cycles (1–6)
+  logic [2:0] num_cycles;  // number of valid cycles (1–6)
 } control_word_t;
 
 `define DEFAULT_CYCLE '{ \
     addr_src:     ADDR_NONE, \
     data_bus_src: DATA_BUS_SRC_NONE, \
-    data_bus_op:  DATA_BUS_OP_ALU_ONLY, \
+    data_bus_op:  DATA_BUS_OP_NONE, \
     idu_op:       IDU_OP_NONE, \
     alu_op:       ALU_OP_NONE, \
     alu_dst:      ALU_SRC_NONE, \
     alu_src:      ALU_SRC_NONE, \
     misc_op:      MISC_OP_NONE, \
-    cond:         COND_NONE, \
+    cond:         COND_NONE \
 }
 
 `endif  // OPCODES_SV

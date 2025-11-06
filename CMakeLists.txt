@@ -59,3 +59,28 @@ add_test(NAME cemu_tests COMMAND cemu_tests)
 find_package(Verilator REQUIRED HINTS $ENV{VERILATOR_ROOT})
 
 add_executable(vemu sim/main.cpp)
+
+target_include_directories(vemu PRIVATE
+    ${CMAKE_BINARY_DIR}/verilog/CMakeFiles/libvemu.dir/VGameboy.dir
+    ${VERILATOR_ROOT}/include
+)
+
+target_link_libraries(vemu PRIVATE
+    libvemu   
+)
+
+add_executable(vemu_tests 
+    tests/test_vemu_opcodes.cpp
+)
+
+target_link_libraries(vemu_tests PRIVATE 
+    libvemu 
+    GTest::gtest 
+    GTest::gtest_main 
+    nlohmann_json::nlohmann_json
+)
+
+target_compile_definitions(vemu_tests PRIVATE
+    TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/"
+)
+

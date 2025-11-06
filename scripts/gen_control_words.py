@@ -285,6 +285,83 @@ control_words[0xC9] = make_ret()
 opcode_comments[0xC9] = "RET"
 
 
+# 8 bit ALU operations
+def make_alu_op(base_opcode: int, alu_op: str, mnemonic: str):
+    for i, src in enumerate(registers):
+        opcode = base_opcode | i
+        cycles = []
+
+        if src == "(HL)":
+            # (HL) takes 2 cycles: read + execute
+            cycles = [
+                {
+                    "addr_src": "ADDR_HL",
+                    "data_bus_src": "DATA_BUS_SRC_Z",
+                    "data_bus_op": "DATA_BUS_OP_READ",
+                },
+                {
+                    "addr_src": "ADDR_PC",
+                    "data_bus_src": "DATA_BUS_SRC_IR",
+                    "data_bus_op": "DATA_BUS_OP_READ",
+                    "idu_op": "IDU_OP_INC",
+                    "alu_op": alu_op,
+                    "alu_dst": "ALU_SRC_A",
+                    "alu_src": "ALU_SRC_Z",
+                },
+            ]
+        else:
+            # Register source: single ALU cycle
+            cycles = [
+                {
+                    "addr_src": "ADDR_PC",
+                    "data_bus_src": "DATA_BUS_SRC_IR",
+                    "data_bus_op": "DATA_BUS_OP_READ",
+                    "idu_op": "IDU_OP_INC",
+                    "alu_op": alu_op,
+                    "alu_dst": "ALU_SRC_A",
+                    "alu_src": f"ALU_SRC_{src}",
+                }
+            ]
+
+        control_words[opcode] = cycles
+        opcode_comments[opcode] = f"{mnemonic} {src}"
+
+
+# ADD A,r
+make_alu_op(0x80, "ALU_OP_ADD", "ADD A,")
+
+# ADC A,r
+make_alu_op(0x88, "ALU_OP_ADC", "ADC A,")
+
+# SUB A,r
+make_alu_op(0x90, "ALU_OP_SUB", "SUB A,")
+
+# SBC A,r
+make_alu_op(0x98, "ALU_OP_SBC", "SBC A,")
+
+# AND A,r
+make_alu_op(0xA0, "ALU_OP_AND", "AND A,")
+
+# XOR A,r
+make_alu_op(0xA8, "ALU_OP_XOR", "XOR A,")
+
+# OR A,r
+make_alu_op(0xB0, "ALU_OP_OR", "OR A,")
+
+# # CP A,r
+# make_alu_op(0xB8, "ALU_OP_CP", "CP A,")
+
+# NOP
+control_words[0x00] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "idu_op": "IDU_OP_INC",
+    },
+]
+
+
 def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
     if not entry:
         comma = "," if not is_last else ""

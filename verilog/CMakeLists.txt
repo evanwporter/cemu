@@ -6,10 +6,8 @@ add_subdirectory(cpu)
 add_subdirectory(mmu)
 
 set(VERILOG_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/opcodes.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/control_words.sv
     ${CMAKE_CURRENT_SOURCE_DIR}/Gameboy.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
 )
 
 verilate(libvemu
@@ -18,7 +16,7 @@ verilate(libvemu
     VERILATOR_ARGS
         --sv
         --trace
-        -Wall
+        # -Wall
         -I${CMAKE_CURRENT_SOURCE_DIR}
         -I${CMAKE_CURRENT_SOURCE_DIR}/cpu
 )

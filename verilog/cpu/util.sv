@@ -79,23 +79,22 @@ function automatic void apply_alu_op(input alu_op_t op, input alu_src_t dst_sel,
     ALU_OP_COPY: dst_val = src_val;
 
     ALU_OP_ADD: begin
-      tmp     = dst_val + src_val;
+      tmp     = {1'b0, dst_val} + {1'b0, src_val};
       dst_val = tmp[7:0];
-      // You can later set regs.flags bits from tmp[8] etc.
     end
 
     ALU_OP_ADC: begin
-      tmp     = dst_val + src_val + regs.flags[4];  // Carry bit placeholder
+      tmp     = {1'b0, dst_val} + {1'b0, src_val} + {8'b0, regs.flags[4]};  // carry
       dst_val = tmp[7:0];
     end
 
     ALU_OP_SUB: begin
-      tmp     = {1'b0, dst_val} - src_val;
+      tmp     = {1'b0, dst_val} - {1'b0, src_val};
       dst_val = tmp[7:0];
     end
 
     ALU_OP_SBC: begin
-      tmp     = {1'b0, dst_val} - src_val - regs.flags[4];
+      tmp     = {1'b0, dst_val} - {1'b0, src_val} - {8'b0, regs.flags[4]};
       dst_val = tmp[7:0];
     end
 
@@ -152,8 +151,7 @@ function automatic logic eval_condition(input cond_t cond, input logic [7:0] fla
   endcase
 endfunction
 
-task automatic apply_misc_op(input misc_ops_t op, input misc_src_t dst_sel,
-                             input misc_src_t src_sel, ref cpu_regs_t regs);
+task automatic apply_misc_op(input misc_ops_t op, ref cpu_regs_t regs);
   logic [15:0] src_val;
 
   case (op)
