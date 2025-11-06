@@ -46,30 +46,6 @@ endfunction
     endcase \
   end
 
-
-task automatic apply_idu_op(input address_src_t s, input idu_op_t op, ref cpu_regs_t r);
-  $display("[%0t] Applying IDU op %s to %s", $time, op.name(), s.name());
-  unique case (op)
-    IDU_OP_INC: begin
-      unique case (s)
-        ADDR_PC: begin
-          logic [15:0] next_pc = r.pc + 16'd1;
-          r.pc <= r.pc + 16'd1;
-          $display("[%0t] IDU_OP_INC: PC will be %h", $time, next_pc);
-        end
-        ADDR_SP: r.sp <= r.sp + 16'd1;
-        ADDR_HL: {r.h, r.l} <= {r.h, r.l} + 16'd1;
-        ADDR_BC: {r.b, r.c} <= {r.b, r.c} + 16'd1;
-        ADDR_DE: {r.d, r.e} <= {r.d, r.e} + 16'd1;
-        default: ;
-      endcase
-    end
-    IDU_OP_DEC: ;
-    default: ;
-  endcase
-endtask
-
-
 function automatic void apply_alu_op(input alu_op_t op, input alu_src_t dst_sel,
                                      input alu_src_t src_sel, ref cpu_regs_t regs);
   // temporary values
