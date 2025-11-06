@@ -4,7 +4,7 @@
 `ifdef VERILATOR
 typedef struct {
 `else
-typedef struct packed {
+typedef struct {
 `endif
   logic [7:0] a, b, c, d, e, h, l;
 

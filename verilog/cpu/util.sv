@@ -27,11 +27,36 @@ function automatic logic [7:0] pick_wdata(data_bus_src_t s, cpu_regs_t r);
   endcase
 endfunction
 
-task automatic apply_idu_op(input address_src_t s, input idu_op_t op, inout cpu_regs_t r);
+`define APPLY_IDU_OP(SRC, OP, REGS) \
+  begin \
+    $display("[%0t] Applying IDU op %s to %s", $time, (OP).name(), (SRC).name()); \
+    unique case (OP) \
+      IDU_OP_INC: begin \
+        unique case (SRC) \
+          ADDR_PC: (REGS).pc <= (REGS).pc + 16'd1; \
+          ADDR_SP: (REGS).sp <= (REGS).sp + 16'd1; \
+          ADDR_HL: {(REGS).h, (REGS).l} <= {(REGS).h, (REGS).l} + 16'd1; \
+          ADDR_BC: {(REGS).b, (REGS).c} <= {(REGS).b, (REGS).c} + 16'd1; \
+          ADDR_DE: {(REGS).d, (REGS).e} <= {(REGS).d, (REGS).e} + 16'd1; \
+          default: ; \
+        endcase \
+      end \
+      IDU_OP_DEC: ; \
+      default: ; \
+    endcase \
+  end
+
+
+task automatic apply_idu_op(input address_src_t s, input idu_op_t op, ref cpu_regs_t r);
+  $display("[%0t] Applying IDU op %s to %s", $time, op.name(), s.name());
   unique case (op)
     IDU_OP_INC: begin
       unique case (s)
-        ADDR_PC: r.pc <= r.pc + 16'd1;
+        ADDR_PC: begin
+          logic [15:0] next_pc = r.pc + 16'd1;
+          r.pc <= r.pc + 16'd1;
+          $display("[%0t] IDU_OP_INC: PC will be %h", $time, next_pc);
+        end
         ADDR_SP: r.sp <= r.sp + 16'd1;
         ADDR_HL: {r.h, r.l} <= {r.h, r.l} + 16'd1;
         ADDR_BC: {r.b, r.c} <= {r.b, r.c} + 16'd1;
@@ -46,7 +71,7 @@ endtask
 
 
 function automatic void apply_alu_op(input alu_op_t op, input alu_src_t dst_sel,
-                                     input alu_src_t src_sel, inout cpu_regs_t regs);
+                                     input alu_src_t src_sel, ref cpu_regs_t regs);
   // temporary values
   logic [7:0] src_val, dst_val;
   logic [8:0] tmp;  // for carry
@@ -122,19 +147,20 @@ endfunction
 
 
 // Load data bus into selected 8-bit register
-task automatic load_reg_from_byte(input data_bus_src_t dst_sel, input logic [7:0] data_bus,
-                                  ref cpu_regs_t regs);
-  unique case (dst_sel)
-    DATA_BUS_SRC_A: regs.a <= data_bus;
-    DATA_BUS_SRC_B: regs.b <= data_bus;
-    DATA_BUS_SRC_C: regs.c <= data_bus;
-    DATA_BUS_SRC_D: regs.d <= data_bus;
-    DATA_BUS_SRC_E: regs.e <= data_bus;
-    DATA_BUS_SRC_H: regs.h <= data_bus;
-    DATA_BUS_SRC_L: regs.l <= data_bus;
-    default: ;
-  endcase
-endtask
+`define LOAD_REG_FROM_BYTE(DST_SEL, DATA_BUS, REGS) \
+  begin \
+    unique case (DST_SEL) \
+      DATA_BUS_SRC_A: (REGS).a <= (DATA_BUS); \
+      DATA_BUS_SRC_B: (REGS).b <= (DATA_BUS); \
+      DATA_BUS_SRC_C: (REGS).c <= (DATA_BUS); \
+      DATA_BUS_SRC_D: (REGS).d <= (DATA_BUS); \
+      DATA_BUS_SRC_E: (REGS).e <= (DATA_BUS); \
+      DATA_BUS_SRC_H: (REGS).h <= (DATA_BUS); \
+      DATA_BUS_SRC_L: (REGS).l <= (DATA_BUS); \
+      default: ; \
+    endcase \
+  end
+
 
 function automatic logic eval_condition(input cond_t cond, input logic [7:0] flags);
   logic zero_flag, carry_flag;
@@ -151,17 +177,17 @@ function automatic logic eval_condition(input cond_t cond, input logic [7:0] fla
   endcase
 endfunction
 
-task automatic apply_misc_op(input misc_ops_t op, ref cpu_regs_t regs);
-  logic [15:0] src_val;
+`define APPLY_MISC_OP(OP, REGS) \
+  begin \
+    logic [15:0] src_val; \
+    unique case (OP) \
+      MISC_OP_WZ_TO_PC: begin \
+        (REGS).pc <= {(REGS).w, (REGS).z}; \
+      end \
+      default: ; /* nothing to do */ \
+    endcase \
+  end
 
-  case (op)
-    MISC_OP_WZ_TO_PC: begin
-      regs.pc <= {regs.w, regs.z};
-    end
-
-    default: ;  // nothing to do
-  endcase
-endtask
 
 
 `endif  // CPU_UTIL_SV
