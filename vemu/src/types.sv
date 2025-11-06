@@ -1,11 +1,16 @@
 `ifndef TYPES_SV
 `define TYPES_SV 
 
-`ifdef VERILATOR
-typedef struct {
+// When using Verilator I need it unpacked so I can access fields
+// from regs in C++.
+`ifndef VERILATOR
+`define PACK_REG packed
 `else
-typedef struct {
+`define PACK_REG
 `endif
+
+
+typedef struct `PACK_REG {
   logic [7:0] a, b, c, d, e, h, l;
 
   // Temporary storage during operations

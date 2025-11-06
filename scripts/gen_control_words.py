@@ -362,6 +362,50 @@ control_words[0x00] = [
 ]
 opcode_comments[0x00] = "NOP"
 
+# INC/DEC r
+for incdec in ("INC", "DEC"):
+    for i, reg in enumerate(registers):
+        if reg == "(HL)":
+            opcode = 0x34 if incdec == "INC" else 0x35
+            cycles = [
+                {
+                    "addr_src": "ADDR_HL",
+                    "data_bus_src": "DATA_BUS_SRC_Z",
+                    "data_bus_op": "DATA_BUS_OP_READ",
+                    "alu_op": f"ALU_OP_{incdec}",
+                    "alu_dst": "ALU_SRC_Z",
+                    "alu_src": "ALU_SRC_NONE",
+                },
+                {
+                    "addr_src": "ADDR_HL",
+                    "data_bus_src": "DATA_BUS_SRC_Z",
+                    "data_bus_op": "DATA_BUS_OP_WRITE",
+                },
+                {
+                    "addr_src": "ADDR_PC",
+                    "data_bus_op": "DATA_BUS_OP_READ",
+                    "data_bus_src": "DATA_BUS_SRC_IR",
+                    "idu_op": "IDU_OP_INC",
+                },
+            ]
+            control_words[opcode] = cycles
+            opcode_comments[opcode] = f"{incdec} (HL)"
+        else:
+            opcode = 0x05 | (i << 3)
+            cycles = [
+                {
+                    "addr_src": "ADDR_PC",
+                    "data_bus_src": "DATA_BUS_SRC_IR",
+                    "data_bus_op": "DATA_BUS_OP_READ",
+                    "idu_op": "IDU_OP_INC",
+                    "alu_op": f"ALU_OP_{incdec}",
+                    "alu_dst": f"ALU_SRC_{reg}",
+                    "alu_src": "ALU_SRC_NONE",
+                }
+            ]
+            control_words[opcode] = cycles
+            opcode_comments[opcode] = f"{incdec} {reg}"
+
 
 def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
     if not entry:
