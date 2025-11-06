@@ -407,6 +407,68 @@ for incdec in ("INC", "DEC"):
             opcode_comments[opcode] = f"{incdec} {reg}"
 
 
+reg_pairs = [
+    ("BC", 0x02, 0x0A),
+    ("DE", 0x12, 0x1A),
+    ("HL+", 0x22, 0x2A),
+    ("HL-", 0x32, 0x3A),
+]
+
+for pair, opcode_store, opcode_load in reg_pairs:
+    base = pair.replace("+", "").replace("-", "")
+
+    # LD (rr),A
+    cycles_store = [
+        {
+            "addr_src": f"ADDR_{base}",
+            "data_bus_src": "DATA_BUS_SRC_A",
+            "data_bus_op": "DATA_BUS_OP_WRITE",
+            "idu_op": (
+                "IDU_OP_INC"
+                if "+" in pair
+                else "IDU_OP_DEC"
+                if "-" in pair
+                else "IDU_OP_NONE"
+            ),
+        },
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_IR",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+        },
+    ]
+    control_words[opcode_store] = cycles_store
+    opcode_comments[opcode_store] = f"LD ({pair}),A"
+
+    # LD A,(rr)
+    cycles_load = [
+        {
+            "addr_src": f"ADDR_{base}",
+            "data_bus_src": "DATA_BUS_SRC_Z",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": (
+                "IDU_OP_INC"
+                if "+" in pair
+                else "IDU_OP_DEC"
+                if "-" in pair
+                else "IDU_OP_NONE"
+            ),
+        },
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_IR",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+            "alu_op": "ALU_OP_COPY",
+            "alu_dst": "ALU_SRC_A",
+            "alu_src": "ALU_SRC_Z",
+        },
+    ]
+    control_words[opcode_load] = cycles_load
+    opcode_comments[opcode_load] = f"LD A,({pair})"
+
+
 def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
     if not entry:
         comma = "," if not is_last else ""
