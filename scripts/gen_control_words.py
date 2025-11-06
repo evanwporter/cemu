@@ -360,12 +360,13 @@ control_words[0x00] = [
         "idu_op": "IDU_OP_INC",
     },
 ]
+opcode_comments[0x00] = "NOP"
 
 
 def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
     if not entry:
         comma = "," if not is_last else ""
-        return f"            `DEFAULT_CYCLE{comma}  // M-cycle {i + 1}\n"
+        return f"            {i}: `DEFAULT_CYCLE{comma}  // M-cycle {i + 1}\n"
 
     filled = DEFAULT_FIELDS.copy()
     filled.update(entry)
@@ -373,7 +374,7 @@ def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
     fields = [f"                {key} : {val}" for key, val in filled.items()]
     comma = "," if not is_last else ""
     return (
-        f"            '{{  // M-cycle {i + 1}\n"
+        f"            {i}: '{{  // M-cycle {i + 1}\n"
         + ",\n".join(fields)
         + f"\n            }}{comma}\n"
     )
@@ -391,7 +392,7 @@ def count_real_cycles(cycles: list) -> int:
 def generate_sv(control_words, opcode_comments) -> str:
     lines = []
     lines.append("`ifndef CONTROL_WORDS_SV\n`define CONTROL_WORDS_SV\n")
-    lines.append('`include "opcodes.sv"\n\n')
+    lines.append('`include "cpu/opcodes.sv"\n\n')
     lines.append("localparam control_word_t control_words [0:255] = '{\n")
 
     for opcode in range(256):
@@ -401,7 +402,7 @@ def generate_sv(control_words, opcode_comments) -> str:
             comment = "UNDEFINED"
         comment_str = f" {comment}" if comment else ""
 
-        lines.append(f"    8'h{opcode:02X}: '{{  //{comment_str}\n")
+        lines.append(f"    'h{opcode:02X}: '{{  // {comment_str}\n")
 
         if cycles:
             num_real = count_real_cycles(cycles)
