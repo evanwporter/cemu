@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(src)
 add_subdirectory(verilog)
+add_subdirectory(tests)
 
 set(EXE_SOURCES
   src/main.cpp
@@ -81,6 +82,5 @@ target_link_libraries(vemu_tests PRIVATE
 )
 
 target_compile_definitions(vemu_tests PRIVATE
-    TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/"
+    TEST_DIR="${CMAKE_SOURCE_DIR}/tests/"
 )
-
