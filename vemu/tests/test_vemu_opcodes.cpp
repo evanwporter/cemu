@@ -14,59 +14,91 @@ using json = nlohmann::json;
 using u8 = uint8_t;
 using u16 = uint16_t;
 
-double sc_time_stamp() { return 0.0; }
+static vluint64_t timestamp = 0;
+
+double sc_time_stamp() { return timestamp; }
 
 static const fs::path kTestDir = fs::path(TEST_DIR) / "GameboyCPUTests/v2";
+
+void tick(VGameboy& top, VerilatedContext& ctx) {
+    top.clk = 0;
+    top.eval();
+    ctx.timeInc(5);
+
+    top.clk = 1;
+    top.eval();
+    ctx.timeInc(5);
+}
+
+void applyInitialState(VGameboy& top, const json& init) {
+    auto* regs = &top.rootp->Gameboy__DOT__cpu__DOT__regs;
+
+    if (init.contains("a"))
+        regs->__PVT__a = init["a"].get<u8>();
+    if (init.contains("b"))
+        regs->__PVT__b = init["b"].get<u8>();
+    if (init.contains("c"))
+        regs->__PVT__c = init["c"].get<u8>();
+    if (init.contains("d"))
+        regs->__PVT__d = init["d"].get<u8>();
+    if (init.contains("e"))
+        regs->__PVT__e = init["e"].get<u8>();
+    if (init.contains("f"))
+        regs->__PVT__flags = init["f"].get<u8>();
+    if (init.contains("h"))
+        regs->__PVT__h = init["h"].get<u8>();
+    if (init.contains("l"))
+        regs->__PVT__l = init["l"].get<u8>();
+    if (init.contains("sp"))
+        regs->__PVT__sp = init["sp"].get<u16>();
+    if (init.contains("pc"))
+        regs->__PVT__pc = init["pc"].get<u16>() - 1; // match C++ version
+}
+
+void verifyRegisters(const VGameboy& top, const json& expected, const std::string& test_name) {
+    auto* regs = &top.rootp->Gameboy__DOT__cpu__DOT__regs;
+
+    EXPECT_EQ(regs->__PVT__a, expected["a"].get<u8>()) << "Test: " << test_name;
+    EXPECT_EQ(regs->__PVT__b, expected["b"].get<u8>()) << "Test: " << test_name;
+    EXPECT_EQ(regs->__PVT__c, expected["c"].get<u8>()) << "Test: " << test_name;
+    EXPECT_EQ(regs->__PVT__d, expected["d"].get<u8>()) << "Test: " << test_name;
+    EXPECT_EQ(regs->__PVT__e, expected["e"].get<u8>()) << "Test: " << test_name;
+    EXPECT_EQ(regs->__PVT__flags, expected["f"].get<u8>()) << "Test: " << test_name;
+    EXPECT_EQ(regs->__PVT__h, expected["h"].get<u8>()) << "Test: " << test_name;
+    EXPECT_EQ(regs->__PVT__l, expected["l"].get<u8>()) << "Test: " << test_name;
+    EXPECT_EQ(regs->__PVT__sp, expected["sp"].get<u16>()) << "Test: " << test_name;
+    EXPECT_EQ(regs->__PVT__pc, expected["pc"].get<u16>()) << "Test: " << test_name;
+}
 
 class GameboyCpuFileTest : public ::testing::TestWithParam<fs::path> { };
 
 TEST_P(GameboyCpuFileTest, RunAllCases_Verilog) {
     const auto path = GetParam();
-
-    ifstream f(path);
-    ASSERT_TRUE(f.is_open()) << "Failed to open test file: " << path.string();
+    std::ifstream f(path);
+    ASSERT_TRUE(f.is_open()) << "Failed to open test file: " << path;
 
     json testFile;
     f >> testFile;
-    ASSERT_TRUE(testFile.is_array()) << "Expected JSON array of test cases";
+    ASSERT_TRUE(testFile.is_array());
 
     for (const auto& testCase : testFile) {
-        ASSERT_TRUE(testCase.contains("initial"));
-        ASSERT_TRUE(testCase.contains("final"));
+        VerilatedContext ctx;
+        ctx.debug(0);
+        ctx.time(0);
 
-        VGameboy top;
+        VGameboy top(&ctx);
+
         top.reset = 1;
-        top.clk = 0;
-        for (int i = 0; i < 2; ++i) {
-            top.clk = !top.clk;
-            top.eval();
-        }
+        for (int i = 0; i < 4; ++i)
+            tick(top, ctx);
         top.reset = 0;
 
-        const auto& init = testCase["initial"];
-        if (init.contains("a"))
-            top.rootp->Gameboy__DOT__cpu__DOT__regs.__PVT__a = init["a"].get<u8>();
-        if (init.contains("pc"))
-            top.rootp->Gameboy__DOT__cpu__DOT__regs.__PVT__pc = init["pc"].get<u16>();
+        applyInitialState(top, testCase["initial"]);
 
-        for (int t = 0; t < 22; ++t) {
-            top.clk = !top.clk;
-            top.eval();
-        }
+        for (int t = 0; t < 16; ++t)
+            tick(top, ctx);
 
-        const auto& expected = testCase["final"];
-        const std::string test_name = testCase.contains("name")
-            ? testCase["name"].get<std::string>()
-            : path.filename().string();
-
-        if (expected.contains("a")) {
-            EXPECT_EQ(top.rootp->Gameboy__DOT__cpu__DOT__regs.__PVT__a, expected["a"].get<u8>())
-                << "Mismatch in register A (" << test_name << ")";
-        }
-        if (expected.contains("pc")) {
-            EXPECT_EQ(top.rootp->Gameboy__DOT__cpu__DOT__regs.__PVT__pc, expected["pc"].get<u16>())
-                << "Mismatch in register PC (" << test_name << ")";
-        }
+        verifyRegisters(top, testCase["final"], testCase["name"]);
     }
 }
 
@@ -82,11 +114,8 @@ INSTANTIATE_TEST_SUITE_P(
                 break;
             }
         }
-        // Fallback: use a single example if directory is empty
-        if (files.empty())
-            files.push_back("tests/sample.json");
         return files;
     }()),
     [](const ::testing::TestParamInfo<fs::path>& info) {
-        return info.param.stem().string(); // test name derived from filename
+        return info.param.stem().string();
     });
