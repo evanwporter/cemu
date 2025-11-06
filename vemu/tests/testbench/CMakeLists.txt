@@ -8,9 +8,6 @@ set(TESTBENCH_SOURCES
 
 if (MSVC)
     add_compile_options(/wd4018)
-    string(REPLACE "-fcoroutines" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-    string(REPLACE "-fcoroutines" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-    string(REPLACE "-fcoroutines" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 endif()
 
 get_property(VERILOG_SOURCES GLOBAL PROPERTY VERILOG_SOURCES)
@@ -32,7 +29,8 @@ foreach(TB_FILE ${TESTBENCH_SOURCES})
             -Wall
             --timing
             --Wno-fatal
-            -I${CMAKE_SOURCE_DIR}/verilog
+            -I${CMAKE_CURRENT_SOURCE_DIR}
+            -I${CMAKE_SOURCE_DIR}/vemu/src
     )
 
 endforeach()

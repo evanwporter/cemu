@@ -1,7 +1,6 @@
 #include "Vcpu_tb.h"
 #include "verilated.h"
 #include "verilated_vcd_c.h"
-#include <iostream>
 
 static vluint64_t main_time = 0;
 double sc_time_stamp() { return main_time; }

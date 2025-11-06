@@ -434,6 +434,6 @@ def generate_sv(control_words, opcode_comments) -> str:
     return "".join(lines)
 
 
-output_path = "verilog/cpu/control_words.sv"
+output_path = "vemu/src/cpu/control_words.sv"
 with open(output_path, "w", newline="\n") as f:
     f.write(generate_sv(control_words, opcode_comments))
