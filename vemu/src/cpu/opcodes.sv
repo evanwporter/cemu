@@ -90,8 +90,8 @@ typedef enum logic [2:0] {
 typedef enum logic [2:0] {
   MISC_OP_NONE,
   MISC_OP_HALT,
-  MISC_OP_EI,
-  MISC_OP_DI,
+  MISC_OP_IME_DISABLE,
+  MISC_OP_IME_ENABLE,
   MISC_OP_COND_CHECK,
   MISC_OP_R16_COPY
 } misc_ops_t;

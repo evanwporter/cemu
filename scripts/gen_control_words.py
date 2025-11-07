@@ -260,7 +260,7 @@ def make_ret(cond_sv: str | None = None):
             },
         )
 
-        # Fill last slot for “not taken” alignment
+        # Fill last slot for “not taken” condition
         cycles[5] = {
             "addr_src": "ADDR_PC",
             "data_bus_src": "DATA_BUS_SRC_IR",
@@ -471,6 +471,67 @@ for pair, opcode_store, opcode_load in reg_pairs:
     ]
     control_words[opcode_load] = cycles_load
     opcode_comments[opcode_load] = f"LD A,({pair})"
+
+
+# LD (a16), SP
+# Opcode 0x08
+control_words[0x08] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_Z",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+    },
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_W",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+    },
+    {
+        "addr_src": "ADDR_WZ",
+        "data_bus_src": "DATA_BUS_SRC_SPL",
+        "data_bus_op": "DATA_BUS_OP_WRITE",
+        "idu_op": "IDU_OP_INC",
+    },
+    {
+        "addr_src": "ADDR_WZ",
+        "data_bus_src": "DATA_BUS_SRC_SPH",
+        "data_bus_op": "DATA_BUS_OP_WRITE",
+        "idu_op": "IDU_OP_INC",
+    },
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+    },
+]
+opcode_comments[0x08] = "LD (a16), SP"
+
+# DI
+opcode_comments[0xF3] = "DI"
+control_words[0xF3] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+        "misc_op": "MISC_OP_IME_DISABLE",
+    }
+]
+
+# DI
+opcode_comments[0xFB] = "EI"
+control_words[0xFB] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+        "misc_op": "MISC_OP_IME_ENABLE",
+    }
+]
 
 
 def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
