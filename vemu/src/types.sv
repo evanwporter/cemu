@@ -9,7 +9,6 @@
 `define PACK_REG
 `endif
 
-
 typedef struct `PACK_REG {
   logic [7:0] a, b, c, d, e, h, l;
 
@@ -22,8 +21,12 @@ typedef struct `PACK_REG {
   // Interrupt Enable
   logic [7:0] IE;
 
+  logic [7:0] IME;
+
   logic [7:0] flags;
   logic [15:0] sp, pc;
+
+  logic [7:0] pch, pcl;
 
   // stack pointer
   logic [7:0] sph, spl;

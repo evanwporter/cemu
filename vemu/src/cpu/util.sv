@@ -1,6 +1,23 @@
 `ifndef CPU_UTIL_SV
 `define CPU_UTIL_SV 
 
+`define DEFINE_REG_PAIR(PAIR, HI, LO) \
+  function automatic logic [15:0] get_``PAIR``(ref cpu_regs_t regs); \
+    return {regs.``HI``, regs.``LO``}; \
+  endfunction \
+  \
+  function automatic void set_``PAIR``(ref cpu_regs_t regs, logic [15:0] val); \
+    regs.``HI`` = val[15:8]; \
+    regs.``LO`` = val[7:0]; \
+  endfunction
+
+`DEFINE_REG_PAIR(af, a, flags)
+`DEFINE_REG_PAIR(bc, b, c)
+`DEFINE_REG_PAIR(de, d, e)
+`DEFINE_REG_PAIR(hl, h, l)
+`DEFINE_REG_PAIR(wz, w, z)
+`undef DEFINE_REG_PAIR
+
 function automatic logic [15:0] pick_addr(input address_src_t s, input cpu_regs_t r);
   unique case (s)
     ADDR_PC: pick_addr = r.pc;
@@ -153,12 +170,22 @@ function automatic logic eval_condition(input cond_t cond, input logic [7:0] fla
   endcase
 endfunction
 
-`define APPLY_MISC_OP(OP, REGS) \
+`define APPLY_MISC_OP(OP, DST, REGS) \
   begin \
-    logic [15:0] src_val; \
     unique case (OP) \
-      MISC_OP_WZ_TO_PC: begin \
-        (REGS).pc <= {(REGS).w, (REGS).z}; \
+      MISC_OP_IME_ENABLE: begin \
+        (REGS).IME <= 1'b1; \
+      end \
+      MISC_OP_IME_DISABLE: begin \
+        (REGS).IME <= 1'b0; \
+      end \
+      MISC_OP_R16_COPY: begin \
+        unique case (DST) \
+          MISC_OP_DST_PC: {(REGS).pch, (REGS).pcl} <= get_wz((REGS)); \
+          MISC_OP_DST_SP: {(REGS).sph, (REGS).spl} <= get_wz((REGS)); \
+          MISC_OP_DST_BC: {(REGS).b, (REGS).c} <= get_wz((REGS)); \
+          MISC_OP_DST_DE: {(REGS).d, (REGS).e} <= get_wz((REGS)); \
+        endcase \
       end \
       default: ; /* nothing to do */ \
     endcase \

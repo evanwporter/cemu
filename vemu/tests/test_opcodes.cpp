@@ -30,8 +30,27 @@ void tick(VGameboy& top, VerilatedContext& ctx) {
     ctx.timeInc(5);
 }
 
-void applyInitialState(VGameboy& top, const json& init) {
-    auto* regs = &top.rootp->Gameboy__DOT__cpu__DOT__regs;
+void apply_ram(VGameboy& gb, const json& ramList) {
+    for (const auto& pair : ramList) {
+        u16 addr = pair[0].get<u16>();
+        u8 val = pair[1].get<u8>();
+        gb.rootp->Gameboy__DOT__mmu__DOT__memory[addr] = val;
+    }
+}
+
+void verify_ram(const VGameboy& gb, const json& ramList, const std::string& test_name) {
+    for (const auto& pair : ramList) {
+        u16 addr = pair[0].get<u16>();
+        u8 expected = pair[1].get<u8>();
+        u8 actual = gb.rootp->Gameboy__DOT__mmu__DOT__memory[addr];
+        ASSERT_EQ(actual, expected)
+            << "RAM mismatch at 0x" << std::hex << addr
+            << " during test \"" << test_name << "\"";
+    }
+}
+
+void apply_initial_state(VGameboy& gb, const json& init) {
+    auto* regs = &gb.rootp->Gameboy__DOT__cpu__DOT__regs;
 
     if (init.contains("a"))
         regs->__PVT__a = init["a"].get<u8>();
@@ -52,10 +71,12 @@ void applyInitialState(VGameboy& top, const json& init) {
     if (init.contains("sp"))
         regs->__PVT__sp = init["sp"].get<u16>();
     if (init.contains("pc"))
-        regs->__PVT__pc = init["pc"].get<u16>() - 1; // match C++ version
+        regs->__PVT__pc = init["pc"].get<u16>() - 1;
+
+    apply_ram(gb, init["ram"]);
 }
 
-void verifyRegisters(const VGameboy& top, const json& expected, const std::string& test_name) {
+void verify_registers(const VGameboy& top, const json& expected, const std::string& test_name) {
     auto* regs = &top.rootp->Gameboy__DOT__cpu__DOT__regs;
 
     EXPECT_EQ(regs->__PVT__a, expected["a"].get<u8>()) << "Test: " << test_name;
@@ -72,7 +93,7 @@ void verifyRegisters(const VGameboy& top, const json& expected, const std::strin
 
 class GameboyCpuFileTest : public ::testing::TestWithParam<fs::path> { };
 
-TEST_P(GameboyCpuFileTest, RunAllCases_Verilog) {
+TEST_P(GameboyCpuFileTest, RunAllCases) {
     const auto path = GetParam();
     std::ifstream f(path);
     ASSERT_TRUE(f.is_open()) << "Failed to open test file: " << path;
@@ -93,12 +114,15 @@ TEST_P(GameboyCpuFileTest, RunAllCases_Verilog) {
             tick(top, ctx);
         top.reset = 0;
 
-        applyInitialState(top, testCase["initial"]);
+        apply_initial_state(top, testCase["initial"]);
 
         for (int t = 0; t < 16; ++t)
             tick(top, ctx);
 
-        verifyRegisters(top, testCase["final"], testCase["name"]);
+        const std::string test_name = testCase["name"].get<std::string>();
+
+        verify_registers(top, testCase["final"], test_name);
+        verify_ram(top, testCase["final"]["ram"], test_name);
     }
 }
 

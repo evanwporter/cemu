@@ -60,7 +60,12 @@ typedef enum logic [3:0] {
   ALU_OP_OR,
   ALU_OP_XOR,
   ALU_OP_INC,
-  ALU_OP_DEC
+  ALU_OP_DEC,
+
+  ALU_OP_RR,
+  ALU_OP_RRC,
+  ALU_OP_RL,
+  ALU_OP_RLC
 } alu_op_t;
 
 typedef enum logic [3:0] {
@@ -84,7 +89,8 @@ typedef enum logic [2:0] {
   MISC_OP_DST_PC,
   MISC_OP_DST_SP,
   MISC_OP_DST_BC,
-  MISC_OP_DST_DE
+  MISC_OP_DST_DE,
+  MISC_OP_DST_HL
 } misc_op_dst_t;
 
 typedef enum logic [2:0] {

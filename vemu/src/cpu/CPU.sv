@@ -7,22 +7,6 @@
 `include "cpu/util.sv"
 `include "util/logger.sv"
 
-`define DEFINE_REG_PAIR(PAIR, HI, LO) \
-  function automatic logic [15:0] get_``PAIR``(ref cpu_regs_t regs); \
-    return {regs.``HI``, regs.``LO``}; \
-  endfunction \
-  \
-  function automatic void set_``PAIR``(ref cpu_regs_t regs, logic [15:0] val); \
-    regs.``HI`` = val[15:8]; \
-    regs.``LO`` = val[7:0]; \
-  endfunction
-
-`DEFINE_REG_PAIR(af, a, flags)
-`DEFINE_REG_PAIR(bc, b, c)
-`DEFINE_REG_PAIR(de, d, e)
-`DEFINE_REG_PAIR(hl, h, l)
-`undef DEFINE_REG_PAIR
-
 module CPU (
     input logic clk,
     input logic reset,
@@ -132,7 +116,8 @@ module CPU (
                        control_word.cycles[cycle_count].alu_src, regs);
 
           // applies the misc op to the specified registers
-          `APPLY_MISC_OP(control_word.cycles[cycle_count].misc_op, regs);
+          `APPLY_MISC_OP(control_word.cycles[cycle_count].misc_op,
+                         control_word.cycles[cycle_count].misc_op_dst, regs);
 
           MMU_req_read  <= 1'b0;
           MMU_req_write <= 1'b0;

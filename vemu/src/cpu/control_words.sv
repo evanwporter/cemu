@@ -2,7 +2,7 @@
 `define CONTROL_WORDS_SV
 `include "cpu/opcodes.sv"
 
-localparam control_word_t control_words [0:255] = '{
+localparam control_word_t control_words[0:255] = '{
     'h00: '{  //  NOP
         num_cycles : 3'd1,
         cycles : '{
@@ -61,7 +61,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
                 misc_op : MISC_OP_R16_COPY,
-                misc_op_dst : MISC_OP_DST_{pair},
+                misc_op_dst : MISC_OP_DST_BC,
                 cond : COND_NONE
             },
             3: `DEFAULT_CYCLE,  // M-cycle 4
@@ -208,7 +208,7 @@ localparam control_word_t control_words [0:255] = '{
             },
             2: '{  // M-cycle 3
                 addr_src : ADDR_WZ,
-                data_bus_src : DATA_BUS_SRC_SPL,
+                data_bus_src : DATA_BUS_SRC_SP_LOW,
                 data_bus_op : DATA_BUS_OP_WRITE,
                 idu_op : IDU_OP_INC,
                 alu_op : ALU_OP_NONE,
@@ -220,7 +220,7 @@ localparam control_word_t control_words [0:255] = '{
             },
             3: '{  // M-cycle 4
                 addr_src : ADDR_WZ,
-                data_bus_src : DATA_BUS_SRC_SPH,
+                data_bus_src : DATA_BUS_SRC_SP_HIGH,
                 data_bus_op : DATA_BUS_OP_WRITE,
                 idu_op : IDU_OP_INC,
                 alu_op : ALU_OP_NONE,
@@ -413,7 +413,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
                 misc_op : MISC_OP_R16_COPY,
-                misc_op_dst : MISC_OP_DST_{pair},
+                misc_op_dst : MISC_OP_DST_DE,
                 cond : COND_NONE
             },
             3: `DEFAULT_CYCLE,  // M-cycle 4
@@ -710,7 +710,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
                 misc_op : MISC_OP_R16_COPY,
-                misc_op_dst : MISC_OP_DST_{pair},
+                misc_op_dst : MISC_OP_DST_HL,
                 cond : COND_NONE
             },
             3: `DEFAULT_CYCLE,  // M-cycle 4
@@ -985,7 +985,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
                 misc_op : MISC_OP_R16_COPY,
-                misc_op_dst : MISC_OP_DST_{pair},
+                misc_op_dst : MISC_OP_DST_SP,
                 cond : COND_NONE
             },
             3: `DEFAULT_CYCLE,  // M-cycle 4
@@ -4492,14 +4492,47 @@ localparam control_word_t control_words [0:255] = '{
         }
     },
     'hC5: '{  //  UNDEFINED
-        num_cycles : 3'd0,
+        num_cycles : 3'd3,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            0: '{  // M-cycle 1
+                addr_src : ADDR_SP,
+                data_bus_src : DATA_BUS_SRC_Z,
+                data_bus_op : DATA_BUS_OP_WRITE,
+                idu_op : IDU_OP_INC,
+                alu_op : ALU_OP_NONE,
+                alu_dst : ALU_SRC_NONE,
+                alu_src : ALU_SRC_NONE,
+                misc_op : MISC_OP_NONE,
+                misc_op_dst : MISC_OP_DST_NONE,
+                cond : COND_NONE
+            },
+            1: '{  // M-cycle 2
+                addr_src : ADDR_SP,
+                data_bus_src : DATA_BUS_SRC_W,
+                data_bus_op : DATA_BUS_OP_WRITE,
+                idu_op : IDU_OP_INC,
+                alu_op : ALU_OP_NONE,
+                alu_dst : ALU_SRC_NONE,
+                alu_src : ALU_SRC_NONE,
+                misc_op : MISC_OP_NONE,
+                misc_op_dst : MISC_OP_DST_NONE,
+                cond : COND_NONE
+            },
+            2: '{  // M-cycle 3
+                addr_src : ADDR_PC,
+                data_bus_src : DATA_BUS_SRC_IR,
+                data_bus_op : DATA_BUS_OP_READ,
+                idu_op : IDU_OP_INC,
+                alu_op : ALU_OP_NONE,
+                alu_dst : ALU_SRC_NONE,
+                alu_src : ALU_SRC_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_BC,
+                cond : COND_NONE
+            },
+            3: `DEFAULT_CYCLE,  // M-cycle 4
+            4: `DEFAULT_CYCLE,  // M-cycle 5
+            5: `DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hC6: '{  //  UNDEFINED
@@ -5119,14 +5152,47 @@ localparam control_word_t control_words [0:255] = '{
         }
     },
     'hD5: '{  //  UNDEFINED
-        num_cycles : 3'd0,
+        num_cycles : 3'd3,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            0: '{  // M-cycle 1
+                addr_src : ADDR_SP,
+                data_bus_src : DATA_BUS_SRC_Z,
+                data_bus_op : DATA_BUS_OP_WRITE,
+                idu_op : IDU_OP_INC,
+                alu_op : ALU_OP_NONE,
+                alu_dst : ALU_SRC_NONE,
+                alu_src : ALU_SRC_NONE,
+                misc_op : MISC_OP_NONE,
+                misc_op_dst : MISC_OP_DST_NONE,
+                cond : COND_NONE
+            },
+            1: '{  // M-cycle 2
+                addr_src : ADDR_SP,
+                data_bus_src : DATA_BUS_SRC_W,
+                data_bus_op : DATA_BUS_OP_WRITE,
+                idu_op : IDU_OP_INC,
+                alu_op : ALU_OP_NONE,
+                alu_dst : ALU_SRC_NONE,
+                alu_src : ALU_SRC_NONE,
+                misc_op : MISC_OP_NONE,
+                misc_op_dst : MISC_OP_DST_NONE,
+                cond : COND_NONE
+            },
+            2: '{  // M-cycle 3
+                addr_src : ADDR_PC,
+                data_bus_src : DATA_BUS_SRC_IR,
+                data_bus_op : DATA_BUS_OP_READ,
+                idu_op : IDU_OP_INC,
+                alu_op : ALU_OP_NONE,
+                alu_dst : ALU_SRC_NONE,
+                alu_src : ALU_SRC_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_DE,
+                cond : COND_NONE
+            },
+            3: `DEFAULT_CYCLE,  // M-cycle 4
+            4: `DEFAULT_CYCLE,  // M-cycle 5
+            5: `DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hD6: '{  //  UNDEFINED
@@ -5471,14 +5537,47 @@ localparam control_word_t control_words [0:255] = '{
         }
     },
     'hE5: '{  //  UNDEFINED
-        num_cycles : 3'd0,
+        num_cycles : 3'd3,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            0: '{  // M-cycle 1
+                addr_src : ADDR_SP,
+                data_bus_src : DATA_BUS_SRC_Z,
+                data_bus_op : DATA_BUS_OP_WRITE,
+                idu_op : IDU_OP_INC,
+                alu_op : ALU_OP_NONE,
+                alu_dst : ALU_SRC_NONE,
+                alu_src : ALU_SRC_NONE,
+                misc_op : MISC_OP_NONE,
+                misc_op_dst : MISC_OP_DST_NONE,
+                cond : COND_NONE
+            },
+            1: '{  // M-cycle 2
+                addr_src : ADDR_SP,
+                data_bus_src : DATA_BUS_SRC_W,
+                data_bus_op : DATA_BUS_OP_WRITE,
+                idu_op : IDU_OP_INC,
+                alu_op : ALU_OP_NONE,
+                alu_dst : ALU_SRC_NONE,
+                alu_src : ALU_SRC_NONE,
+                misc_op : MISC_OP_NONE,
+                misc_op_dst : MISC_OP_DST_NONE,
+                cond : COND_NONE
+            },
+            2: '{  // M-cycle 3
+                addr_src : ADDR_PC,
+                data_bus_src : DATA_BUS_SRC_IR,
+                data_bus_op : DATA_BUS_OP_READ,
+                idu_op : IDU_OP_INC,
+                alu_op : ALU_OP_NONE,
+                alu_dst : ALU_SRC_NONE,
+                alu_src : ALU_SRC_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_HL,
+                cond : COND_NONE
+            },
+            3: `DEFAULT_CYCLE,  // M-cycle 4
+            4: `DEFAULT_CYCLE,  // M-cycle 5
+            5: `DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hE6: '{  //  UNDEFINED
@@ -5790,4 +5889,4 @@ localparam control_word_t control_words [0:255] = '{
         }
     }
 };
-`endif // CONTROL_WORDS_SV
+`endif  // CONTROL_WORDS_SV

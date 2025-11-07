@@ -490,13 +490,13 @@ control_words[0x08] = [
     },
     {
         "addr_src": "ADDR_WZ",
-        "data_bus_src": "DATA_BUS_SRC_SPL",
+        "data_bus_src": "DATA_BUS_SRC_SP_LOW",
         "data_bus_op": "DATA_BUS_OP_WRITE",
         "idu_op": "IDU_OP_INC",
     },
     {
         "addr_src": "ADDR_WZ",
-        "data_bus_src": "DATA_BUS_SRC_SPH",
+        "data_bus_src": "DATA_BUS_SRC_SP_HIGH",
         "data_bus_op": "DATA_BUS_OP_WRITE",
         "idu_op": "IDU_OP_INC",
     },
@@ -532,6 +532,57 @@ control_words[0xFB] = [
         "misc_op": "MISC_OP_IME_ENABLE",
     }
 ]
+
+# PUSH
+for pair, opcode in {"BC": 0xC5, "DE": 0xD5, "HL": 0xE5}.items():
+    control_words[opcode] = [
+        {
+            "addr_src": "ADDR_SP",
+            "idu_op": "IDU_OP_DEC",
+        },
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_src": f"DATA_BUS_SRC_{pair[0]}",
+            "data_bus_op": "DATA_BUS_OP_WRITE",
+            "idu_op": "IDU_OP_DEC",
+        },
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_src": f"DATA_BUS_SRC_{pair[1]}",
+            "data_bus_op": "DATA_BUS_OP_WRITE",
+        },
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_IR",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+        },
+    ]
+
+# POP
+for pair, opcode in {"BC": 0xC5, "DE": 0xD5, "HL": 0xE5}.items():
+    control_words[opcode] = [
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_src": "DATA_BUS_SRC_Z",
+            "data_bus_op": "DATA_BUS_OP_WRITE",
+            "idu_op": "IDU_OP_INC",
+        },
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_src": "DATA_BUS_SRC_W",
+            "data_bus_op": "DATA_BUS_OP_WRITE",
+            "idu_op": "IDU_OP_INC",
+        },
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_IR",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+            "misc_op": "MISC_OP_R16_COPY",
+            "misc_op_dst": f"MISC_OP_DST_{pair}",
+        },
+    ]
 
 
 def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
@@ -574,7 +625,7 @@ for pair, opcode in {"BC": 0x01, "DE": 0x11, "HL": 0x21, "SP": 0x31}.items():
             "data_bus_op": "DATA_BUS_OP_READ",
             "idu_op": "IDU_OP_INC",
             "misc_op": "MISC_OP_R16_COPY",
-            "misc_op_dst": "MISC_OP_DST_{pair}",
+            "misc_op_dst": f"MISC_OP_DST_{pair}",
         },
     ]
     control_words[opcode] = cycles
