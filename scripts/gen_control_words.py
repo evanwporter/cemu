@@ -20,6 +20,7 @@ DEFAULT_FIELDS = {
     "alu_dst": "ALU_SRC_NONE",
     "alu_src": "ALU_SRC_NONE",
     "misc_op": "MISC_OP_NONE",
+    "misc_op_dst": "MISC_OP_DST_NONE",
     "cond": "COND_NONE",
 }
 
@@ -484,6 +485,36 @@ def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
         + ",\n".join(fields)
         + f"\n            }}{comma}\n"
     )
+
+
+# LD rr,d16 (16-bit immediate loads)
+for pair, opcode in {"BC": 0x01, "DE": 0x11, "HL": 0x21, "SP": 0x31}.items():
+    hi, lo = ("SPH", "SPL") if pair == "SP" else (pair[0].lower(), pair[1].lower())
+
+    cycles = [
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_Z",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+        },
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_W",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+        },
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_IR",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+            "misc_op": "MISC_OP_R16_COPY",
+            "misc_op_dst": "MISC_OP_DST_{pair}",
+        },
+    ]
+    control_words[opcode] = cycles
+    opcode_comments[opcode] = f"LD {pair},d16"
 
 
 def count_real_cycles(cycles: list) -> int:

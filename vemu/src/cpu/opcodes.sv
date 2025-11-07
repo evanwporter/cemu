@@ -80,11 +80,12 @@ typedef enum logic [3:0] {
 } alu_src_t;
 
 typedef enum logic [2:0] {
-  MISC_SRC_NONE,
-  MISC_SRC_PC,
-  MISC_SRC_SP,
-  MISC_SRC_WZ
-} misc_src_t;
+  MISC_OP_DST_NONE,
+  MISC_OP_DST_PC,
+  MISC_OP_DST_SP,
+  MISC_OP_DST_BC,
+  MISC_OP_DST_DE
+} misc_op_dst_t;
 
 typedef enum logic [2:0] {
   MISC_OP_NONE,
@@ -120,6 +121,8 @@ typedef struct packed {
 
   misc_ops_t misc_op;  // miscellaneous operation
 
+  misc_op_dst_t misc_op_dst;  // destination for misc operation
+
   cond_t cond;  // condition for this cycle
 
 } cycle_t;
@@ -136,15 +139,16 @@ typedef struct packed {
 } control_word_t;
 
 `define DEFAULT_CYCLE '{ \
-    addr_src:     ADDR_NONE, \
-    data_bus_src: DATA_BUS_SRC_NONE, \
-    data_bus_op:  DATA_BUS_OP_NONE, \
-    idu_op:       IDU_OP_NONE, \
-    alu_op:       ALU_OP_NONE, \
-    alu_dst:      ALU_SRC_NONE, \
-    alu_src:      ALU_SRC_NONE, \
-    misc_op:      MISC_OP_NONE, \
-    cond:         COND_NONE \
+  addr_src:     ADDR_NONE, \
+  data_bus_src: DATA_BUS_SRC_NONE, \
+  data_bus_op:  DATA_BUS_OP_NONE, \
+  idu_op:       IDU_OP_NONE, \
+  alu_op:       ALU_OP_NONE, \
+  alu_dst:      ALU_SRC_NONE, \
+  alu_src:      ALU_SRC_NONE, \
+  misc_op:      MISC_OP_NONE, \
+  misc_op_dst:  MISC_OP_DST_NONE, \
+  cond:         COND_NONE \
 }
 
 `endif  // OPCODES_SV
