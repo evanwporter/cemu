@@ -118,7 +118,8 @@ def make_jp_nn(cond_sv: str | None = None):
         {
             "addr_src": "ADDR_NONE",
             "data_bus_op": "DATA_BUS_OP_NONE",
-            "misc_op": "MISC_OP_WZ_TO_PC",
+            "misc_op": "MISC_OP_R16_COPY",
+            "misc_op_dst": "MISC_OP_DST_PC",
         },
         {
             "addr_src": "ADDR_PC",
@@ -184,7 +185,8 @@ def make_call_nn(cond_sv: str | None = None):
             "data_bus_src": "DATA_BUS_SRC_PC_LOW",
             "data_bus_op": "DATA_BUS_OP_READ",
             "idu_op": "IDU_OP_DEC",
-            "misc_op": "MISC_OP_WZ_TO_PC",
+            "misc_op": "MISC_OP_R16_COPY",
+            "misc_op_dst": "MISC_OP_DST_PC",
         },
         {
             "addr_src": "ADDR_PC",
@@ -234,7 +236,8 @@ def make_ret(cond_sv: str | None = None):
         {
             "addr_src": "ADDR_NONE",
             "data_bus_op": "DATA_BUS_OP_NONE",
-            "misc_op": "MISC_OP_WZ_TO_PC",
+            "misc_op": "MISC_OP_R16_COPY",
+            "misc_op_dst": "MISC_OP_DST_PC",
         },
         {
             "addr_src": "ADDR_PC",

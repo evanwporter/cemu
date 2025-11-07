@@ -93,7 +93,7 @@ typedef enum logic [2:0] {
   MISC_OP_EI,
   MISC_OP_DI,
   MISC_OP_COND_CHECK,
-  MISC_OP_WZ_TO_PC
+  MISC_OP_R16_COPY
 } misc_ops_t;
 
 typedef enum logic [2:0] {

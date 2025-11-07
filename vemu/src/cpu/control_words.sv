@@ -4164,8 +4164,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             4: '{  // M-cycle 5
@@ -4240,8 +4240,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             3: '{  // M-cycle 4
@@ -4306,8 +4306,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             3: '{  // M-cycle 4
@@ -4373,8 +4373,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             4: '{  // M-cycle 5
@@ -4472,8 +4472,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             4: '{  // M-cycle 5
@@ -4537,8 +4537,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             3: '{  // M-cycle 4
@@ -4592,8 +4592,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             3: '{  // M-cycle 4
@@ -4681,8 +4681,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             4: '{  // M-cycle 5
@@ -4747,8 +4747,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             4: '{  // M-cycle 5
@@ -4835,8 +4835,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             4: '{  // M-cycle 5
@@ -4911,8 +4911,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             3: '{  // M-cycle 4
@@ -5000,8 +5000,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             4: '{  // M-cycle 5
@@ -5099,8 +5099,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             4: '{  // M-cycle 5
@@ -5175,8 +5175,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             3: '{  // M-cycle 4
@@ -5264,8 +5264,8 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
-                misc_op : MISC_OP_WZ_TO_PC,
-                misc_op_dst : MISC_OP_DST_NONE,
+                misc_op : MISC_OP_R16_COPY,
+                misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
             },
             4: '{  // M-cycle 5
