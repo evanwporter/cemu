@@ -1,5 +1,5 @@
-`ifndef TYPES_SV
-`define TYPES_SV 
+`ifndef CPU_TYPES_SV
+`define CPU_TYPES_SV 
 
 // When using Verilator I need it unpacked so I can access fields
 // from regs in C++.
@@ -9,6 +9,7 @@
 `define PACK_REG
 `endif
 
+// verilog_format: off
 typedef struct `PACK_REG {
   logic [7:0] a, b, c, d, e, h, l;
 
@@ -24,25 +25,17 @@ typedef struct `PACK_REG {
   logic [7:0] IME;
 
   logic [7:0] flags;
-  logic [15:0] sp, pc;
 
+  // Program counter
   logic [7:0] pch, pcl;
 
   // stack pointer
   logic [7:0] sph, spl;
 
 } cpu_regs_t;
+// verilog_format: on
 
-typedef enum logic [1:0] {
-  BUS_OP_IDLE,  // no request
-  BUS_OP_READ,  // read from memory
-  BUS_OP_WRITE  // write to memory
-} bus_op_t;
-
-typedef enum logic {
-  BUS_SIZE_BYTE,  // 8-bit transfer
-  BUS_SIZE_WORD   // 16-bit transfer
-} bus_size_t;
+`undef PACK_REG
 
 typedef enum logic [1:0] {
   T1,
@@ -51,5 +44,4 @@ typedef enum logic [1:0] {
   T4
 } t_phase_t;
 
-
-`endif  // TYPES_SV
+`endif  // CPU_TYPES_SV

@@ -4,5 +4,6 @@ set(VERILOG_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/util.sv
     ${CMAKE_CURRENT_SOURCE_DIR}/opcodes.sv
     ${CMAKE_CURRENT_SOURCE_DIR}/control_words.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
     PARENT_SCOPE
 )
