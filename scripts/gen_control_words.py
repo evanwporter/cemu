@@ -519,6 +519,18 @@ for pair, opcode in {"BC": 0x01, "DE": 0x11, "HL": 0x21, "SP": 0x31}.items():
     control_words[opcode] = cycles
     opcode_comments[opcode] = f"LD {pair},d16"
 
+for name, opcode in {"RLC": 0x07, "RRC": 0x0F, "RL": 0x17, "RR": 0x1F}.items():
+    control_words[opcode] = [
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "data_bus_src": "DATA_BUS_SRC_IR",
+            "alu_op": f"ALU_OP_{name}",
+            "alu_src": "ALU_SRC_A",
+        }
+    ]
+    opcode_comments[opcode] = f"{name} A"
+
 
 def count_real_cycles(cycles: list) -> int:
     count = 0
