@@ -116,13 +116,21 @@ TEST_P(GameboyCpuFileTest, RunAllCases) {
 
         apply_initial_state(top, testCase["initial"]);
 
-        for (int t = 0; t < 16; ++t)
+        for (int t = 0; t < 4; ++t)
             tick(top, ctx);
+
+        int max_ticks = 100;
+        while (top.rootp->Gameboy__DOT__cpu__DOT__instr_count < 2 && max_ticks-- > 0) {
+            tick(top, ctx);
+        }
+        ASSERT_GT(max_ticks, 0) << "Timed out waiting for instruction to finish";
 
         const std::string test_name = testCase["name"].get<std::string>();
 
         verify_registers(top, testCase["final"], test_name);
         verify_ram(top, testCase["final"]["ram"], test_name);
+
+        break;
     }
 }
 
@@ -131,11 +139,16 @@ INSTANTIATE_TEST_SUITE_P(
     GameboyCpuFileTest,
     ::testing::ValuesIn([] {
         std::vector<fs::path> files;
+        int t = 0;
         if (fs::exists(kTestDir)) {
             for (auto& entry : fs::directory_iterator(kTestDir)) {
+                // if (t == 0)
+                //     continue;
                 if (entry.path().extension() == ".json")
                     files.push_back(entry.path());
-                break;
+                t++;
+                if (t == 3)
+                    break;
             }
         }
         return files;

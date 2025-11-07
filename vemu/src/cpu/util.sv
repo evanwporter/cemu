@@ -32,6 +32,7 @@ endfunction
 function automatic logic [7:0] pick_wdata(data_bus_src_t s, cpu_regs_t r);
   unique case (s)
     DATA_BUS_SRC_IR: pick_wdata = r.IR;
+
     DATA_BUS_SRC_A: pick_wdata = r.a;
     DATA_BUS_SRC_B: pick_wdata = r.b;
     DATA_BUS_SRC_C: pick_wdata = r.c;
@@ -39,6 +40,12 @@ function automatic logic [7:0] pick_wdata(data_bus_src_t s, cpu_regs_t r);
     DATA_BUS_SRC_E: pick_wdata = r.e;
     DATA_BUS_SRC_H: pick_wdata = r.h;
     DATA_BUS_SRC_L: pick_wdata = r.l;
+
+    DATA_BUS_SRC_W: pick_wdata = r.w;
+    DATA_BUS_SRC_Z: pick_wdata = r.z;
+
+    DATA_BUS_SRC_SP_HIGH: pick_wdata = r.sph;
+    DATA_BUS_SRC_SP_LOW: pick_wdata = r.spl;
     // TODO: SPH/SPL, W/Z
     default: pick_wdata = 8'hFF;
   endcase
@@ -63,8 +70,8 @@ endfunction
     endcase \
   end
 
-function automatic void apply_alu_op(input alu_op_t op, input alu_src_t dst_sel,
-                                     input alu_src_t src_sel, ref cpu_regs_t regs);
+function automatic logic [7:0] apply_alu_op(input alu_op_t op, input alu_src_t dst_sel,
+                                            input alu_src_t src_sel, ref cpu_regs_t regs);
   // temporary values
   logic [7:0] src_val, dst_val;
   logic [8:0] tmp;  // for carry
@@ -125,24 +132,33 @@ function automatic void apply_alu_op(input alu_op_t op, input alu_src_t dst_sel,
     default: ;  // ALU_OP_NONE
   endcase
 
-  // Write back to destination register
-  unique case (dst_sel)
-    ALU_SRC_A: regs.a <= dst_val;
-    ALU_SRC_B: regs.b <= dst_val;
-    ALU_SRC_C: regs.c <= dst_val;
-    ALU_SRC_D: regs.d <= dst_val;
-    ALU_SRC_E: regs.e <= dst_val;
-    ALU_SRC_H: regs.h <= dst_val;
-    ALU_SRC_L: regs.l <= dst_val;
-    default:   ;  // do nothing
-  endcase
+  return dst_val;
 endfunction
 
+`define APPLY_ALU_OP(OP, DST_SEL, SRC_SEL, REGS) \
+  begin \
+    logic [7:0] __alu_result; \
+    __alu_result = apply_alu_op(OP, DST_SEL, SRC_SEL, REGS); \
+    $display("[%0t] Applying ALU op %s to %s from %s", \
+          $time, (OP).name(), (DST_SEL).name(), (SRC_SEL).name()); \
+    unique case (DST_SEL) \
+      ALU_SRC_A: (REGS).a <= __alu_result; \
+      ALU_SRC_B: (REGS).b <= __alu_result; \
+      ALU_SRC_C: (REGS).c <= __alu_result; \
+      ALU_SRC_D: (REGS).d <= __alu_result; \
+      ALU_SRC_E: (REGS).e <= __alu_result; \
+      ALU_SRC_H: (REGS).h <= __alu_result; \
+      ALU_SRC_L: (REGS).l <= __alu_result; \
+      default: ; \
+    endcase \
+  end
 
 // Load data bus into selected 8-bit register
 `define LOAD_REG_FROM_BYTE(DST_SEL, DATA_BUS, REGS) \
   begin \
+    $display("[%0t] Loading data 0x%h into %s", $time, (DATA_BUS), (DST_SEL).name()); \
     unique case (DST_SEL) \
+      DATA_BUS_SRC_NONE: ; \
       DATA_BUS_SRC_A: (REGS).a <= (DATA_BUS); \
       DATA_BUS_SRC_B: (REGS).b <= (DATA_BUS); \
       DATA_BUS_SRC_C: (REGS).c <= (DATA_BUS); \
@@ -150,7 +166,13 @@ endfunction
       DATA_BUS_SRC_E: (REGS).e <= (DATA_BUS); \
       DATA_BUS_SRC_H: (REGS).h <= (DATA_BUS); \
       DATA_BUS_SRC_L: (REGS).l <= (DATA_BUS); \
-      default: ; \
+      DATA_BUS_SRC_W: (REGS).w <= (DATA_BUS); \
+      DATA_BUS_SRC_Z: (REGS).z <= (DATA_BUS); \
+      DATA_BUS_SRC_IR: (REGS).IR <= (DATA_BUS); \
+      DATA_BUS_SRC_SP_HIGH: (REGS).sph <= (DATA_BUS); \
+      DATA_BUS_SRC_SP_LOW:  (REGS).spl <= (DATA_BUS); \
+      DATA_BUS_SRC_PC_HIGH: (REGS).pch <= (DATA_BUS); \
+      DATA_BUS_SRC_PC_LOW:  (REGS).pcl <= (DATA_BUS); \
     endcase \
   end
 
@@ -174,23 +196,39 @@ endfunction
   begin \
     unique case (OP) \
       MISC_OP_IME_ENABLE: begin \
-        (REGS).IME <= 1'b1; \
+        (REGS).IME <= 8'd1; \
       end \
       MISC_OP_IME_DISABLE: begin \
-        (REGS).IME <= 1'b0; \
+        (REGS).IME <= 8'd0; \
       end \
       MISC_OP_R16_COPY: begin \
+        $display("[%0t] Writing 0x%h to %s", $time, {(REGS).w, (REGS).z}, (DST).name()); \
         unique case (DST) \
-          MISC_OP_DST_PC: {(REGS).pch, (REGS).pcl} <= get_wz((REGS)); \
-          MISC_OP_DST_SP: {(REGS).sph, (REGS).spl} <= get_wz((REGS)); \
-          MISC_OP_DST_BC: {(REGS).b, (REGS).c} <= get_wz((REGS)); \
-          MISC_OP_DST_DE: {(REGS).d, (REGS).e} <= get_wz((REGS)); \
+          MISC_OP_DST_NONE: ; /* nothing to do */ \
+          MISC_OP_DST_PC: begin \
+            (REGS).pch <= (REGS).w; \
+            (REGS).pcl <= (REGS).z; \
+          end \
+          MISC_OP_DST_SP: begin \
+            (REGS).sph <= (REGS).w; \
+            (REGS).spl <= (REGS).z; \
+          end \
+          MISC_OP_DST_BC: begin \
+            (REGS).b <= (REGS).w; \
+            (REGS).c <= (REGS).z; \
+          end \
+          MISC_OP_DST_DE: begin \
+            (REGS).d <= (REGS).w; \
+            (REGS).e <= (REGS).z; \
+          end \
+          MISC_OP_DST_HL: begin \
+            (REGS).h <= (REGS).w; \
+            (REGS).l <= (REGS).z; \
+          end \
         endcase \
       end \
       default: ; /* nothing to do */ \
     endcase \
   end
-
-
 
 `endif  // CPU_UTIL_SV

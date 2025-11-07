@@ -1,7 +1,6 @@
 `ifndef GAMEBOY_SV
 `define GAMEBOY_SV 
 
-`include "types.sv"
 `include "cpu/CPU.sv"
 `include "mmu/MMU.sv"
 

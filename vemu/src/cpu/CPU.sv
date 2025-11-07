@@ -1,7 +1,7 @@
 `ifndef CPU_SV
 `define CPU_SV 
 
-`include "types.sv"
+`include "cpu/types.sv"
 `include "cpu/opcodes.sv"
 `include "cpu/control_words.sv"
 `include "cpu/util.sv"
@@ -35,6 +35,8 @@ module CPU (
   logic [7:0] cpu_wdata;
   logic [7:0] cpu_rdata;
 
+  logic [31:0] instr_count;
+
   localparam cycle_count_t MAX_CYCLE_INDEX = MAX_CYCLES_PER_INSTR - 1;
 
   // CPU drives bus only on writes; otherwise Hi-Z and MMU can drive
@@ -42,8 +44,8 @@ module CPU (
 
   always_ff @(posedge clk) begin
     if (reset) begin
-      regs.pc <= 16'h0000;
-      regs.sp <= 16'hFFFE;
+      {regs.pch, regs.pcl} <= 16'h0000;
+      {regs.sph, regs.spl} <= 16'hFFFE;
       t_phase <= T1;
       cycle_count <= '0;
       control_word <= control_words[0];  // NOP
@@ -52,17 +54,17 @@ module CPU (
       cpu_drive_data <= 1'b0;
       cpu_wdata <= '0;
 
-      $display("[%0t] CPU RESET: PC=%h SP=%h", $time, regs.pc, regs.sp);
+      $display("[%0t] CPU RESET: PC=%h SP=%h", $time, {regs.pch, regs.pcl}, {regs.sph, regs.spl});
 
     end else begin
       $display("[%0t] Phase=%s Cycle=%0d PC=%h Addr=%h DataBus=%h IR=%h", $time, t_phase.name(),
-               cycle_count, regs.pc, addr_bus, data_bus, regs.IR);
+               cycle_count, {regs.pch, regs.pcl}, addr_bus, data_bus, regs.IR);
       unique case (t_phase)
         T1: begin
-          addr_bus <= regs.pc;
+          addr_bus <= {regs.pch, regs.pcl};
           unique case (control_word.cycles[cycle_count].addr_src)
-            ADDR_PC: addr_bus <= regs.pc;
-            ADDR_SP: addr_bus <= regs.sp;
+            ADDR_PC: addr_bus <= {regs.pch, regs.pcl};
+            ADDR_SP: addr_bus <= {regs.sph, regs.spl};
             default: begin
             end
           endcase
@@ -104,16 +106,16 @@ module CPU (
 
         T4: begin
 
-          `DISPLAY_CONTROL_WORD(control_word);
+          `DISPLAY_CONTROL_WORD(control_word, cycle_count);
 
           // applies the idu op to the address bus
           `APPLY_IDU_OP(control_word.cycles[cycle_count].addr_src,
                         control_word.cycles[cycle_count].idu_op, regs);
 
           // applies the alu op to the specified registers
-          apply_alu_op(control_word.cycles[cycle_count].alu_op,
-                       control_word.cycles[cycle_count].alu_dst,
-                       control_word.cycles[cycle_count].alu_src, regs);
+          `APPLY_ALU_OP(control_word.cycles[cycle_count].alu_op,
+                        control_word.cycles[cycle_count].alu_dst,
+                        control_word.cycles[cycle_count].alu_src, regs);
 
           // applies the misc op to the specified registers
           `APPLY_MISC_OP(control_word.cycles[cycle_count].misc_op,
@@ -128,11 +130,14 @@ module CPU (
               ))
             // Condition failed; skip to 5th cycle (which has the final cycle instruction)
             cycle_count <= MAX_CYCLE_INDEX;
-          else if (cycle_count >= control_word.num_cycles) cycle_count <= '0;
-          else cycle_count <= cycle_count + 1;
+          else if (cycle_count + 1 >= control_word.num_cycles) begin
+            cycle_count  <= '0;
+            control_word <= control_words[regs.IR];
+            instr_count  <= instr_count + 1;
+          end else cycle_count <= cycle_count + 1;
 
-          $display("[%0t] End of T4: Next cycle=%0d Next phase=T1 PC=%h", $time, cycle_count,
-                   regs.pc);
+          $display("[%0t] End of T4: Next cycle=%0d Next phase=T1 PC=%h", $time, cycle_count, {
+                   regs.pch, regs.pcl});
 
           t_phase <= T1;
 

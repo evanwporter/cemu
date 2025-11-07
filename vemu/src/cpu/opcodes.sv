@@ -13,16 +13,14 @@ typedef enum logic [2:0] {
 } address_src_t;
 
 typedef enum logic [1:0] {
-  DATA_BUS_OP_READ,
-  DATA_BUS_OP_WRITE,
-  DATA_BUS_OP_NONE
+  DATA_BUS_OP_READ,   // read from memory
+  DATA_BUS_OP_WRITE,  // write to memory
+  DATA_BUS_OP_NONE    // no request
 } data_bus_op_t;
 
 typedef enum logic [3:0] {
   DATA_BUS_SRC_NONE,
   DATA_BUS_SRC_IR,
-
-  DATA_BUS_SRC_ALU,
 
   DATA_BUS_SRC_A,
   DATA_BUS_SRC_B,
