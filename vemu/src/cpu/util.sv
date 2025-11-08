@@ -20,12 +20,17 @@
 
 function automatic logic [15:0] pick_addr(input address_src_t s, input cpu_regs_t r);
   unique case (s)
-    ADDR_PC: pick_addr = r.pc;
-    ADDR_SP: pick_addr = r.sp;
+    ADDR_NONE: pick_addr = 16'h0000;
+
+    ADDR_PC: pick_addr = {r.pch, r.pcl};
+    ADDR_SP: pick_addr = {r.sph, r.spl};
+
+    ADDR_AF: pick_addr = {r.a, r.flags};
     ADDR_HL: pick_addr = {r.h, r.l};
     ADDR_BC: pick_addr = {r.b, r.c};
     ADDR_DE: pick_addr = {r.d, r.e};
-    default: pick_addr = 16'h0000;
+
+    ADDR_WZ: pick_addr = {r.w, r.z};
   endcase
 endfunction
 
@@ -57,8 +62,8 @@ endfunction
     unique case (OP) \
       IDU_OP_INC: begin \
         unique case (SRC) \
-          ADDR_PC: (REGS).pc <= (REGS).pc + 16'd1; \
-          ADDR_SP: (REGS).sp <= (REGS).sp + 16'd1; \
+          ADDR_PC: {(REGS).pch, (REGS).pcl} <= {(REGS).pch, (REGS).pcl} + 16'd1; \
+          ADDR_SP: {(REGS).sph, (REGS).spl} <= {(REGS).sph, (REGS).spl} + 16'd1; \
           ADDR_HL: {(REGS).h, (REGS).l} <= {(REGS).h, (REGS).l} + 16'd1; \
           ADDR_BC: {(REGS).b, (REGS).c} <= {(REGS).b, (REGS).c} + 16'd1; \
           ADDR_DE: {(REGS).d, (REGS).e} <= {(REGS).d, (REGS).e} + 16'd1; \

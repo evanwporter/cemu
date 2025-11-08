@@ -20,6 +20,15 @@ double sc_time_stamp() { return timestamp; }
 
 static const fs::path kTestDir = fs::path(TEST_DIR) / "GameboyCPUTests/v2";
 
+inline u16 get_u16(u8 hi, u8 lo) {
+    return static_cast<u16>((hi << 8) | lo);
+}
+
+inline void set_u16(u8& hi, u8& lo, u16 val) {
+    hi = static_cast<u8>(val >> 8);
+    lo = static_cast<u8>(val & 0xFF);
+}
+
 void tick(VGameboy& top, VerilatedContext& ctx) {
     top.clk = 0;
     top.eval();
@@ -68,10 +77,14 @@ void apply_initial_state(VGameboy& gb, const json& init) {
         regs->__PVT__h = init["h"].get<u8>();
     if (init.contains("l"))
         regs->__PVT__l = init["l"].get<u8>();
-    if (init.contains("sp"))
-        regs->__PVT__sp = init["sp"].get<u16>();
-    if (init.contains("pc"))
-        regs->__PVT__pc = init["pc"].get<u16>() - 1;
+    if (init.contains("sp")) {
+        u16 sp = init["sp"].get<u16>();
+        set_u16(regs->__PVT__sph, regs->__PVT__spl, sp);
+    }
+    if (init.contains("pc")) {
+        u16 pc = init["pc"].get<u16>() - 1;
+        set_u16(regs->__PVT__pch, regs->__PVT__pcl, pc);
+    }
 
     apply_ram(gb, init["ram"]);
 }
@@ -87,8 +100,10 @@ void verify_registers(const VGameboy& top, const json& expected, const std::stri
     EXPECT_EQ(regs->__PVT__flags, expected["f"].get<u8>()) << "Test: " << test_name;
     EXPECT_EQ(regs->__PVT__h, expected["h"].get<u8>()) << "Test: " << test_name;
     EXPECT_EQ(regs->__PVT__l, expected["l"].get<u8>()) << "Test: " << test_name;
-    EXPECT_EQ(regs->__PVT__sp, expected["sp"].get<u16>()) << "Test: " << test_name;
-    EXPECT_EQ(regs->__PVT__pc, expected["pc"].get<u16>()) << "Test: " << test_name;
+    EXPECT_EQ(get_u16(regs->__PVT__sph, regs->__PVT__spl), expected["sp"].get<u16>())
+        << "Test: " << test_name;
+    EXPECT_EQ(get_u16(regs->__PVT__pch, regs->__PVT__pcl), expected["pc"].get<u16>())
+        << "Test: " << test_name;
 }
 
 class GameboyCpuFileTest : public ::testing::TestWithParam<fs::path> { };
