@@ -77,9 +77,7 @@ typedef enum logic [3:0] {
   ALU_SRC_L,
 
   ALU_SRC_W,
-  ALU_SRC_Z,
-
-  ALU_SRC_MEM
+  ALU_SRC_Z
 } alu_src_t;
 
 typedef enum logic [2:0] {

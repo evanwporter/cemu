@@ -50,9 +50,11 @@ function automatic logic [7:0] pick_wdata(data_bus_src_t s, cpu_regs_t r);
     DATA_BUS_SRC_Z: pick_wdata = r.z;
 
     DATA_BUS_SRC_SP_HIGH: pick_wdata = r.sph;
-    DATA_BUS_SRC_SP_LOW: pick_wdata = r.spl;
-    // TODO: SPH/SPL, W/Z
-    default: pick_wdata = 8'hFF;
+    DATA_BUS_SRC_SP_LOW:  pick_wdata = r.spl;
+
+    DATA_BUS_SRC_PC_HIGH: pick_wdata = r.pch;
+    DATA_BUS_SRC_PC_LOW: pick_wdata = r.pcl;
+    DATA_BUS_SRC_NONE: pick_wdata = 8'hFF;
   endcase
 endfunction
 
@@ -62,12 +64,14 @@ endfunction
     unique case (OP) \
       IDU_OP_INC: begin \
         unique case (SRC) \
+          ADDR_NONE: ; \
           ADDR_PC: {(REGS).pch, (REGS).pcl} <= {(REGS).pch, (REGS).pcl} + 16'd1; \
           ADDR_SP: {(REGS).sph, (REGS).spl} <= {(REGS).sph, (REGS).spl} + 16'd1; \
           ADDR_HL: {(REGS).h, (REGS).l} <= {(REGS).h, (REGS).l} + 16'd1; \
           ADDR_BC: {(REGS).b, (REGS).c} <= {(REGS).b, (REGS).c} + 16'd1; \
           ADDR_DE: {(REGS).d, (REGS).e} <= {(REGS).d, (REGS).e} + 16'd1; \
-          default: ; \
+          ADDR_AF: {(REGS).a, (REGS).flags} <= {(REGS).a, (REGS).flags} + 16'd1; \
+          ADDR_WZ: {(REGS).w, (REGS).z} <= {(REGS).w, (REGS).z} + 16'd1; \
         endcase \
       end \
       IDU_OP_DEC: ; \
@@ -90,7 +94,11 @@ function automatic logic [7:0] apply_alu_op(input alu_op_t op, input alu_src_t d
     ALU_SRC_E: src_val = regs.e;
     ALU_SRC_H: src_val = regs.h;
     ALU_SRC_L: src_val = regs.l;
-    default:   src_val = 8'h00;
+
+    ALU_SRC_W: src_val = regs.w;
+    ALU_SRC_Z: src_val = regs.z;
+
+    ALU_SRC_NONE: src_val = 8'h00;
   endcase
 
   unique case (dst_sel)
@@ -101,7 +109,11 @@ function automatic logic [7:0] apply_alu_op(input alu_op_t op, input alu_src_t d
     ALU_SRC_E: dst_val = regs.e;
     ALU_SRC_H: dst_val = regs.h;
     ALU_SRC_L: dst_val = regs.l;
-    default:   dst_val = 8'h00;
+
+    ALU_SRC_W: dst_val = regs.w;
+    ALU_SRC_Z: dst_val = regs.z;
+
+    ALU_SRC_NONE: dst_val = 8'h00;
   endcase
 
   // Perform operation
@@ -154,7 +166,9 @@ endfunction
       ALU_SRC_E: (REGS).e <= __alu_result; \
       ALU_SRC_H: (REGS).h <= __alu_result; \
       ALU_SRC_L: (REGS).l <= __alu_result; \
-      default: ; \
+      ALU_SRC_W: (REGS).w <= __alu_result; \
+      ALU_SRC_Z: (REGS).z <= __alu_result; \
+      ALU_SRC_NONE: ; \
     endcase \
   end
 
@@ -180,7 +194,6 @@ endfunction
       DATA_BUS_SRC_PC_LOW:  (REGS).pcl <= (DATA_BUS); \
     endcase \
   end
-
 
 function automatic logic eval_condition(input cond_t cond, input logic [7:0] flags);
   logic zero_flag, carry_flag;

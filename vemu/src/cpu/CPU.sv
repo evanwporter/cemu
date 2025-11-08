@@ -63,10 +63,14 @@ module CPU (
         T1: begin
           addr_bus <= {regs.pch, regs.pcl};
           unique case (control_word.cycles[cycle_count].addr_src)
-            ADDR_PC: addr_bus <= {regs.pch, regs.pcl};
-            ADDR_SP: addr_bus <= {regs.sph, regs.spl};
-            default: begin
-            end
+            ADDR_PC:   addr_bus <= {regs.pch, regs.pcl};
+            ADDR_SP:   addr_bus <= {regs.sph, regs.spl};
+            ADDR_BC:   addr_bus <= {regs.b, regs.c};
+            ADDR_DE:   addr_bus <= {regs.d, regs.e};
+            ADDR_HL:   addr_bus <= {regs.h, regs.l};
+            ADDR_WZ:   addr_bus <= {regs.w, regs.z};
+            ADDR_AF:   addr_bus <= {regs.a, regs.flags};
+            ADDR_NONE: addr_bus <= 16'h0000;
           endcase
           t_phase <= T2;
         end
