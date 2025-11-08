@@ -395,7 +395,8 @@ for incdec in ("INC", "DEC"):
             control_words[opcode] = cycles
             opcode_comments[opcode] = f"{incdec} (HL)"
         else:
-            opcode = 0x05 | (i << 3)
+            base = 0x04 if incdec == "INC" else 0x05
+            opcode = base | (i << 3)
             cycles = [
                 {
                     "addr_src": "ADDR_PC",
@@ -642,6 +643,36 @@ for name, opcode in {"RLC": 0x07, "RRC": 0x0F, "RL": 0x17, "RR": 0x1F}.items():
         }
     ]
     opcode_comments[opcode] = f"{name} A"
+
+# INC/DEC rr
+for i, pair in enumerate(["BC", "DE", "HL", "SP"]):
+    # INC rr - opcodes 0x03, 0x13, 0x23, 0x33
+    opcode_inc = 0x03 | (i << 4)
+    cycles_inc = [
+        {
+            "addr_src": f"ADDR_{pair}",
+            "data_bus_src": "DATA_BUS_SRC_NONE",
+            "data_bus_op": "DATA_BUS_OP_NONE",
+            "idu_op": "IDU_OP_INC",
+        },
+        control_words[0][0],
+    ]
+    control_words[opcode_inc] = cycles_inc
+    opcode_comments[opcode_inc] = f"INC {pair}"
+
+    # DEC rr - opcodes 0x0B, 0x1B, 0x2B, 0x3B
+    opcode_dec = 0x0B | (i << 4)
+    cycles_dec = [
+        {
+            "addr_src": f"ADDR_{pair}",
+            "data_bus_src": "DATA_BUS_SRC_NONE",
+            "data_bus_op": "DATA_BUS_OP_NONE",
+            "idu_op": "IDU_OP_DEC",
+        },
+        control_words[0][0],
+    ]
+    control_words[opcode_dec] = cycles_dec
+    opcode_comments[opcode_dec] = f"DEC {pair}"
 
 
 def count_real_cycles(cycles: list) -> int:

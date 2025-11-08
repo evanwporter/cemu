@@ -162,7 +162,7 @@ INSTANTIATE_TEST_SUITE_P(
                 if (entry.path().extension() == ".json")
                     files.push_back(entry.path());
                 t++;
-                if (t == 3)
+                if (t == 5)
                     break;
             }
         }
