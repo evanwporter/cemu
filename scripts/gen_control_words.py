@@ -585,24 +585,6 @@ for pair, opcode in {"BC": 0xC5, "DE": 0xD5, "HL": 0xE5}.items():
         },
     ]
 
-
-def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
-    if not entry:
-        comma = "," if not is_last else ""
-        return f"            {i}: `DEFAULT_CYCLE{comma}  // M-cycle {i + 1}\n"
-
-    filled = DEFAULT_FIELDS.copy()
-    filled.update(entry)
-
-    fields = [f"                {key} : {val}" for key, val in filled.items()]
-    comma = "," if not is_last else ""
-    return (
-        f"            {i}: '{{  // M-cycle {i + 1}\n"
-        + ",\n".join(fields)
-        + f"\n            }}{comma}\n"
-    )
-
-
 # LD rr,d16 (16-bit immediate loads)
 for pair, opcode in {"BC": 0x01, "DE": 0x11, "HL": 0x21, "SP": 0x31}.items():
     hi, lo = ("SPH", "SPL") if pair == "SP" else (pair[0].lower(), pair[1].lower())
@@ -632,17 +614,19 @@ for pair, opcode in {"BC": 0x01, "DE": 0x11, "HL": 0x21, "SP": 0x31}.items():
     control_words[opcode] = cycles
     opcode_comments[opcode] = f"LD {pair},d16"
 
-for name, opcode in {"RLC": 0x07, "RRC": 0x0F, "RL": 0x17, "RR": 0x1F}.items():
+for name, opcode in {"RLCA": 0x07, "RRCA": 0x0F, "RLA": 0x17, "RRA": 0x1F}.items():
     control_words[opcode] = [
         {
             "addr_src": "ADDR_PC",
             "data_bus_op": "DATA_BUS_OP_READ",
             "data_bus_src": "DATA_BUS_SRC_IR",
-            "alu_op": f"ALU_OP_{name}",
+            "alu_op": f"ALU_OP_{name[:-1]}",
             "alu_src": "ALU_SRC_A",
+            "alu_dst": "ALU_SRC_A",
+            "idu_op": "IDU_OP_INC",
         }
     ]
-    opcode_comments[opcode] = f"{name} A"
+    opcode_comments[opcode] = name
 
 # INC/DEC rr
 for i, pair in enumerate(["BC", "DE", "HL", "SP"]):
@@ -673,6 +657,93 @@ for i, pair in enumerate(["BC", "DE", "HL", "SP"]):
     ]
     control_words[opcode_dec] = cycles_dec
     opcode_comments[opcode_dec] = f"DEC {pair}"
+
+# LD r, n8
+for i, reg in enumerate(registers):
+    if reg == "(HL)":
+        control_words[0x36] = [
+            {
+                "addr_src": "ADDR_PC",
+                "data_bus_src": "DATA_BUS_SRC_Z",
+                "data_bus_op": "DATA_BUS_OP_READ",
+                "idu_op": "IDU_OP_INC",
+            },
+            {
+                "addr_src": "ADDR_HL",
+                "data_bus_src": "DATA_BUS_SRC_Z",
+                "data_bus_op": "DATA_BUS_OP_WRITE",
+            },
+            {
+                "addr_src": "ADDR_PC",
+                "data_bus_src": "DATA_BUS_SRC_IR",
+                "data_bus_op": "DATA_BUS_OP_READ",
+                "idu_op": "IDU_OP_INC",
+            },
+        ]
+        opcode_comments[0x36] = "LD (HL), n8"
+        continue
+
+    opcode = 0x06 | (i << 3)
+    cycles = [
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_Z",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+        },
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_IR",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+            "alu_op": "ALU_OP_COPY",
+            "alu_dst": f"ALU_SRC_{reg}",
+            "alu_src": "ALU_SRC_Z",
+        },
+    ]
+    control_words[opcode] = cycles
+    opcode_comments[opcode] = f"LD {reg}, n8"
+
+# ADD HL, rr
+for pair, opcode in {"BC": 0x09, "DE": 0x19, "HL": 0x29, "SP": 0x39}.items():
+    HI, LO = ("SP_HIGH", "SP_LOW") if pair == "SP" else (pair[0], pair[1])
+    cycles = [
+        {
+            "addr_src": "ADDR_NONE",
+            "data_bus_op": "DATA_BUS_OP_NONE",
+            "alu_op": "ALU_OP_ADD_L",
+            "alu_dst": "ALU_SRC_L",
+            "alu_src": f"ALU_SRC_{LO}",
+        },
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "data_bus_src": "DATA_BUS_SRC_IR",
+            "alu_op": "ALU_OP_ADD_H",
+            "alu_dst": "ALU_SRC_H",
+            "alu_src": f"ALU_SRC_{HI}",
+            "idu_op": "IDU_OP_INC",
+        },
+    ]
+    control_words[opcode] = cycles
+    opcode_comments[opcode] = f"ADD HL, {pair}"
+
+
+def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
+    if not entry:
+        comma = "," if not is_last else ""
+        return f"            {i}: `DEFAULT_CYCLE{comma}  // M-cycle {i + 1}\n"
+
+    filled = DEFAULT_FIELDS.copy()
+    filled.update(entry)
+
+    fields = [f"                {key} : {val}" for key, val in filled.items()]
+    comma = "," if not is_last else ""
+    return (
+        f"            {i}: '{{  // M-cycle {i + 1}\n"
+        + ",\n".join(fields)
+        + f"\n            }}{comma}\n"
+    )
 
 
 def count_real_cycles(cycles: list) -> int:
