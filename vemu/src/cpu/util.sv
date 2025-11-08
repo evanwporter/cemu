@@ -113,6 +113,9 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
     ALU_SRC_W: src_val = regs.w;
     ALU_SRC_Z: src_val = regs.z;
 
+    ALU_SRC_SP_HIGH: src_val = regs.sph;
+    ALU_SRC_SP_LOW:  src_val = regs.spl;
+
     ALU_SRC_NONE: src_val = 8'h00;
   endcase
 
@@ -127,6 +130,9 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
 
     ALU_SRC_W: dst_val = regs.w;
     ALU_SRC_Z: dst_val = regs.z;
+
+    ALU_SRC_SP_HIGH: dst_val = regs.sph;
+    ALU_SRC_SP_LOW:  dst_val = regs.spl;
 
     ALU_SRC_NONE: dst_val = 8'h00;
   endcase
@@ -218,7 +224,8 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       dst_val    = {carry_flag, dst_val[7:1]};
       sub_flag   = 1'b0;
       half_flag  = 1'b0;
-      zero_flag  = (dst_val == 8'h00);
+      if (dst_sel == ALU_SRC_A) zero_flag = 1'b0;
+      else zero_flag = (dst_val == 8'h00);
     end
 
     ALU_OP_RRC: begin
@@ -226,7 +233,8 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       dst_val    = {dst_val[0], dst_val[7:1]};
       sub_flag   = 1'b0;
       half_flag  = 1'b0;
-      zero_flag  = (dst_val == 8'h00);
+      if (dst_sel == ALU_SRC_A) zero_flag = 1'b0;
+      else zero_flag = (dst_val == 8'h00);
     end
 
     ALU_OP_RL: begin
@@ -234,7 +242,8 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       dst_val    = {dst_val[6:0], regs.flags[4]};
       sub_flag   = 1'b0;
       half_flag  = 1'b0;
-      zero_flag  = (dst_val == 8'h00);
+      if (dst_sel == ALU_SRC_A) zero_flag = 1'b0;
+      else zero_flag = (dst_val == 8'h00);
     end
 
     ALU_OP_RLC: begin
@@ -242,7 +251,30 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       dst_val    = {dst_val[6:0], dst_val[7]};
       sub_flag   = 1'b0;
       half_flag  = 1'b0;
-      zero_flag  = (dst_val == 8'h00);
+
+      // RLCA special case (Z always 0)
+      if (dst_sel == ALU_SRC_A) zero_flag = 1'b0;
+      else zero_flag = (dst_val == 8'h00);
+    end
+
+    ALU_OP_ADD_L: begin
+      // First 8-bit add: L + rL
+      tmp        = {1'b0, regs.l} + {1'b0, src_val};
+      dst_val    = tmp[7:0];
+      carry_flag = tmp[8];
+      half_sum   = {1'b0, regs.l[3:0]} + {1'b0, src_val[3:0]};
+      half_flag  = half_sum[4];
+      sub_flag   = 1'b0;
+    end
+
+    ALU_OP_ADD_H: begin
+      // Second 8-bit add: H + rH + carry from previous
+      tmp        = {1'b0, regs.h} + {1'b0, src_val} + {8'b0, regs.flags[4]};
+      dst_val    = tmp[7:0];
+      carry_flag = tmp[8];
+      half_sum   = {1'b0, regs.h[3:0]} + {1'b0, src_val[3:0]} + {4'b0, regs.flags[4]};
+      half_flag  = half_sum[4];
+      sub_flag   = 1'b0;
     end
 
     ALU_OP_NONE: ;  // do nothing
@@ -272,6 +304,8 @@ endfunction
       ALU_SRC_L: (REGS).l <= __alu_res.result; \
       ALU_SRC_W: (REGS).w <= __alu_res.result; \
       ALU_SRC_Z: (REGS).z <= __alu_res.result; \
+      ALU_SRC_SP_HIGH: (REGS).sph <= __alu_res.result; \
+      ALU_SRC_SP_LOW:  (REGS).spl <= __alu_res.result; \
       ALU_SRC_NONE: ; \
     endcase \
     (REGS).flags <= __alu_res.flags; \

@@ -47,7 +47,7 @@ typedef enum logic [1:0] {
   IDU_OP_DEC
 } idu_op_t;
 
-typedef enum logic [3:0] {
+typedef enum logic [4:0] {
   ALU_OP_NONE,
   ALU_OP_COPY,
   ALU_OP_ADD,
@@ -63,10 +63,13 @@ typedef enum logic [3:0] {
   ALU_OP_RR,
   ALU_OP_RRC,
   ALU_OP_RL,
-  ALU_OP_RLC
+  ALU_OP_RLC,
+
+  ALU_OP_ADD_H,
+  ALU_OP_ADD_L
 } alu_op_t;
 
-typedef enum logic [3:0] {
+typedef enum logic [4:0] {
   ALU_SRC_NONE,
   ALU_SRC_A,
   ALU_SRC_B,
@@ -77,7 +80,10 @@ typedef enum logic [3:0] {
   ALU_SRC_L,
 
   ALU_SRC_W,
-  ALU_SRC_Z
+  ALU_SRC_Z,
+
+  ALU_SRC_SP_HIGH,
+  ALU_SRC_SP_LOW
 } alu_src_t;
 
 typedef enum logic [2:0] {
