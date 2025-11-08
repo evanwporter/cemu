@@ -79,11 +79,26 @@ endfunction
     endcase \
   end
 
-function automatic logic [7:0] apply_alu_op(input alu_op_t op, input alu_src_t dst_sel,
-                                            input alu_src_t src_sel, ref cpu_regs_t regs);
+typedef struct packed {
+  logic [7:0] result;  // The ALU output value
+  logic [7:0] flags;   // The full F register (Z N H C ---- ----)
+} alu_result_t;
+
+function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t dst_sel,
+                                             input alu_src_t src_sel, ref cpu_regs_t regs);
+  alu_result_t res;
+
   // temporary values
   logic [7:0] src_val, dst_val;
   logic [8:0] tmp;  // for carry
+  logic zero_flag, carry_flag, half_flag, sub_flag;
+
+  logic [4:0] half_sum;
+
+  zero_flag  = regs.flags[7];
+  sub_flag   = regs.flags[6];
+  half_flag  = regs.flags[5];
+  carry_flag = regs.flags[4];
 
   // Select source and destination register values
   unique case (src_sel)
@@ -121,56 +136,147 @@ function automatic logic [7:0] apply_alu_op(input alu_op_t op, input alu_src_t d
     ALU_OP_COPY: dst_val = src_val;
 
     ALU_OP_ADD: begin
-      tmp     = {1'b0, dst_val} + {1'b0, src_val};
-      dst_val = tmp[7:0];
+      tmp        = {1'b0, dst_val} + {1'b0, src_val};
+      dst_val    = tmp[7:0];
+      carry_flag = tmp[8];
+      half_sum   = {1'b0, dst_val[3:0]} + {1'b0, src_val[3:0]};
+      half_flag  = half_sum[4];
+      sub_flag   = 1'b0;
+      zero_flag  = (dst_val == 8'h00);
     end
 
     ALU_OP_ADC: begin
-      tmp     = {1'b0, dst_val} + {1'b0, src_val} + {8'b0, regs.flags[4]};  // carry
-      dst_val = tmp[7:0];
+      tmp        = {1'b0, dst_val} + {1'b0, src_val} + {8'b0, regs.flags[4]};
+      dst_val    = tmp[7:0];
+      carry_flag = tmp[8];
+      half_sum   = {1'b0, dst_val[3:0]} + {1'b0, src_val[3:0]} + {4'b0, regs.flags[4]};
+      half_flag  = half_sum[4];
+      sub_flag   = 1'b0;
+      zero_flag  = (dst_val == 8'h00);
     end
 
     ALU_OP_SUB: begin
-      tmp     = {1'b0, dst_val} - {1'b0, src_val};
-      dst_val = tmp[7:0];
+      tmp        = {1'b0, dst_val} - {1'b0, src_val};
+      dst_val    = tmp[7:0];
+      carry_flag = tmp[8];
+      half_flag  = (dst_val[3:0] < src_val[3:0]);
+      sub_flag   = 1'b1;
+      zero_flag  = (dst_val == 8'h00);
     end
 
     ALU_OP_SBC: begin
-      tmp     = {1'b0, dst_val} - {1'b0, src_val} - {8'b0, regs.flags[4]};
-      dst_val = tmp[7:0];
+      tmp        = {1'b0, dst_val} - {1'b0, src_val} - {8'b0, regs.flags[4]};
+      dst_val    = tmp[7:0];
+      carry_flag = tmp[8];
+      half_flag  = (dst_val[3:0] < (src_val[3:0] + {3'b000, regs.flags[4]}));
+      sub_flag   = 1'b1;
+      zero_flag  = (dst_val == 8'h00);
     end
 
-    ALU_OP_AND: dst_val = dst_val & src_val;
-    ALU_OP_OR:  dst_val = dst_val | src_val;
-    ALU_OP_XOR: dst_val = dst_val ^ src_val;
-    ALU_OP_INC: dst_val = dst_val + 8'd1;
-    ALU_OP_DEC: dst_val = dst_val - 8'd1;
+    ALU_OP_AND: begin
+      dst_val = dst_val & src_val;
+      carry_flag = 1'b0;
+      half_flag = 1'b1;
+      sub_flag = 1'b0;
+      zero_flag = (dst_val == 8'h00);
+    end
 
+    ALU_OP_OR: begin
+      dst_val    = dst_val | src_val;
+      carry_flag = 1'b0;
+      half_flag  = 1'b0;
+      sub_flag   = 1'b0;
+      zero_flag  = (dst_val == 8'h00);
+    end
+
+    ALU_OP_XOR: begin
+      dst_val    = dst_val ^ src_val;
+      carry_flag = 1'b0;
+      half_flag  = 1'b0;
+      sub_flag   = 1'b0;
+      zero_flag  = (dst_val == 8'h00);
+    end
+
+    ALU_OP_INC: begin
+      dst_val   = dst_val + 8'd1;
+      half_flag = ((dst_val[3:0] == 4'h0));  // overflow from bit3->4
+      sub_flag  = 1'b0;
+      zero_flag = (dst_val == 8'h00);
+      // carry_flag unchanged
+    end
+
+    ALU_OP_DEC: begin
+      dst_val   = dst_val - 8'd1;
+      half_flag = ((dst_val[3:0] == 4'hF));  // borrow into bit4
+      sub_flag  = 1'b1;
+      zero_flag = (dst_val == 8'h00);
+      // carry_flag unchanged
+    end
+
+    ALU_OP_RR: begin
+      carry_flag = dst_val[0];
+      dst_val    = {carry_flag, dst_val[7:1]};
+      sub_flag   = 1'b0;
+      half_flag  = 1'b0;
+      zero_flag  = (dst_val == 8'h00);
+    end
+
+    ALU_OP_RRC: begin
+      carry_flag = dst_val[0];
+      dst_val    = {dst_val[0], dst_val[7:1]};
+      sub_flag   = 1'b0;
+      half_flag  = 1'b0;
+      zero_flag  = (dst_val == 8'h00);
+    end
+
+    ALU_OP_RL: begin
+      carry_flag = dst_val[7];
+      dst_val    = {dst_val[6:0], regs.flags[4]};
+      sub_flag   = 1'b0;
+      half_flag  = 1'b0;
+      zero_flag  = (dst_val == 8'h00);
+    end
+
+    ALU_OP_RLC: begin
+      carry_flag = dst_val[7];
+      dst_val    = {dst_val[6:0], dst_val[7]};
+      sub_flag   = 1'b0;
+      half_flag  = 1'b0;
+      zero_flag  = (dst_val == 8'h00);
+    end
+
+    ALU_OP_NONE: ;  // do nothing
+
+    // TODO: Remove default
     default: ;  // ALU_OP_NONE
   endcase
 
-  return dst_val;
+  res.result = dst_val;
+  res.flags  = {zero_flag, sub_flag, half_flag, carry_flag, 4'b0000};
+  return res;
 endfunction
 
 `define APPLY_ALU_OP(OP, DST_SEL, SRC_SEL, REGS) \
-  begin \
-    logic [7:0] __alu_result; \
-    __alu_result = apply_alu_op(OP, DST_SEL, SRC_SEL, REGS); \
+  begin : apply_alu_op_block \
+    alu_result_t __alu_res; \
+    __alu_res = apply_alu_op(OP, DST_SEL, SRC_SEL, REGS); \
     $display("[%0t] Applying ALU op %s to %s from %s", \
-          $time, (OP).name(), (DST_SEL).name(), (SRC_SEL).name()); \
+             $time, (OP).name(), (DST_SEL).name(), (SRC_SEL).name()); \
     unique case (DST_SEL) \
-      ALU_SRC_A: (REGS).a <= __alu_result; \
-      ALU_SRC_B: (REGS).b <= __alu_result; \
-      ALU_SRC_C: (REGS).c <= __alu_result; \
-      ALU_SRC_D: (REGS).d <= __alu_result; \
-      ALU_SRC_E: (REGS).e <= __alu_result; \
-      ALU_SRC_H: (REGS).h <= __alu_result; \
-      ALU_SRC_L: (REGS).l <= __alu_result; \
-      ALU_SRC_W: (REGS).w <= __alu_result; \
-      ALU_SRC_Z: (REGS).z <= __alu_result; \
+      ALU_SRC_A: (REGS).a <= __alu_res.result; \
+      ALU_SRC_B: (REGS).b <= __alu_res.result; \
+      ALU_SRC_C: (REGS).c <= __alu_res.result; \
+      ALU_SRC_D: (REGS).d <= __alu_res.result; \
+      ALU_SRC_E: (REGS).e <= __alu_res.result; \
+      ALU_SRC_H: (REGS).h <= __alu_res.result; \
+      ALU_SRC_L: (REGS).l <= __alu_res.result; \
+      ALU_SRC_W: (REGS).w <= __alu_res.result; \
+      ALU_SRC_Z: (REGS).z <= __alu_res.result; \
       ALU_SRC_NONE: ; \
     endcase \
+    (REGS).flags <= __alu_res.flags; \
   end
+
 
 // Load data bus into selected 8-bit register
 `define LOAD_REG_FROM_BYTE(DST_SEL, DATA_BUS, REGS) \
