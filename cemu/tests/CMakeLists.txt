@@ -17,9 +17,7 @@ target_link_libraries(cemu_tests PRIVATE
 )
 
 target_compile_definitions(cemu_tests PRIVATE
-    TEST_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/"
+    TEST_DIR="${CMAKE_SOURCE_DIR}/tests/"
 )
 
 target_link_options(cemu_tests PRIVATE "/FORCE:MULTIPLE")
-
-add_test(NAME cemu_tests COMMAND cemu_tests)
