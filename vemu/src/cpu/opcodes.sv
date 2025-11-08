@@ -65,8 +65,10 @@ typedef enum logic [4:0] {
   ALU_OP_RL,
   ALU_OP_RLC,
 
-  ALU_OP_ADD_H,
-  ALU_OP_ADD_L
+  ALU_OP_ADD_SIGNED,
+
+  ALU_OP_ADD_HIGH,
+  ALU_OP_ADD_LOW
 } alu_op_t;
 
 typedef enum logic [4:0] {
@@ -83,7 +85,10 @@ typedef enum logic [4:0] {
   ALU_SRC_Z,
 
   ALU_SRC_SP_HIGH,
-  ALU_SRC_SP_LOW
+  ALU_SRC_SP_LOW,
+
+  ALU_SRC_PC_HIGH,
+  ALU_SRC_PC_LOW
 } alu_src_t;
 
 typedef enum logic [2:0] {
@@ -101,7 +106,8 @@ typedef enum logic [2:0] {
   MISC_OP_IME_DISABLE,
   MISC_OP_IME_ENABLE,
   MISC_OP_COND_CHECK,
-  MISC_OP_R16_COPY
+  MISC_OP_R16_COPY,
+  MISC_OP_JR_SIGNED
 } misc_ops_t;
 
 typedef enum logic [2:0] {

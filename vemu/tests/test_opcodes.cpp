@@ -144,8 +144,7 @@ TEST_P(GameboyCpuFileTest, RunAllCases) {
 
         verify_registers(top, testCase["final"], test_name);
         verify_ram(top, testCase["final"]["ram"], test_name);
-
-        break;
+        // break;
     }
 }
 
@@ -162,7 +161,7 @@ INSTANTIATE_TEST_SUITE_P(
                 if (entry.path().extension() == ".json")
                     files.push_back(entry.path());
                 t++;
-                if (t == 5)
+                if (t == 32)
                     break;
             }
         }

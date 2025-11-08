@@ -74,8 +74,19 @@ endfunction
           ADDR_WZ: {(REGS).w, (REGS).z} <= {(REGS).w, (REGS).z} + 16'd1; \
         endcase \
       end \
-      IDU_OP_DEC: ; \
-      default: ; \
+      IDU_OP_DEC: begin \
+        unique case (SRC) \
+          ADDR_NONE: ; \
+          ADDR_BC: {(REGS).b, (REGS).c} <= {(REGS).b, (REGS).c} - 16'd1; \
+          ADDR_DE: {(REGS).d, (REGS).e} <= {(REGS).d, (REGS).e} - 16'd1; \
+          ADDR_HL: {(REGS).h, (REGS).l} <= {(REGS).h, (REGS).l} - 16'd1; \
+          ADDR_PC: {(REGS).pch, (REGS).pcl} <= {(REGS).pch, (REGS).pcl} - 16'd1; \
+          ADDR_SP: {(REGS).sph, (REGS).spl} <= {(REGS).sph, (REGS).spl} - 16'd1; \
+          ADDR_AF: {(REGS).a, (REGS).flags} <= {(REGS).a, (REGS).flags} - 16'd1; \
+          ADDR_WZ: {(REGS).w, (REGS).z} <= {(REGS).w, (REGS).z} - 16'd1; \
+        endcase \
+      end \
+      IDU_OP_NONE: ; \
     endcase \
   end
 
@@ -92,8 +103,9 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
   logic [7:0] src_val, dst_val;
   logic [8:0] tmp;  // for carry
   logic zero_flag, carry_flag, half_flag, sub_flag;
-
   logic [4:0] half_sum;
+  logic signed [7:0] signed_val;
+  logic [7:0] orig_dst = dst_val;
 
   zero_flag  = regs.flags[7];
   sub_flag   = regs.flags[6];
@@ -116,6 +128,9 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
     ALU_SRC_SP_HIGH: src_val = regs.sph;
     ALU_SRC_SP_LOW:  src_val = regs.spl;
 
+    ALU_SRC_PC_HIGH: src_val = regs.pch;
+    ALU_SRC_PC_LOW:  src_val = regs.pcl;
+
     ALU_SRC_NONE: src_val = 8'h00;
   endcase
 
@@ -133,6 +148,9 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
 
     ALU_SRC_SP_HIGH: dst_val = regs.sph;
     ALU_SRC_SP_LOW:  dst_val = regs.spl;
+
+    ALU_SRC_PC_HIGH: dst_val = regs.pch;
+    ALU_SRC_PC_LOW:  dst_val = regs.pcl;
 
     ALU_SRC_NONE: dst_val = 8'h00;
   endcase
@@ -257,22 +275,36 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       else zero_flag = (dst_val == 8'h00);
     end
 
-    ALU_OP_ADD_L: begin
-      // First 8-bit add: L + rL
-      tmp        = {1'b0, regs.l} + {1'b0, src_val};
+    ALU_OP_ADD_SIGNED: begin
+      signed_val = src_val;
+      tmp        = {1'b0, dst_val} + {1'b0, signed_val};
+
+      half_flag  = (({1'b0, dst_val} ^ {1'b0, signed_val} ^ tmp) & 9'h010) != 0;
+      carry_flag = (({1'b0, dst_val} ^ {1'b0, signed_val} ^ tmp) & 9'h100) != 0;
+
       dst_val    = tmp[7:0];
-      carry_flag = tmp[8];
-      half_sum   = {1'b0, regs.l[3:0]} + {1'b0, src_val[3:0]};
-      half_flag  = half_sum[4];
+
       sub_flag   = 1'b0;
     end
 
-    ALU_OP_ADD_H: begin
-      // Second 8-bit add: H + rH + carry from previous
-      tmp        = {1'b0, regs.h} + {1'b0, src_val} + {8'b0, regs.flags[4]};
+
+    ALU_OP_ADD_LOW: begin
+      // First 8-bit add: L + rL
+      orig_dst   = dst_val;
+      tmp        = {1'b0, dst_val} + {1'b0, src_val};
+      half_sum   = {1'b0, dst_val[3:0]} + {1'b0, src_val[3:0]};
+      half_flag  = half_sum[4];
       dst_val    = tmp[7:0];
       carry_flag = tmp[8];
-      half_sum   = {1'b0, regs.h[3:0]} + {1'b0, src_val[3:0]} + {4'b0, regs.flags[4]};
+      sub_flag   = 1'b0;
+    end
+
+    ALU_OP_ADD_HIGH: begin
+      // Second 8-bit add: H + rH + carry from previous
+      tmp        = {1'b0, dst_val} + {1'b0, src_val} + {8'b0, regs.flags[4]};
+      half_sum   = {1'b0, dst_val[3:0]} + {1'b0, src_val[3:0]} + {4'b0, regs.flags[4]};
+      dst_val    = tmp[7:0];
+      carry_flag = tmp[8];
       half_flag  = half_sum[4];
       sub_flag   = 1'b0;
     end
@@ -306,6 +338,8 @@ endfunction
       ALU_SRC_Z: (REGS).z <= __alu_res.result; \
       ALU_SRC_SP_HIGH: (REGS).sph <= __alu_res.result; \
       ALU_SRC_SP_LOW:  (REGS).spl <= __alu_res.result; \
+      ALU_SRC_PC_HIGH: (REGS).pch <= __alu_res.result; \
+      ALU_SRC_PC_LOW:  (REGS).pcl <= __alu_res.result; \
       ALU_SRC_NONE: ; \
     endcase \
     (REGS).flags <= __alu_res.flags; \
@@ -362,7 +396,7 @@ endfunction
       MISC_OP_R16_COPY: begin \
         $display("[%0t] Writing 0x%h to %s", $time, {(REGS).w, (REGS).z}, (DST).name()); \
         unique case (DST) \
-          MISC_OP_DST_NONE: ; /* nothing to do */ \
+          MISC_OP_DST_NONE: ; \
           MISC_OP_DST_PC: begin \
             (REGS).pch <= (REGS).w; \
             (REGS).pcl <= (REGS).z; \
@@ -384,6 +418,15 @@ endfunction
             (REGS).l <= (REGS).z; \
           end \
         endcase \
+      end \
+      MISC_OP_JR_SIGNED: begin \
+        logic signed [7:0] offset; \
+        logic [15:0] new_pc; \
+        offset = (REGS).z; \
+        new_pc = { (REGS).pch, (REGS).pcl } + {{8{offset[7]}}, offset}; \
+        (REGS).pch <= new_pc[15:8]; \
+        (REGS).pcl <= new_pc[7:0]; \
+        $display("[%0t] JR signed offset %0d to PC=%04h", $time, offset, new_pc); \
       end \
       default: ; /* nothing to do */ \
     endcase \

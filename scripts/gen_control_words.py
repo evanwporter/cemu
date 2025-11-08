@@ -24,6 +24,19 @@ DEFAULT_FIELDS = {
     "cond": "COND_NONE",
 }
 
+# NOP
+control_words[0x00] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "idu_op": "IDU_OP_INC",
+    },
+]
+opcode_comments[0x00] = "NOP"
+
+NOP = control_words[0x00][0]
+
 
 def opcode_for_ld(dst, src):
     # LD r, r' start at 0x40
@@ -355,17 +368,6 @@ make_alu_op(0xB0, "ALU_OP_OR", "OR A,")
 # # CP A,r
 # make_alu_op(0xB8, "ALU_OP_CP", "CP A,")
 
-# NOP
-control_words[0x00] = [
-    {
-        "addr_src": "ADDR_PC",
-        "data_bus_op": "DATA_BUS_OP_READ",
-        "data_bus_src": "DATA_BUS_SRC_IR",
-        "idu_op": "IDU_OP_INC",
-    },
-]
-opcode_comments[0x00] = "NOP"
-
 # INC/DEC r
 for incdec in ("INC", "DEC"):
     for i, reg in enumerate(registers):
@@ -639,7 +641,7 @@ for i, pair in enumerate(["BC", "DE", "HL", "SP"]):
             "data_bus_op": "DATA_BUS_OP_NONE",
             "idu_op": "IDU_OP_INC",
         },
-        control_words[0][0],
+        NOP,
     ]
     control_words[opcode_inc] = cycles_inc
     opcode_comments[opcode_inc] = f"INC {pair}"
@@ -711,7 +713,7 @@ for pair, opcode in {"BC": 0x09, "DE": 0x19, "HL": 0x29, "SP": 0x39}.items():
         {
             "addr_src": "ADDR_NONE",
             "data_bus_op": "DATA_BUS_OP_NONE",
-            "alu_op": "ALU_OP_ADD_L",
+            "alu_op": "ALU_OP_ADD_LOW",
             "alu_dst": "ALU_SRC_L",
             "alu_src": f"ALU_SRC_{LO}",
         },
@@ -719,7 +721,7 @@ for pair, opcode in {"BC": 0x09, "DE": 0x19, "HL": 0x29, "SP": 0x39}.items():
             "addr_src": "ADDR_PC",
             "data_bus_op": "DATA_BUS_OP_READ",
             "data_bus_src": "DATA_BUS_SRC_IR",
-            "alu_op": "ALU_OP_ADD_H",
+            "alu_op": "ALU_OP_ADD_HIGH",
             "alu_dst": "ALU_SRC_H",
             "alu_src": f"ALU_SRC_{HI}",
             "idu_op": "IDU_OP_INC",
@@ -727,6 +729,45 @@ for pair, opcode in {"BC": 0x09, "DE": 0x19, "HL": 0x29, "SP": 0x39}.items():
     ]
     control_words[opcode] = cycles
     opcode_comments[opcode] = f"ADD HL, {pair}"
+
+
+def make_jr(control_words, opcode_comments, conditions):
+    control_words[0x18] = [
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_Z",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+        },
+        {
+            "addr_src": "ADDR_NONE",
+            "data_bus_op": "DATA_BUS_OP_NONE",
+            "misc_op": "MISC_OP_JR_SIGNED",
+        },
+        NOP,
+        None,
+        None,
+        None,
+    ]
+    opcode_comments[0x18] = "JR e"
+
+    conditional_jr = {
+        0x20: "NZ",
+        0x28: "Z",
+        0x30: "NC",
+        0x38: "C",
+    }
+
+    for opcode, cond_name in conditional_jr.items():
+        control_words[opcode] = [dict(c) if c else None for c in control_words[0x18]]
+        control_words[opcode][0]["misc_op"] = "MISC_OP_COND_CHECK"
+        control_words[opcode][0]["cond"] = conditions[cond_name]
+        control_words[opcode][5] = NOP
+
+        opcode_comments[opcode] = f"JR {cond_name}, e"
+
+
+make_jr(control_words, opcode_comments, conditions)
 
 
 def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
