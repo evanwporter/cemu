@@ -16,6 +16,7 @@ DEFAULT_FIELDS = {
     "data_bus_src": "DATA_BUS_SRC_NONE",
     "data_bus_op": "DATA_BUS_OP_NONE",
     "idu_op": "IDU_OP_NONE",
+    "idu_dst": "ADDR_NONE",
     "alu_op": "ALU_OP_NONE",
     "alu_dst": "ALU_SRC_NONE",
     "alu_src": "ALU_SRC_NONE",
@@ -91,6 +92,7 @@ for dst in registers:
     control_words[opcode] = cycles
     opcode_comments[opcode] = f"LD {dst}, (HL)"
 
+# LD (HL), r
 for src in registers:
     if src == "(HL)":
         continue
@@ -101,7 +103,6 @@ for src in registers:
             "addr_src": "ADDR_HL",
             "data_bus_src": f"DATA_BUS_SRC_{src}",
             "data_bus_op": "DATA_BUS_OP_WRITE",
-            "idu_op": "IDU_OP_INC",
         },
         {
             "addr_src": "ADDR_PC",
@@ -131,7 +132,7 @@ def make_jp_nn(cond_sv: str | None = None):
         {
             "addr_src": "ADDR_NONE",
             "data_bus_op": "DATA_BUS_OP_NONE",
-            "misc_op": "MISC_OP_R16_COPY",
+            "misc_op": "MISC_OP_R16_WZ_COPY",
             "misc_op_dst": "MISC_OP_DST_PC",
         },
         {
@@ -157,14 +158,7 @@ def make_jp_nn(cond_sv: str | None = None):
     return cycles
 
 
-conditional_jumps = {
-    0xC2: "NZ",
-    0xCA: "Z",
-    0xD2: "NC",
-    0xDA: "C",
-}
-
-for opcode, cond_name in conditional_jumps.items():
+for opcode, cond_name in {0xC2: "NZ", 0xCA: "Z", 0xD2: "NC", 0xDA: "C"}.items():
     control_words[opcode] = make_jp_nn(conditions[cond_name])
     opcode_comments[opcode] = f"JP {cond_name}, nn"
 
@@ -189,24 +183,22 @@ def make_call_nn(cond_sv: str | None = None):
         },
         {
             "addr_src": "ADDR_SP",
+            "idu_op": "IDU_OP_DEC",
+        },
+        {
+            "addr_src": "ADDR_SP",
             "data_bus_src": "DATA_BUS_SRC_PC_HIGH",
-            "data_bus_op": "DATA_BUS_OP_READ",
+            "data_bus_op": "DATA_BUS_OP_WRITE",
             "idu_op": "IDU_OP_DEC",
         },
         {
             "addr_src": "ADDR_SP",
             "data_bus_src": "DATA_BUS_SRC_PC_LOW",
-            "data_bus_op": "DATA_BUS_OP_READ",
-            "idu_op": "IDU_OP_DEC",
-            "misc_op": "MISC_OP_R16_COPY",
+            "data_bus_op": "DATA_BUS_OP_WRITE",
+            "misc_op": "MISC_OP_R16_WZ_COPY",
             "misc_op_dst": "MISC_OP_DST_PC",
         },
-        {
-            "addr_src": "ADDR_PC",
-            "data_bus_op": "DATA_BUS_OP_READ",
-            "data_bus_src": "DATA_BUS_SRC_IR",
-            "idu_op": "IDU_OP_INC",
-        },
+        NOP,
     ]
 
     if cond_sv:
@@ -216,18 +208,10 @@ def make_call_nn(cond_sv: str | None = None):
     return cycles
 
 
-conditional_call = {
-    0xC4: "NZ",
-    0xCC: "Z",
-    0xD4: "NC",
-    0xDC: "C",
-}
-
-for opcode, cond_name in conditional_call.items():
+for opcode, cond_name in {0xC4: "NZ", 0xCC: "Z", 0xD4: "NC", 0xDC: "C"}.items():
     control_words[opcode] = make_call_nn(conditions[cond_name])
     opcode_comments[opcode] = f"CALL {cond_name}, nn"
 
-# Unconditional CALL
 control_words[0xCD] = make_call_nn()
 opcode_comments[0xCD] = "CALL nn"
 
@@ -249,7 +233,7 @@ def make_ret(cond_sv: str | None = None):
         {
             "addr_src": "ADDR_NONE",
             "data_bus_op": "DATA_BUS_OP_NONE",
-            "misc_op": "MISC_OP_R16_COPY",
+            "misc_op": "MISC_OP_R16_WZ_COPY",
             "misc_op_dst": "MISC_OP_DST_PC",
         },
         {
@@ -273,7 +257,6 @@ def make_ret(cond_sv: str | None = None):
             },
         )
 
-        # Fill last slot for “not taken” condition
         cycles[5] = {
             "addr_src": "ADDR_PC",
             "data_bus_src": "DATA_BUS_SRC_IR",
@@ -286,14 +269,7 @@ def make_ret(cond_sv: str | None = None):
     return cycles
 
 
-conditional_rets = {
-    0xC0: "NZ",
-    0xC8: "Z",
-    0xD0: "NC",
-    0xD8: "C",
-}
-
-for opcode, cond_name in conditional_rets.items():
+for opcode, cond_name in {0xC0: "NZ", 0xC8: "Z", 0xD0: "NC", 0xD8: "C"}.items():
     control_words[opcode] = make_ret(conditions[cond_name])
     opcode_comments[opcode] = f"RET {cond_name}"
 
@@ -344,29 +320,18 @@ def make_alu_op(base_opcode: int, alu_op: str, mnemonic: str):
         opcode_comments[opcode] = f"{mnemonic} {src}"
 
 
-# ADD A,r
-make_alu_op(0x80, "ALU_OP_ADD", "ADD A,")
-
-# ADC A,r
-make_alu_op(0x88, "ALU_OP_ADC", "ADC A,")
-
-# SUB A,r
-make_alu_op(0x90, "ALU_OP_SUB", "SUB A,")
-
-# SBC A,r
-make_alu_op(0x98, "ALU_OP_SBC", "SBC A,")
-
-# AND A,r
-make_alu_op(0xA0, "ALU_OP_AND", "AND A,")
-
-# XOR A,r
-make_alu_op(0xA8, "ALU_OP_XOR", "XOR A,")
-
-# OR A,r
-make_alu_op(0xB0, "ALU_OP_OR", "OR A,")
-
-# # CP A,r
-# make_alu_op(0xB8, "ALU_OP_CP", "CP A,")
+alu_ops = {
+    0x80: ("ADD", "ALU_OP_ADD"),
+    0x88: ("ADC", "ALU_OP_ADC"),
+    0x90: ("SUB", "ALU_OP_SUB"),
+    0x98: ("SBC", "ALU_OP_SBC"),
+    0xA0: ("AND", "ALU_OP_AND"),
+    0xA8: ("XOR", "ALU_OP_XOR"),
+    0xB0: ("OR", "ALU_OP_OR"),
+    0xB8: ("CP", "ALU_OP_CP"),
+}
+for base, (mnemonic, op) in alu_ops.items():
+    make_alu_op(base, op, f"{mnemonic} A,")
 
 # INC/DEC r
 for incdec in ("INC", "DEC"):
@@ -524,7 +489,7 @@ control_words[0xF3] = [
     }
 ]
 
-# DI
+# EI
 opcode_comments[0xFB] = "EI"
 control_words[0xFB] = [
     {
@@ -536,45 +501,39 @@ control_words[0xFB] = [
     }
 ]
 
-# PUSH
-for pair, opcode in {"BC": 0xC5, "DE": 0xD5, "HL": 0xE5}.items():
-    control_words[opcode] = [
-        {
-            "addr_src": "ADDR_SP",
-            "idu_op": "IDU_OP_DEC",
-        },
-        {
-            "addr_src": "ADDR_SP",
-            "data_bus_src": f"DATA_BUS_SRC_{pair[0]}",
-            "data_bus_op": "DATA_BUS_OP_WRITE",
-            "idu_op": "IDU_OP_DEC",
-        },
-        {
-            "addr_src": "ADDR_SP",
-            "data_bus_src": f"DATA_BUS_SRC_{pair[1]}",
-            "data_bus_op": "DATA_BUS_OP_WRITE",
-        },
-        {
-            "addr_src": "ADDR_PC",
-            "data_bus_src": "DATA_BUS_SRC_IR",
-            "data_bus_op": "DATA_BUS_OP_READ",
-            "idu_op": "IDU_OP_INC",
-        },
-    ]
+for pair, base in {"BC": 0xC5, "DE": 0xD5, "HL": 0xE5, "AF": 0xF5}.items():
+    hi, lo = ("A", "FLAGS") if pair == "AF" else (pair[0], pair[1])
 
-# POP
-for pair, opcode in {"BC": 0xC5, "DE": 0xD5, "HL": 0xE5}.items():
-    control_words[opcode] = [
+    # PUSH
+    control_words[base] = [
+        {"addr_src": "ADDR_SP", "idu_op": "IDU_OP_DEC"},
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_src": f"DATA_BUS_SRC_{hi}",
+            "data_bus_op": "DATA_BUS_OP_WRITE",
+            "idu_op": "IDU_OP_DEC",
+        },
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_src": f"DATA_BUS_SRC_{lo}",
+            "data_bus_op": "DATA_BUS_OP_WRITE",
+        },
+        NOP,
+    ]
+    opcode_comments[base] = f"PUSH {pair}"
+
+    # POP
+    control_words[base - 4] = [
         {
             "addr_src": "ADDR_SP",
             "data_bus_src": "DATA_BUS_SRC_Z",
-            "data_bus_op": "DATA_BUS_OP_WRITE",
+            "data_bus_op": "DATA_BUS_OP_READ",
             "idu_op": "IDU_OP_INC",
         },
         {
             "addr_src": "ADDR_SP",
             "data_bus_src": "DATA_BUS_SRC_W",
-            "data_bus_op": "DATA_BUS_OP_WRITE",
+            "data_bus_op": "DATA_BUS_OP_READ",
             "idu_op": "IDU_OP_INC",
         },
         {
@@ -582,10 +541,11 @@ for pair, opcode in {"BC": 0xC5, "DE": 0xD5, "HL": 0xE5}.items():
             "data_bus_src": "DATA_BUS_SRC_IR",
             "data_bus_op": "DATA_BUS_OP_READ",
             "idu_op": "IDU_OP_INC",
-            "misc_op": "MISC_OP_R16_COPY",
+            "misc_op": "MISC_OP_R16_WZ_COPY",
             "misc_op_dst": f"MISC_OP_DST_{pair}",
         },
     ]
+    opcode_comments[base - 4] = f"POP {pair}"
 
 # LD rr,d16 (16-bit immediate loads)
 for pair, opcode in {"BC": 0x01, "DE": 0x11, "HL": 0x21, "SP": 0x31}.items():
@@ -609,7 +569,7 @@ for pair, opcode in {"BC": 0x01, "DE": 0x11, "HL": 0x21, "SP": 0x31}.items():
             "data_bus_src": "DATA_BUS_SRC_IR",
             "data_bus_op": "DATA_BUS_OP_READ",
             "idu_op": "IDU_OP_INC",
-            "misc_op": "MISC_OP_R16_COPY",
+            "misc_op": "MISC_OP_R16_WZ_COPY",
             "misc_op_dst": f"MISC_OP_DST_{pair}",
         },
     ]
@@ -770,6 +730,300 @@ def make_jr(control_words, opcode_comments, conditions):
 make_jr(control_words, opcode_comments, conditions)
 
 
+def make_rst(vector):
+    return [
+        {
+            "addr_src": "ADDR_SP",
+            "idu_op": "IDU_OP_DEC",
+        },
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_op": "DATA_BUS_OP_WRITE",
+            "data_bus_src": "DATA_BUS_SRC_PC_HIGH",
+            "idu_op": "IDU_OP_DEC",
+        },
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_src": "DATA_BUS_SRC_PC_LOW",
+            "data_bus_op": "DATA_BUS_OP_WRITE",
+        },
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_src": "DATA_BUS_SRC_PC_LOW",
+            "data_bus_op": "DATA_BUS_OP_WRITE",
+            "misc_op": "MISC_OP_SET_PC_CONST",
+        },
+        NOP,
+    ]
+
+
+for i, opcode in enumerate(range(0xC7, 0x100, 0x08)):
+    vector = i * 8
+    control_words[opcode] = make_rst(vector)
+    opcode_comments[opcode] = f"RST ${vector:02X}"
+
+# SCF
+control_words[0x37] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "idu_op": "IDU_OP_INC",
+        "alu_op": "ALU_OP_SCF",
+    },
+]
+opcode_comments[0x37] = "SCF"
+
+# CCF
+control_words[0x3F] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "idu_op": "IDU_OP_INC",
+        "alu_op": "ALU_OP_CCF",
+    },
+]
+opcode_comments[0x3F] = "CCF"
+
+for opcode, mnemonic in {
+    0xC6: "ADD",
+    0xCE: "ADC",
+    0xD6: "SUB",
+    0xDE: "SBC",
+    0xE6: "AND",
+    0xEE: "XOR",
+    0xF6: "OR",
+    0xFE: "CP",
+}.items():
+    control_words[opcode] = [
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_Z",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+        },
+        {
+            "addr_src": "ADDR_PC",
+            "data_bus_src": "DATA_BUS_SRC_IR",
+            "data_bus_op": "DATA_BUS_OP_READ",
+            "idu_op": "IDU_OP_INC",
+            "alu_op": f"ALU_OP_{mnemonic}",
+            "alu_dst": "ALU_SRC_A",
+            "alu_src": "ALU_SRC_Z",
+        },
+    ]
+    opcode_comments[opcode] = f"{mnemonic} A, n8"
+
+# LDH (a8), A  (opcode E0)
+# Writes A to address (0xFF00 + immediate)
+control_words[0xE0] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_Z",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+    },
+    {
+        "addr_src": "ADDR_WZ",  # WZ holds effective address 0xFF00+Z
+        "data_bus_src": "DATA_BUS_SRC_A",
+        "data_bus_op": "DATA_BUS_OP_WRITE",
+    },
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+    },
+]
+opcode_comments[0xE0] = "LDH (a8), A"
+
+# LDH A, (a8)  (opcode F0)
+# Reads from (0xFF00 + immediate) into A
+control_words[0xF0] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_Z",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+    },
+    {
+        "addr_src": "ADDR_FF_Z",  # 0xFF00 + Z
+        "data_bus_src": "DATA_BUS_SRC_Z",
+        "data_bus_op": "DATA_BUS_OP_READ",
+    },
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+        "alu_op": "ALU_OP_COPY",
+        "alu_dst": "ALU_SRC_A",
+        "alu_src": "ALU_SRC_Z",
+    },
+]
+opcode_comments[0xF0] = "LDH A, n"
+
+# LD (C), A  (opcode E2)
+# Writes A to (0xFF00 + C)
+control_words[0xE2] = [
+    {
+        "addr_src": "ADDR_WZ",  # effective address (0xFF00 + C)
+        "data_bus_src": "DATA_BUS_SRC_A",
+        "data_bus_op": "DATA_BUS_OP_WRITE",
+    },
+    # fetch next opcode
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+    },
+]
+opcode_comments[0xE2] = "LD (C), A"
+
+# LD A, (C)  (opcode F2)
+# Reads from (0xFF00 + C) into A
+control_words[0xF2] = [
+    {
+        "addr_src": "ADDR_FF_C",  # 0xFF00 + C
+        "data_bus_src": "DATA_BUS_SRC_Z",
+        "data_bus_op": "DATA_BUS_OP_READ",
+    },
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "alu_op": "ALU_OP_COPY",
+        "alu_dst": "ALU_SRC_A",
+        "alu_src": "ALU_SRC_Z",
+        "idu_op": "IDU_OP_INC",
+    },
+]
+opcode_comments[0xF2] = "LD A, (C)"
+
+control_words[0xEA] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_Z",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+    },
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_W",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+    },
+    {
+        "addr_src": "ADDR_WZ",
+        "data_bus_src": "DATA_BUS_SRC_A",
+        "data_bus_op": "DATA_BUS_OP_WRITE",
+    },
+    NOP,
+]
+opcode_comments[0xEA] = "LD (nn), A"
+
+control_words[0xFA] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_Z",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+    },
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_W",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+    },
+    {
+        "addr_src": "ADDR_WZ",
+        "data_bus_src": "DATA_BUS_SRC_Z",
+        "data_bus_op": "DATA_BUS_OP_READ",
+    },
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+        "alu_op": "ALU_OP_COPY",
+        "alu_dst": "ALU_SRC_A",
+        "alu_src": "ALU_SRC_Z",
+    },
+]
+opcode_comments[0xFA] = "LD A, (nn)"
+
+control_words[0xF9] = [
+    {
+        "misc_op": "MISC_OP_SP_HL_COPY",
+    },
+    NOP,
+]
+opcode_comments[0xF9] = "LD SP, HL"
+
+# LD HL, SP + e8
+control_words[0xF8] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_Z",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+        "alu_op": "ALU_OP_ADD",
+        "alu_dst": "ALU_SRC_Z",
+        "alu_src": "ALU_SRC_SP_LOW",
+    },
+    {
+        "addr_src": "ADDR_NONE",
+        "data_bus_op": "DATA_BUS_OP_NONE",
+        "alu_op": "ALU_OP_COPY",
+        "alu_dst": "ALU_SRC_L",
+        "alu_src": "ALU_SRC_Z",
+    },
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+        "alu_op": "ALU_OP_ADD_SIGNED",
+        "alu_dst": "ALU_SRC_H",
+        "alu_src": "ALU_SRC_SP_HIGH",
+    },
+]
+opcode_comments[0xF8] = "LD HL, SP + e8"
+
+control_words[0xE9] = [
+    {
+        "addr_src": "ADDR_HL",
+        "data_bus_src": "DATA_BUS_SRC_Z",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+        "idu_dst": "ADDR_PC",
+    },
+]
+
+# // TODO: Comment
+control_words[0xD9] = [
+    {
+        "addr_src": "ADDR_SP",
+        "data_bus_src": "DATA_BUS_SRC_Z",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+        "idu_dst": "ADDR_SP",
+    },
+    {
+        "addr_src": "ADDR_SP",
+        "data_bus_src": "DATA_BUS_SRC_W",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+        "idu_dst": "ADDR_SP",
+        "misc_op": "MISC_OP_IME_ENABLE",
+    },
+    {"misc_op": "MISC_OP_R16_WZ_COPY", "misc_op_dst": "MISC_OP_DST_PC"},
+    NOP,
+]
+
+
 def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
     if not entry:
         comma = "," if not is_last else ""
@@ -785,6 +1039,16 @@ def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
         + ",\n".join(fields)
         + f"\n            }}{comma}\n"
     )
+
+
+forced_cycle_counts = {
+    0xC0: 5,  # RET NZ
+    0xC8: 5,  # RET Z
+    0xD0: 5,  # RET NC
+    0xD8: 5,  # RET C
+    0xC9: 4,  # RET
+    0xD9: 4,  # RETI
+}
 
 
 def count_real_cycles(cycles: list) -> int:
@@ -813,6 +1077,10 @@ def generate_sv(control_words, opcode_comments) -> str:
 
         if cycles:
             num_real = count_real_cycles(cycles)
+
+            if opcode in forced_cycle_counts:
+                num_real = forced_cycle_counts[opcode]
+
             lines.append(f"        num_cycles : 3'd{num_real},\n")
             lines.append("        cycles : '{\n")
 

@@ -144,7 +144,7 @@ TEST_P(GameboyCpuFileTest, RunAllCases) {
 
         verify_registers(top, testCase["final"], test_name);
         verify_ram(top, testCase["final"]["ram"], test_name);
-        // break;
+        break;
     }
 }
 
@@ -153,16 +153,13 @@ INSTANTIATE_TEST_SUITE_P(
     GameboyCpuFileTest,
     ::testing::ValuesIn([] {
         std::vector<fs::path> files;
-        int t = 0;
         if (fs::exists(kTestDir)) {
             for (auto& entry : fs::directory_iterator(kTestDir)) {
-                // if (t == 0)
-                //     continue;
-                if (entry.path().extension() == ".json")
+                if (entry.path().extension() == ".json") {
+                    if (entry.path().filename() == "cb.json")
+                        continue;
                     files.push_back(entry.path());
-                t++;
-                if (t == 32)
-                    break;
+                }
             }
         }
         return files;

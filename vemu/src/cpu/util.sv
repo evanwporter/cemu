@@ -31,6 +31,9 @@ function automatic logic [15:0] pick_addr(input address_src_t s, input cpu_regs_
     ADDR_DE: pick_addr = {r.d, r.e};
 
     ADDR_WZ: pick_addr = {r.w, r.z};
+
+    ADDR_FF_C: pick_addr = {8'hFF, r.c};
+    ADDR_FF_Z: pick_addr = {8'hFF, r.z};
   endcase
 endfunction
 
@@ -45,6 +48,7 @@ function automatic logic [7:0] pick_wdata(data_bus_src_t s, cpu_regs_t r);
     DATA_BUS_SRC_E: pick_wdata = r.e;
     DATA_BUS_SRC_H: pick_wdata = r.h;
     DATA_BUS_SRC_L: pick_wdata = r.l;
+    DATA_BUS_SRC_FLAGS: pick_wdata = r.flags;
 
     DATA_BUS_SRC_W: pick_wdata = r.w;
     DATA_BUS_SRC_Z: pick_wdata = r.z;
@@ -58,41 +62,49 @@ function automatic logic [7:0] pick_wdata(data_bus_src_t s, cpu_regs_t r);
   endcase
 endfunction
 
-`define APPLY_IDU_OP(SRC, OP, REGS) \
+`define APPLY_IDU_OP(SRC, DST, OP, REGS) \
   begin \
-    $display("[%0t] Applying IDU op %s to %s", $time, (OP).name(), (SRC).name()); \
+    logic [15:0] __idu_tmp; \
+    $display("[%0t] Applying IDU op %s from %s to %s", $time, (OP).name(), (SRC).name(), (DST).name()); \
+    \
+    unique case (SRC) \
+      ADDR_NONE:   __idu_tmp = 16'h0000; \
+      ADDR_PC:     __idu_tmp = {(REGS).pch, (REGS).pcl}; \
+      ADDR_SP:     __idu_tmp = {(REGS).sph, (REGS).spl}; \
+      ADDR_HL:     __idu_tmp = {(REGS).h, (REGS).l}; \
+      ADDR_BC:     __idu_tmp = {(REGS).b, (REGS).c}; \
+      ADDR_DE:     __idu_tmp = {(REGS).d, (REGS).e}; \
+      ADDR_AF:     __idu_tmp = {(REGS).a, (REGS).flags}; \
+      ADDR_WZ:     __idu_tmp = {(REGS).w, (REGS).z}; \
+      ADDR_FF_C, \
+      ADDR_FF_Z:   __idu_tmp = 16'h0000; \
+    endcase \
+    \
     unique case (OP) \
-      IDU_OP_INC: begin \
-        unique case (SRC) \
-          ADDR_NONE: ; \
-          ADDR_PC: {(REGS).pch, (REGS).pcl} <= {(REGS).pch, (REGS).pcl} + 16'd1; \
-          ADDR_SP: {(REGS).sph, (REGS).spl} <= {(REGS).sph, (REGS).spl} + 16'd1; \
-          ADDR_HL: {(REGS).h, (REGS).l} <= {(REGS).h, (REGS).l} + 16'd1; \
-          ADDR_BC: {(REGS).b, (REGS).c} <= {(REGS).b, (REGS).c} + 16'd1; \
-          ADDR_DE: {(REGS).d, (REGS).e} <= {(REGS).d, (REGS).e} + 16'd1; \
-          ADDR_AF: {(REGS).a, (REGS).flags} <= {(REGS).a, (REGS).flags} + 16'd1; \
-          ADDR_WZ: {(REGS).w, (REGS).z} <= {(REGS).w, (REGS).z} + 16'd1; \
-        endcase \
-      end \
-      IDU_OP_DEC: begin \
-        unique case (SRC) \
-          ADDR_NONE: ; \
-          ADDR_BC: {(REGS).b, (REGS).c} <= {(REGS).b, (REGS).c} - 16'd1; \
-          ADDR_DE: {(REGS).d, (REGS).e} <= {(REGS).d, (REGS).e} - 16'd1; \
-          ADDR_HL: {(REGS).h, (REGS).l} <= {(REGS).h, (REGS).l} - 16'd1; \
-          ADDR_PC: {(REGS).pch, (REGS).pcl} <= {(REGS).pch, (REGS).pcl} - 16'd1; \
-          ADDR_SP: {(REGS).sph, (REGS).spl} <= {(REGS).sph, (REGS).spl} - 16'd1; \
-          ADDR_AF: {(REGS).a, (REGS).flags} <= {(REGS).a, (REGS).flags} - 16'd1; \
-          ADDR_WZ: {(REGS).w, (REGS).z} <= {(REGS).w, (REGS).z} - 16'd1; \
-        endcase \
-      end \
+      IDU_OP_INC: __idu_tmp = __idu_tmp + 16'd1; \
+      IDU_OP_DEC: __idu_tmp = __idu_tmp - 16'd1; \
       IDU_OP_NONE: ; \
+    endcase \
+    \
+    unique case (DST) \
+      ADDR_NONE: ; \
+      ADDR_PC: {(REGS).pch, (REGS).pcl} <= __idu_tmp; \
+      ADDR_SP: {(REGS).sph, (REGS).spl} <= __idu_tmp; \
+      ADDR_HL: {(REGS).h, (REGS).l}     <= __idu_tmp; \
+      ADDR_BC: {(REGS).b, (REGS).c}     <= __idu_tmp; \
+      ADDR_DE: {(REGS).d, (REGS).e}     <= __idu_tmp; \
+      ADDR_AF: {(REGS).a, (REGS).flags} <= __idu_tmp; \
+      ADDR_WZ: {(REGS).w, (REGS).z}     <= __idu_tmp; \
+      ADDR_FF_C, \
+      ADDR_FF_Z: ; \
     endcase \
   end
 
+
 typedef struct packed {
   logic [7:0] result;  // The ALU output value
-  logic [7:0] flags;   // The full F register (Z N H C ---- ----)
+  logic [7:0] flags;  // The full F register (Z N H C ---- ----)
+  logic alu_carry;  // Carry out of the operation
 } alu_result_t;
 
 function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t dst_sel,
@@ -105,7 +117,6 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
   logic zero_flag, carry_flag, half_flag, sub_flag;
   logic [4:0] half_sum;
   logic signed [7:0] signed_val;
-  logic [7:0] orig_dst = dst_val;
 
   zero_flag  = regs.flags[7];
   sub_flag   = regs.flags[6];
@@ -160,40 +171,46 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
     ALU_OP_COPY: dst_val = src_val;
 
     ALU_OP_ADD: begin
-      tmp        = {1'b0, dst_val} + {1'b0, src_val};
-      dst_val    = tmp[7:0];
-      carry_flag = tmp[8];
-      half_sum   = {1'b0, dst_val[3:0]} + {1'b0, src_val[3:0]};
-      half_flag  = half_sum[4];
-      sub_flag   = 1'b0;
-      zero_flag  = (dst_val == 8'h00);
+      half_sum      = {1'b0, dst_val[3:0]} + {1'b0, src_val[3:0]};
+      half_flag     = half_sum[4];
+
+      tmp           = {1'b0, dst_val} + {1'b0, src_val};
+      dst_val       = tmp[7:0];
+      carry_flag    = tmp[8];
+
+      sub_flag      = 1'b0;
+      zero_flag     = (dst_val == 8'h00);
+
+      res.alu_carry = carry_flag;
     end
 
     ALU_OP_ADC: begin
+      half_sum   = {1'b0, dst_val[3:0]} + {1'b0, src_val[3:0]} + {4'b0, regs.flags[4]};
+      half_flag  = half_sum[4];
+
       tmp        = {1'b0, dst_val} + {1'b0, src_val} + {8'b0, regs.flags[4]};
       dst_val    = tmp[7:0];
       carry_flag = tmp[8];
-      half_sum   = {1'b0, dst_val[3:0]} + {1'b0, src_val[3:0]} + {4'b0, regs.flags[4]};
-      half_flag  = half_sum[4];
+
       sub_flag   = 1'b0;
       zero_flag  = (dst_val == 8'h00);
     end
 
     ALU_OP_SUB: begin
       tmp        = {1'b0, dst_val} - {1'b0, src_val};
-      dst_val    = tmp[7:0];
       carry_flag = tmp[8];
-      half_flag  = (dst_val[3:0] < src_val[3:0]);
+      half_flag  = ((dst_val[3:0]) < (src_val[3:0]));
       sub_flag   = 1'b1;
+      dst_val    = tmp[7:0];
       zero_flag  = (dst_val == 8'h00);
     end
 
     ALU_OP_SBC: begin
       tmp        = {1'b0, dst_val} - {1'b0, src_val} - {8'b0, regs.flags[4]};
-      dst_val    = tmp[7:0];
       carry_flag = tmp[8];
       half_flag  = (dst_val[3:0] < (src_val[3:0] + {3'b000, regs.flags[4]}));
       sub_flag   = 1'b1;
+      dst_val    = tmp[7:0];
       zero_flag  = (dst_val == 8'h00);
     end
 
@@ -239,7 +256,7 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
 
     ALU_OP_RR: begin
       carry_flag = dst_val[0];
-      dst_val    = {carry_flag, dst_val[7:1]};
+      dst_val    = {regs.flags[4], dst_val[7:1]};
       sub_flag   = 1'b0;
       half_flag  = 1'b0;
       if (dst_sel == ALU_SRC_A) zero_flag = 1'b0;
@@ -276,21 +293,22 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
     end
 
     ALU_OP_ADD_SIGNED: begin
-      signed_val = src_val;
-      tmp        = {1'b0, dst_val} + {1'b0, signed_val};
-
-      half_flag  = (({1'b0, dst_val} ^ {1'b0, signed_val} ^ tmp) & 9'h010) != 0;
-      carry_flag = (({1'b0, dst_val} ^ {1'b0, signed_val} ^ tmp) & 9'h100) != 0;
-
-      dst_val    = tmp[7:0];
-
-      sub_flag   = 1'b0;
+      // For LD HL,SP+e8 high byte add: SPH + sign(Z) + carry
+      tmp           = {1'b0, dst_val} + {1'b0, {8{regs.z[7]}}} + {8'b0, regs.alu_carry};
+      dst_val       = tmp[7:0];
+      res.alu_carry = tmp[8];
     end
 
 
+    ALU_OP_CP: begin
+      tmp        = {1'b0, dst_val} - {1'b0, src_val};
+      carry_flag = tmp[8];
+      half_flag  = ((dst_val[3:0]) < (src_val[3:0]));
+      sub_flag   = 1'b1;
+      zero_flag  = (tmp[7:0] == 8'h00);
+    end
+
     ALU_OP_ADD_LOW: begin
-      // First 8-bit add: L + rL
-      orig_dst   = dst_val;
       tmp        = {1'b0, dst_val} + {1'b0, src_val};
       half_sum   = {1'b0, dst_val[3:0]} + {1'b0, src_val[3:0]};
       half_flag  = half_sum[4];
@@ -300,12 +318,23 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
     end
 
     ALU_OP_ADD_HIGH: begin
-      // Second 8-bit add: H + rH + carry from previous
       tmp        = {1'b0, dst_val} + {1'b0, src_val} + {8'b0, regs.flags[4]};
       half_sum   = {1'b0, dst_val[3:0]} + {1'b0, src_val[3:0]} + {4'b0, regs.flags[4]};
       dst_val    = tmp[7:0];
       carry_flag = tmp[8];
       half_flag  = half_sum[4];
+      sub_flag   = 1'b0;
+    end
+
+    ALU_OP_SCF: begin
+      carry_flag = 1'b1;
+      half_flag  = 1'b0;
+      sub_flag   = 1'b0;
+    end
+
+    ALU_OP_CCF: begin
+      carry_flag = ~regs.flags[4];
+      half_flag  = 1'b0;
       sub_flag   = 1'b0;
     end
 
@@ -343,6 +372,7 @@ endfunction
       ALU_SRC_NONE: ; \
     endcase \
     (REGS).flags <= __alu_res.flags; \
+    (REGS).alu_carry <= __alu_res.alu_carry; \
   end
 
 
@@ -353,6 +383,7 @@ endfunction
     unique case (DST_SEL) \
       DATA_BUS_SRC_NONE: ; \
       DATA_BUS_SRC_A: (REGS).a <= (DATA_BUS); \
+      DATA_BUS_SRC_FLAGS: (REGS).flags <= (DATA_BUS); \
       DATA_BUS_SRC_B: (REGS).b <= (DATA_BUS); \
       DATA_BUS_SRC_C: (REGS).c <= (DATA_BUS); \
       DATA_BUS_SRC_D: (REGS).d <= (DATA_BUS); \
@@ -393,7 +424,7 @@ endfunction
       MISC_OP_IME_DISABLE: begin \
         (REGS).IME <= 8'd0; \
       end \
-      MISC_OP_R16_COPY: begin \
+      MISC_OP_R16_WZ_COPY: begin \
         $display("[%0t] Writing 0x%h to %s", $time, {(REGS).w, (REGS).z}, (DST).name()); \
         unique case (DST) \
           MISC_OP_DST_NONE: ; \
@@ -417,6 +448,10 @@ endfunction
             (REGS).h <= (REGS).w; \
             (REGS).l <= (REGS).z; \
           end \
+          MISC_OP_DST_AF: begin \
+            (REGS).a <= (REGS).w; \
+            (REGS).flags <= (REGS).z & 8'hF0; \
+          end \
         endcase \
       end \
       MISC_OP_JR_SIGNED: begin \
@@ -427,6 +462,12 @@ endfunction
         (REGS).pch <= new_pc[15:8]; \
         (REGS).pcl <= new_pc[7:0]; \
         $display("[%0t] JR signed offset %0d to PC=%04h", $time, offset, new_pc); \
+      end \
+      MISC_OP_SET_PC_CONST: begin \
+        {(REGS).pch, (REGS).pcl} <= {8'h00, ((REGS).IR & 8'h38)}; \
+      end \
+      MISC_OP_SP_HL_COPY: begin \
+        {(REGS).sph, (REGS).spl} <= {(REGS).h, (REGS).l}; \
       end \
       default: ; /* nothing to do */ \
     endcase \

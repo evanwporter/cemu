@@ -70,6 +70,8 @@ module CPU (
             ADDR_HL:   addr_bus <= {regs.h, regs.l};
             ADDR_WZ:   addr_bus <= {regs.w, regs.z};
             ADDR_AF:   addr_bus <= {regs.a, regs.flags};
+            ADDR_FF_C: addr_bus <= {8'hFF, regs.c};
+            ADDR_FF_Z: addr_bus <= {8'hFF, regs.z};
             ADDR_NONE: addr_bus <= 16'h0000;
           endcase
           t_phase <= T2;
@@ -113,8 +115,15 @@ module CPU (
           `DISPLAY_CONTROL_WORD(control_word, cycle_count);
 
           // applies the idu op to the address bus
-          `APPLY_IDU_OP(control_word.cycles[cycle_count].addr_src,
-                        control_word.cycles[cycle_count].idu_op, regs);
+          if (control_word.cycles[cycle_count].idu_dst == ADDR_NONE) begin
+            `APPLY_IDU_OP(control_word.cycles[cycle_count].addr_src,
+                          control_word.cycles[cycle_count].addr_src,
+                          control_word.cycles[cycle_count].idu_op, regs);
+          end else begin
+            `APPLY_IDU_OP(control_word.cycles[cycle_count].addr_src,
+                          control_word.cycles[cycle_count].idu_dst,
+                          control_word.cycles[cycle_count].idu_op, regs);
+          end
 
           // applies the alu op to the specified registers
           `APPLY_ALU_OP(control_word.cycles[cycle_count].alu_op,

@@ -1,7 +1,7 @@
 `ifndef OPCODES_SV
 `define OPCODES_SV 
 
-typedef enum logic [2:0] {
+typedef enum logic [3:0] {
   ADDR_NONE,
   ADDR_AF,
   ADDR_BC,
@@ -9,7 +9,10 @@ typedef enum logic [2:0] {
   ADDR_HL,
   ADDR_PC,
   ADDR_SP,
-  ADDR_WZ
+  ADDR_WZ,
+
+  ADDR_FF_C,
+  ADDR_FF_Z
 } address_src_t;
 
 typedef enum logic [1:0] {
@@ -29,6 +32,7 @@ typedef enum logic [3:0] {
   DATA_BUS_SRC_E,
   DATA_BUS_SRC_H,
   DATA_BUS_SRC_L,
+  DATA_BUS_SRC_FLAGS,
 
   DATA_BUS_SRC_W,
   DATA_BUS_SRC_Z,
@@ -47,6 +51,16 @@ typedef enum logic [1:0] {
   IDU_OP_DEC
 } idu_op_t;
 
+typedef enum logic [2:0] {
+  IDU_SRC_NONE,
+  IDU_SRC_PC,
+  IDU_SRC_SP,
+  IDU_SRC_HL,
+  IDU_SRC_BC,
+  IDU_SRC_DE,
+  IDU_SRC_AF
+} idu_src_t;
+
 typedef enum logic [4:0] {
   ALU_OP_NONE,
   ALU_OP_COPY,
@@ -59,11 +73,15 @@ typedef enum logic [4:0] {
   ALU_OP_XOR,
   ALU_OP_INC,
   ALU_OP_DEC,
+  ALU_OP_CP,
 
   ALU_OP_RR,
   ALU_OP_RRC,
   ALU_OP_RL,
   ALU_OP_RLC,
+
+  ALU_OP_CCF,
+  ALU_OP_SCF,
 
   ALU_OP_ADD_SIGNED,
 
@@ -97,17 +115,20 @@ typedef enum logic [2:0] {
   MISC_OP_DST_SP,
   MISC_OP_DST_BC,
   MISC_OP_DST_DE,
-  MISC_OP_DST_HL
+  MISC_OP_DST_HL,
+  MISC_OP_DST_AF
 } misc_op_dst_t;
 
-typedef enum logic [2:0] {
+typedef enum logic [3:0] {
   MISC_OP_NONE,
   MISC_OP_HALT,
   MISC_OP_IME_DISABLE,
   MISC_OP_IME_ENABLE,
   MISC_OP_COND_CHECK,
-  MISC_OP_R16_COPY,
-  MISC_OP_JR_SIGNED
+  MISC_OP_R16_WZ_COPY,
+  MISC_OP_SET_PC_CONST,
+  MISC_OP_JR_SIGNED,
+  MISC_OP_SP_HL_COPY
 } misc_ops_t;
 
 typedef enum logic [2:0] {
@@ -126,6 +147,7 @@ typedef struct packed {
   data_bus_op_t data_bus_op;  // read or write to memory / direction
 
   idu_op_t idu_op;  // IDU operation to perform on the ADDR bus
+  address_src_t idu_dst;  // destination for IDU operation
 
   alu_op_t alu_op;  // ALU operation to perform
 
@@ -157,6 +179,7 @@ typedef struct packed {
   data_bus_src: DATA_BUS_SRC_NONE, \
   data_bus_op:  DATA_BUS_OP_NONE, \
   idu_op:       IDU_OP_NONE, \
+  idu_dst:      ADDR_NONE, \
   alu_op:       ALU_OP_NONE, \
   alu_dst:      ALU_SRC_NONE, \
   alu_src:      ALU_SRC_NONE, \
