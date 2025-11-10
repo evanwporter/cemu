@@ -299,7 +299,6 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       res.alu_carry = tmp[8];
     end
 
-
     ALU_OP_CP: begin
       tmp        = {1'b0, dst_val} - {1'b0, src_val};
       carry_flag = tmp[8];

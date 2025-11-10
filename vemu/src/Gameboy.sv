@@ -4,6 +4,9 @@
 `include "cpu/CPU.sv"
 `include "mmu/MMU.sv"
 
+`include "ppu/PPU.sv"
+`include "ppu/types.sv"
+
 module Gameboy (
     input logic clk,
     input logic reset
@@ -11,6 +14,8 @@ module Gameboy (
 
   logic [15:0] addr_bus;
   tri [7:0] data_bus;
+
+  ppu_mode_t ppu_mode;
 
   logic MMU_req_read;
   logic MMU_req_write;
@@ -31,6 +36,12 @@ module Gameboy (
       .data_bus (data_bus),
       .req_read (MMU_req_read),
       .req_write(MMU_req_write)
+  );
+
+  PPU ppu (
+      .clk  (clk),
+      .reset(reset),
+      .mode (ppu_mode)
   );
 
 endmodule

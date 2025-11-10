@@ -102,6 +102,7 @@ module CPU (
           t_phase <= T3;
         end
 
+        /// T3 is generally the cycle where data is read from the bus or the write is completed.
         T3: begin
           if (control_word.cycles[cycle_count].data_bus_op == DATA_BUS_OP_READ) begin
             `LOAD_REG_FROM_BYTE(control_word.cycles[cycle_count].data_bus_src, data_bus, regs);

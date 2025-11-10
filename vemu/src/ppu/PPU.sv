@@ -2,16 +2,20 @@
 `define PPU_SV 
 
 `include "ppu/types.sv"
+`include "ppu/interface.sv"
 
 module PPU (
     input logic clk,
     input logic reset,
 
+    PPU_MMU_IF.PPU_side bus,
     output ppu_mode_t mode
 );
 
   logic [8:0] cycle_counter;
   logic [7:0] line;
+
+  ppu_regs_t regs;
 
   localparam int CYCLES_PER_LINE = 456;
   localparam int LINES_PER_FRAME = 154;
@@ -20,6 +24,32 @@ module PPU (
   localparam int MODE2_LEN = 80;
   localparam int MODE3_LEN = 172;
   localparam int MODE0_LEN = 204;
+
+  // Write PPU registers
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      // TODO: Initialize all registers
+    end else if (bus.reg_write_en) begin
+      unique case (bus.reg_addr)
+        16'hFF40: regs.LCDC <= bus.reg_wdata;
+        16'hFF42: regs.SCY <= bus.reg_wdata;
+        16'hFF43: regs.SCX <= bus.reg_wdata;
+        16'hFF47: regs.BGP <= bus.reg_wdata;
+        default:  ;
+      endcase
+    end
+  end
+
+  // Read PPU registers
+  always_comb begin
+    unique case (bus.reg_addr)
+      16'hFF40: bus.reg_rdata = regs.LCDC;
+      16'hFF42: bus.reg_rdata = regs.SCY;
+      16'hFF43: bus.reg_rdata = regs.SCX;
+      16'hFF44: bus.reg_rdata = regs.LY;
+      default:  bus.reg_rdata = 8'h00;
+    endcase
+  end
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
