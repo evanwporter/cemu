@@ -3,6 +3,9 @@
 
 `include "ppu/types.sv"
 `include "ppu/interface.sv"
+`include "ppu/FIFO.sv"
+`include "ppu/Fetcher.sv"
+`include "ppu/Framebuffer.sv"
 
 module PPU (
     input logic clk,
@@ -24,6 +27,97 @@ module PPU (
   localparam int MODE2_LEN = 80;
   localparam int MODE3_LEN = 172;
   localparam int MODE0_LEN = 204;
+
+  logic dot_en;
+  assign dot_en = (mode == PPU_MODE_3);
+
+
+  // ======================================================
+  // Background FIFO
+  // ======================================================
+  logic bg_push_en;
+  logic bg_fifo_full, bg_fifo_empty;
+  logic             bg_pop_en;
+  logic       [4:0] bg_fifo_count;
+  ppu_pixel_t       bg_push_px;
+  ppu_pixel_t       bg_pop_px;
+
+  FIFO bg_fifo (
+      .clk    (clk),
+      .reset  (reset),
+      .push_en(bg_push_en),
+      .push_px(bg_push_px),
+      .full   (bg_fifo_full),
+      .pop_en (bg_pop_en),
+      .pop_px (bg_pop_px),
+      .empty  (bg_fifo_empty),
+      .count  (bg_fifo_count),
+      .flush  (1'b0)
+  );
+
+
+  // ======================================================
+  // Fetcher (VRAM -> FIFO)
+  // ======================================================
+  logic        vram_read_req;
+  logic [15:0] vram_addr;
+  logic [ 7:0] vram_rdata;
+
+  Fetcher fetcher (
+      .clk          (clk),
+      .reset        (reset),
+      .dot_en       (dot_en),
+      .regs         (regs),
+      .x_clock      (cycle_counter),
+      .window_active(window_active),
+      .y_screen     (line),
+      // VRAM bus
+      .vram_read_req(vram_read_req),
+      .vram_addr    (vram_addr),
+      .vram_rdata   (vram_rdata),
+      // FIFO interface
+      .bg_fifo_full (bg_fifo_full),
+      .bg_fifo_empty(bg_fifo_empty),
+      .bg_push_en   (bg_push_en),
+      .bg_push_px   (bg_push_px),
+      .pushed_count (  /* unused for now */),
+      // control
+      .flush        (1'b0),
+      .f_state_dbg  ()
+  );
+
+  // Connect Fetcher to VRAM through the MMU interface
+  assign bus.vram_req  = vram_read_req;
+  assign bus.vram_addr = vram_addr;
+  assign vram_rdata    = bus.vram_rdata;
+
+
+
+  // ======================================================
+  // Framebuffer (FIFO -> pixel storage)
+  // ======================================================
+  logic fifo_pop_en;
+  logic frame_done_internal;
+
+  Framebuffer framebuffer (
+      .clk        (clk),
+      .reset      (reset),
+      .dot_en     (dot_en),
+      .fifo_empty (bg_fifo_empty),
+      .fifo_pop_en(bg_pop_en),
+      .fifo_pop_px(bg_pop_px),
+      .flush      (1'b0),
+      .frame_done (frame_done_internal)
+  );
+
+  assign frame_done = frame_done_internal;
+
+  // ======================================================
+
+  // Window active check
+  logic window_active;
+  assign window_active = (regs.LCDC[5] && (line >= regs.WY) &&
+                         (/* current X >= WX - 7 */ 1'b1)); // TODO: implement per-dot window conditio
 
   // Write PPU registers
   always_ff @(posedge clk or posedge reset) begin
