@@ -1,7 +1,6 @@
 #pragma once
 
 #include "framebuffer.hpp"
-#include "tile.hpp"
 
 #include "cpu/register.hpp"
 #include "definitions.hpp"
@@ -9,7 +8,6 @@
 #include "options.hpp"
 
 #include <functional>
-#include <memory>
 #include <vector>
 
 class Gameboy;
