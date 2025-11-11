@@ -1,8 +1,10 @@
 `ifndef MMU_SV
 `define MMU_SV 
 
-`include "ppu/types.sv"
 `include "mmu/util.sv"
+
+`include "ppu/interface.sv"
+`include "ppu/types.sv"
 
 module MMU (
     input logic clk,
@@ -15,9 +17,7 @@ module MMU (
     inout logic [ 7:0] cpu_data_bus,
 
     // PPU Bus interface
-    input  logic        ppu_req_read,
-    input  logic [15:0] ppu_addr_bus,
-    output logic [ 7:0] ppu_data_bus,
+    PPU_MMU_IF.MMU_side ppu_bus,
 
     input ppu_mode_t PPU_mode
 );
