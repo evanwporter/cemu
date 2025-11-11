@@ -63,4 +63,20 @@ typedef enum logic [3:0] {
   PPU_REG_WX  // 0xFF4B
 } ppu_reg_id_t;
 
+typedef enum logic [1:0] {
+  GB_COLOR_WHITE,
+  GB_COLOR_LIGHT_GRAY,
+  GB_COLOR_DARK_GRAY,
+  GB_COLOR_BLACK
+} gb_color_t;
+
+// A pixel in FIFO (BG or OBJ)
+typedef struct packed {
+  gb_color_t  color;
+  logic [2:0] palette;  // CGB: 0..7 ; DMG: only for OBJ select (0/1). Store here.
+  logic [5:0] spr_idx;  // OBJ priority (OAM index). DMG can leave 0.
+  logic       bg_prio;  // OBJ-to-BG priority bit (1 = BG over OBJ).
+  logic       valid;    // for FIFO empty slots
+} ppu_pixel_t;
+
 `endif  // PPU_TYPES_SV
