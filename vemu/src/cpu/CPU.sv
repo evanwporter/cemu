@@ -11,11 +11,7 @@ module CPU (
     input logic clk,
     input logic reset,
 
-    output logic [15:0] addr_bus,
-    inout  logic [ 7:0] data_bus,
-
-    output logic MMU_req_read,
-    output logic MMU_req_write
+    BusIF.CPU_side bus
 );
 
   /// The CPU register
@@ -40,7 +36,7 @@ module CPU (
   localparam cycle_count_t MAX_CYCLE_INDEX = MAX_CYCLES_PER_INSTR - 1;
 
   // CPU drives bus only on writes; otherwise Hi-Z and MMU can drive
-  assign data_bus = cpu_drive_data ? cpu_wdata : 'z;
+  assign bus.wdata = cpu_drive_data ? cpu_wdata : 'z;
 
   always_ff @(posedge clk) begin
     if (reset) begin

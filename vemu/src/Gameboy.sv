@@ -12,36 +12,29 @@ module Gameboy (
     input logic reset
 );
 
-  logic [15:0] addr_bus;
-  tri [7:0] data_bus;
+  BusIF cpu_bus ();
+  BusIF ppu_bus ();
+  BusIF apu_bus ();
 
-  ppu_mode_t ppu_mode;
-
-  logic MMU_req_read;
-  logic MMU_req_write;
-
-  CPU cpu (
-      .clk          (clk),
-      .reset        (reset),
-      .addr_bus     (addr_bus),
-      .data_bus     (data_bus),
-      .MMU_req_read (MMU_req_read),
-      .MMU_req_write(MMU_req_write)
-  );
-
-  MMU mmu (
-      .clk      (clk),
-      .reset    (reset),
-      .addr_bus (addr_bus),
-      .data_bus (data_bus),
-      .req_read (MMU_req_read),
-      .req_write(MMU_req_write)
-  );
-
-  PPU ppu (
+  CPU cpu_inst (
       .clk  (clk),
       .reset(reset),
-      .mode (ppu_mode)
+      .bus  (cpu_bus)
+  );
+
+  MMU mmu_inst (
+      .clk(clk),
+      .reset(reset),
+      .cpu_bus(cpu_bus),
+      .ppu_bus(ppu_bus),
+      .apu_bus(apu_bus),
+      .ppu_mode(ppu_mode)
+  );
+
+  PPU ppu_inst (
+      .clk  (clk),
+      .reset(reset),
+      .bus  (ppu_bus)
   );
 
 endmodule

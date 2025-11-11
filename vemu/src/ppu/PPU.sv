@@ -2,16 +2,17 @@
 `define PPU_SV 
 
 `include "ppu/types.sv"
-`include "ppu/interface.sv"
 `include "ppu/FIFO.sv"
 `include "ppu/Fetcher.sv"
 `include "ppu/Framebuffer.sv"
+
+`include "mmu/interface.sv"
 
 module PPU (
     input logic clk,
     input logic reset,
 
-    PPU_MMU_IF.PPU_side bus,
+    BusIF.Peripheral_side bus,
     output ppu_mode_t mode
 );
 
@@ -86,6 +87,7 @@ module PPU (
       .f_state_dbg  ()
   );
 
+  // TODO: we need to connect fetcher to the top level
   // Connect Fetcher to VRAM through the MMU interface
   assign bus.vram_req  = vram_read_req;
   assign bus.vram_addr = vram_addr;
@@ -119,30 +121,57 @@ module PPU (
   assign window_active = (regs.LCDC[5] && (line >= regs.WY) &&
                          (/* current X >= WX - 7 */ 1'b1)); // TODO: implement per-dot window conditio
 
-  // Write PPU registers
-  always_ff @(posedge clk or posedge reset) begin
-    if (reset) begin
-      // TODO: Initialize all registers
-    end else if (bus.reg_write_en) begin
+
+  // ======================================================
+  // ====== MMU Listeners for VRAM, OAM, Registers ========
+  // ======================================================
+  // CPU read/write through bus (MMU routed)
+  always_ff @(posedge clk) begin
+    // ---------------- VRAM writes ----------------
+    if (bus.vram_write_en && !(mode == PPU_MODE_3)) begin
+      if (bus.vram_addr inside {[16'h8000 : 16'h9FFF]})
+        vram[bus.vram_addr-16'h8000] <= bus.vram_wdata;
+    end
+
+    // ---------------- OAM writes -----------------
+    if (bus.oam_write_en && !(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
+      if (bus.oam_addr inside {[16'hFE00 : 16'hFE9F]}) oam[bus.oam_addr-16'hFE00] <= bus.oam_wdata;
+    end
+
+    // ---------------- Register writes ------------
+    if (bus.reg_write_en) begin
       unique case (bus.reg_addr)
         16'hFF40: regs.LCDC <= bus.reg_wdata;
         16'hFF42: regs.SCY <= bus.reg_wdata;
         16'hFF43: regs.SCX <= bus.reg_wdata;
+        16'hFF44: regs.LY <= line;
+        16'hFF45: regs.LYC <= bus.reg_wdata;
         16'hFF47: regs.BGP <= bus.reg_wdata;
         default:  ;
       endcase
     end
   end
 
-  // Read PPU registers
+  // ---------------- Read Mux -------------------
   always_comb begin
-    unique case (bus.reg_addr)
-      16'hFF40: bus.reg_rdata = regs.LCDC;
-      16'hFF42: bus.reg_rdata = regs.SCY;
-      16'hFF43: bus.reg_rdata = regs.SCX;
-      16'hFF44: bus.reg_rdata = regs.LY;
-      default:  bus.reg_rdata = 8'h00;
-    endcase
+    // Default open-bus value
+    bus.vram_rdata = 8'hFF;
+    bus.oam_rdata  = 8'hFF;
+    bus.reg_rdata  = 8'hFF;
+
+    if (bus.vram_read_en) bus.vram_rdata = vram[bus.vram_addr-16'h8000];
+    else if (bus.oam_read_en) bus.oam_rdata = oam[bus.oam_addr-16'hFE00];
+    else if (bus.reg_read_en) begin
+      unique case (bus.reg_addr)
+        16'hFF40: bus.reg_rdata = regs.LCDC;
+        16'hFF42: bus.reg_rdata = regs.SCY;
+        16'hFF43: bus.reg_rdata = regs.SCX;
+        16'hFF44: bus.reg_rdata = line;
+        16'hFF45: bus.reg_rdata = regs.LYC;
+        16'hFF47: bus.reg_rdata = regs.BGP;
+        default:  bus.reg_rdata = 8'hFF;
+      endcase
+    end
   end
 
   always_ff @(posedge clk or posedge reset) begin
