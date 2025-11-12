@@ -12,7 +12,7 @@ module PPU (
     input logic clk,
     input logic reset,
 
-    BusIF.Peripheral_side bus,
+    Bus_if.Peripheral_side bus,
     output ppu_mode_t mode
 );
 
@@ -92,8 +92,6 @@ module PPU (
   assign bus.vram_req  = vram_read_req;
   assign bus.vram_addr = vram_addr;
   assign vram_rdata    = bus.vram_rdata;
-
-
 
   // ======================================================
   // Framebuffer (FIFO -> pixel storage)

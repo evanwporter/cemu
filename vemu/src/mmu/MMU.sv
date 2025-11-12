@@ -10,9 +10,9 @@ module MMU (
     input logic clk,
     input logic reset,
 
-    BusIF.MMU_side cpu_bus,
-    BusIF.Peripheral_side ppu_bus,
-    BusIF.Peripheral_side apu_bus
+    Bus_if.MMU_side  cpu_bus,
+    BusIF.MMU_master ppu_bus,
+    BusIF.MMU_master apu_bus
 );
 
   assign ppu_bus.addr = cpu_bus.addr;
@@ -29,12 +29,8 @@ module MMU (
   assign apu_bus.read_en = cpu_bus.read_en && cpu_bus.addr inside {[16'hFF10 : 16'hFF3F]};
   assign apu_bus.write_en = cpu_bus.write_en && cpu_bus.addr inside {[16'hFF10 : 16'hFF3F]};
 
+  // TODO: Remove and replace with modular memory
   logic [7:0] memory[65535];
-
-  // VRAM (8KB)
-  logic [7:0] vram[8191];
-  // OAM (160B)
-  logic [7:0] oam[159];
 
   // Map Read Data
   always_comb begin

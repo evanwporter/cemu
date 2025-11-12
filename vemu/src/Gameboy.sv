@@ -12,9 +12,9 @@ module Gameboy (
     input logic reset
 );
 
-  BusIF cpu_bus ();
-  BusIF ppu_bus ();
-  BusIF apu_bus ();
+  Bus_if cpu_bus ();
+  Bus_if ppu_bus ();
+  Bus_if apu_bus ();
 
   CPU cpu_inst (
       .clk  (clk),

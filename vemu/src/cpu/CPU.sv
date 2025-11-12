@@ -11,7 +11,7 @@ module CPU (
     input logic clk,
     input logic reset,
 
-    BusIF.CPU_side bus
+    Bus_if.CPU_side bus
 );
 
   /// The CPU register
@@ -26,17 +26,9 @@ module CPU (
   /// Current t-cycle within machine cycle
   t_phase_t t_phase;
 
-  // CPU-side bus control
-  logic cpu_drive_data;
-  logic [7:0] cpu_wdata;
-  logic [7:0] cpu_rdata;
-
   logic [31:0] instr_count;
 
   localparam cycle_count_t MAX_CYCLE_INDEX = MAX_CYCLES_PER_INSTR - 1;
-
-  // CPU drives bus only on writes; otherwise Hi-Z and MMU can drive
-  assign bus.wdata = cpu_drive_data ? cpu_wdata : 'z;
 
   always_ff @(posedge clk) begin
     if (reset) begin
@@ -45,30 +37,29 @@ module CPU (
       t_phase <= T1;
       cycle_count <= '0;
       control_word <= control_words[0];  // NOP
-      MMU_req_read <= 1'b0;
-      MMU_req_write <= 1'b0;
-      cpu_drive_data <= 1'b0;
-      cpu_wdata <= '0;
+      bus.read_en <= 1'b0;
+      bus.write_en <= 1'b0;
+      bus.wdata <= '0;
 
       $display("[%0t] CPU RESET: PC=%h SP=%h", $time, {regs.pch, regs.pcl}, {regs.sph, regs.spl});
 
     end else begin
-      $display("[%0t] Phase=%s Cycle=%0d PC=%h Addr=%h DataBus=%h IR=%h", $time, t_phase.name(),
-               cycle_count, {regs.pch, regs.pcl}, addr_bus, data_bus, regs.IR);
+      $display("[%0t] Phase=%s Cycle=%0d PC=%h Addr=%h ReadDataBus=%h IR=%h", $time,
+               t_phase.name(), cycle_count, {regs.pch, regs.pcl}, bus.addr, bus.rdata, regs.IR);
       unique case (t_phase)
         T1: begin
-          addr_bus <= {regs.pch, regs.pcl};
+          bus.addr <= {regs.pch, regs.pcl};
           unique case (control_word.cycles[cycle_count].addr_src)
-            ADDR_PC:   addr_bus <= {regs.pch, regs.pcl};
-            ADDR_SP:   addr_bus <= {regs.sph, regs.spl};
-            ADDR_BC:   addr_bus <= {regs.b, regs.c};
-            ADDR_DE:   addr_bus <= {regs.d, regs.e};
-            ADDR_HL:   addr_bus <= {regs.h, regs.l};
-            ADDR_WZ:   addr_bus <= {regs.w, regs.z};
-            ADDR_AF:   addr_bus <= {regs.a, regs.flags};
-            ADDR_FF_C: addr_bus <= {8'hFF, regs.c};
-            ADDR_FF_Z: addr_bus <= {8'hFF, regs.z};
-            ADDR_NONE: addr_bus <= 16'h0000;
+            ADDR_PC:   bus.addr <= {regs.pch, regs.pcl};
+            ADDR_SP:   bus.addr <= {regs.sph, regs.spl};
+            ADDR_BC:   bus.addr <= {regs.b, regs.c};
+            ADDR_DE:   bus.addr <= {regs.d, regs.e};
+            ADDR_HL:   bus.addr <= {regs.h, regs.l};
+            ADDR_WZ:   bus.addr <= {regs.w, regs.z};
+            ADDR_AF:   bus.addr <= {regs.a, regs.flags};
+            ADDR_FF_C: bus.addr <= {8'hFF, regs.c};
+            ADDR_FF_Z: bus.addr <= {8'hFF, regs.z};
+            ADDR_NONE: bus.addr <= 16'h0000;
           endcase
           t_phase <= T2;
         end
@@ -76,22 +67,19 @@ module CPU (
         T2: begin
           unique case (control_word.cycles[cycle_count].data_bus_op)
             DATA_BUS_OP_READ: begin
-              MMU_req_read   <= 1'b1;
-              MMU_req_write  <= 1'b0;
-              cpu_drive_data <= 1'b0;  // MMU will drive
-              $display("[%0t] READ request at addr %h", $time, addr_bus);
+              bus.read_en  <= 1'b1;
+              bus.write_en <= 1'b0;
+              $display("[%0t] READ request at addr %h", $time, bus.addr);
             end
             DATA_BUS_OP_WRITE: begin
-              cpu_wdata      <= pick_wdata(control_word.cycles[cycle_count].data_bus_src, regs);
-              MMU_req_write  <= 1'b1;
-              MMU_req_read   <= 1'b0;
-              cpu_drive_data <= 1'b1;  // CPU drives for write
-              $display("[%0t] WRITE request at addr %h data=%h", $time, addr_bus, cpu_wdata);
+              bus.wdata    <= pick_wdata(control_word.cycles[cycle_count].data_bus_src, regs);
+              bus.write_en <= 1'b1;
+              bus.read_en  <= 1'b0;
+              $display("[%0t] WRITE request at addr %h data=%h", $time, bus.addr, bus.wdata);
             end
             DATA_BUS_OP_NONE: begin
-              MMU_req_write  <= 1'b0;
-              MMU_req_read   <= 1'b0;
-              cpu_drive_data <= 1'b0;  // No bus activity
+              bus.write_en <= 1'b0;
+              bus.read_en  <= 1'b0;
             end
           endcase
 
@@ -101,8 +89,8 @@ module CPU (
         /// T3 is generally the cycle where data is read from the bus or the write is completed.
         T3: begin
           if (control_word.cycles[cycle_count].data_bus_op == DATA_BUS_OP_READ) begin
-            `LOAD_REG_FROM_BYTE(control_word.cycles[cycle_count].data_bus_src, data_bus, regs);
-            $display("[%0t] READ complete: data=%h", $time, data_bus);
+            `LOAD_REG_FROM_BYTE(control_word.cycles[cycle_count].data_bus_src, bus.rdata, regs);
+            $display("[%0t] READ complete: data=%h", $time, bus.rdata);
           end
           t_phase <= T4;
         end
@@ -131,8 +119,8 @@ module CPU (
           `APPLY_MISC_OP(control_word.cycles[cycle_count].misc_op,
                          control_word.cycles[cycle_count].misc_op_dst, regs);
 
-          MMU_req_read  <= 1'b0;
-          MMU_req_write <= 1'b0;
+          bus.read_en  <= 1'b0;
+          bus.write_en <= 1'b0;
 
           if (control_word.cycles[cycle_count].misc_op == MISC_OP_COND_CHECK &&  //
               !eval_condition(
