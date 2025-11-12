@@ -36,6 +36,11 @@ module PPU (
   logic [7:0] VRAM[VRAM_len];
   logic [7:0] OAM[OAM_len];
 
+  // Window active check
+  logic window_active;
+  assign window_active = (regs.LCDC[5] && (line >= regs.WY) &&
+                         (/* current X >= WX - 7 */ 1'b1)); // TODO: implement per-dot window condition
+
 
   // ======================================================
   // Background FIFO
@@ -91,11 +96,11 @@ module PPU (
       .f_state_dbg  ()
   );
 
-  // TODO: we need to connect fetcher to the top level
-  // Connect Fetcher to VRAM through the MMU interface
-  assign bus.vram_req  = vram_read_req;
-  assign bus.vram_addr = vram_addr;
-  assign vram_rdata    = bus.vram_rdata;
+  // Fetcher reads from the VRAM immeditely.
+  // TODO: block it if needed
+  wire [7:0] vram_data_for_fetcher = vram_read_req ? vram[vram_addr-16'h8000] : '0;
+
+  assign vram_rdata = vram_data_for_fetcher;
 
   // ======================================================
   // Framebuffer (FIFO -> pixel storage)
@@ -118,60 +123,76 @@ module PPU (
 
   // ======================================================
 
-  // Window active check
-  logic window_active;
-  assign window_active = (regs.LCDC[5] && (line >= regs.WY) &&
-                         (/* current X >= WX - 7 */ 1'b1)); // TODO: implement per-dot window conditio
-
-
-  // ======================================================
-  // ====== MMU Listeners for VRAM, OAM, Registers ========
-  // ======================================================
-  // CPU read/write through bus (MMU routed)
+  // MMU Listeners for VRAM, OAM, Registers
   always_ff @(posedge clk) begin
-    // ---------------- VRAM writes ----------------
-    if (bus.vram_write_en && !(mode == PPU_MODE_3)) begin
-      if (bus.vram_addr inside {[16'h8000 : 16'h9FFF]})
-        vram[bus.vram_addr-16'h8000] <= bus.vram_wdata;
-    end
+    if (bus.write_en) begin
+      unique case (1'b1)
 
-    // ---------------- OAM writes -----------------
-    if (bus.oam_write_en && !(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
-      if (bus.oam_addr inside {[16'hFE00 : 16'hFE9F]}) oam[bus.oam_addr-16'hFE00] <= bus.oam_wdata;
-    end
+        // VRAM writes (blocked in Mode 3)
+        (bus.addr inside {[VRAM_start : VRAM_end]}): begin
+          if (mode != PPU_MODE_3) begin
+            vram[bus.addr-16'h8000] <= bus.wdata;
+          end
+        end
 
-    // ---------------- Register writes ------------
-    if (bus.reg_write_en) begin
-      unique case (bus.reg_addr)
-        16'hFF40: regs.LCDC <= bus.reg_wdata;
-        16'hFF42: regs.SCY <= bus.reg_wdata;
-        16'hFF43: regs.SCX <= bus.reg_wdata;
-        16'hFF44: regs.LY <= line;
-        16'hFF45: regs.LYC <= bus.reg_wdata;
-        16'hFF47: regs.BGP <= bus.reg_wdata;
-        default:  ;
+        // OAM writes (blocked in Mode 2 & 3)
+        (bus.addr inside {[OAM_start : OAM_end]}): begin
+          if (!(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
+            oam[bus.addr-16'hFE00] <= bus.wdata;
+          end
+        end
+
+        // PPU register writes
+        // TODO: check whether this ever needs to be blocked
+        (bus.addr inside {[PPU_regs_start : PPU_regs_end]}): begin
+          unique case (bus.addr)
+            16'hFF40: regs.LCDC <= bus.wdata;
+            16'hFF42: regs.SCY <= bus.wdata;
+            16'hFF43: regs.SCX <= bus.wdata;
+            16'hFF44: begin
+              $display("[%0t] Warning attempting to write 0x%h to LY register", $time, bus.wdata);
+            end
+            16'hFF45: regs.LYC <= bus.wdata;
+            16'hFF47: regs.BGP <= bus.wdata;
+            default:  ;
+          endcase
+        end
+
+        default:  /* ignore */;
       endcase
     end
   end
 
   // ---------------- Read Mux -------------------
   always_comb begin
-    // Default open-bus value
-    bus.vram_rdata = 8'hFF;
-    bus.oam_rdata  = 8'hFF;
-    bus.reg_rdata  = 8'hFF;
+    bus.rdata = 8'hFF;  // open bus unless selected & allowed
 
-    if (bus.vram_read_en) bus.vram_rdata = vram[bus.vram_addr-16'h8000];
-    else if (bus.oam_read_en) bus.oam_rdata = oam[bus.oam_addr-16'hFE00];
-    else if (bus.reg_read_en) begin
-      unique case (bus.reg_addr)
-        16'hFF40: bus.reg_rdata = regs.LCDC;
-        16'hFF42: bus.reg_rdata = regs.SCY;
-        16'hFF43: bus.reg_rdata = regs.SCX;
-        16'hFF44: bus.reg_rdata = line;
-        16'hFF45: bus.reg_rdata = regs.LYC;
-        16'hFF47: bus.reg_rdata = regs.BGP;
-        default:  bus.reg_rdata = 8'hFF;
+    if (bus.read_en) begin
+      unique case (bus.addr) inside
+
+        // VRAM reads (blocked in Mode 3)
+        [VRAM_start : VRAM_end]: begin
+          bus.rdata = (mode == PPU_MODE_3) ? 8'hFF : vram[bus.addr-VRAM_start];
+        end
+
+        // OAM reads (blocked in Mode 2 & 3)
+        [OAM_start : OAM_end]: begin
+          bus.rdata = (mode == PPU_MODE_2 || mode == PPU_MODE_3) ? 8'hFF : oam[bus.addr-OAM_start];
+        end
+
+        // PPU register reads
+        [PPU_regs_start : PPU_regs_end]: begin
+          unique case (bus.addr)
+            16'hFF40: bus.rdata = regs.LCDC;
+            16'hFF42: bus.rdata = regs.SCY;
+            16'hFF43: bus.rdata = regs.SCX;
+            16'hFF44: bus.rdata = regs.LY;
+            16'hFF45: bus.rdata = regs.LYC;
+            // TODO: DMA transfer
+            16'hFF47: bus.rdata = regs.BGP;
+            default:  bus.rdata = 8'hFF;
+          endcase
+        end
       endcase
     end
   end

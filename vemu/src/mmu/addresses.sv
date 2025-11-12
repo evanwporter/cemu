@@ -23,12 +23,12 @@ localparam int VRAM_len = VRAM_end - VRAM_start + 1;
 //-------------------------------
 // External RAM
 //-------------------------------
-localparam address_t RAM_start = 16'hA000;
-localparam address_t RAM_end = 16'hDFFF;
-localparam int RAM_len = RAM_end - RAM_start + 1;
+localparam address_t WRAM_start = 16'hA000;
+localparam address_t WRAM_end = 16'hDFFF;
+localparam int WRAM_len = WRAM_end - WRAM_start + 1;
 
 //-------------------------------
-// Echo RAM (unusable mirror of C000–DDFF)
+// Echo RAM (mirror of C000–DDFF)
 //-------------------------------
 localparam address_t Echo_RAM_start = 16'hE000;
 localparam address_t Echo_RAM_end = 16'hFDFF;
