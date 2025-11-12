@@ -4,8 +4,17 @@
 `include "ppu/types.sv"
 
 module Framebuffer (
-    input logic clk,
-    input logic reset
+    input  logic       clk,
+    input  logic       reset,
+    input  logic       dot_en,       // PPU mode 3 active
+    // FIFO interface
+    input  logic       fifo_empty,
+    output logic       fifo_pop_en,  // pop request to FIFO
+    input  ppu_pixel_t fifo_top_px,  // pixel popped from FIFO
+    // control
+    input  logic       flush,
+    // status
+    output logic       frame_done
 );
 
   localparam WIDTH = 160;
@@ -13,7 +22,12 @@ module Framebuffer (
 
   localparam int NUM_PIXELS = WIDTH * HEIGHT;
 
-  gb_color_t buffer[HEIGHT][WIDTH];
+  wire [$clog2(NUM_PIXELS)-1:0] write_addr = y_screen * WIDTH + x_screen;
+
+  gb_color_t buffer[NUM_PIXELS];
+
+  logic [7:0] x_screen;
+  logic [7:0] y_screen;
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset || flush) begin
@@ -32,7 +46,7 @@ module Framebuffer (
         fifo_pop_en <= 1'b1;
 
         // Store pixel in framebuffer
-        buffer[y_screen][x_screen] <= fifo_pop_px.color;
+        buffer[write_addr] <= fifo_top_px.color;
 
         // Advance to next screen pixel
         if (x_screen == WIDTH - 1) begin

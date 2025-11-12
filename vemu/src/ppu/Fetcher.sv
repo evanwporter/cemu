@@ -222,8 +222,8 @@ module Fetcher (
 
             // pixel index inside tile byte (bit 7 first unless HFLIP)
             // TODO: HFLIP
-            int bit_ = 7 - push_i;
-            logic [1:0] color = {tile_high_byte[bit_], tile_lo_byte[bit_]};
+            static int bit_ = 7 - push_i;
+            static logic [1:0] color = {tile_high_byte[bit_], tile_lo_byte[bit_]};
 
             ppu_pixel_t px;
             px.color   <= color;

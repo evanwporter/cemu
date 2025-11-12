@@ -20,4 +20,5 @@ verilate(libvemu
         --trace
         # -Wall
         -I${CMAKE_CURRENT_SOURCE_DIR}
+        -I${CMAKE_CURRENT_SOURCE_DIR}/../ext/svlogger/
 )

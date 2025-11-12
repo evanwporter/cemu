@@ -1,5 +1,5 @@
-`ifndef MMU_interface
-`define MMU_interface 
+`ifndef MMU_INTERFACE_SV
+`define MMU_INTERFACE_SV 
 
 interface Bus_if;
   logic [15:0] addr;

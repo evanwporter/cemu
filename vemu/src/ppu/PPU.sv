@@ -13,8 +13,7 @@ module PPU (
     input logic clk,
     input logic reset,
 
-    Bus_if.Peripheral_side bus,
-    output ppu_mode_t mode
+    Bus_if.Peripheral_side bus
 );
 
   logic [8:0] cycle_counter;
@@ -50,7 +49,7 @@ module PPU (
   logic             bg_pop_en;
   logic       [4:0] bg_fifo_count;
   ppu_pixel_t       bg_push_px;
-  ppu_pixel_t       bg_pop_px;
+  ppu_pixel_t       bg_top_px;
 
   FIFO bg_fifo (
       .clk    (clk),
@@ -59,7 +58,7 @@ module PPU (
       .push_px(bg_push_px),
       .full   (bg_fifo_full),
       .pop_en (bg_pop_en),
-      .pop_px (bg_pop_px),
+      .pop_px (bg_top_px),
       .empty  (bg_fifo_empty),
       .count  (bg_fifo_count),
       .flush  (1'b0)
@@ -114,7 +113,7 @@ module PPU (
       .dot_en     (dot_en),
       .fifo_empty (bg_fifo_empty),
       .fifo_pop_en(bg_pop_en),
-      .fifo_pop_px(bg_pop_px),
+      .fifo_top_px(bg_top_px),
       .flush      (1'b0),
       .frame_done (frame_done_internal)
   );

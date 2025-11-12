@@ -12,21 +12,21 @@ module FIFO (
     output logic             full,
     // pop
     input  logic             pop_en,
-    output ppu_pixel_t       pop_px,
+    output ppu_pixel_t       top_px,
     output logic             empty,
     // utils
-    output logic       [4:0] count,    // 0..16
+    output logic       [4:0] count,
     input  logic             flush
 );
   localparam int DEPTH = 16;
 
   ppu_pixel_t mem[DEPTH];
-  logic [$clog2(DEPTH):0] rptr, wptr;
+  logic [4:0] rptr, wptr;
 
   assign count  = wptr - rptr;
   assign empty  = (count == 0);
   assign full   = (count == DEPTH);
-  assign pop_px = (empty) ? '{default: '0} : mem[rptr[$clog2(DEPTH)-1:0]];
+  assign top_px = (empty) ? '{default: '0} : mem[rptr[3:0]];
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset || flush) begin
@@ -34,7 +34,7 @@ module FIFO (
       wptr <= '0;
     end else begin
       if (push_en && !full) begin
-        mem[wptr[$clog2(DEPTH)-1:0]] <= push_px;
+        mem[wptr[3:0]] <= push_px;
         wptr <= wptr + 1;
       end
       if (pop_en && !empty) begin

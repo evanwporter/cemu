@@ -10,9 +10,9 @@ module MMU (
     input logic clk,
     input logic reset,
 
-    Bus_if.MMU_side  cpu_bus,
-    BusIF.MMU_master ppu_bus,
-    BusIF.MMU_master apu_bus
+    Bus_if.MMU_side   cpu_bus,
+    Bus_if.MMU_master ppu_bus,
+    Bus_if.MMU_master apu_bus
 );
 
   assign ppu_bus.addr  = cpu_bus.addr;
