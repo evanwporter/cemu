@@ -7,6 +7,7 @@
 `include "ppu/Framebuffer.sv"
 
 `include "mmu/interface.sv"
+`include "mmu/addresses.sv"
 
 module PPU (
     input logic clk,
@@ -31,6 +32,9 @@ module PPU (
 
   logic dot_en;
   assign dot_en = (mode == PPU_MODE_3);
+
+  logic [7:0] VRAM[VRAM_len];
+  logic [7:0] OAM[OAM_len];
 
 
   // ======================================================

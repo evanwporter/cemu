@@ -5,7 +5,10 @@
 `include "cpu/opcodes.sv"
 `include "cpu/control_words.sv"
 `include "cpu/util.sv"
+
 `include "util/logger.sv"
+
+`include "mmu/interface.sv"
 
 module CPU (
     input logic clk,
