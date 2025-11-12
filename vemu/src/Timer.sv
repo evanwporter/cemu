@@ -22,10 +22,10 @@ module Timer (
   /// Timer Control
   logic [7:0] TAC;
 
-  wire div_selected = bus.addr == DIV_addr;
-  wire tima_selected = bus.addr == TIMA_addr;
-  wire tma_selected = bus.addr == TMA_addr;
-  wire tac_selected = bus.addr == TAC_addr;
+  wire div_selected = bus.addr == 16'hFF04;
+  wire tima_selected = bus.addr == 16'hFF05;
+  wire tma_selected = bus.addr == 16'hFF06;
+  wire tac_selected = bus.addr == 16'hFF07;
 
   always_ff @(posedge clk) begin
     if (reset) begin

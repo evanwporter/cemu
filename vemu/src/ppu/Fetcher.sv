@@ -40,11 +40,11 @@ module Fetcher (
     output logic [2:0] f_state_dbg
 );
   typedef enum logic [2:0] {
-    S_GET_TILE = 3'd0,
-    S_GET_LO = 3'd1,
-    S_GET_HI = 3'd2,
-    S_SLEEP = 3'd3,
-    S_PUSH = 3'd4
+    S_GET_TILE,
+    S_GET_LOW,
+    S_GET_HIGH,
+    S_SLEEP,
+    S_PUSH
   } fstate_t;
 
   fstate_t state;
@@ -104,7 +104,7 @@ module Fetcher (
   logic push_i;
 
   /// compute tilemap address
-  wire [15:0] tilemap_addr = tilemap_base(window_active) + {tile_y, 5'b0} + tile_x;
+  wire [15:0] tilemap_addr = tilemap_base(window_active) + {8'b0, tile_y, 5'b0} + {8'b0, tile_x};
 
   /// Get tilemap base address (LCDC.3 for BG map; LCDC.6 for window map)
   function automatic [15:0] tilemap_base(input logic window_active);
@@ -129,7 +129,7 @@ module Fetcher (
   always_ff @(posedge clk or posedge reset) begin
     if (reset || flush) begin
       state          <= S_GET_TILE;
-      dot_phase      <= DOT0;
+      dot_phase      <= DOT_PHASE_0;
       fetcher_x      <= 5'd0;
       vram_read_req  <= 1'b0;
       vram_addr      <= 16'h0000;
@@ -158,13 +158,13 @@ module Fetcher (
             DOT_PHASE_1: begin
               tile_index <= vram_rdata;
               vram_read_req <= 1'b0;
-              state <= S_GET_LO;
+              state <= S_GET_LOW;
               dot_phase <= DOT_PHASE_0;
             end
           endcase
         end
 
-        S_GET_LO: begin
+        S_GET_LOW: begin
           // compute tiledata address based on LCDC.4 and signedness
           unique case (dot_phase)
             DOT_PHASE_0: begin
@@ -176,7 +176,7 @@ module Fetcher (
             end
 
             DOT_PHASE_1: begin
-              tile_lo_byte <= vram_rdata;
+              tile_low_byte <= vram_rdata;
               vram_read_req <= 1'b0;
               state <= S_GET_HIGH;
             end
@@ -223,7 +223,7 @@ module Fetcher (
             // pixel index inside tile byte (bit 7 first unless HFLIP)
             // TODO: HFLIP
             static int bit_ = 7 - push_i;
-            static logic [1:0] color = {tile_high_byte[bit_], tile_lo_byte[bit_]};
+            static logic [1:0] color = {tile_high_byte[bit_], tile_low_byte[bit_]};
 
             ppu_pixel_t px;
             px.color   <= color;

@@ -39,7 +39,7 @@ module MMU (
 
   // Map Read Data
   always_comb begin
-    cpu_bus.rdata = open_bus_value;
+    cpu_bus.rdata = 8'h00;
 
     if (ppu_selected) begin
       cpu_bus.rdata = ppu_bus.rdata;

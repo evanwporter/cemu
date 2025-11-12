@@ -8,6 +8,10 @@ add_subdirectory(util)
 
 set(VERILOG_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Gameboy.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/Input.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/Cartridge.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/Serial.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/Timer.sv
 )
 
 set_property(GLOBAL PROPERTY VERILOG_SOURCES "${VERILOG_SOURCES}")

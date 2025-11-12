@@ -26,7 +26,7 @@ module FIFO (
   assign count  = wptr - rptr;
   assign empty  = (count == 0);
   assign full   = (count == DEPTH);
-  assign top_px = (empty) ? '{default: '0} : mem[rptr[3:0]];
+  assign top_px = (empty) ? '{color: GB_COLOR_WHITE} : mem[rptr[3:0]];
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset || flush) begin

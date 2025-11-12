@@ -11,7 +11,7 @@ module Cartridge (
 
   logic [7:0] ROM[ROM_len];
 
-  wire ROM_selected = bus.addr inside {[ROM_start : ROM_end]};
+  wire rom_selected = bus.addr inside {[ROM_start : ROM_end]};
 
   wire [15:0] rom_index = bus.addr;
 

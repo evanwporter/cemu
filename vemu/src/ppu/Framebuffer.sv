@@ -17,12 +17,12 @@ module Framebuffer (
     output logic       frame_done
 );
 
-  localparam WIDTH = 160;
-  localparam HEIGHT = 144;
+  localparam logic [7:0] WIDTH = 160;
+  localparam logic [7:0] HEIGHT = 144;
 
   localparam int NUM_PIXELS = WIDTH * HEIGHT;
 
-  wire [$clog2(NUM_PIXELS)-1:0] write_addr = y_screen * WIDTH + x_screen;
+  wire [15:0] write_addr = (y_screen * WIDTH) + x_screen;
 
   gb_color_t buffer[NUM_PIXELS];
 

@@ -2,10 +2,12 @@
 `define CPU_RAM_SV 
 
 `include "mmu/addresses.sv"
+`include "mmu/interface.sv"
 
 module RAM (
     input logic clk,
-    input logic reset
+    input logic reset,
+    Bus_if.Peripheral_side bus
 );
   logic [7:0] WRAM[WRAM_len];
   logic [7:0] HRAM[HRAM_len];
@@ -14,7 +16,7 @@ module RAM (
                        bus.addr inside {[Echo_RAM_start : Echo_RAM_end]}; // Echo RAM
   wire hram_selected = bus.addr inside {[HRAM_start : HRAM_end]};
 
-  wire [12:0] wram_index = (bus.addr[12:0]) & 13'h1FFF;
+  wire [13:0] wram_index = bus.addr[13:0] & 14'h3FFF;
   wire [6:0] hram_index = bus.addr[6:0];
 
   always_ff @(posedge clk) begin

@@ -43,8 +43,7 @@ module Gameboy (
       .reset(reset),
       .cpu_bus(cpu_bus),
       .ppu_bus(ppu_bus),
-      .apu_bus(apu_bus),
-      .ppu_mode(ppu_mode)
+      .apu_bus(apu_bus)
   );
 
   PPU ppu_inst (
@@ -83,12 +82,12 @@ module Gameboy (
       .bus  (ram_bus)
   );
 
-`ifndef SYNTHESIS
-  initial begin
-    svlogger::init("gameboy.log", `SVL_VERBOSE_DEBUG, `SVL_ROUTE_ALL);
-    svlogger::info("Gameboy system initialized");
-  end
-`endif
+  // `ifndef SYNTHESIS
+  //   initial begin
+  //     svlogger::init("gameboy.log", `SVL_VERBOSE_DEBUG, `SVL_ROUTE_ALL);
+  //     svlogger::info("Gameboy system initialized");
+  //   end
+  // `endif
 
 endmodule
 
