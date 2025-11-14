@@ -1,3 +1,5 @@
+set(VEMU_TESTS_CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
 macro(add_cpp_tb TB_NAME SV_FILE)
     # If SV_FILE is a list, CMake expands it into multiple arguments.
     # We capture them all using ARGN-style list behavior.
@@ -21,6 +23,10 @@ macro(add_cpp_tb TB_NAME SV_FILE)
         GTest::gtest_main
     )
 
+    target_include_directories(${TB_NAME}
+        PRIVATE
+            ${VEMU_TESTS_CPP_DIR}
+    )
     verilate(${TB_NAME}
         TOP_MODULE ${TOP_NAME}
         SOURCES ${_SV_FILES}

@@ -1,8 +1,7 @@
 `include "mmu/interface.sv"
 `include "mmu/MMU.sv"
 
-`include "PPU.sv"
-`include "APU.sv"
+`include "ppu/PPU.sv"
 
 module top (
     input logic clk,
@@ -13,7 +12,12 @@ module top (
     input  logic [ 7:0] cpu_wdata,
     input  logic        cpu_read_en,
     input  logic        cpu_write_en,
-    output logic [ 7:0] cpu_rdata
+    output logic [ 7:0] cpu_rdata,
+
+    output logic ppu_read_en_dbg,
+    output logic ppu_write_en_dbg,
+    output logic apu_read_en_dbg,
+    output logic apu_write_en_dbg
 );
 
   Bus_if cpu_bus ();
@@ -35,23 +39,9 @@ module top (
   );
 
   PPU ppu (
-      .clk(clk),
+      .clk  (clk),
       .reset(reset),
-      .addr(ppu_bus.addr),
-      .wdata(ppu_bus.wdata),
-      .rdata(ppu_bus.rdata),
-      .read_en(ppu_bus.read_en),
-      .write_en(ppu_bus.write_en)
-  );
-
-  APU apu (
-      .clk(clk),
-      .reset(reset),
-      .addr(apu_bus.addr),
-      .wdata(apu_bus.wdata),
-      .rdata(apu_bus.rdata),
-      .read_en(apu_bus.read_en),
-      .write_en(apu_bus.write_en)
+      .bus  (ppu_bus)
   );
 
 endmodule

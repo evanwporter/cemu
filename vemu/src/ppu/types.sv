@@ -8,7 +8,13 @@ typedef enum logic [1:0] {
   PPU_MODE_3
 } ppu_mode_t;
 
-typedef struct packed {
+`ifndef VERILATOR
+`define PACK_REG packed
+`else
+`define PACK_REG 
+`endif
+
+typedef struct `PACK_REG {
   /// 0xFF40: LCD Control Register
   logic [7:0] LCDC;
 

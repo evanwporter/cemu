@@ -3,21 +3,9 @@
 
 #include <gtest/gtest.h>
 
-static vluint64_t timestamp = 0;
-double sc_time_stamp() { return timestamp; }
+#include "util.hpp"
 
-using u8 = uint8_t;
-using u16 = uint16_t;
-
-void tick(VFIFO& top, VerilatedContext& ctx) {
-    top.clk = 0;
-    top.eval();
-    ctx.timeInc(1);
-
-    top.clk = 1;
-    top.eval();
-    ctx.timeInc(1);
-}
+vluint64_t global_timestamp = 0;
 
 u16 pack_px(u8 color, u8 palette, u8 spr_idx, bool bg_prio, bool valid) {
     u16 v = 0;
@@ -41,13 +29,9 @@ TEST(FIFOTest, IsEmpty) {
     VerilatedContext ctx;
     ctx.debug(0);
     ctx.time(0);
-
     VFIFO top(&ctx);
 
-    top.reset = 1;
-    tick(top, ctx);
-    tick(top, ctx);
-    top.reset = 0;
+    reset_dut(top, ctx);
 
     EXPECT_TRUE(top.empty);
     EXPECT_EQ(top.count, 0);
@@ -70,13 +54,9 @@ TEST(FIFOTest, IsEmptyOnReset) {
     VerilatedContext ctx;
     ctx.debug(0);
     ctx.time(0);
-
     VFIFO top(&ctx);
 
-    top.reset = 1;
-    tick(top, ctx);
-    tick(top, ctx);
-    top.reset = 0;
+    reset_dut(top, ctx);
 
     ASSERT_TRUE(top.empty);
     ASSERT_EQ(top.count, 0);
@@ -92,11 +72,7 @@ TEST(FIFOTest, IsEmptyOnReset) {
     ASSERT_FALSE(top.empty);
     ASSERT_EQ(top.count, 1);
 
-    // Reset FIFO
-    top.reset = 1;
-    tick(top, ctx);
-    tick(top, ctx);
-    top.reset = 0;
+    reset_dut(top, ctx);
 
     EXPECT_TRUE(top.empty);
     EXPECT_EQ(top.count, 0);
@@ -119,14 +95,9 @@ TEST(FIFOTest, PushAndPop) {
     VerilatedContext ctx;
     ctx.debug(0);
     ctx.time(0);
-
     VFIFO top(&ctx);
 
-    // Reset FIFO
-    top.reset = 1;
-    tick(top, ctx);
-    tick(top, ctx);
-    top.reset = 0;
+    reset_dut(top, ctx);
 
     ASSERT_TRUE(top.empty);
     ASSERT_EQ(top.count, 0);
