@@ -101,10 +101,12 @@ module Fetcher (
   dot_phase_t dot_phase;
 
   // 0..7 index of pixel being pushed inside tile
-  logic push_i;
+  logic [2:0] push_i;
 
   /// compute tilemap address
-  wire [15:0] tilemap_addr = tilemap_base(window_active) + {8'b0, tile_y, 5'b0} + {8'b0, tile_x};
+  wire [15:0] tilemap_addr = tilemap_base(
+      window_active
+  ) + {3'b0, tile_y, 8'b0} + {8'b0, tile_x, 3'b0};
 
   /// Get tilemap base address (LCDC.3 for BG map; LCDC.6 for window map)
   function automatic [15:0] tilemap_base(input logic window_active);
@@ -121,8 +123,8 @@ module Fetcher (
 
   function automatic [15:0] tile_row_addr_fn(input logic lcdc4, input logic [7:0] tid,
                                              input logic [2:0] row);
-    if (lcdc4) tile_row_addr_fn = 16'h8000 + ({tid, 4'b0}) + {row, 1'b0};
-    else tile_row_addr_fn = 16'h9000 + (($signed({1'b0, tid}) <<< 4)) + {row, 1'b0};
+    if (lcdc4) tile_row_addr_fn = 16'h8000 + {4'b0, tid, 4'b0} + {12'b0, row, 1'b0};
+    else tile_row_addr_fn = 16'h9000 + ($signed({{8{tid[7]}}, tid}) <<< 4) + {12'b0, row, 1'b0};
   endfunction
 
   // reset on flush/window start
@@ -138,7 +140,7 @@ module Fetcher (
       tile_high_byte <= 8'h00;
       // tile_row_addr  <= 16'h0000;
       bg_push_en     <= 1'b0;
-      push_i         <= 4'd0;
+      push_i         <= 3'd0;
     end else if (dot_en) begin
       // default outputs
       vram_read_req <= 1'b0;
@@ -222,11 +224,11 @@ module Fetcher (
 
             // pixel index inside tile byte (bit 7 first unless HFLIP)
             // TODO: HFLIP
-            static int bit_ = 7 - push_i;
+            static logic [2:0] bit_ = 7 - push_i;
             static logic [1:0] color = {tile_high_byte[bit_], tile_low_byte[bit_]};
 
             ppu_pixel_t px;
-            px.color   <= color;
+            px.color   <= gb_color_t'(color);
             px.palette <= 3'd0;
             px.spr_idx <= 6'd0;
             px.bg_prio <= 1'b0;
@@ -236,7 +238,7 @@ module Fetcher (
             bg_push_en <= 1'b1;
             push_i     <= push_i + 1;
 
-            if (push_i == 4'd7) begin
+            if (push_i == 3'd7) begin
               // finished 8 pixels; advance to next tile column
               fetcher_x <= fetcher_x + 1;
               state    <= S_GET_TILE;

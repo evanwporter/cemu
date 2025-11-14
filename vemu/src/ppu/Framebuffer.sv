@@ -12,9 +12,9 @@ module Framebuffer (
     output logic       fifo_pop_en,  // pop request to FIFO
     input  ppu_pixel_t fifo_top_px,  // pixel popped from FIFO
     // control
-    input  logic       flush,
+    input  logic       flush
     // status
-    output logic       frame_done
+    // TODO: frame_done signal
 );
 
   localparam logic [7:0] WIDTH = 160;
@@ -22,7 +22,7 @@ module Framebuffer (
 
   localparam int NUM_PIXELS = WIDTH * HEIGHT;
 
-  wire [15:0] write_addr = (y_screen * WIDTH) + x_screen;
+  wire [14:0] write_addr = 15'((y_screen * WIDTH) + {8'b0, x_screen});
 
   gb_color_t buffer[NUM_PIXELS];
 
@@ -33,12 +33,10 @@ module Framebuffer (
     if (reset || flush) begin
       x_screen <= 8'd0;
       y_screen <= 8'd0;
-      frame_done <= 1'b0;
       fifo_pop_en <= 1'b0;
     end else if (dot_en) begin
 
       fifo_pop_en <= 1'b0;
-      frame_done  <= 1'b0;
 
       // Only draw visible area (160x144) when FIFO has pixels
       if (!fifo_empty && y_screen < HEIGHT && x_screen < WIDTH) begin
@@ -52,8 +50,7 @@ module Framebuffer (
         if (x_screen == WIDTH - 1) begin
           x_screen <= 8'd0;
           if (y_screen == HEIGHT - 1) begin
-            y_screen   <= 8'd0;
-            frame_done <= 1'b1;
+            y_screen <= 8'd0;
           end else begin
             y_screen <= y_screen + 1;
           end

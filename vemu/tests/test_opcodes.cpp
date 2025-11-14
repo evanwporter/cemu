@@ -3,9 +3,10 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
-#include "VGameboy.h"
-#include "VGameboy___024root.h"
-#include "verilated.h"
+#include <VGameboy.h>
+#include <VGameboy_Bus_if.h>
+#include <VGameboy___024root.h>
+#include <verilated.h>
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -39,27 +40,65 @@ void tick(VGameboy& top, VerilatedContext& ctx) {
     ctx.timeInc(5);
 }
 
-void apply_ram(VGameboy& gb, const json& ramList) {
+void write8(VGameboy& top, VerilatedContext& ctx, uint16_t addr, uint8_t val) {
+    auto* rootp = top.rootp;
+    auto* bus = rootp->__PVT__Gameboy__DOT__cpu_bus;
+
+    bus->addr = addr;
+    bus->wdata = val;
+    bus->write_en = 1;
+    bus->read_en = 0;
+
+    top.eval();
+
+    tick(top, ctx);
+
+    bus->write_en = 0;
+    top.eval();
+}
+
+uint8_t read8(VGameboy& top, VerilatedContext& ctx, uint16_t addr) {
+    auto* rootp = top.rootp;
+    auto* bus = rootp->__PVT__Gameboy__DOT__cpu_bus;
+
+    // drive read request
+    bus->addr = addr;
+    bus->write_en = 0;
+    bus->read_en = 1;
+
+    top.eval(); // settle combinational MMU logic
+    tick(top, ctx);
+
+    uint8_t result = bus->rdata;
+
+    // release bus
+    bus->read_en = 0;
+    top.eval();
+
+    return result;
+}
+
+void apply_ram(VGameboy& gb, VerilatedContext& ctx, const json& ramList) {
     for (const auto& pair : ramList) {
         u16 addr = pair[0].get<u16>();
         u8 val = pair[1].get<u8>();
-        gb.rootp->Gameboy__DOT__mmu__DOT__memory[addr] = val;
+        write8(gb, ctx, addr, val);
     }
 }
 
-void verify_ram(const VGameboy& gb, const json& ramList, const std::string& test_name) {
+void verify_ram(VGameboy& gb, VerilatedContext& ctx, const json& ramList, const std::string& test_name) {
     for (const auto& pair : ramList) {
         u16 addr = pair[0].get<u16>();
         u8 expected = pair[1].get<u8>();
-        u8 actual = gb.rootp->Gameboy__DOT__mmu__DOT__memory[addr];
+        u8 actual = read8(gb, ctx, addr);
         ASSERT_EQ(actual, expected)
             << "RAM mismatch at 0x" << std::hex << addr
             << " during test \"" << test_name << "\"";
     }
 }
 
-void apply_initial_state(VGameboy& gb, const json& init) {
-    auto* regs = &gb.rootp->Gameboy__DOT__cpu__DOT__regs;
+void apply_initial_state(VGameboy& gb, VerilatedContext& ctx, const json& init) {
+    auto* regs = &gb.rootp->Gameboy__DOT__cpu_inst__DOT__regs;
 
     if (init.contains("a"))
         regs->__PVT__a = init["a"].get<u8>();
@@ -86,11 +125,11 @@ void apply_initial_state(VGameboy& gb, const json& init) {
         set_u16(regs->__PVT__pch, regs->__PVT__pcl, pc);
     }
 
-    apply_ram(gb, init["ram"]);
+    apply_ram(gb, ctx, init["ram"]);
 }
 
 void verify_registers(const VGameboy& top, const json& expected, const std::string& test_name) {
-    auto* regs = &top.rootp->Gameboy__DOT__cpu__DOT__regs;
+    auto* regs = &top.rootp->Gameboy__DOT__cpu_inst__DOT__regs;
 
     EXPECT_EQ(regs->__PVT__a, expected["a"].get<u8>()) << "Test: " << test_name;
     EXPECT_EQ(regs->__PVT__b, expected["b"].get<u8>()) << "Test: " << test_name;
@@ -129,13 +168,13 @@ TEST_P(GameboyCpuFileTest, RunAllCases) {
             tick(top, ctx);
         top.reset = 0;
 
-        apply_initial_state(top, testCase["initial"]);
+        apply_initial_state(top, ctx, testCase["initial"]);
 
         for (int t = 0; t < 4; ++t)
             tick(top, ctx);
 
         int max_ticks = 100;
-        while (top.rootp->Gameboy__DOT__cpu__DOT__instr_count < 2 && max_ticks-- > 0) {
+        while (top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_count < 2 && max_ticks-- > 0) {
             tick(top, ctx);
         }
         ASSERT_GT(max_ticks, 0) << "Timed out waiting for instruction to finish";
@@ -143,7 +182,7 @@ TEST_P(GameboyCpuFileTest, RunAllCases) {
         const std::string test_name = testCase["name"].get<std::string>();
 
         verify_registers(top, testCase["final"], test_name);
-        verify_ram(top, testCase["final"]["ram"], test_name);
+        verify_ram(top, ctx, testCase["final"]["ram"], test_name);
         break;
     }
 }

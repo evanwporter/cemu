@@ -18,15 +18,18 @@ module FIFO (
     output logic       [4:0] count,
     input  logic             flush
 );
-  localparam int DEPTH = 16;
+  localparam logic [4:0] DEPTH = 5'd16;
 
   ppu_pixel_t mem[DEPTH];
   logic [4:0] rptr, wptr;
 
-  assign count  = wptr - rptr;
-  assign empty  = (count == 0);
-  assign full   = (count == DEPTH);
-  assign top_px = (empty) ? '{color: GB_COLOR_WHITE} : mem[rptr[3:0]];
+  // TODO: Mod count somewhere
+  assign count = wptr - rptr;
+  assign empty = (count == 0);
+  assign full = (count == DEPTH);
+  assign top_px = (empty) ?
+      '{color: GB_COLOR_WHITE, palette: 3'd0, spr_idx: 6'd0, bg_prio: 1'b0, valid: 1'b0}
+      : mem[rptr[3:0]];
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset || flush) begin

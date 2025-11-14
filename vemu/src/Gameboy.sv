@@ -15,7 +15,7 @@
 `include "Timer.sv"
 `include "Input.sv"
 
-`include "svlogger.sv"
+// `include "svlogger.sv"
 
 module Gameboy (
     input logic clk,

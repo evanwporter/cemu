@@ -1,6 +1,8 @@
-#include "Vcpu_tb.h"
-#include "verilated.h"
-#include "verilated_vcd_c.h"
+#include <gtest/gtest.h>
+
+#include <Vcpu_tb.h>
+#include <verilated.h>
+#include <verilated_vcd_c.h>
 
 static vluint64_t main_time = 0;
 double sc_time_stamp() { return main_time; }
@@ -19,8 +21,7 @@ static inline void tick(Vcpu_tb& top, VerilatedVcdC& trace) {
     main_time += 5;
 }
 
-int main(int argc, char** argv) {
-    Verilated::commandArgs(argc, argv);
+void run_sim() {
     Verilated::traceEverOn(true);
 
     Vcpu_tb top;
@@ -40,5 +41,11 @@ int main(int argc, char** argv) {
     }
 
     trace.close();
-    return 0;
+
+    ASSERT_FALSE(Verilated::gotFinish())
+        << "Simulation terminated early!";
+}
+
+TEST(VcpuTestbench, RunsWithoutFinish) {
+    run_sim();
 }

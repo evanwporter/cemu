@@ -1,8 +1,10 @@
 #include "ppu.hpp"
 
+#include "address.hpp"
 #include "color.hpp"
 #include "cpu/cpu.hpp"
 #include "gameboy.hpp"
+#include "ppu/tile.hpp"
 
 #include "util/bitops.hpp"
 #include "util/log.hpp"

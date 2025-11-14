@@ -13,7 +13,7 @@ module Cartridge (
 
   wire rom_selected = bus.addr inside {[ROM_start : ROM_end]};
 
-  wire [15:0] rom_index = bus.addr;
+  wire [14:0] rom_index = 15'(bus.addr);
 
   always_ff @(posedge clk) begin
     if (bus.write_en) begin

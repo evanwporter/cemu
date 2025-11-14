@@ -99,7 +99,7 @@ module PPU (
 
   // Fetcher reads from the VRAM immeditely.
   // TODO: block it if needed
-  wire [7:0] vram_data_for_fetcher = vram_read_req ? VRAM[vram_addr-16'h8000] : '0;
+  wire [7:0] vram_data_for_fetcher = vram_read_req ? VRAM[13'(vram_addr-16'h8000)] : '0;
 
   assign vram_rdata = vram_data_for_fetcher;
 
@@ -107,7 +107,6 @@ module PPU (
   // Framebuffer (FIFO -> pixel storage)
   // ======================================================
   logic fifo_pop_en;
-  logic frame_done_internal;
 
   Framebuffer framebuffer (
       .clk        (clk),
@@ -116,12 +115,9 @@ module PPU (
       .fifo_empty (bg_fifo_empty),
       .fifo_pop_en(bg_pop_en),
       .fifo_top_px(bg_top_px),
-      .flush      (1'b0),
-      .frame_done (frame_done_internal)
+      .flush      (1'b0)
   );
 
-  logic frame_done;
-  assign frame_done = frame_done_internal;
 
   // ======================================================
 
@@ -133,14 +129,14 @@ module PPU (
         // VRAM writes (blocked in Mode 3)
         (bus.addr inside {[VRAM_start : VRAM_end]}): begin
           if (mode != PPU_MODE_3) begin
-            VRAM[bus.addr-16'h8000] <= bus.wdata;
+            VRAM[13'(bus.addr-16'h8000)] <= bus.wdata;
           end
         end
 
         // OAM writes (blocked in Mode 2 & 3)
         (bus.addr inside {[OAM_start : OAM_end]}): begin
           if (!(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
-            OAM[bus.addr-16'hFE00] <= bus.wdata;
+            OAM[8'(bus.addr-16'hFE00)] <= bus.wdata;
           end
         end
 
@@ -174,12 +170,14 @@ module PPU (
 
         // VRAM reads (blocked in Mode 3)
         [VRAM_start : VRAM_end]: begin
-          bus.rdata = (mode == PPU_MODE_3) ? 8'hFF : VRAM[bus.addr-VRAM_start];
+          bus.rdata = (mode == PPU_MODE_3) ? 8'hFF : VRAM[13'(bus.addr-VRAM_start)];
         end
 
         // OAM reads (blocked in Mode 2 & 3)
         [OAM_start : OAM_end]: begin
-          bus.rdata = (mode == PPU_MODE_2 || mode == PPU_MODE_3) ? 8'hFF : OAM[bus.addr-OAM_start];
+          bus.rdata = (mode == PPU_MODE_2 || mode == PPU_MODE_3)
+            ? 8'hFF
+            : OAM[8'(bus.addr-OAM_start)];
         end
 
         // PPU register reads
@@ -204,9 +202,7 @@ module PPU (
       mode          <= PPU_MODE_2;
       line          <= 8'd0;
       cycle_counter <= 0;
-      frame_done    <= 1'b0;
     end else begin
-      frame_done <= 1'b0;
       cycle_counter <= cycle_counter + 1;
 
       // Mode switching logic
@@ -228,7 +224,6 @@ module PPU (
             if (line == LINES_PER_FRAME - 1) begin
               line <= 8'd0;
               mode <= PPU_MODE_2;
-              frame_done <= 1'b1;
             end
           end
         end

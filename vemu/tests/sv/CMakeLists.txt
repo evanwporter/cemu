@@ -1,6 +1,7 @@
 set(CMAKE_CXX_STANDARD 23)
 
 include(CheckCXXCompilerFlag)
+enable_testing()
 
 set(TESTBENCH_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu_tb.sv
@@ -17,6 +18,13 @@ foreach(TB_FILE ${TESTBENCH_SOURCES})
     message(STATUS "Configuring Verilator testbench: ${TB_NAME}")
 
     add_executable(${TB_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/tb_main.cpp)
+
+    find_package(GTest CONFIG REQUIRED)
+
+    target_link_libraries(${TB_NAME}
+        GTest::gtest
+        GTest::gtest_main
+    )
 
     verilate(${TB_NAME}
         TOP_MODULE ${TB_NAME}
