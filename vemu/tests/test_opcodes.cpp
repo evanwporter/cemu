@@ -145,9 +145,9 @@ void verify_registers(const VGameboy& top, const json& expected, const std::stri
         << "Test: " << test_name;
 }
 
-class GameboyCpuFileTest : public ::testing::TestWithParam<fs::path> { };
+class GameboyOpcodeTest : public ::testing::TestWithParam<fs::path> { };
 
-TEST_P(GameboyCpuFileTest, RunAllCases) {
+TEST_P(GameboyOpcodeTest, RunAllCases) {
     const auto path = GetParam();
     std::ifstream f(path);
     ASSERT_TRUE(f.is_open()) << "Failed to open test file: " << path;
@@ -189,7 +189,7 @@ TEST_P(GameboyCpuFileTest, RunAllCases) {
 
 INSTANTIATE_TEST_SUITE_P(
     CpuTests,
-    GameboyCpuFileTest,
+    GameboyOpcodeTest,
     ::testing::ValuesIn([] {
         std::vector<fs::path> files;
         if (fs::exists(kTestDir)) {

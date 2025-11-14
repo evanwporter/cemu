@@ -14,10 +14,16 @@ endif()
 get_property(VERILOG_SOURCES GLOBAL PROPERTY VERILOG_SOURCES)
 
 foreach(TB_FILE ${TESTBENCH_SOURCES})
-    get_filename_component(TB_NAME ${TB_FILE} NAME_WE)
+    get_filename_component(TB_MODULE_NAME ${TB_FILE} NAME_WE)
+    set(TB_NAME test_${TB_MODULE_NAME})
+
     message(STATUS "Configuring Verilator testbench: ${TB_NAME}")
 
     add_executable(${TB_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/tb_main.cpp)
+
+    # set_target_properties(${TB_NAME} PROPERTIES
+    #     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/.."
+    # )
 
     find_package(GTest CONFIG REQUIRED)
 
@@ -27,7 +33,7 @@ foreach(TB_FILE ${TESTBENCH_SOURCES})
     )
 
     verilate(${TB_NAME}
-        TOP_MODULE ${TB_NAME}
+        TOP_MODULE ${TB_MODULE_NAME}
         SOURCES
             ${TB_FILE}
             ${VERILOG_SOURCES}

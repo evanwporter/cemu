@@ -2,8 +2,9 @@
 `define MMU_SV 
 
 `include "mmu/util.sv"
+`include "mmu/interface.sv"
+`include "mmu/addresses.sv"
 
-`include "ppu/interface.sv"
 `include "ppu/types.sv"
 
 module MMU (
