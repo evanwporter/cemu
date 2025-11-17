@@ -1,3 +1,8 @@
+`ifndef FETCHER_TOP_SV
+`define FETCHER_TOP_SV 
+
+`define FETCHER_TESTBENCH 
+
 `include "ppu/types.sv"
 `include "ppu/Fetcher.sv"
 
@@ -50,3 +55,5 @@ module fetcher_top (
   );
 
 endmodule
+
+`endif  // FETCHER_TOP_SV

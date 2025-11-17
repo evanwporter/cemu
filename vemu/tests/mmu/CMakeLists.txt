@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 
 add_cpp_tb(test_mmu
     ${CMAKE_CURRENT_SOURCE_DIR}/top.sv

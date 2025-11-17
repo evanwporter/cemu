@@ -10,8 +10,14 @@ typedef enum logic [1:0] {
 
 `ifndef VERILATOR
 `define PACK_REG packed
+`define PACK_PX packed
 `else
 `define PACK_REG 
+`ifdef FETCHER_TESTBENCH
+`define PACK_PX
+`else
+`define PACK_PX packed
+`endif
 `endif
 
 typedef struct `PACK_REG {
@@ -77,7 +83,7 @@ typedef enum logic [1:0] {
 } gb_color_t;
 
 // A pixel in FIFO (BG or OBJ)
-typedef struct `PACK_REG {
+typedef struct `PACK_PX {
   gb_color_t  color;
   logic [2:0] palette;  // CGB: 0..7 ; DMG: only for OBJ select (0/1). Store here.
   logic [5:0] spr_idx;  // OBJ priority (OAM index). DMG can leave 0.
