@@ -3,9 +3,9 @@
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
-#include <VGameboy.h>
-#include <VGameboy_Bus_if.h>
-#include <VGameboy___024root.h>
+#include <Vcpu_top.h>
+#include <Vcpu_top_Bus_if.h>
+#include <Vcpu_top___024root.h>
 #include <verilated.h>
 
 using namespace std;
@@ -30,7 +30,7 @@ inline void set_u16(u8& hi, u8& lo, u16 val) {
     lo = static_cast<u8>(val & 0xFF);
 }
 
-void tick(VGameboy& top, VerilatedContext& ctx) {
+void tick(Vcpu_top& top, VerilatedContext& ctx) {
     top.clk = 0;
     top.eval();
     ctx.timeInc(5);
@@ -40,9 +40,9 @@ void tick(VGameboy& top, VerilatedContext& ctx) {
     ctx.timeInc(5);
 }
 
-void write8(VGameboy& top, VerilatedContext& ctx, uint16_t addr, uint8_t val) {
+void write8(Vcpu_top& top, VerilatedContext& ctx, uint16_t addr, uint8_t val) {
     auto* rootp = top.rootp;
-    auto* bus = rootp->__PVT__Gameboy__DOT__cpu_bus;
+    auto* bus = rootp->__PVT__cpu_top__DOT__cpu_bus;
 
     bus->addr = addr;
     bus->wdata = val;
@@ -57,9 +57,9 @@ void write8(VGameboy& top, VerilatedContext& ctx, uint16_t addr, uint8_t val) {
     top.eval();
 }
 
-uint8_t read8(VGameboy& top, VerilatedContext& ctx, uint16_t addr) {
+uint8_t read8(Vcpu_top& top, VerilatedContext& ctx, uint16_t addr) {
     auto* rootp = top.rootp;
-    auto* bus = rootp->__PVT__Gameboy__DOT__cpu_bus;
+    auto* bus = rootp->__PVT__cpu_top__DOT__cpu_bus;
 
     // drive read request
     bus->addr = addr;
@@ -78,7 +78,7 @@ uint8_t read8(VGameboy& top, VerilatedContext& ctx, uint16_t addr) {
     return result;
 }
 
-void apply_ram(VGameboy& gb, VerilatedContext& ctx, const json& ramList) {
+void apply_ram(Vcpu_top& gb, VerilatedContext& ctx, const json& ramList) {
     for (const auto& pair : ramList) {
         u16 addr = pair[0].get<u16>();
         u8 val = pair[1].get<u8>();
@@ -86,7 +86,7 @@ void apply_ram(VGameboy& gb, VerilatedContext& ctx, const json& ramList) {
     }
 }
 
-void verify_ram(VGameboy& gb, VerilatedContext& ctx, const json& ramList, const std::string& test_name) {
+void verify_ram(Vcpu_top& gb, VerilatedContext& ctx, const json& ramList, const std::string& test_name) {
     for (const auto& pair : ramList) {
         u16 addr = pair[0].get<u16>();
         u8 expected = pair[1].get<u8>();
@@ -97,8 +97,8 @@ void verify_ram(VGameboy& gb, VerilatedContext& ctx, const json& ramList, const 
     }
 }
 
-void apply_initial_state(VGameboy& gb, VerilatedContext& ctx, const json& init) {
-    auto* regs = &gb.rootp->Gameboy__DOT__cpu_inst__DOT__regs;
+void apply_initial_state(Vcpu_top& gb, VerilatedContext& ctx, const json& init) {
+    auto* regs = &gb.rootp->cpu_top__DOT__cpu_inst__DOT__regs;
 
     if (init.contains("a"))
         regs->__PVT__a = init["a"].get<u8>();
@@ -128,8 +128,8 @@ void apply_initial_state(VGameboy& gb, VerilatedContext& ctx, const json& init) 
     apply_ram(gb, ctx, init["ram"]);
 }
 
-void verify_registers(const VGameboy& top, const json& expected, const std::string& test_name) {
-    auto* regs = &top.rootp->Gameboy__DOT__cpu_inst__DOT__regs;
+void verify_registers(const Vcpu_top& top, const json& expected, const std::string& test_name) {
+    auto* regs = &top.rootp->cpu_top__DOT__cpu_inst__DOT__regs;
 
     EXPECT_EQ(regs->__PVT__a, expected["a"].get<u8>()) << "Test: " << test_name;
     EXPECT_EQ(regs->__PVT__b, expected["b"].get<u8>()) << "Test: " << test_name;
@@ -161,7 +161,7 @@ TEST_P(GameboyOpcodeTest, RunAllCases) {
         ctx.debug(0);
         ctx.time(0);
 
-        VGameboy top(&ctx);
+        Vcpu_top top(&ctx);
 
         top.reset = 1;
         for (int i = 0; i < 4; ++i)
@@ -174,7 +174,7 @@ TEST_P(GameboyOpcodeTest, RunAllCases) {
             tick(top, ctx);
 
         int max_ticks = 100;
-        while (top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_count < 2 && max_ticks-- > 0) {
+        while (top.rootp->cpu_top__DOT__cpu_inst__DOT__instr_count < 2 && max_ticks-- > 0) {
             tick(top, ctx);
         }
         ASSERT_GT(max_ticks, 0) << "Timed out waiting for instruction to finish";

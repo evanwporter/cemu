@@ -1,0 +1,7 @@
+set(CMAKE_CXX_STANDARD 23)
+
+add_cpp_tb(test_mmu
+    ${CMAKE_CURRENT_SOURCE_DIR}/top.sv
+    ${VEMU_SRC_DIR}/mmu/MMU.sv
+    ${VERILOG_SOURCES}
+)
