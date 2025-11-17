@@ -43,7 +43,9 @@ module Gameboy (
       .reset(reset),
       .cpu_bus(cpu_bus),
       .ppu_bus(ppu_bus),
-      .apu_bus(apu_bus)
+      .apu_bus(apu_bus),
+      .cart_bus(cart_bus),
+      .ram_bus(ram_bus)
   );
 
   PPU ppu_inst (

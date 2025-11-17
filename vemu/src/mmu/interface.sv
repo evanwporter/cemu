@@ -23,4 +23,33 @@ interface Bus_if;
   modport Peripheral_side(input addr, wdata, read_en, write_en, output rdata);
 endinterface
 
+interface Interrupt_if;
+
+  // Hardware source requests — one bit per interrupt
+  logic vblank_req;
+  logic stat_req;
+  logic timer_req;
+  logic serial_req;
+  logic joypad_req;
+
+  // MMU updates IF_reg through this modport
+  modport MMU_side(
+      input vblank_req,
+      input stat_req,
+      input timer_req,
+      input serial_req,
+      input joypad_req
+  );
+
+  // Hardware modules only set bits
+  modport Source_side(
+      output vblank_req,
+      output stat_req,
+      output timer_req,
+      output serial_req,
+      output joypad_req
+  );
+
+endinterface
+
 `endif

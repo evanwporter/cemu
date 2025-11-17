@@ -23,6 +23,8 @@ module top (
   Bus_if cpu_bus ();
   Bus_if ppu_bus ();
   Bus_if apu_bus ();
+  Bus_if cart_bus ();
+  Bus_if ram_bus ();
 
   assign cpu_bus.addr     = cpu_addr;
   assign cpu_bus.wdata    = cpu_wdata;
@@ -35,7 +37,9 @@ module top (
       .reset(reset),
       .cpu_bus(cpu_bus.MMU_side),
       .ppu_bus(ppu_bus.MMU_master),
-      .apu_bus(apu_bus.MMU_master)
+      .apu_bus(apu_bus.MMU_master),
+      .cart_bus(cart_bus),
+      .ram_bus(ram_bus)
   );
 
   PPU ppu (
