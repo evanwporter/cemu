@@ -40,7 +40,7 @@ macro(add_cpp_tb TB_NAME SV_FILE)
     )
 endmacro()
 
-
+add_subdirectory(fetcher)
 add_subdirectory(mmu)
 add_subdirectory(fifo)
 add_subdirectory(cpu)

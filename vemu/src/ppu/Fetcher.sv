@@ -100,8 +100,11 @@ module Fetcher (
 
   dot_phase_t dot_phase;
 
-  // 0..7 index of pixel being pushed inside tile
+  /// 0..7 index of pixel being pushed inside tile
   logic [2:0] push_i;
+
+  /// pixel index inside tile byte (bit 7 first unless HFLIP)
+  wire [2:0] bits_to_push = 7 - push_i;
 
   /// compute tilemap address
   wire [15:0] tilemap_addr = tilemap_base(
@@ -155,6 +158,9 @@ module Fetcher (
               vram_addr <= tilemap_addr;
               vram_read_req <= 1'b1;
               dot_phase <= DOT_PHASE_1;
+
+              $display("[%0t] S_GET_TILE PH0: addr=%h (tilemap_base=%h tile_x=%0d tile_y=%0d)",
+                       $time, tilemap_addr, tilemap_base(window_active), tile_x, tile_y);
             end
 
             DOT_PHASE_1: begin
@@ -162,6 +168,8 @@ module Fetcher (
               vram_read_req <= 1'b0;
               state <= S_GET_LOW;
               dot_phase <= DOT_PHASE_0;
+
+              $display("[%0t] S_GET_TILE PH1: tile_index=%0d", $time, vram_rdata);
             end
           endcase
         end
@@ -175,12 +183,18 @@ module Fetcher (
               vram_read_req <= 1'b1;
 
               dot_phase <= DOT_PHASE_1;
+
+              $display("[%0t] S_GET_LOW  PH0: addr=%h (tile_index=%02h row=%0d lcdc4=%0b)", $time,
+                       vram_addr, tile_index, tile_y_offset, regs.LCDC[4]);
             end
 
             DOT_PHASE_1: begin
               tile_low_byte <= vram_rdata;
               vram_read_req <= 1'b0;
               state <= S_GET_HIGH;
+              dot_phase <= DOT_PHASE_0;
+
+              $display("[%0t] S_GET_LOW  PH1: tile_low_byte<=%02h", $time, vram_rdata);
             end
           endcase
         end
@@ -191,8 +205,9 @@ module Fetcher (
             DOT_PHASE_0: begin
               vram_addr <= tile_row_addr_fn(regs.LCDC[4], tile_index, tile_y_offset) + 16'd1;
               vram_read_req <= 1'b1;
-
               dot_phase <= DOT_PHASE_1;
+
+              $display("[%0t] S_GET_HIGH PH0: addr=%h", $time, vram_addr);
             end
 
             DOT_PHASE_1: begin
@@ -200,6 +215,8 @@ module Fetcher (
               vram_read_req <= 1'b0;
               state <= S_SLEEP;
               dot_phase <= DOT_PHASE_0;
+
+              $display("[%0t] S_GET_HIGH PH1: tile_high_byte<=%02h", $time, vram_rdata);
             end
           endcase
         end
@@ -208,11 +225,13 @@ module Fetcher (
           unique case (dot_phase)
             DOT_PHASE_0: begin
               dot_phase <= DOT_PHASE_1;
+              $display("[%0t] S_SLEEP   PH0", $time);
             end
 
             DOT_PHASE_1: begin
               dot_phase <= DOT_PHASE_0;
               state <= S_PUSH;
+              $display("[%0t] S_SLEEP   PH1 -> S_PUSH", $time);
             end
           endcase
         end
@@ -222,13 +241,8 @@ module Fetcher (
           if (bg_fifo_empty) begin
             // push 8 pixels (MSB first unless hflip)
 
-            // pixel index inside tile byte (bit 7 first unless HFLIP)
-            // TODO: HFLIP
-            static logic [2:0] bit_ = 7 - push_i;
-            static logic [1:0] color = {tile_high_byte[bit_], tile_low_byte[bit_]};
-
             ppu_pixel_t px;
-            px.color   <= gb_color_t'(color);
+            px.color   <= gb_color_t'({tile_high_byte[bits_to_push], tile_low_byte[bits_to_push]});
             px.palette <= 3'd0;
             px.spr_idx <= 6'd0;
             px.bg_prio <= 1'b0;
@@ -238,6 +252,10 @@ module Fetcher (
             bg_push_en <= 1'b1;
             push_i     <= push_i + 1;
 
+            $display("[%0t] S_PUSH: push_i=%0d bit=%0d color=%0d push_en=1 fifo_empty=1", $time,
+                     push_i, bits_to_push, {tile_high_byte[bits_to_push],
+                                            tile_low_byte[bits_to_push]});
+
             if (push_i == 3'd7) begin
               // finished 8 pixels; advance to next tile column
               fetcher_x <= fetcher_x + 1;
@@ -246,6 +264,9 @@ module Fetcher (
           end else begin
             // can’t push yet; keep trying each dot
             bg_push_en <= 1'b0;
+
+            $display("[%0t] S_PUSH: finished tile, fetcher_x->%0d, state->S_GET_TILE", $time,
+                     fetcher_x + 1);
           end
         end
       endcase

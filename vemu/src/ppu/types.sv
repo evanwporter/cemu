@@ -77,7 +77,7 @@ typedef enum logic [1:0] {
 } gb_color_t;
 
 // A pixel in FIFO (BG or OBJ)
-typedef struct packed {
+typedef struct `PACK_REG {
   gb_color_t  color;
   logic [2:0] palette;  // CGB: 0..7 ; DMG: only for OBJ select (0/1). Store here.
   logic [5:0] spr_idx;  // OBJ priority (OAM index). DMG can leave 0.
