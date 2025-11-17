@@ -40,49 +40,12 @@ void tick(Vcpu_top& top, VerilatedContext& ctx) {
     ctx.timeInc(5);
 }
 
-void write8(Vcpu_top& top, VerilatedContext& ctx, uint16_t addr, uint8_t val) {
-    auto* rootp = top.rootp;
-    auto* bus = rootp->__PVT__cpu_top__DOT__cpu_bus;
-
-    bus->addr = addr;
-    bus->wdata = val;
-    bus->write_en = 1;
-    bus->read_en = 0;
-
-    top.eval();
-
-    tick(top, ctx);
-
-    bus->write_en = 0;
-    top.eval();
-}
-
-uint8_t read8(Vcpu_top& top, VerilatedContext& ctx, uint16_t addr) {
-    auto* rootp = top.rootp;
-    auto* bus = rootp->__PVT__cpu_top__DOT__cpu_bus;
-
-    // drive read request
-    bus->addr = addr;
-    bus->write_en = 0;
-    bus->read_en = 1;
-
-    top.eval(); // settle combinational MMU logic
-    tick(top, ctx);
-
-    uint8_t result = bus->rdata;
-
-    // release bus
-    bus->read_en = 0;
-    top.eval();
-
-    return result;
-}
-
 void apply_ram(Vcpu_top& gb, VerilatedContext& ctx, const json& ramList) {
     for (const auto& pair : ramList) {
         u16 addr = pair[0].get<u16>();
         u8 val = pair[1].get<u8>();
-        write8(gb, ctx, addr, val);
+        auto& mem = gb.rootp->cpu_top__DOT__mmu_inst__DOT__memory;
+        mem[addr] = val;
     }
 }
 
@@ -90,7 +53,8 @@ void verify_ram(Vcpu_top& gb, VerilatedContext& ctx, const json& ramList, const 
     for (const auto& pair : ramList) {
         u16 addr = pair[0].get<u16>();
         u8 expected = pair[1].get<u8>();
-        u8 actual = read8(gb, ctx, addr);
+        auto& mem = gb.rootp->cpu_top__DOT__mmu_inst__DOT__memory;
+        u8 actual = mem[addr];
         ASSERT_EQ(actual, expected)
             << "RAM mismatch at 0x" << std::hex << addr
             << " during test \"" << test_name << "\"";

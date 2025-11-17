@@ -44,10 +44,11 @@ module CPU (
       bus.write_en <= 1'b0;
       bus.wdata <= '0;
 
-      $display("[%0t] CPU RESET: PC=%h SP=%h", $time, {regs.pch, regs.pcl}, {regs.sph, regs.spl});
+      $display("[%0t] CPU RESET: PC=%04h SP=%04h", $time, {regs.pch, regs.pcl}, {regs.sph, regs.spl
+               });
 
     end else begin
-      $display("[%0t] Phase=%s Cycle=%0d PC=%h Addr=%h ReadDataBus=%h IR=%h", $time,
+      $display("[%0t] Phase=%s Cycle=%0d PC=%04h Addr=%04h ReadDataBus=%02h IR=%02h", $time,
                t_phase.name(), cycle_count, {regs.pch, regs.pcl}, bus.addr, bus.rdata, regs.IR);
       unique case (t_phase)
         T1: begin

@@ -24,7 +24,7 @@ module Framebuffer (
 
   wire [14:0] write_addr = 15'((y_screen * WIDTH) + {8'b0, x_screen});
 
-  gb_color_t buffer[NUM_PIXELS];
+  gb_color_t buffer[NUM_PIXELS]  /*verilator public_flat_rd*/;
 
   logic [7:0] x_screen;
   logic [7:0] y_screen;
