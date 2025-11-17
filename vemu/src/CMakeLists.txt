@@ -4,7 +4,6 @@ add_library(libvemu)
 
 add_subdirectory(cpu)
 add_subdirectory(mmu)
-add_subdirectory(util)
 
 set(VERILOG_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Gameboy.sv

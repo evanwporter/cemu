@@ -6,7 +6,7 @@
 `include "cpu/control_words.sv"
 `include "cpu/util.sv"
 
-`include "util/logger.sv"
+`include "util/logger.svh"
 
 `include "mmu/interface.sv"
 
