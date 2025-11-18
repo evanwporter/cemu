@@ -25,6 +25,7 @@ module top (
   Bus_if apu_bus ();
   Bus_if cart_bus ();
   Bus_if ram_bus ();
+  Interrupt_if IF_bus ();
 
   assign cpu_bus.addr     = cpu_addr;
   assign cpu_bus.wdata    = cpu_wdata;
@@ -39,7 +40,8 @@ module top (
       .ppu_bus(ppu_bus.MMU_master),
       .apu_bus(apu_bus.MMU_master),
       .cart_bus(cart_bus),
-      .ram_bus(ram_bus)
+      .ram_bus(ram_bus),
+      .IF_bus(IF_bus)
   );
 
   PPU ppu (

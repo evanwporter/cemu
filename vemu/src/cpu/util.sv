@@ -65,7 +65,7 @@ endfunction
 `define APPLY_IDU_OP(SRC, DST, OP, REGS) \
   begin \
     logic [15:0] __idu_tmp; \
-    $display("[%0t] Applying IDU op %s from %s to %s", $time, (OP).name(), (SRC).name(), (DST).name()); \
+    `LOG_INFO(("Applying IDU op %s from %s to %s", (OP).name(), (SRC).name(), (DST).name())); \
     \
     unique case (SRC) \
       ADDR_NONE:   __idu_tmp = 16'h0000; \
@@ -352,8 +352,8 @@ endfunction
   begin : apply_alu_op_block \
     alu_result_t __alu_res; \
     __alu_res = apply_alu_op(OP, DST_SEL, SRC_SEL, REGS); \
-    $display("[%0t] Applying ALU op %s to %s from %s", \
-             $time, (OP).name(), (DST_SEL).name(), (SRC_SEL).name()); \
+    `LOG_INFO(("Applying ALU op %s to %s from %s", \
+             (OP).name(), (DST_SEL).name(), (SRC_SEL).name())); \
     unique case (DST_SEL) \
       ALU_SRC_A: (REGS).a <= __alu_res.result; \
       ALU_SRC_B: (REGS).b <= __alu_res.result; \
@@ -378,7 +378,7 @@ endfunction
 // Load data bus into selected 8-bit register
 `define LOAD_REG_FROM_BYTE(DST_SEL, DATA_BUS, REGS) \
   begin \
-    $display("[%0t] Loading data 0x%h into %s", $time, (DATA_BUS), (DST_SEL).name()); \
+    `LOG_INFO(("Loading data 0x%h into %s", (DATA_BUS), (DST_SEL).name())); \
     unique case (DST_SEL) \
       DATA_BUS_SRC_NONE: ; \
       DATA_BUS_SRC_A: (REGS).a <= (DATA_BUS); \
@@ -424,7 +424,7 @@ endfunction
         (REGS).IME <= 8'd0; \
       end \
       MISC_OP_R16_WZ_COPY: begin \
-        $display("[%0t] Writing 0x%h to %s", $time, {(REGS).w, (REGS).z}, (DST).name()); \
+        `LOG_INFO(("Writing 0x%h to %s", {(REGS).w, (REGS).z}, (DST).name())); \
         unique case (DST) \
           MISC_OP_DST_NONE: ; \
           MISC_OP_DST_PC: begin \
@@ -460,7 +460,7 @@ endfunction
         new_pc = { (REGS).pch, (REGS).pcl } + {{8{offset[7]}}, offset}; \
         (REGS).pch <= new_pc[15:8]; \
         (REGS).pcl <= new_pc[7:0]; \
-        $display("[%0t] JR signed offset %0d to PC=%04h", $time, offset, new_pc); \
+        `LOG_INFO(("JR signed offset %0d to PC=%04h", offset, new_pc)); \
       end \
       MISC_OP_SET_PC_CONST: begin \
         {(REGS).pch, (REGS).pcl} <= {8'h00, ((REGS).IR & 8'h38)}; \

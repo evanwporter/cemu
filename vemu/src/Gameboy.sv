@@ -32,6 +32,8 @@ module Gameboy (
   Bus_if serial_bus ();
   Bus_if ram_bus ();
 
+  Interrupt_if IF_bus ();
+
   CPU cpu_inst (
       .clk  (clk),
       .reset(reset),
@@ -45,7 +47,8 @@ module Gameboy (
       .ppu_bus(ppu_bus),
       .apu_bus(apu_bus),
       .cart_bus(cart_bus),
-      .ram_bus(ram_bus)
+      .ram_bus(ram_bus),
+      .IF_bus(IF_bus)
   );
 
   PPU ppu_inst (

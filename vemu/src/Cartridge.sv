@@ -4,6 +4,8 @@
 `include "mmu/addresses.sv"
 `include "boot.svh"
 
+`include "util/logger.svh"
+
 module Cartridge (
     input logic clk,
     input logic reset,
@@ -27,7 +29,7 @@ module Cartridge (
       if (rom_selected) ROM[rom_index] <= bus.wdata;
       else if (boot_switch_selected) begin
         boot_rom_switch <= bus.wdata;
-        $display("[%0t] Boot ROM disabled", $time);
+        `LOG_INFO(("Boot ROM disabled"));
       end
     end
   end
