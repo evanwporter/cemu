@@ -230,13 +230,13 @@ module Fetcher (
           unique case (dot_phase)
             DOT_PHASE_0: begin
               dot_phase <= DOT_PHASE_1;
-              `LOG_INFO(("S_SLEEP   PH0", $time));
+              `LOG_INFO(("S_SLEEP   PH0"));
             end
 
             DOT_PHASE_1: begin
               dot_phase <= DOT_PHASE_0;
               state <= S_PUSH;
-              `LOG_INFO(("S_SLEEP   PH1 -> S_PUSH", $time));
+              `LOG_INFO(("S_SLEEP   PH1 -> S_PUSH"));
             end
           endcase
         end
@@ -258,7 +258,7 @@ module Fetcher (
             push_i     <= push_i + 1;
 
             `LOG_INFO(
-                ("S_PUSH: push_i=%0d bit=%0d color=%0d push_en=1 fifo_empty=1", $time,
+                ("S_PUSH: push_i=%0d bit=%0d color=%0d push_en=1 fifo_empty=1",
                      push_i, bits_to_push, {
                 tile_high_byte[bits_to_push], tile_low_byte[bits_to_push]}));
 
@@ -271,8 +271,7 @@ module Fetcher (
             // can’t push yet; keep trying each dot
             bg_push_en <= 1'b0;
 
-            `LOG_INFO(
-                ("S_PUSH: finished tile, fetcher_x->%0d, state->S_GET_TILE", $time, fetcher_x + 1));
+            `LOG_INFO(("S_PUSH: finished tile, fetcher_x->%0d, state->S_GET_TILE", fetcher_x + 1));
           end
         end
       endcase

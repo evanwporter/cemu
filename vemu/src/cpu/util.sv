@@ -1,6 +1,25 @@
 `ifndef CPU_UTIL_SV
 `define CPU_UTIL_SV 
 
+`define DISPLAY_CONTROL_WORD(CW, i) \
+  begin \
+    `LOG_INFO(("--------------------------------------------------")); \
+    `LOG_INFO(("CONTROL WORD DEBUG")); \
+    `LOG_INFO(("  num_cycles = %0d", (CW).num_cycles)); \
+    `LOG_INFO(("  M-Cycle %0d:", i)); \
+    `LOG_INFO(("    addr_src     = %s", (CW).cycles[i].addr_src.name())); \
+    `LOG_INFO(("    data_bus_src = %s", (CW).cycles[i].data_bus_src.name())); \
+    `LOG_INFO(("    data_bus_op  = %s", (CW).cycles[i].data_bus_op.name())); \
+    `LOG_INFO(("    idu_op       = %s", (CW).cycles[i].idu_op.name())); \
+    `LOG_INFO(("    alu_op       = %s", (CW).cycles[i].alu_op.name())); \
+    `LOG_INFO(("    alu_dst      = %s", (CW).cycles[i].alu_dst.name())); \
+    `LOG_INFO(("    alu_src      = %s", (CW).cycles[i].alu_src.name())); \
+    `LOG_INFO(("    misc_op      = %s", (CW).cycles[i].misc_op.name())); \
+    `LOG_INFO(("    misc_op_dst  = %s", (CW).cycles[i].misc_op_dst.name())); \
+    `LOG_INFO(("    cond         = %s", (CW).cycles[i].cond.name())); \
+    `LOG_INFO(("--------------------------------------------------")); \
+  end
+
 `define DEFINE_REG_PAIR(PAIR, HI, LO) \
   function automatic logic [15:0] get_``PAIR``(ref cpu_regs_t regs); \
     return {regs.``HI``, regs.``LO``}; \

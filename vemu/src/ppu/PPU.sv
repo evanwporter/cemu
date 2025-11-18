@@ -126,7 +126,7 @@ module PPU (
   // MMU Listeners for VRAM, OAM, Registers
   always_ff @(posedge clk) begin
     if (bus.write_en) begin
-      `LOG_INFO(("PPU: WRITE addr=%h data=%h", $time, bus.addr, bus.wdata));
+      `LOG_INFO(("PPU: WRITE addr=%h data=%h", bus.addr, bus.wdata));
 
       unique case (1'b1)
 
@@ -134,10 +134,9 @@ module PPU (
         (bus.addr inside {[VRAM_start : VRAM_end]}): begin
           if (mode != PPU_MODE_3) begin
             VRAM[13'(bus.addr-16'h8000)] <= bus.wdata;
-            `LOG_INFO(
-                ("PPU: VRAM WRITE addr=%h data=%h (mode=%0d)", $time, bus.addr, bus.wdata, mode));
+            `LOG_INFO(("PPU: VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
           end else begin
-            `LOG_INFO(("PPU: VRAM WRITE BLOCKED (mode=%0d)", $time, mode));
+            `LOG_INFO(("PPU: VRAM WRITE BLOCKED (mode=%0d)", mode));
           end
         end
 
@@ -145,12 +144,10 @@ module PPU (
         (bus.addr inside {[OAM_start : OAM_end]}): begin
           if (!(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
             OAM[8'(bus.addr-16'hFE00)] <= bus.wdata;
-            `LOG_INFO(
-                ("PPU: OAM WRITE addr=%h data=%h (mode=%0d)", $time, bus.addr, bus.wdata, mode));
+            `LOG_INFO(("PPU: OAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
           end else begin
             `LOG_INFO(
-                ("PPU: OAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", $time, bus.addr,
-                     bus.wdata, mode));
+                ("PPU: OAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
           end
         end
 
