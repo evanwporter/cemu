@@ -21,11 +21,15 @@ module MMU (
 
   logic [7:0] IF;
 
-  assign ppu_bus.addr  = cpu_bus.addr;
-  assign apu_bus.addr  = cpu_bus.addr;
+  assign ppu_bus.addr   = cpu_bus.addr;
+  assign apu_bus.addr   = cpu_bus.addr;
+  assign cart_bus.addr  = cpu_bus.addr;
+  assign ram_bus.addr   = cpu_bus.addr;
 
-  assign ppu_bus.wdata = cpu_bus.wdata;
-  assign apu_bus.wdata = cpu_bus.wdata;
+  assign ppu_bus.wdata  = cpu_bus.wdata;
+  assign apu_bus.wdata  = cpu_bus.wdata;
+  assign cart_bus.wdata = cpu_bus.wdata;
+  assign ram_bus.wdata  = cpu_bus.wdata;
 
   // PPU VRAM: $8000–$9FFF, OAM: $FE00–$FE9F, PPU I/O: $FF40–$FF4B
   wire ppu_selected =

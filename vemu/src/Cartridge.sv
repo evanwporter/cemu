@@ -24,8 +24,10 @@ module Cartridge (
 
   wire [14:0] rom_index = 15'(bus.addr);
 
-  always_ff @(posedge clk) begin
-    if (bus.write_en) begin
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      boot_rom_switch <= 8'd0;
+    end else if (bus.write_en) begin
       if (rom_selected) ROM[rom_index] <= bus.wdata;
       else if (boot_switch_selected) begin
         boot_rom_switch <= bus.wdata;

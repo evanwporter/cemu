@@ -15,6 +15,8 @@
 `include "Timer.sv"
 `include "Input.sv"
 
+`define LOG_LEVEL_INFO 
+
 // `include "svlogger.sv"
 
 module Gameboy (

@@ -35,7 +35,7 @@ module Timer (
       TAC  <= 8'h00;
     end else if (bus.write_en) begin
       // TODO: DIV
-      if (div_selected) DIV <= bus.wdata;
+      if (div_selected) DIV <= 8'h00;
       else if (tima_selected) TIMA <= bus.wdata;
       else if (tma_selected) TMA <= bus.wdata;
       else if (tac_selected) TAC <= bus.wdata;

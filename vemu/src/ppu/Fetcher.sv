@@ -161,7 +161,7 @@ module Fetcher (
               vram_read_req <= 1'b1;
               dot_phase <= DOT_PHASE_1;
 
-              `LOG_INFO(
+              `LOG_TRACE(
                   ("S_GET_TILE PH0: addr=%h (tilemap_base=%h tile_x=%0d tile_y=%0d)",
                    tilemap_addr, tilemap_base(
                   window_active), tile_x, tile_y));
@@ -173,7 +173,7 @@ module Fetcher (
               state <= S_GET_LOW;
               dot_phase <= DOT_PHASE_0;
 
-              `LOG_INFO(("S_GET_TILE PH1: tile_index=%0d", vram_rdata));
+              `LOG_TRACE(("S_GET_TILE PH1: tile_index=%0d", vram_rdata));
             end
           endcase
         end
@@ -188,7 +188,7 @@ module Fetcher (
 
               dot_phase <= DOT_PHASE_1;
 
-              `LOG_INFO(
+              `LOG_TRACE(
                   ("S_GET_LOW  PH0: addr=%h (tile_index=%02h row=%0d lcdc4=%0b)", 
                        vram_addr, tile_index, tile_y_offset, regs.LCDC[4]));
             end
@@ -199,7 +199,7 @@ module Fetcher (
               state <= S_GET_HIGH;
               dot_phase <= DOT_PHASE_0;
 
-              `LOG_INFO(("S_GET_LOW  PH1: tile_low_byte<=%02h", vram_rdata));
+              `LOG_TRACE(("S_GET_LOW  PH1: tile_low_byte<=%02h", vram_rdata));
             end
           endcase
         end
@@ -212,7 +212,7 @@ module Fetcher (
               vram_read_req <= 1'b1;
               dot_phase <= DOT_PHASE_1;
 
-              `LOG_INFO(("S_GET_HIGH PH0: addr=%h", vram_addr));
+              `LOG_TRACE(("S_GET_HIGH PH0: addr=%h", vram_addr));
             end
 
             DOT_PHASE_1: begin
@@ -221,7 +221,7 @@ module Fetcher (
               state <= S_SLEEP;
               dot_phase <= DOT_PHASE_0;
 
-              `LOG_INFO(("S_GET_HIGH PH1: tile_high_byte<=%02h", vram_rdata));
+              `LOG_TRACE(("S_GET_HIGH PH1: tile_high_byte<=%02h", vram_rdata));
             end
           endcase
         end
@@ -230,13 +230,13 @@ module Fetcher (
           unique case (dot_phase)
             DOT_PHASE_0: begin
               dot_phase <= DOT_PHASE_1;
-              `LOG_INFO(("S_SLEEP   PH0"));
+              `LOG_TRACE(("S_SLEEP   PH0"));
             end
 
             DOT_PHASE_1: begin
               dot_phase <= DOT_PHASE_0;
               state <= S_PUSH;
-              `LOG_INFO(("S_SLEEP   PH1 -> S_PUSH"));
+              `LOG_TRACE(("S_SLEEP   PH1 -> S_PUSH"));
             end
           endcase
         end
@@ -257,7 +257,7 @@ module Fetcher (
             bg_push_en <= 1'b1;
             push_i     <= push_i + 1;
 
-            `LOG_INFO(
+            `LOG_TRACE(
                 ("S_PUSH: push_i=%0d bit=%0d color=%0d push_en=1 fifo_empty=1",
                      push_i, bits_to_push, {
                 tile_high_byte[bits_to_push], tile_low_byte[bits_to_push]}));
@@ -271,7 +271,7 @@ module Fetcher (
             // can’t push yet; keep trying each dot
             bg_push_en <= 1'b0;
 
-            `LOG_INFO(("S_PUSH: finished tile, fetcher_x->%0d, state->S_GET_TILE", fetcher_x + 1));
+            `LOG_TRACE(("S_PUSH: finished tile, fetcher_x->%0d, state->S_GET_TILE", fetcher_x + 1));
           end
         end
       endcase

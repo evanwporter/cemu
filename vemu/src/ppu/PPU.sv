@@ -126,7 +126,7 @@ module PPU (
   // MMU Listeners for VRAM, OAM, Registers
   always_ff @(posedge clk) begin
     if (bus.write_en) begin
-      `LOG_INFO(("PPU: WRITE addr=%h data=%h", bus.addr, bus.wdata));
+      `LOG_TRACE(("PPU: WRITE addr=%h data=%h", bus.addr, bus.wdata));
 
       unique case (1'b1)
 
@@ -134,7 +134,7 @@ module PPU (
         (bus.addr inside {[VRAM_start : VRAM_end]}): begin
           if (mode != PPU_MODE_3) begin
             VRAM[13'(bus.addr-16'h8000)] <= bus.wdata;
-            `LOG_INFO(("PPU: VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
+            `LOG_TRACE(("PPU: VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
           end else begin
             `LOG_INFO(("PPU: VRAM WRITE BLOCKED (mode=%0d)", mode));
           end
@@ -144,7 +144,7 @@ module PPU (
         (bus.addr inside {[OAM_start : OAM_end]}): begin
           if (!(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
             OAM[8'(bus.addr-16'hFE00)] <= bus.wdata;
-            `LOG_INFO(("PPU: OAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
+            `LOG_TRACE(("PPU: OAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
           end else begin
             `LOG_INFO(
                 ("PPU: OAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
@@ -154,13 +154,13 @@ module PPU (
         // PPU register writes
         // TODO: check whether this ever needs to be blocked
         (bus.addr inside {[PPU_regs_start : PPU_regs_end]}): begin
-          `LOG_INFO(("PPU: REG WRITE addr=%h data=%h", bus.addr, bus.wdata));
+          `LOG_TRACE(("PPU: REG WRITE addr=%h data=%h", bus.addr, bus.wdata));
           unique case (bus.addr)
             16'hFF40: regs.LCDC <= bus.wdata;
             16'hFF42: regs.SCY <= bus.wdata;
             16'hFF43: regs.SCX <= bus.wdata;
             16'hFF44: begin
-              `LOG_INFO(("Warning attempting to write 0x%h to LY register", bus.wdata));
+              `LOG_WARN(("PPU: Attempted to write 0x%h to LY register", bus.wdata));
             end
             16'hFF45: regs.LYC <= bus.wdata;
             16'hFF47: regs.BGP <= bus.wdata;
@@ -183,7 +183,7 @@ module PPU (
         // VRAM reads (blocked in Mode 3)
         [VRAM_start : VRAM_end]: begin
           bus.rdata = (mode == PPU_MODE_3) ? 8'hFF : VRAM[13'(bus.addr-VRAM_start)];
-          `LOG_INFO(("PPU: VRAM READ addr=%h -> %h (mode=%0d)", bus.addr, bus.rdata, mode));
+          `LOG_TRACE(("PPU: VRAM READ addr=%h -> %h (mode=%0d)", bus.addr, bus.rdata, mode));
         end
 
         // OAM reads (blocked in Mode 2 & 3)
@@ -191,12 +191,12 @@ module PPU (
           bus.rdata = (mode == PPU_MODE_2 || mode == PPU_MODE_3)
             ? 8'hFF
             : OAM[8'(bus.addr-OAM_start)];
-          `LOG_INFO(("PPU: OAM READ addr=%h -> %h (mode=%0d)", bus.addr, bus.rdata, mode));
+          `LOG_TRACE(("PPU: OAM READ addr=%h -> %h (mode=%0d)", bus.addr, bus.rdata, mode));
         end
 
         // PPU register reads
         [PPU_regs_start : PPU_regs_end]: begin
-          `LOG_INFO(("PPU: REG READ addr=%h -> %h", bus.addr, bus.rdata));
+          `LOG_TRACE(("PPU: REG READ addr=%h -> %h", bus.addr, bus.rdata));
           unique case (bus.addr)
             16'hFF40: bus.rdata = regs.LCDC;
             16'hFF42: bus.rdata = regs.SCY;

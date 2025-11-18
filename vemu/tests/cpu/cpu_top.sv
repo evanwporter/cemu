@@ -7,6 +7,8 @@
 `include "MockMMU.sv"
 `include "mmu/interface.sv"
 
+`define LOG_LEVEL_INFO 
+
 // `include "svlogger.sv"
 
 module cpu_top (
