@@ -19,8 +19,10 @@ module RAM (
   wire [13:0] wram_index = bus.addr[13:0] & 14'h3FFF;
   wire [6:0] hram_index = bus.addr[6:0];
 
-  always_ff @(posedge clk) begin
-    if (bus.write_en) begin
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      // TODO
+    end else if (bus.write_en) begin
       if (wram_selected) WRAM[wram_index] <= bus.wdata;
       else if (hram_selected) HRAM[hram_index] <= bus.wdata;
     end

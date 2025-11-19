@@ -29,11 +29,11 @@ module CPU (
   /// Current t-cycle within machine cycle
   t_phase_t t_phase;
 
-  logic [31:0] instr_count;
+  logic instr_boundary;
 
   localparam cycle_count_t MAX_CYCLE_INDEX = MAX_CYCLES_PER_INSTR - 1;
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       {regs.pch, regs.pcl} <= 16'h0000;
       {regs.sph, regs.spl} <= 16'hFFFE;
@@ -43,15 +43,18 @@ module CPU (
       bus.read_en <= 1'b0;
       bus.write_en <= 1'b0;
       bus.wdata <= '0;
+      instr_boundary <= 1'b0;
+      pipeline_empty <= 1'b1;
 
-      `LOG_INFO(("CPU RESET: PC=%04h SP=%04h", {regs.pch, regs.pcl}, {regs.sph, regs.spl}));
+      `LOG_INFO(("[CPU] RESET: PC=%04h SP=%04h", {regs.pch, regs.pcl}, {regs.sph, regs.spl}));
 
     end else begin
       `LOG_TRACE(
-          ("Phase=%s Cycle=%0d PC=%04h Addr=%04h ReadDataBus=%02h IR=%02h", 
+          ("[CPU] Phase=%s Cycle=%0d PC=%04h Addr=%04h ReadDataBus=%02h IR=%02h", 
                t_phase.name(), cycle_count, {
           regs.pch, regs.pcl}, bus.addr, bus.rdata, regs.IR));
 
+      instr_boundary <= 1'b0;
       unique case (t_phase)
         T1: begin
           bus.addr <= {regs.pch, regs.pcl};
@@ -75,13 +78,13 @@ module CPU (
             DATA_BUS_OP_READ: begin
               bus.read_en  <= 1'b1;
               bus.write_en <= 1'b0;
-              `LOG_TRACE(("READ request at addr %h", bus.addr));
+              `LOG_TRACE(("[CPU] READ request at addr %h", bus.addr));
             end
             DATA_BUS_OP_WRITE: begin
               bus.wdata    <= pick_wdata(control_word.cycles[cycle_count].data_bus_src, regs);
               bus.write_en <= 1'b1;
               bus.read_en  <= 1'b0;
-              `LOG_TRACE(("WRITE request at addr %h data=%h", bus.addr, bus.wdata));
+              `LOG_TRACE(("[CPU] WRITE request at addr %h data=%h", bus.addr, bus.wdata));
             end
             DATA_BUS_OP_NONE: begin
               bus.write_en <= 1'b0;
@@ -96,7 +99,7 @@ module CPU (
         T3: begin
           if (control_word.cycles[cycle_count].data_bus_op == DATA_BUS_OP_READ) begin
             `LOAD_REG_FROM_BYTE(control_word.cycles[cycle_count].data_bus_src, bus.rdata, regs);
-            `LOG_TRACE(("READ complete: data=%h", bus.rdata));
+            `LOG_TRACE(("[CPU] READ complete: data=%h", bus.rdata));
           end
           t_phase <= T4;
         end
@@ -131,16 +134,18 @@ module CPU (
           if (control_word.cycles[cycle_count].misc_op == MISC_OP_COND_CHECK &&  //
               !eval_condition(
                   control_word.cycles[cycle_count].cond, regs.flags
-              ))
+              )) begin
             // Condition failed; skip to 5th cycle (which has the final cycle instruction)
             cycle_count <= MAX_CYCLE_INDEX;
-          else if (cycle_count + 1 >= control_word.num_cycles) begin
-            cycle_count  <= '0;
+          end else if (cycle_count + 1 >= control_word.num_cycles) begin
+            cycle_count <= '0;
             control_word <= control_words[regs.IR];
-            instr_count  <= instr_count + 1;
-          end else cycle_count <= cycle_count + 1;
+            instr_boundary <= 1'b1;
+          end else begin
+            cycle_count <= cycle_count + 1;
+          end
 
-          `LOG_TRACE(("End of T4: Next cycle=%0d Next phase=T1 PC=%h", cycle_count, {
+          `LOG_TRACE(("[CPU] End of T4: Next cycle=%0d Next phase=T1 PC=%h", cycle_count, {
                      regs.pch, regs.pcl}));
 
           t_phase <= T1;

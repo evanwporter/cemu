@@ -15,7 +15,7 @@ module Input (
 
   wire joypad_selected = bus.addr == JOYPAD_addr;
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk or posedge reset) begin
     if (reset) JOYPAD_reg <= 8'hFF;
     else if (bus.write_en && joypad_selected) JOYPAD_reg <= bus.wdata;
   end

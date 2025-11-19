@@ -1,7 +1,7 @@
 `ifndef CARTRIDGE_CPU_TOP_SV
 `define CARTRIDGE_CPU_TOP_SV 
 
-`define LOG_LEVEL_INFO 
+`define LOG_LEVEL_TRACE 
 
 `include "Cartridge.sv"
 

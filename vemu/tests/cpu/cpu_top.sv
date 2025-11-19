@@ -1,13 +1,13 @@
 `ifndef GAMEBOY_SV
 `define GAMEBOY_SV 
 
+`define LOG_LEVEL_TRACE 
+
 `include "cpu/CPU.sv"
 `include "cpu/RAM.sv"
 
 `include "MockMMU.sv"
 `include "mmu/interface.sv"
-
-`define LOG_LEVEL_INFO 
 
 // `include "svlogger.sv"
 

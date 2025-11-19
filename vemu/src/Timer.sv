@@ -27,7 +27,7 @@ module Timer (
   wire tma_selected = bus.addr == 16'hFF06;
   wire tac_selected = bus.addr == 16'hFF07;
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       DIV  <= 8'h00;
       TIMA <= 8'h00;

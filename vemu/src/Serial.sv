@@ -22,7 +22,7 @@ module Serial (
   wire sb_selected = bus.addr == SB_addr;
   wire sc_selected = bus.addr == SC_addr;
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       SB <= 8'h00;
       SC <= 8'h7E;

@@ -12,8 +12,10 @@ module MockMMU (
 
   logic [7:0] memory[65535];
 
-  always_ff @(posedge clk) begin
-    if (cpu_bus.write_en) begin
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      // TODO: initialize memory to zero or some known state
+    end else if (cpu_bus.write_en) begin
       memory[cpu_bus.addr] <= cpu_bus.wdata;
     end
   end

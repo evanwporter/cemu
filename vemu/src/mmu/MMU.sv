@@ -76,7 +76,7 @@ module MMU (
     end
   end
 
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       IF <= 8'b11100000;
     end else begin
