@@ -135,7 +135,7 @@ static void dump_gd_trace(VGameboy& top, std::ostream& os) {
     }
 }
 
-bool load_rom(VGameboy& top, const fs::path& filename) {
+static bool load_rom(VGameboy& top, const fs::path& filename) {
     std::ifstream rom(filename, std::ios::binary);
     if (!rom.good()) {
         printf("Cannot open ROM!\n");
@@ -148,6 +148,21 @@ bool load_rom(VGameboy& top, const fs::path& filename) {
         top.rootp->Gameboy__DOT__cart_inst__DOT__ROM[i] = (uint8_t)byte;
     }
     return true;
+}
+
+static uint8_t last_SC = 0;
+
+static void handle_serial_output(VGameboy& top) {
+    u8 SB = top.rootp->Gameboy__DOT__serial_inst__DOT__SB;
+    u8 SC = top.rootp->Gameboy__DOT__serial_inst__DOT__SC;
+
+    if ((last_SC & 0x80) == 0 && (SC & 0x80)) {
+        const char c = static_cast<char>(SB);
+        std::cout << c << std::flush;
+        top.rootp->Gameboy__DOT__serial_inst__DOT__SC &= 0x7F;
+    }
+
+    last_SC = SC;
 }
 
 static void tick(VGameboy& top, VerilatedContext& ctx) {
@@ -209,18 +224,23 @@ int main() {
 
     set_initial_state(top);
 
-    const uint64_t max_cycles = 20'000'000;
+    for (int i = 0; i < 0x7F; i++) {
+        top.rootp->Gameboy__DOT__ram_inst__DOT__HRAM[i] = 0xFF;
+    }
+
+    const uint64_t max_cycles = 200'000;
 
     while (top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
         tick(top, ctx);
     }
 
-    for (int i = 0; i < 200; ++i) {
+    for (int i = 0; i < max_cycles; ++i) {
         top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary = 0;
         while (top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
             tick(top, ctx);
         }
         dump_gd_trace(top, trace);
+        handle_serial_output(top);
     }
 
     return 0;

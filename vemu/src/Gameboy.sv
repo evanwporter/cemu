@@ -1,7 +1,7 @@
 `ifndef GAMEBOY_SV
 `define GAMEBOY_SV 
 
-`define LOG_LEVEL_TRACE 
+`define LOG_LEVEL_WARN 
 
 `include "cpu/CPU.sv"
 `include "cpu/RAM.sv"
@@ -17,8 +17,6 @@
 `include "Timer.sv"
 `include "Input.sv"
 
-// `include "svlogger.sv"
-
 module Gameboy (
     input logic clk,
     input logic reset
@@ -31,8 +29,8 @@ module Gameboy (
   Bus_if cart_bus ();
   Bus_if timer_bus ();
   Bus_if input_bus ();
-  Bus_if serial_bus ();
   Bus_if ram_bus ();
+  Bus_if serial_bus ();
 
   Interrupt_if IF_bus ();
 
@@ -50,6 +48,8 @@ module Gameboy (
       .apu_bus(apu_bus),
       .cart_bus(cart_bus),
       .ram_bus(ram_bus),
+      .serial_bus(serial_bus),
+      .timer_bus(timer_bus),
       .IF_bus(IF_bus)
   );
 
@@ -88,13 +88,6 @@ module Gameboy (
       .reset(reset),
       .bus  (ram_bus)
   );
-
-  // `ifndef SYNTHESIS
-  //   initial begin
-  //     svlogger::init("gameboy.log", `SVL_VERBOSE_DEBUG, `SVL_ROUTE_ALL);
-  //     svlogger::info("Gameboy system initialized");
-  //   end
-  // `endif
 
 endmodule
 

@@ -134,9 +134,10 @@ module PPU (
         (bus.addr inside {[VRAM_start : VRAM_end]}): begin
           if (mode != PPU_MODE_3) begin
             VRAM[13'(bus.addr-16'h8000)] <= bus.wdata;
-            `LOG_TRACE(("PPU: VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
+            `LOG_TRACE(("[PPU] VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
           end else begin
-            `LOG_INFO(("PPU: VRAM WRITE BLOCKED (mode=%0d)", mode));
+            `LOG_INFO(
+                ("[PPU] VRAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
           end
         end
 
@@ -201,7 +202,7 @@ module PPU (
             16'hFF40: bus.rdata = regs.LCDC;
             16'hFF42: bus.rdata = regs.SCY;
             16'hFF43: bus.rdata = regs.SCX;
-            16'hFF44: bus.rdata = regs.LY;
+            16'hFF44: bus.rdata = 8'h90;  // regs.LY;
             16'hFF45: bus.rdata = regs.LYC;
             // TODO: DMA transfer
             16'hFF47: bus.rdata = regs.BGP;

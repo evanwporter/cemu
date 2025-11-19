@@ -7,6 +7,8 @@
 
 `include "ppu/types.sv"
 
+`include "util/logger.svh"
+
 module MMU (
     input logic clk,
     input logic reset,
@@ -16,20 +18,26 @@ module MMU (
     Bus_if.MMU_master apu_bus,
     Bus_if.MMU_master cart_bus,
     Bus_if.MMU_master ram_bus,
+    Bus_if.MMU_master serial_bus,
+    Bus_if.MMU_master timer_bus,
     Interrupt_if.MMU_side IF_bus
 );
 
   logic [7:0] IF;
 
-  assign ppu_bus.addr   = cpu_bus.addr;
-  assign apu_bus.addr   = cpu_bus.addr;
-  assign cart_bus.addr  = cpu_bus.addr;
-  assign ram_bus.addr   = cpu_bus.addr;
+  assign ppu_bus.addr = cpu_bus.addr;
+  assign apu_bus.addr = cpu_bus.addr;
+  assign cart_bus.addr = cpu_bus.addr;
+  assign ram_bus.addr = cpu_bus.addr;
+  assign serial_bus.addr = cpu_bus.addr;
+  assign timer_bus.addr = cpu_bus.addr;
 
-  assign ppu_bus.wdata  = cpu_bus.wdata;
-  assign apu_bus.wdata  = cpu_bus.wdata;
+  assign ppu_bus.wdata = cpu_bus.wdata;
+  assign apu_bus.wdata = cpu_bus.wdata;
   assign cart_bus.wdata = cpu_bus.wdata;
-  assign ram_bus.wdata  = cpu_bus.wdata;
+  assign ram_bus.wdata = cpu_bus.wdata;
+  assign serial_bus.wdata = cpu_bus.wdata;
+  assign timer_bus.wdata = cpu_bus.wdata;
 
   // PPU VRAM: $8000–$9FFF, OAM: $FE00–$FE9F, PPU I/O: $FF40–$FF4B
   wire ppu_selected =
@@ -55,6 +63,15 @@ module MMU (
   assign ram_bus.read_en  = cpu_bus.read_en && ram_selected;
   assign ram_bus.write_en = cpu_bus.write_en && ram_selected;
 
+  // Serial
+  wire serial_selected = cpu_bus.addr inside {[SERIAL_addr_start : SERIAL_addr_end]};
+  assign serial_bus.read_en  = cpu_bus.read_en && serial_selected;
+  assign serial_bus.write_en = cpu_bus.write_en && serial_selected;
+
+  wire timer_selected = cpu_bus.addr inside {[TIMER_addr_start : TIMER_addr_end]};
+  assign timer_bus.read_en  = cpu_bus.read_en && timer_selected;
+  assign timer_bus.write_en = cpu_bus.write_en && timer_selected;
+
   // Map Read Data
   always_comb begin
     cpu_bus.rdata = 8'h00;
@@ -71,7 +88,14 @@ module MMU (
     end else if (ram_selected) begin
       cpu_bus.rdata = ram_bus.rdata;
 
+    end else if (serial_selected) begin
+      cpu_bus.rdata = serial_bus.rdata;
+
+    end else if (timer_selected) begin
+      cpu_bus.rdata = timer_bus.rdata;
+
     end else begin
+      `LOG_ERROR(("[MMU] Unmapped READ addr=%h", cpu_bus.addr));
       // TODO
     end
   end

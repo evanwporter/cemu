@@ -17,7 +17,7 @@ module RAM (
   wire hram_selected = bus.addr inside {[HRAM_start : HRAM_end]};
 
   wire [13:0] wram_index = bus.addr[13:0] & 14'h3FFF;
-  wire [6:0] hram_index = bus.addr[6:0];
+  wire [6:0] hram_index = 7'(bus.addr - HRAM_start);
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
