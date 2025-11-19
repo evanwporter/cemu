@@ -138,9 +138,16 @@ TEST_P(GameboyOpcodeTest, RunAllCases) {
             tick(top, ctx);
 
         int max_ticks = 100;
-        while (top.rootp->cpu_top__DOT__cpu_inst__DOT__instr_count < 2 && max_ticks-- > 0) {
+        while (top.rootp->cpu_top__DOT__cpu_inst__DOT__instr_boundary == 0 && max_ticks-- > 0) {
             tick(top, ctx);
         }
+
+        top.rootp->cpu_top__DOT__cpu_inst__DOT__instr_boundary = 0;
+
+        while (top.rootp->cpu_top__DOT__cpu_inst__DOT__instr_boundary == 0 && max_ticks-- > 0) {
+            tick(top, ctx);
+        }
+
         ASSERT_GT(max_ticks, 0) << "Timed out waiting for instruction to finish";
 
         const std::string test_name = testCase["name"].get<std::string>();

@@ -15,3 +15,8 @@ target_include_directories(vemu PRIVATE
 target_link_libraries(vemu PRIVATE
     libvemu   
 )
+
+target_compile_definitions(vemu PRIVATE
+    TEST_DIR="${CMAKE_SOURCE_DIR}/tests/"
+    SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+)

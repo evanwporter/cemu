@@ -44,7 +44,6 @@ module CPU (
       bus.write_en <= 1'b0;
       bus.wdata <= '0;
       instr_boundary <= 1'b0;
-      pipeline_empty <= 1'b1;
 
       `LOG_INFO(("[CPU] RESET: PC=%04h SP=%04h", {regs.pch, regs.pcl}, {regs.sph, regs.spl}));
 
