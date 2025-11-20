@@ -86,7 +86,9 @@ typedef enum logic [4:0] {
   ALU_OP_ADD_SIGNED,
 
   ALU_OP_ADD_HIGH,
-  ALU_OP_ADD_LOW
+  ALU_OP_ADD_LOW,
+
+  ALU_OP_BIT
 } alu_op_t;
 
 typedef enum logic [4:0] {

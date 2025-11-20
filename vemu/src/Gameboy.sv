@@ -1,7 +1,7 @@
 `ifndef GAMEBOY_SV
 `define GAMEBOY_SV 
 
-`define LOG_LEVEL_WARN 
+`define LOG_LEVEL_TRACE 
 
 `include "cpu/CPU.sv"
 `include "cpu/RAM.sv"

@@ -4,6 +4,7 @@
 `include "cpu/types.sv"
 `include "cpu/opcodes.sv"
 `include "cpu/control_words.sv"
+`include "cpu/cb_control_words.sv"
 `include "cpu/util.sv"
 
 `include "util/logger.svh"
@@ -37,9 +38,10 @@ module CPU (
     if (reset) begin
       {regs.pch, regs.pcl} <= 16'h0000;
       {regs.sph, regs.spl} <= 16'hFFFE;
+      regs.IR <= 8'h00;
       t_phase <= T1;
       cycle_count <= '0;
-      control_word <= control_words[0];  // NOP
+      control_word <= control_words[8'h00];  // BOOT ROM start instruction
       bus.read_en <= 1'b0;
       bus.write_en <= 1'b0;
       bus.wdata <= '0;
