@@ -123,7 +123,8 @@ module CPU (
           // applies the alu op to the specified registers
           `APPLY_ALU_OP(control_word.cycles[cycle_count].alu_op,
                         control_word.cycles[cycle_count].alu_dst,
-                        control_word.cycles[cycle_count].alu_src, regs);
+                        control_word.cycles[cycle_count].alu_src,
+                        control_word.cycles[cycle_count].alu_bit, regs);
 
           // applies the misc op to the specified registers
           `APPLY_MISC_OP(control_word.cycles[cycle_count].misc_op,
@@ -140,7 +141,11 @@ module CPU (
             cycle_count <= MAX_CYCLE_INDEX;
           end else if (cycle_count + 1 >= control_word.num_cycles) begin
             cycle_count <= '0;
-            control_word <= control_words[regs.IR];
+            if (control_word.cycles[cycle_count].misc_op == MISC_OP_CB_PREFIX) begin
+              control_word <= cb_control_words[regs.IR];
+            end else begin
+              control_word <= control_words[regs.IR];
+            end
             instr_boundary <= 1'b1;
           end else begin
             cycle_count <= cycle_count + 1;

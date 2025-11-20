@@ -14,6 +14,7 @@
     `LOG_TRACE(("    alu_op       = %s", (CW).cycles[i].alu_op.name())); \
     `LOG_TRACE(("    alu_dst      = %s", (CW).cycles[i].alu_dst.name())); \
     `LOG_TRACE(("    alu_src      = %s", (CW).cycles[i].alu_src.name())); \
+    `LOG_TRACE(("    alu_bit      = %s", (CW).cycles[i].alu_bit.name())); \
     `LOG_TRACE(("    misc_op      = %s", (CW).cycles[i].misc_op.name())); \
     `LOG_TRACE(("    misc_op_dst  = %s", (CW).cycles[i].misc_op_dst.name())); \
     `LOG_TRACE(("    cond         = %s", (CW).cycles[i].cond.name())); \
@@ -127,7 +128,8 @@ typedef struct packed {
 } alu_result_t;
 
 function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t dst_sel,
-                                             input alu_src_t src_sel, ref cpu_regs_t regs);
+                                             input alu_src_t src_sel, input alu_bit_t bit_index,
+                                             ref cpu_regs_t regs);
   alu_result_t res;
 
   // temporary values
@@ -356,6 +358,54 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       sub_flag   = 1'b0;
     end
 
+    ALU_OP_SLA: begin
+      carry_flag = dst_val[7];
+      dst_val    = {dst_val[6:0], 1'b0};
+      sub_flag   = 1'b0;
+      half_flag  = 1'b0;
+      zero_flag  = (dst_val == 8'h00);
+    end
+
+    ALU_OP_SRA: begin
+      carry_flag = dst_val[0];
+      dst_val    = {dst_val[7], dst_val[7:1]};
+      sub_flag   = 1'b0;
+      half_flag  = 1'b0;
+      zero_flag  = (dst_val == 8'h00);
+    end
+
+    ALU_OP_SRL: begin
+      carry_flag = dst_val[0];
+      dst_val    = {1'b0, dst_val[7:1]};
+      sub_flag   = 1'b0;
+      half_flag  = 1'b0;
+      zero_flag  = (dst_val == 8'h00);
+    end
+
+    ALU_OP_SWAP: begin
+      dst_val    = {dst_val[3:0], dst_val[7:4]};
+      carry_flag = 1'b0;
+      half_flag  = 1'b0;
+      sub_flag   = 1'b0;
+      zero_flag  = (dst_val == 8'h00);
+    end
+
+    ALU_OP_BIT: begin
+      logic bitval;
+      bitval = src_val[bit_index];
+      zero_flag = (bitval == 1'b0);
+      sub_flag = 1'b0;
+      half_flag = 1'b1;
+    end
+
+    ALU_OP_RES: begin
+      dst_val = src_val & ~(8'd1 << bit_index);
+    end
+
+    ALU_OP_SET: begin
+      dst_val = src_val | (8'd1 << bit_index);
+    end
+
     ALU_OP_NONE: ;  // do nothing
 
     // TODO: Remove default
@@ -367,10 +417,10 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
   return res;
 endfunction
 
-`define APPLY_ALU_OP(OP, DST_SEL, SRC_SEL, REGS) \
+`define APPLY_ALU_OP(OP, DST_SEL, SRC_SEL, BIT, REGS) \
   begin : apply_alu_op_block \
     alu_result_t __alu_res; \
-    __alu_res = apply_alu_op(OP, DST_SEL, SRC_SEL, REGS); \
+    __alu_res = apply_alu_op(OP, DST_SEL, SRC_SEL, BIT, REGS); \
     `LOG_TRACE(("[CPU] Applying ALU op %s to %s from %s", \
              (OP).name(), (DST_SEL).name(), (SRC_SEL).name())); \
     unique case (DST_SEL) \
@@ -487,6 +537,7 @@ endfunction
       MISC_OP_SP_HL_COPY: begin \
         {(REGS).sph, (REGS).spl} <= {(REGS).h, (REGS).l}; \
       end \
+      MISC_OP_CB_PREFIX: /* handled elsewhere */ ; \
       default: ; /* nothing to do */ \
     endcase \
   end

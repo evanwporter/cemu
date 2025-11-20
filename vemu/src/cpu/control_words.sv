@@ -15,6 +15,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -38,6 +39,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -51,6 +53,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -64,6 +67,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_BC,
                 cond : COND_NONE
@@ -85,6 +89,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -98,6 +103,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -120,6 +126,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -133,6 +140,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -155,6 +163,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_INC,
                 alu_dst : ALU_SRC_B,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -178,6 +187,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_DEC,
                 alu_dst : ALU_SRC_B,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -201,6 +211,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -214,6 +225,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_B,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -236,6 +248,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_RLC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -259,6 +272,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -272,6 +286,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -285,6 +300,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -298,6 +314,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -311,6 +328,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -330,6 +348,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD_LOW,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -343,6 +362,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD_HIGH,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -365,6 +385,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -378,6 +399,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -400,6 +422,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -413,6 +436,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -435,6 +459,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_INC,
                 alu_dst : ALU_SRC_C,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -458,6 +483,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_DEC,
                 alu_dst : ALU_SRC_C,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -481,6 +507,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -494,6 +521,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_C,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -516,6 +544,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_RRC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -550,6 +579,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -563,6 +593,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -576,6 +607,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_DE,
                 cond : COND_NONE
@@ -597,6 +629,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -610,6 +643,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -632,6 +666,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -645,6 +680,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -667,6 +703,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_INC,
                 alu_dst : ALU_SRC_D,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -690,6 +727,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_DEC,
                 alu_dst : ALU_SRC_D,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -713,6 +751,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -726,6 +765,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_D,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -748,6 +788,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_RL,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -771,6 +812,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -784,6 +826,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_JR_SIGNED,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -797,6 +840,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -818,6 +862,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD_LOW,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -831,6 +876,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD_HIGH,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -853,6 +899,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -866,6 +913,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -888,6 +936,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -901,6 +950,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -923,6 +973,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_INC,
                 alu_dst : ALU_SRC_E,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -946,6 +997,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_DEC,
                 alu_dst : ALU_SRC_E,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -969,6 +1021,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -982,6 +1035,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_E,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1004,6 +1058,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_RR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1027,6 +1082,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NZ
@@ -1040,6 +1096,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_JR_SIGNED,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1053,6 +1110,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1068,6 +1126,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1086,6 +1145,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1099,6 +1159,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1112,6 +1173,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_HL,
                 cond : COND_NONE
@@ -1133,6 +1195,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1146,6 +1209,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1168,6 +1232,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1181,6 +1246,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1203,6 +1269,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_INC,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1226,6 +1293,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_DEC,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1249,6 +1317,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1262,6 +1331,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1295,6 +1365,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_Z
@@ -1308,6 +1379,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_JR_SIGNED,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1321,6 +1393,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1336,6 +1409,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1354,6 +1428,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD_LOW,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1367,6 +1442,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD_HIGH,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1389,6 +1465,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1402,6 +1479,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1424,6 +1502,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1437,6 +1516,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1459,6 +1539,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_INC,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1482,6 +1563,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_DEC,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1505,6 +1587,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1518,6 +1601,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1551,6 +1635,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NC
@@ -1564,6 +1649,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_JR_SIGNED,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1577,6 +1663,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1592,6 +1679,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1610,6 +1698,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1623,6 +1712,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1636,6 +1726,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_SP,
                 cond : COND_NONE
@@ -1657,6 +1748,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1670,6 +1762,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1692,6 +1785,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1705,6 +1799,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1727,6 +1822,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_INC,
                 alu_dst : ALU_SRC_Z,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1740,6 +1836,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1753,6 +1850,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1774,6 +1872,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_DEC,
                 alu_dst : ALU_SRC_Z,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1787,6 +1886,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1800,6 +1900,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1821,6 +1922,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1834,6 +1936,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1847,6 +1950,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1868,6 +1972,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SCF,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1891,6 +1996,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_C
@@ -1904,6 +2010,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_JR_SIGNED,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1917,6 +2024,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1932,6 +2040,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1950,6 +2059,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD_LOW,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_SP_LOW,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1963,6 +2073,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD_HIGH,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_SP_HIGH,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1985,6 +2096,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -1998,6 +2110,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2020,6 +2133,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2033,6 +2147,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2055,6 +2170,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_INC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2078,6 +2194,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_DEC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2101,6 +2218,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2114,6 +2232,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2136,6 +2255,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_CCF,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2159,6 +2279,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_B,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2182,6 +2303,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_B,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2205,6 +2327,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_B,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2228,6 +2351,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_B,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2251,6 +2375,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_B,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2274,6 +2399,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_B,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2297,6 +2423,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2310,6 +2437,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_B,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2332,6 +2460,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_B,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2355,6 +2484,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_C,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2378,6 +2508,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_C,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2401,6 +2532,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_C,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2424,6 +2556,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_C,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2447,6 +2580,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_C,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2470,6 +2604,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_C,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2493,6 +2628,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2506,6 +2642,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_C,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2528,6 +2665,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_C,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2551,6 +2689,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_D,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2574,6 +2713,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_D,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2597,6 +2737,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_D,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2620,6 +2761,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_D,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2643,6 +2785,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_D,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2666,6 +2809,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_D,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2689,6 +2833,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2702,6 +2847,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_D,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2724,6 +2870,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_D,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2747,6 +2894,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_E,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2770,6 +2918,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_E,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2793,6 +2942,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_E,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2816,6 +2966,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_E,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2839,6 +2990,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_E,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2862,6 +3014,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_E,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2885,6 +3038,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2898,6 +3052,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_E,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2920,6 +3075,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_E,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2943,6 +3099,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2966,6 +3123,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -2989,6 +3147,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3012,6 +3171,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3035,6 +3195,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3058,6 +3219,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3081,6 +3243,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3094,6 +3257,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3116,6 +3280,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3139,6 +3304,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3162,6 +3328,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3185,6 +3352,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3208,6 +3376,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3231,6 +3400,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3254,6 +3424,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3277,6 +3448,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3290,6 +3462,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3312,6 +3485,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3335,6 +3509,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3348,6 +3523,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3370,6 +3546,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3383,6 +3560,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3405,6 +3583,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3418,6 +3597,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3440,6 +3620,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3453,6 +3634,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3475,6 +3657,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3488,6 +3671,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3510,6 +3694,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3523,6 +3708,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3556,6 +3742,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3569,6 +3756,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3591,6 +3779,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3614,6 +3803,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3637,6 +3827,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3660,6 +3851,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3683,6 +3875,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3706,6 +3899,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3729,6 +3923,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3742,6 +3937,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3764,6 +3960,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3787,6 +3984,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3810,6 +4008,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3833,6 +4032,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3856,6 +4056,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3879,6 +4080,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3902,6 +4104,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3925,6 +4128,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3938,6 +4142,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3960,6 +4165,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -3983,6 +4189,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4006,6 +4213,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4029,6 +4237,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4052,6 +4261,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4075,6 +4285,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4098,6 +4309,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4121,6 +4333,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4134,6 +4347,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4156,6 +4370,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4179,6 +4394,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SUB,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4202,6 +4418,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SUB,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4225,6 +4442,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SUB,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4248,6 +4466,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SUB,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4271,6 +4490,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SUB,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4294,6 +4514,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SUB,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4317,6 +4538,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4330,6 +4552,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SUB,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4352,6 +4575,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SUB,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4375,6 +4599,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SBC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4398,6 +4623,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SBC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4421,6 +4647,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SBC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4444,6 +4671,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SBC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4467,6 +4695,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SBC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4490,6 +4719,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SBC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4513,6 +4743,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4526,6 +4757,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SBC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4548,6 +4780,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SBC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4571,6 +4804,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_AND,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4594,6 +4828,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_AND,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4617,6 +4852,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_AND,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4640,6 +4876,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_AND,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4663,6 +4900,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_AND,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4686,6 +4924,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_AND,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4709,6 +4948,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4722,6 +4962,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_AND,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4744,6 +4985,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_AND,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4767,6 +5009,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_XOR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4790,6 +5033,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_XOR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4813,6 +5057,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_XOR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4836,6 +5081,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_XOR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4859,6 +5105,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_XOR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4882,6 +5129,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_XOR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4905,6 +5153,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4918,6 +5167,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_XOR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4940,6 +5190,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_XOR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4963,6 +5214,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_OR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -4986,6 +5238,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_OR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5009,6 +5262,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_OR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5032,6 +5286,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_OR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5055,6 +5310,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_OR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5078,6 +5334,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_OR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5101,6 +5358,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5114,6 +5372,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_OR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5136,6 +5395,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_OR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5159,6 +5419,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_CP,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_B,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5182,6 +5443,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_CP,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_C,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5205,6 +5467,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_CP,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_D,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5228,6 +5491,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_CP,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_E,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5251,6 +5515,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_CP,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_H,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5274,6 +5539,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_CP,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_L,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5297,6 +5563,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5310,6 +5577,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_CP,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5332,6 +5600,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_CP,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5355,6 +5624,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NZ
@@ -5368,6 +5638,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5381,6 +5652,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5394,6 +5666,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -5407,6 +5680,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5420,6 +5694,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5438,6 +5713,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5451,6 +5727,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5464,6 +5741,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_BC,
                 cond : COND_NONE
@@ -5485,6 +5763,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5498,6 +5777,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NZ
@@ -5511,6 +5791,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -5524,6 +5805,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5538,6 +5820,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5556,6 +5839,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5569,6 +5853,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5582,6 +5867,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -5595,6 +5881,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5615,6 +5902,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5628,6 +5916,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NZ
@@ -5641,6 +5930,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5654,6 +5944,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5667,6 +5958,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -5680,6 +5972,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5698,6 +5991,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5711,6 +6005,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5724,6 +6019,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5737,6 +6033,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5757,6 +6054,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5770,6 +6068,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5792,6 +6091,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5805,6 +6105,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5818,6 +6119,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5831,6 +6133,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_SET_PC_CONST,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5844,6 +6147,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5863,6 +6167,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_Z
@@ -5876,6 +6181,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5889,6 +6195,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5902,6 +6209,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -5915,6 +6223,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5928,6 +6237,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5946,6 +6256,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5959,6 +6270,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -5972,6 +6284,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -5985,6 +6298,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6005,6 +6319,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6018,6 +6333,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_Z
@@ -6031,6 +6347,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -6044,6 +6361,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6058,21 +6376,35 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             }
         }
     },
-    'hCB: '{  //  UNDEFINED
-        num_cycles : 3'd0,
+    'hCB: '{  //  PREFIX CB
+        num_cycles : 3'd1,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            0: '{  // M-cycle 1
+                addr_src : ADDR_PC,
+                data_bus_src : DATA_BUS_SRC_IR,
+                data_bus_op : DATA_BUS_OP_READ,
+                idu_op : IDU_OP_INC,
+                idu_dst : ADDR_NONE,
+                alu_op : ALU_OP_NONE,
+                alu_dst : ALU_SRC_NONE,
+                alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
+                misc_op : MISC_OP_CB_PREFIX,
+                misc_op_dst : MISC_OP_DST_NONE,
+                cond : COND_NONE
+            },
+            1: `DEFAULT_CYCLE,  // M-cycle 2
+            2: `DEFAULT_CYCLE,  // M-cycle 3
+            3: `DEFAULT_CYCLE,  // M-cycle 4
+            4: `DEFAULT_CYCLE,  // M-cycle 5
+            5: `DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hCC: '{  //  CALL Z, nn
@@ -6087,6 +6419,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6100,6 +6433,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_Z
@@ -6113,6 +6447,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6126,6 +6461,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6139,6 +6475,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -6152,6 +6489,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6170,6 +6508,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6183,6 +6522,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6196,6 +6536,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6209,6 +6550,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6222,6 +6564,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -6235,6 +6578,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6253,6 +6597,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6266,6 +6611,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6288,6 +6634,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6301,6 +6648,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6314,6 +6662,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6327,6 +6676,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_SET_PC_CONST,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6340,6 +6690,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6359,6 +6710,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NC
@@ -6372,6 +6724,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6385,6 +6738,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6398,6 +6752,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -6411,6 +6766,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6424,6 +6780,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6442,6 +6799,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6455,6 +6813,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6468,6 +6827,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_DE,
                 cond : COND_NONE
@@ -6489,6 +6849,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6502,6 +6863,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NC
@@ -6515,6 +6877,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -6528,6 +6891,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6542,6 +6906,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6571,6 +6936,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6584,6 +6950,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NC
@@ -6597,6 +6964,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6610,6 +6978,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6623,6 +6992,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -6636,6 +7006,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6654,6 +7025,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6667,6 +7039,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6680,6 +7053,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6693,6 +7067,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6713,6 +7088,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6726,6 +7102,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SUB,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6748,6 +7125,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6761,6 +7139,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6774,6 +7153,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6787,6 +7167,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_SET_PC_CONST,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6800,6 +7181,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6819,6 +7201,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_C
@@ -6832,6 +7215,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6845,6 +7229,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6858,6 +7243,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -6871,6 +7257,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6884,6 +7271,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6902,6 +7290,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6915,6 +7304,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_IME_ENABLE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6928,6 +7318,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -6941,6 +7332,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6961,6 +7353,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -6974,6 +7367,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_C
@@ -6987,6 +7381,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -7000,6 +7395,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7014,6 +7410,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7043,6 +7440,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7056,6 +7454,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_COND_CHECK,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_C
@@ -7069,6 +7468,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7082,6 +7482,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7095,6 +7496,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_PC,
                 cond : COND_NONE
@@ -7108,6 +7510,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7137,6 +7540,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7150,6 +7554,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_SBC,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7172,6 +7577,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7185,6 +7591,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7198,6 +7605,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7211,6 +7619,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_SET_PC_CONST,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7224,6 +7633,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7243,6 +7653,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7256,6 +7667,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7269,6 +7681,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7290,6 +7703,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7303,6 +7717,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7316,6 +7731,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_HL,
                 cond : COND_NONE
@@ -7337,6 +7753,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7350,6 +7767,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7394,6 +7812,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7407,6 +7826,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7420,6 +7840,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7433,6 +7854,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7453,6 +7875,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7466,6 +7889,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_AND,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7488,6 +7912,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7501,6 +7926,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7514,6 +7940,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7527,6 +7954,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_SET_PC_CONST,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7540,6 +7968,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7570,6 +7999,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7593,6 +8023,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7606,6 +8037,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7619,6 +8051,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7632,6 +8065,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7685,6 +8119,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7698,6 +8133,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_XOR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7720,6 +8156,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7733,6 +8170,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7746,6 +8184,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7759,6 +8198,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_SET_PC_CONST,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7772,6 +8212,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7791,6 +8232,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7804,6 +8246,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7817,6 +8260,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7838,6 +8282,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7851,6 +8296,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7864,6 +8310,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_R16_WZ_COPY,
                 misc_op_dst : MISC_OP_DST_AF,
                 cond : COND_NONE
@@ -7885,6 +8332,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7898,6 +8346,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7920,6 +8369,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_IME_DISABLE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7954,6 +8404,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7967,6 +8418,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7980,6 +8432,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -7993,6 +8446,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8013,6 +8467,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8026,6 +8481,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_OR,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8048,6 +8504,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8061,6 +8518,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8074,6 +8532,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8087,6 +8546,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_SET_PC_CONST,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8100,6 +8560,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8119,6 +8580,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD,
                 alu_dst : ALU_SRC_Z,
                 alu_src : ALU_SRC_SP_LOW,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8132,6 +8594,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_L,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8145,6 +8608,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_ADD_SIGNED,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_SP_HIGH,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8166,6 +8630,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_SP_HL_COPY,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8179,6 +8644,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8201,6 +8667,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8214,6 +8681,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8227,6 +8695,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8240,6 +8709,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_COPY,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8260,6 +8730,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_IME_ENABLE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8305,6 +8776,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8318,6 +8790,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_CP,
                 alu_dst : ALU_SRC_A,
                 alu_src : ALU_SRC_Z,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8340,6 +8813,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8353,6 +8827,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8366,6 +8841,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8379,6 +8855,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_SET_PC_CONST,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
@@ -8392,6 +8869,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_op : ALU_OP_NONE,
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
                 misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE

@@ -33,7 +33,6 @@ typedef struct `PACK_REG {
   logic [7:0] sph, spl;
 
   logic alu_carry;
-
 } cpu_regs_t;
 // verilog_format: on
 

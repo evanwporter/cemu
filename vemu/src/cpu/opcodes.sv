@@ -88,7 +88,13 @@ typedef enum logic [4:0] {
   ALU_OP_ADD_HIGH,
   ALU_OP_ADD_LOW,
 
-  ALU_OP_BIT
+  ALU_OP_BIT,
+  ALU_OP_SLA,
+  ALU_OP_SRA,
+  ALU_OP_SWAP,
+  ALU_OP_SRL,
+  ALU_OP_RES,
+  ALU_OP_SET
 } alu_op_t;
 
 typedef enum logic [4:0] {
@@ -112,6 +118,17 @@ typedef enum logic [4:0] {
 } alu_src_t;
 
 typedef enum logic [2:0] {
+  ALU_BIT_0,
+  ALU_BIT_1,
+  ALU_BIT_2,
+  ALU_BIT_3,
+  ALU_BIT_4,
+  ALU_BIT_5,
+  ALU_BIT_6,
+  ALU_BIT_7
+} alu_bit_t;
+
+typedef enum logic [2:0] {
   MISC_OP_DST_NONE,
   MISC_OP_DST_PC,
   MISC_OP_DST_SP,
@@ -130,7 +147,8 @@ typedef enum logic [3:0] {
   MISC_OP_R16_WZ_COPY,
   MISC_OP_SET_PC_CONST,
   MISC_OP_JR_SIGNED,
-  MISC_OP_SP_HL_COPY
+  MISC_OP_SP_HL_COPY,
+  MISC_OP_CB_PREFIX
 } misc_ops_t;
 
 typedef enum logic [2:0] {
@@ -156,6 +174,8 @@ typedef struct packed {
   // A = A op B
   alu_src_t alu_dst;
   alu_src_t alu_src;
+
+  alu_bit_t alu_bit;  // bit index for bit operations
 
   misc_ops_t misc_op;  // miscellaneous operation
 
@@ -185,6 +205,7 @@ typedef struct packed {
   alu_op:       ALU_OP_NONE, \
   alu_dst:      ALU_SRC_NONE, \
   alu_src:      ALU_SRC_NONE, \
+  alu_bit:      ALU_BIT_0, \
   misc_op:      MISC_OP_NONE, \
   misc_op_dst:  MISC_OP_DST_NONE, \
   cond:         COND_NONE \

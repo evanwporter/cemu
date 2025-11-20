@@ -20,6 +20,7 @@ static vluint64_t timestamp = 0;
 double sc_time_stamp() { return timestamp; }
 
 static const fs::path kTestDir = fs::path(TEST_DIR) / "GameboyCPUTests/v2";
+static const fs::path kCBTestDir = fs::path(TEST_DIR) / "GameboyCPUTests/v2/cb";
 
 inline u16 get_u16(u8 hi, u8 lo) {
     return static_cast<u16>((hi << 8) | lo);
@@ -109,10 +110,13 @@ void verify_registers(const Vcpu_top& top, const json& expected, const std::stri
         << "Test: " << test_name;
 }
 
-class GameboyOpcodeTest : public ::testing::TestWithParam<fs::path> { };
+struct TestParam {
+    fs::path path;
+    bool is_cb;
+};
 
-TEST_P(GameboyOpcodeTest, RunAllCases) {
-    const auto path = GetParam();
+void run_single_file(const fs::path& path, bool is_cb) {
+
     std::ifstream f(path);
     ASSERT_TRUE(f.is_open()) << "Failed to open test file: " << path;
 
@@ -142,6 +146,14 @@ TEST_P(GameboyOpcodeTest, RunAllCases) {
             tick(top, ctx);
         }
 
+        if (is_cb) {
+            top.rootp->cpu_top__DOT__cpu_inst__DOT__instr_boundary = 0;
+
+            while (top.rootp->cpu_top__DOT__cpu_inst__DOT__instr_boundary == 0 && max_ticks-- > 0) {
+                tick(top, ctx);
+            }
+        }
+
         top.rootp->cpu_top__DOT__cpu_inst__DOT__instr_boundary = 0;
 
         while (top.rootp->cpu_top__DOT__cpu_inst__DOT__instr_boundary == 0 && max_ticks-- > 0) {
@@ -154,12 +166,25 @@ TEST_P(GameboyOpcodeTest, RunAllCases) {
 
         verify_registers(top, testCase["final"], test_name);
         verify_ram(top, ctx, testCase["final"]["ram"], test_name);
-        break;
+
+        break; // TODO
     }
 }
 
+class GameboyOpcodeTest : public ::testing::TestWithParam<fs::path> { };
+
+TEST_P(GameboyOpcodeTest, Run) {
+    run_single_file(GetParam(), false);
+}
+
+class GameboyCBOpcodeTest : public ::testing::TestWithParam<fs::path> { };
+
+TEST_P(GameboyCBOpcodeTest, Run) {
+    run_single_file(GetParam(), true);
+}
+
 INSTANTIATE_TEST_SUITE_P(
-    CpuTests,
+    CPUTests,
     GameboyOpcodeTest,
     ::testing::ValuesIn([] {
         std::vector<fs::path> files;
@@ -168,6 +193,25 @@ INSTANTIATE_TEST_SUITE_P(
                 if (entry.path().extension() == ".json") {
                     if (entry.path().filename() == "cb.json")
                         continue;
+                    files.push_back(entry.path());
+                }
+            }
+        }
+        return files;
+    }()),
+    [](const ::testing::TestParamInfo<fs::path>& info) {
+        return info.param.stem().string();
+    });
+
+INSTANTIATE_TEST_SUITE_P(
+    CPUCBTests,
+    GameboyCBOpcodeTest,
+    ::testing::ValuesIn([] {
+        std::vector<fs::path> files;
+        if (fs::exists(kCBTestDir)) {
+            for (auto& entry : fs::directory_iterator(kCBTestDir)) {
+                auto name = entry.path().filename().string();
+                if (entry.path().extension() == ".json") {
                     files.push_back(entry.path());
                 }
             }
