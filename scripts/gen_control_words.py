@@ -4,6 +4,9 @@ MAX_CYCLES = 6
 control_words = [[] for _ in range(256)]
 opcode_comments = {}
 
+cb_control_words = [[] for _ in range(256)]
+cb_opcode_comments = {}
+
 conditions = {
     "NZ": "COND_NZ",
     "Z": "COND_Z",
@@ -1023,6 +1026,160 @@ control_words[0xD9] = [
     NOP,
 ]
 
+for b in range(8):
+    for r_index, r in enumerate(registers):
+        opcode = 0x40 | (b << 3) | r_index
+
+        if r == "(HL)":
+            # BIT b,(HL)
+            cycles = [
+                {
+                    "addr_src": "ADDR_HL",
+                    "data_bus_op": "DATA_BUS_OP_READ",
+                    "data_bus_src": "DATA_BUS_SRC_Z",
+                },
+                {
+                    "addr_src": "ADDR_PC",
+                    "data_bus_op": "DATA_BUS_OP_READ",
+                    "data_bus_src": "DATA_BUS_SRC_IR",
+                    "idu_op": "IDU_OP_INC",
+                    "alu_op": "ALU_OP_BIT",
+                    "alu_dst": "ALU_SRC_NONE",
+                    "alu_src": "ALU_SRC_Z",
+                },
+            ]
+
+        else:
+            # BIT b,r
+            cycles = [
+                {
+                    "addr_src": "ADDR_PC",
+                    "data_bus_op": "DATA_BUS_OP_READ",
+                    "data_bus_src": "DATA_BUS_SRC_IR",
+                    "idu_op": "IDU_OP_INC",
+                    "alu_op": "ALU_OP_BIT",
+                    "alu_dst": "ALU_SRC_NONE",
+                    "alu_src": f"ALU_SRC_{r}",
+                }
+            ]
+
+        cb_control_words[opcode] = cycles
+        cb_opcode_comments[opcode] = f"BIT {b}, {r}"
+
+for r_index, r in enumerate(registers):
+    opcode = 0x00 | r_index  # CB 00–07
+
+    if r == "(HL)":
+        # RLC (HL) has 4 cycles: read, execute, write, fetch next
+        cycles = [
+            {
+                "addr_src": "ADDR_HL",
+                "data_bus_op": "DATA_BUS_OP_READ",
+                "data_bus_src": "DATA_BUS_SRC_Z",
+                "alu_op": "ALU_OP_RLC",
+                "alu_dst": "ALU_SRC_Z",
+                "alu_src": "ALU_SRC_Z",
+            },
+            {
+                "addr_src": "ADDR_HL",
+                "data_bus_op": "DATA_BUS_OP_WRITE",
+                "data_bus_src": "DATA_BUS_SRC_Z",
+            },
+            NOP,
+        ]
+    else:
+        # RLC r (register)
+        cycles = [
+            {
+                "addr_src": "ADDR_PC",
+                "data_bus_op": "DATA_BUS_OP_READ",
+                "data_bus_src": "DATA_BUS_SRC_IR",
+                "idu_op": "IDU_OP_INC",
+                "alu_op": "ALU_OP_RLC",
+                "alu_dst": f"ALU_SRC_{r}",
+                "alu_src": f"ALU_SRC_{r}",
+            }
+        ]
+
+    cb_control_words[opcode] = cycles
+    cb_opcode_comments[opcode] = f"RLC {r}"
+
+for r_index, r in enumerate(registers):
+    opcode = 0x10 | r_index
+
+    if r == "(HL)":
+        # RL (HL)
+        cycles = [
+            {
+                "addr_src": "ADDR_HL",
+                "data_bus_op": "DATA_BUS_OP_READ",
+                "data_bus_src": "DATA_BUS_SRC_Z",
+                "alu_op": "ALU_OP_RL",
+                "alu_dst": "ALU_SRC_Z",
+                "alu_src": "ALU_SRC_Z",
+            },
+            {
+                "addr_src": "ADDR_HL",
+                "data_bus_op": "DATA_BUS_OP_WRITE",
+                "data_bus_src": "DATA_BUS_SRC_Z",
+            },
+            NOP,
+        ]
+    else:
+        # RL r
+        cycles = [
+            {
+                "addr_src": "ADDR_PC",
+                "data_bus_op": "DATA_BUS_OP_READ",
+                "data_bus_src": "DATA_BUS_SRC_IR",
+                "idu_op": "IDU_OP_INC",
+                "alu_op": "ALU_OP_RL",
+                "alu_dst": f"ALU_SRC_{r}",
+                "alu_src": f"ALU_SRC_{r}",
+            }
+        ]
+
+    cb_control_words[opcode] = cycles
+    cb_opcode_comments[opcode] = f"RL {r}"
+
+for r_index, r in enumerate(registers):
+    opcode = 0x18 | r_index
+
+    if r == "(HL)":
+        # RR (HL)
+        cycles = [
+            {
+                "addr_src": "ADDR_HL",
+                "data_bus_op": "DATA_BUS_OP_READ",
+                "data_bus_src": "DATA_BUS_SRC_Z",
+                "alu_op": "ALU_OP_RR",
+                "alu_dst": "ALU_SRC_Z",
+                "alu_src": "ALU_SRC_Z",
+            },
+            {
+                "addr_src": "ADDR_HL",
+                "data_bus_op": "DATA_BUS_OP_WRITE",
+                "data_bus_src": "DATA_BUS_SRC_Z",
+            },
+            NOP,
+        ]
+    else:
+        # RR r (register)
+        cycles = [
+            {
+                "addr_src": "ADDR_PC",
+                "data_bus_op": "DATA_BUS_OP_READ",
+                "data_bus_src": "DATA_BUS_SRC_IR",
+                "idu_op": "IDU_OP_INC",
+                "alu_op": "ALU_OP_RR",
+                "alu_dst": f"ALU_SRC_{r}",
+                "alu_src": f"ALU_SRC_{r}",
+            }
+        ]
+
+    cb_control_words[opcode] = cycles
+    cb_opcode_comments[opcode] = f"RR {r}"
+
 
 def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
     if not entry:
@@ -1109,6 +1266,53 @@ def generate_sv(control_words, opcode_comments) -> str:
     return "".join(lines)
 
 
+def generate_cb_sv(cb_control_words, cb_opcode_comments) -> str:
+    lines = []
+    lines.append("`ifndef CB_CONTROL_WORDS_SV\n`define CB_CONTROL_WORDS_SV\n")
+    lines.append('`include "cpu/opcodes.sv"\n\n')
+    lines.append("localparam control_word_t cb_control_words [0:255] = '{\n")
+
+    for opcode in range(256):
+        cycles = cb_control_words[opcode]
+        comment = cb_opcode_comments.get(opcode, "UNDEFINED")
+        comment_str = f" {comment}"
+
+        lines.append(f"    'h{opcode:02X}: '{{  //{comment_str}\n")
+
+        if cycles:
+            num_real = count_real_cycles(cycles)
+
+            lines.append(f"        num_cycles : 3'd{num_real},\n")
+            lines.append("        cycles : '{\n")
+
+            for i in range(MAX_CYCLES - 1):
+                is_last = i == MAX_CYCLES - 2
+                entry = cycles[i] if i < len(cycles) else None
+                lines.append(sv_literal(i, entry, is_last))
+
+            lines.append("        }\n    }")
+        else:
+            lines.append("        num_cycles : 3'd0,\n")
+            lines.append("        cycles : '{\n")
+            for i in range(MAX_CYCLES - 1):
+                is_last = i == MAX_CYCLES - 2
+                comma = "" if is_last else ","
+                lines.append(f"            `DEFAULT_CYCLE{comma}  // M-cycle {i + 1}\n")
+            lines.append("        }\n    }")
+
+        if opcode != 255:
+            lines.append(",\n")
+        else:
+            lines.append("\n")
+
+    lines.append("};\n`endif // CB_CONTROL_WORDS_SV\n")
+    return "".join(lines)
+
+
 output_path = "vemu/src/cpu/control_words.sv"
 with open(output_path, "w", newline="\n") as f:
     f.write(generate_sv(control_words, opcode_comments))
+
+output_path_cb = "vemu/src/cpu/cb_control_words.sv"
+with open(output_path_cb, "w", newline="\n") as f:
+    f.write(generate_cb_sv(cb_control_words, cb_opcode_comments))
