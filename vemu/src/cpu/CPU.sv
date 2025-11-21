@@ -30,6 +30,7 @@ module CPU (
   /// Current t-cycle within machine cycle
   t_phase_t t_phase;
 
+  // TODO: Perhaps rename to `instr_finished_flag`?
   logic instr_boundary;
 
   localparam cycle_count_t MAX_CYCLE_INDEX = MAX_CYCLES_PER_INSTR - 1;
@@ -143,10 +144,11 @@ module CPU (
             cycle_count <= '0;
             if (control_word.cycles[cycle_count].misc_op == MISC_OP_CB_PREFIX) begin
               control_word <= cb_control_words[regs.IR];
+              // Importantly we do not set the instruction boundary here
             end else begin
-              control_word <= control_words[regs.IR];
+              control_word   <= control_words[regs.IR];
+              instr_boundary <= 1'b1;
             end
-            instr_boundary <= 1'b1;
           end else begin
             cycle_count <= cycle_count + 1;
           end

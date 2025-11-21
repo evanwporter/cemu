@@ -146,14 +146,6 @@ void run_single_file(const fs::path& path, bool is_cb) {
             tick(top, ctx);
         }
 
-        if (is_cb) {
-            top.rootp->cpu_top__DOT__cpu_inst__DOT__instr_boundary = 0;
-
-            while (top.rootp->cpu_top__DOT__cpu_inst__DOT__instr_boundary == 0 && max_ticks-- > 0) {
-                tick(top, ctx);
-            }
-        }
-
         top.rootp->cpu_top__DOT__cpu_inst__DOT__instr_boundary = 0;
 
         while (top.rootp->cpu_top__DOT__cpu_inst__DOT__instr_boundary == 0 && max_ticks-- > 0) {

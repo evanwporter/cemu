@@ -414,6 +414,40 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       dst_val = src_val | (8'd1 << bit_index);
     end
 
+    ALU_OP_CPL: begin
+      dst_val   = ~src_val;
+      sub_flag  = 1'b1;
+      half_flag = 1'b1;
+    end
+
+    ALU_OP_DAA: begin
+      logic [7:0] a;
+      a = dst_val;
+
+      if (!sub_flag) begin
+        // After ADD / ADC
+        if (carry_flag || src_val > 8'h99) begin
+          dst_val = src_val + 8'h60;
+          carry_flag = 1'b1;
+        end
+        if (half_flag || (src_val[3:0] > 4'h9)) begin
+          dst_val = src_val + 8'h06;
+        end
+      end else begin
+        // After SUB / SBC
+        if (carry_flag) begin
+          dst_val = src_val - 8'h60;
+        end
+        if (half_flag) begin
+          dst_val = src_val - 8'h06;
+        end
+      end
+
+      zero_flag = (dst_val == 8'h00);
+      half_flag = 1'b0;
+    end
+
+
     ALU_OP_NONE: ;  // do nothing
 
     // TODO: Remove default

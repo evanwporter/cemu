@@ -948,6 +948,32 @@ control_words[0xE8] = [
     },
 ]
 
+control_words[0x2F] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+        "alu_op": "ALU_OP_CPL",
+        "alu_dst": "ALU_SRC_A",
+        "alu_src": "ALU_SRC_A",
+    }
+]
+opcode_comments[0x2F] = "CPL"
+
+control_words[0x27] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "idu_op": "IDU_OP_INC",
+        "alu_op": "ALU_OP_DAA",
+        "alu_dst": "ALU_SRC_A",
+        "alu_src": "ALU_SRC_A",
+    }
+]
+opcode_comments[0x27] = "DAA"
+
 control_words[0xFA] = [
     {
         "addr_src": "ADDR_PC",

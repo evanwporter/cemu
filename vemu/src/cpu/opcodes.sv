@@ -83,6 +83,9 @@ typedef enum logic [4:0] {
   ALU_OP_CCF,
   ALU_OP_SCF,
 
+  ALU_OP_CPL,
+  ALU_OP_DAA,
+
   ALU_OP_ADD_SIGNED,
 
   ALU_OP_ADD_HIGH,

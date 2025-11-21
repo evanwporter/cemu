@@ -1342,15 +1342,28 @@ localparam control_word_t control_words [0:255] = '{
             5: `DEFAULT_CYCLE  // M-cycle 6
         }
     },
-    'h27: '{  //  UNDEFINED
-        num_cycles : 3'd0,
+    'h27: '{  //  DAA
+        num_cycles : 3'd1,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            0: '{  // M-cycle 1
+                addr_src : ADDR_PC,
+                data_bus_src : DATA_BUS_SRC_IR,
+                data_bus_op : DATA_BUS_OP_READ,
+                idu_op : IDU_OP_INC,
+                idu_dst : ADDR_NONE,
+                alu_op : ALU_OP_DAA,
+                alu_dst : ALU_SRC_A,
+                alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
+                misc_op : MISC_OP_NONE,
+                misc_op_dst : MISC_OP_DST_NONE,
+                cond : COND_NONE
+            },
+            1: `DEFAULT_CYCLE,  // M-cycle 2
+            2: `DEFAULT_CYCLE,  // M-cycle 3
+            3: `DEFAULT_CYCLE,  // M-cycle 4
+            4: `DEFAULT_CYCLE,  // M-cycle 5
+            5: `DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h28: '{  //  JR Z, e
@@ -1612,15 +1625,28 @@ localparam control_word_t control_words [0:255] = '{
             5: `DEFAULT_CYCLE  // M-cycle 6
         }
     },
-    'h2F: '{  //  UNDEFINED
-        num_cycles : 3'd0,
+    'h2F: '{  //  CPL
+        num_cycles : 3'd1,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            0: '{  // M-cycle 1
+                addr_src : ADDR_PC,
+                data_bus_src : DATA_BUS_SRC_IR,
+                data_bus_op : DATA_BUS_OP_READ,
+                idu_op : IDU_OP_INC,
+                idu_dst : ADDR_NONE,
+                alu_op : ALU_OP_CPL,
+                alu_dst : ALU_SRC_A,
+                alu_src : ALU_SRC_A,
+                alu_bit : ALU_BIT_0,
+                misc_op : MISC_OP_NONE,
+                misc_op_dst : MISC_OP_DST_NONE,
+                cond : COND_NONE
+            },
+            1: `DEFAULT_CYCLE,  // M-cycle 2
+            2: `DEFAULT_CYCLE,  // M-cycle 3
+            3: `DEFAULT_CYCLE,  // M-cycle 4
+            4: `DEFAULT_CYCLE,  // M-cycle 5
+            5: `DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h30: '{  //  JR NC, e
