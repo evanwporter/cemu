@@ -88,6 +88,9 @@ typedef enum logic [4:0] {
   ALU_OP_ADD_HIGH,
   ALU_OP_ADD_LOW,
 
+  ALU_OP_ADD_SIGNED_HIGH,
+  ALU_OP_ADD_SIGNED_LOW,
+
   ALU_OP_BIT,
   ALU_OP_SLA,
   ALU_OP_SRA,

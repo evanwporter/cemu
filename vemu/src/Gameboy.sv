@@ -1,7 +1,7 @@
 `ifndef GAMEBOY_SV
 `define GAMEBOY_SV 
 
-`define LOG_LEVEL_TRACE 
+`define LOG_LEVEL_WARN 
 
 `include "cpu/CPU.sv"
 `include "cpu/RAM.sv"
@@ -50,6 +50,7 @@ module Gameboy (
       .ram_bus(ram_bus),
       .serial_bus(serial_bus),
       .timer_bus(timer_bus),
+      .input_bus(input_bus),
       .IF_bus(IF_bus)
   );
 

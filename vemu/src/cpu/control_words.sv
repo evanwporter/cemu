@@ -7659,7 +7659,7 @@ localparam control_word_t control_words [0:255] = '{
                 cond : COND_NONE
             },
             1: '{  // M-cycle 2
-                addr_src : ADDR_WZ,
+                addr_src : ADDR_FF_Z,
                 data_bus_src : DATA_BUS_SRC_A,
                 data_bus_op : DATA_BUS_OP_WRITE,
                 idu_op : IDU_OP_NONE,
@@ -7745,7 +7745,7 @@ localparam control_word_t control_words [0:255] = '{
         num_cycles : 3'd2,
         cycles : '{
             0: '{  // M-cycle 1
-                addr_src : ADDR_WZ,
+                addr_src : ADDR_FF_C,
                 data_bus_src : DATA_BUS_SRC_A,
                 data_bus_op : DATA_BUS_OP_WRITE,
                 idu_op : IDU_OP_NONE,
@@ -7977,14 +7977,66 @@ localparam control_word_t control_words [0:255] = '{
         }
     },
     'hE8: '{  //  UNDEFINED
-        num_cycles : 3'd0,
+        num_cycles : 3'd4,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            0: '{  // M-cycle 1
+                addr_src : ADDR_PC,
+                data_bus_src : DATA_BUS_SRC_Z,
+                data_bus_op : DATA_BUS_OP_READ,
+                idu_op : IDU_OP_INC,
+                idu_dst : ADDR_NONE,
+                alu_op : ALU_OP_NONE,
+                alu_dst : ALU_SRC_NONE,
+                alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
+                misc_op : MISC_OP_NONE,
+                misc_op_dst : MISC_OP_DST_NONE,
+                cond : COND_NONE
+            },
+            1: '{  // M-cycle 2
+                addr_src : ADDR_NONE,
+                data_bus_src : DATA_BUS_SRC_NONE,
+                data_bus_op : DATA_BUS_OP_NONE,
+                idu_op : IDU_OP_NONE,
+                idu_dst : ADDR_NONE,
+                alu_op : ALU_OP_ADD_LOW,
+                alu_dst : ALU_SRC_Z,
+                alu_src : ALU_SRC_SP_LOW,
+                alu_bit : ALU_BIT_0,
+                misc_op : MISC_OP_NONE,
+                misc_op_dst : MISC_OP_DST_NONE,
+                cond : COND_NONE
+            },
+            2: '{  // M-cycle 3
+                addr_src : ADDR_NONE,
+                data_bus_src : DATA_BUS_SRC_NONE,
+                data_bus_op : DATA_BUS_OP_NONE,
+                idu_op : IDU_OP_NONE,
+                idu_dst : ADDR_NONE,
+                alu_op : ALU_OP_ADD_SIGNED_HIGH,
+                alu_dst : ALU_SRC_W,
+                alu_src : ALU_SRC_SP_HIGH,
+                alu_bit : ALU_BIT_0,
+                misc_op : MISC_OP_NONE,
+                misc_op_dst : MISC_OP_DST_NONE,
+                cond : COND_NONE
+            },
+            3: '{  // M-cycle 4
+                addr_src : ADDR_PC,
+                data_bus_src : DATA_BUS_SRC_IR,
+                data_bus_op : DATA_BUS_OP_READ,
+                idu_op : IDU_OP_INC,
+                idu_dst : ADDR_NONE,
+                alu_op : ALU_OP_NONE,
+                alu_dst : ALU_SRC_NONE,
+                alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
+                misc_op : MISC_OP_R16_WZ_COPY,
+                misc_op_dst : MISC_OP_DST_SP,
+                cond : COND_NONE
+            },
+            4: `DEFAULT_CYCLE,  // M-cycle 5
+            5: `DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hE9: '{  //  UNDEFINED
@@ -8577,7 +8629,7 @@ localparam control_word_t control_words [0:255] = '{
                 data_bus_op : DATA_BUS_OP_READ,
                 idu_op : IDU_OP_INC,
                 idu_dst : ADDR_NONE,
-                alu_op : ALU_OP_ADD,
+                alu_op : ALU_OP_ADD_LOW,
                 alu_dst : ALU_SRC_Z,
                 alu_src : ALU_SRC_SP_LOW,
                 alu_bit : ALU_BIT_0,
@@ -8605,7 +8657,7 @@ localparam control_word_t control_words [0:255] = '{
                 data_bus_op : DATA_BUS_OP_READ,
                 idu_op : IDU_OP_INC,
                 idu_dst : ADDR_NONE,
-                alu_op : ALU_OP_ADD_SIGNED,
+                alu_op : ALU_OP_ADD_SIGNED_HIGH,
                 alu_dst : ALU_SRC_H,
                 alu_src : ALU_SRC_SP_HIGH,
                 alu_bit : ALU_BIT_0,

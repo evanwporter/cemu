@@ -329,9 +329,10 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
     end
 
     ALU_OP_ADD_LOW: begin
-      tmp        = {1'b0, dst_val} + {1'b0, src_val};
       half_sum   = {1'b0, dst_val[3:0]} + {1'b0, src_val[3:0]};
       half_flag  = half_sum[4];
+
+      tmp        = {1'b0, dst_val} + {1'b0, src_val};
       dst_val    = tmp[7:0];
       carry_flag = tmp[8];
       sub_flag   = 1'b0;
@@ -344,6 +345,13 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       carry_flag = tmp[8];
       half_flag  = half_sum[4];
       sub_flag   = 1'b0;
+    end
+
+    ALU_OP_ADD_SIGNED_HIGH: begin
+      tmp = {1'b0, src_val} + {1'b0, regs.z[7] ? 8'hFF : 8'h00} + {8'b0, regs.alu_carry};
+
+      dst_val = tmp[7:0];
+      res.alu_carry = 1'b0;
     end
 
     ALU_OP_SCF: begin

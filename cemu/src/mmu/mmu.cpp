@@ -201,7 +201,8 @@ u8 MMU::read_io(const Address& address) const {
         return gb.ppu->scroll_x.value();
 
     case 0xFF44:
-        return gb.ppu->line.value();
+        return 0x90;
+        // return gb.ppu->line.value();
 
     case 0xFF45:
         return gb.ppu->ly_compare.value();

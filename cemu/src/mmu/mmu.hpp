@@ -17,9 +17,10 @@ public:
     u8 read(const Address& address) const;
     void write(const Address& address, u8 byte);
 
-private:
+    // TODO move to private
     bool boot_rom_active() const;
 
+private:
     u8 read_io(const Address& address) const;
     void write_io(const Address& address, u8 byte);
 

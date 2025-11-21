@@ -829,16 +829,11 @@ control_words[0xE0] = [
         "idu_op": "IDU_OP_INC",
     },
     {
-        "addr_src": "ADDR_WZ",  # WZ holds effective address 0xFF00+Z
+        "addr_src": "ADDR_FF_Z",
         "data_bus_src": "DATA_BUS_SRC_A",
         "data_bus_op": "DATA_BUS_OP_WRITE",
     },
-    {
-        "addr_src": "ADDR_PC",
-        "data_bus_src": "DATA_BUS_SRC_IR",
-        "data_bus_op": "DATA_BUS_OP_READ",
-        "idu_op": "IDU_OP_INC",
-    },
+    NOP,
 ]
 opcode_comments[0xE0] = "LDH (a8), A"
 
@@ -872,17 +867,11 @@ opcode_comments[0xF0] = "LDH A, n"
 # Writes A to (0xFF00 + C)
 control_words[0xE2] = [
     {
-        "addr_src": "ADDR_WZ",  # effective address (0xFF00 + C)
+        "addr_src": "ADDR_FF_C",
         "data_bus_src": "DATA_BUS_SRC_A",
         "data_bus_op": "DATA_BUS_OP_WRITE",
     },
-    # fetch next opcode
-    {
-        "addr_src": "ADDR_PC",
-        "data_bus_src": "DATA_BUS_SRC_IR",
-        "data_bus_op": "DATA_BUS_OP_READ",
-        "idu_op": "IDU_OP_INC",
-    },
+    NOP,
 ]
 opcode_comments[0xE2] = "LD (C), A"
 
@@ -927,6 +916,37 @@ control_words[0xEA] = [
     NOP,
 ]
 opcode_comments[0xEA] = "LD (nn), A"
+
+control_words[0xE8] = [
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_Z",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+    },
+    {
+        "addr_src": "ADDR_NONE",
+        "data_bus_op": "DATA_BUS_OP_NONE",
+        "alu_op": "ALU_OP_ADD_LOW",
+        "alu_dst": "ALU_SRC_Z",
+        "alu_src": "ALU_SRC_SP_LOW",
+    },
+    {
+        "addr_src": "ADDR_NONE",
+        "data_bus_op": "DATA_BUS_OP_NONE",
+        "alu_op": "ALU_OP_ADD_SIGNED_HIGH",
+        "alu_dst": "ALU_SRC_W",
+        "alu_src": "ALU_SRC_SP_HIGH",
+    },
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "idu_op": "IDU_OP_INC",
+        "misc_op": "MISC_OP_R16_WZ_COPY",
+        "misc_op_dst": "MISC_OP_DST_SP",
+    },
+]
 
 control_words[0xFA] = [
     {
@@ -973,7 +993,7 @@ control_words[0xF8] = [
         "data_bus_src": "DATA_BUS_SRC_Z",
         "data_bus_op": "DATA_BUS_OP_READ",
         "idu_op": "IDU_OP_INC",
-        "alu_op": "ALU_OP_ADD",
+        "alu_op": "ALU_OP_ADD_LOW",
         "alu_dst": "ALU_SRC_Z",
         "alu_src": "ALU_SRC_SP_LOW",
     },
@@ -989,7 +1009,7 @@ control_words[0xF8] = [
         "data_bus_src": "DATA_BUS_SRC_IR",
         "data_bus_op": "DATA_BUS_OP_READ",
         "idu_op": "IDU_OP_INC",
-        "alu_op": "ALU_OP_ADD_SIGNED",
+        "alu_op": "ALU_OP_ADD_SIGNED_HIGH",
         "alu_dst": "ALU_SRC_H",
         "alu_src": "ALU_SRC_SP_HIGH",
     },

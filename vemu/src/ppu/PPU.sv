@@ -155,7 +155,7 @@ module PPU (
         // PPU register writes
         // TODO: check whether this ever needs to be blocked
         (bus.addr inside {[PPU_regs_start : PPU_regs_end]}): begin
-          `LOG_TRACE(("PPU: REG WRITE addr=%h data=%h", bus.addr, bus.wdata));
+          `LOG_WARN(("PPU: REG WRITE addr=%h data=%h", bus.addr, bus.wdata));
           unique case (bus.addr)
             16'hFF40: regs.LCDC <= bus.wdata;
             16'hFF42: regs.SCY <= bus.wdata;
@@ -197,7 +197,7 @@ module PPU (
 
         // PPU register reads
         [PPU_regs_start : PPU_regs_end]: begin
-          `LOG_TRACE(("PPU: REG READ addr=%h -> %h", bus.addr, bus.rdata));
+          `LOG_WARN(("PPU: REG READ addr=%h -> %h", bus.addr, bus.rdata));
           unique case (bus.addr)
             16'hFF40: bus.rdata = regs.LCDC;
             16'hFF42: bus.rdata = regs.SCY;

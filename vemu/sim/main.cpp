@@ -4,6 +4,8 @@
 #include <iomanip>
 #include <verilated.h>
 
+#include "boot.hpp"
+
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -21,7 +23,14 @@ double sc_time_stamp() {
     return main_time;
 }
 
-u8 read_mem(VGameboy& top, u16 PC) {
+static u8 read_mem(VGameboy& top, u16 PC) {
+
+    bool boot_rom_active = (top.rootp->Gameboy__DOT__cart_inst__DOT__boot_rom_switch != 1);
+
+    if (PC <= 0x00FF && boot_rom_active) {
+        return bootDMG[PC];
+    }
+
     if (PC <= 0x7FFF) {
         u8 val = top.rootp->Gameboy__DOT__cart_inst__DOT__ROM[PC];
         return val;
@@ -151,18 +160,23 @@ static bool load_rom(VGameboy& top, const fs::path& filename) {
 }
 
 static uint8_t last_SC = 0;
-
-static void handle_serial_output(VGameboy& top) {
+static std::string serial_buffer;
+static bool handle_serial_output(VGameboy& top) {
     u8 SB = top.rootp->Gameboy__DOT__serial_inst__DOT__SB;
     u8 SC = top.rootp->Gameboy__DOT__serial_inst__DOT__SC;
+
+    bool printed = false;
 
     if ((last_SC & 0x80) == 0 && (SC & 0x80)) {
         const char c = static_cast<char>(SB);
         std::cout << c << std::flush;
+        serial_buffer.push_back(c);
         top.rootp->Gameboy__DOT__serial_inst__DOT__SC &= 0x7F;
+        printed = true;
     }
 
     last_SC = SC;
+    return printed;
 }
 
 static void tick(VGameboy& top, VerilatedContext& ctx) {
@@ -178,22 +192,22 @@ static void tick(VGameboy& top, VerilatedContext& ctx) {
 static void set_initial_state(VGameboy& top) {
     auto& regs = top.rootp->Gameboy__DOT__cpu_inst__DOT__regs;
 
-    regs.__PVT__a = 0x01;
-    regs.__PVT__flags = 0xB0;
-    regs.__PVT__b = 0x00;
-    regs.__PVT__c = 0x13;
-    regs.__PVT__d = 0x00;
-    regs.__PVT__e = 0xD8;
-    regs.__PVT__h = 0x01;
-    regs.__PVT__l = 0x4D;
+    // regs.__PVT__a = 0x01;
+    // regs.__PVT__flags = 0xB0;
+    // regs.__PVT__b = 0x00;
+    // regs.__PVT__c = 0x13;
+    // regs.__PVT__d = 0x00;
+    // regs.__PVT__e = 0xD8;
+    // regs.__PVT__h = 0x01;
+    // regs.__PVT__l = 0x4D;
 
     regs.__PVT__sph = 0xFF;
     regs.__PVT__spl = 0xFE;
 
-    regs.__PVT__pch = 0x01;
-    regs.__PVT__pcl = 0x00;
+    // regs.__PVT__pch = 0x01;
+    // regs.__PVT__pcl = 0x00;
 
-    regs.__PVT__IR = 0x00;
+    // regs.__PVT__IR = 0x00;
 }
 
 int main() {
@@ -240,7 +254,18 @@ int main() {
             tick(top, ctx);
         }
         dump_gd_trace(top, trace);
-        handle_serial_output(top);
+
+        if (top.rootp->Gameboy__DOT__cart_inst__DOT__boot_rom_switch == 1) {
+            std::cout << "Boot ROM finished at instruction " << i << "\n";
+            break;
+        }
+
+        if (handle_serial_output(top)) {
+            if (serial_buffer.find("Passed") != std::string::npos) {
+                std::cout << "\n[INFO] Test Passed!\n";
+                return 0;
+            }
+        }
     }
 
     return 0;

@@ -25,6 +25,7 @@ module cartridge_cpu_top (
   Bus_if apu_bus ();
   Bus_if serial_bus ();
   Bus_if timer_bus ();
+  Bus_if input_bus ();
   Interrupt_if IF_bus ();
 
   CPU cpu_inst (
@@ -45,6 +46,7 @@ module cartridge_cpu_top (
       .ram_bus(ram_bus),
       .serial_bus(serial_bus),
       .timer_bus(timer_bus),
+      .input_bus(input_bus),
       .IF_bus(IF_bus)
   );
 

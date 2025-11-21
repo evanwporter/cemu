@@ -27,6 +27,7 @@ module top (
   Bus_if ram_bus ();
   Bus_if serial_bus ();
   Bus_if timer_bus ();
+  Bus_if input_bus ();
   Interrupt_if IF_bus ();
 
   assign cpu_bus.addr     = cpu_addr;
@@ -45,6 +46,7 @@ module top (
       .ram_bus(ram_bus),
       .serial_bus(serial_bus),
       .timer_bus(timer_bus),
+      .input_bus(input_bus),
       .IF_bus(IF_bus)
   );
 
