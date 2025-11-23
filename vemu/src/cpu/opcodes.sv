@@ -135,13 +135,13 @@ typedef enum logic [2:0] {
 } alu_bit_t;
 
 typedef enum logic [2:0] {
-  MISC_OP_DST_NONE,
-  MISC_OP_DST_PC,
-  MISC_OP_DST_SP,
-  MISC_OP_DST_BC,
-  MISC_OP_DST_DE,
-  MISC_OP_DST_HL,
-  MISC_OP_DST_AF
+  MISC_OP_DST_NONE = 3'd0,
+  MISC_OP_DST_PC   = 3'd1,
+  MISC_OP_DST_SP   = 3'd2,
+  MISC_OP_DST_BC   = 3'd3,
+  MISC_OP_DST_DE   = 3'd4,
+  MISC_OP_DST_HL   = 3'd5,
+  MISC_OP_DST_AF   = 3'd6
 } misc_op_dst_t;
 
 typedef enum logic [3:0] {
@@ -154,7 +154,8 @@ typedef enum logic [3:0] {
   MISC_OP_SET_PC_CONST,
   MISC_OP_JR_SIGNED,
   MISC_OP_SP_HL_COPY,
-  MISC_OP_CB_PREFIX
+  MISC_OP_CB_PREFIX,
+  MISC_OP_SET_PC_INTERRUPT_VEC
 } misc_ops_t;
 
 typedef enum logic [2:0] {

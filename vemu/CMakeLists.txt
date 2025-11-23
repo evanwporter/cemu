@@ -5,6 +5,8 @@ add_subdirectory(tests)
 
 find_package(Verilator REQUIRED HINTS $ENV{VERILATOR_ROOT})
 
+find_package(SDL2 CONFIG REQUIRED)
+
 add_executable(vemu ${CMAKE_CURRENT_SOURCE_DIR}/sim/main.cpp)
 
 target_include_directories(vemu PRIVATE
@@ -13,7 +15,9 @@ target_include_directories(vemu PRIVATE
 )
 
 target_link_libraries(vemu PRIVATE
-    libvemu   
+    libvemu
+    SDL2::SDL2main 
+    SDL2::SDL2
 )
 
 target_compile_definitions(vemu PRIVATE

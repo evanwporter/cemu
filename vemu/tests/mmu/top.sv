@@ -28,6 +28,7 @@ module top (
   Bus_if serial_bus ();
   Bus_if timer_bus ();
   Bus_if input_bus ();
+  Bus_if interrupt_bus ();
   Interrupt_if IF_bus ();
 
   assign cpu_bus.addr     = cpu_addr;
@@ -46,14 +47,15 @@ module top (
       .ram_bus(ram_bus),
       .serial_bus(serial_bus),
       .timer_bus(timer_bus),
-      .input_bus(input_bus),
-      .IF_bus(IF_bus)
+      .interrupt_bus(interrupt_bus),
+      .input_bus(input_bus)
   );
 
   PPU ppu (
-      .clk  (clk),
+      .clk(clk),
       .reset(reset),
-      .bus  (ppu_bus)
+      .bus(ppu_bus),
+      .IF_bus(IF_bus)
   );
 
 endmodule

@@ -525,14 +525,22 @@ function automatic logic eval_condition(input cond_t cond, input logic [7:0] fla
   endcase
 endfunction
 
+localparam logic [15:0] INTERRUPT_VECTOR_TABLE[0:4] = '{
+    'd0: 16'h0040,  // 0: VBlank
+    'd1: 16'h0048,  // 1: STAT
+    'd2: 16'h0050,  // 2: Timer
+    'd3: 16'h0058,  // 3: Serial
+    'd4: 16'h0060  // 4: Joypad
+};
+
 `define APPLY_MISC_OP(OP, DST, REGS) \
   begin \
     unique case (OP) \
       MISC_OP_IME_ENABLE: begin \
-        (REGS).IME <= 8'd1; \
+        (REGS).IME <= 1'd1; \
       end \
       MISC_OP_IME_DISABLE: begin \
-        (REGS).IME <= 8'd0; \
+        (REGS).IME <= 1'd0; \
       end \
       MISC_OP_R16_WZ_COPY: begin \
         `LOG_TRACE(("[CPU] Writing 0x%h to %s", {(REGS).w, (REGS).z}, (DST).name())); \
@@ -580,6 +588,10 @@ endfunction
         {(REGS).sph, (REGS).spl} <= {(REGS).h, (REGS).l}; \
       end \
       MISC_OP_CB_PREFIX: /* handled elsewhere */ ; \
+      MISC_OP_SET_PC_INTERRUPT_VEC: begin \
+        (REGS).pch <= INTERRUPT_VECTOR_TABLE[DST][15:8]; \
+        (REGS).pcl <= INTERRUPT_VECTOR_TABLE[DST][7:0]; \
+      end \
       default: ; /* nothing to do */ \
     endcase \
   end

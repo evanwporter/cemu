@@ -13,7 +13,7 @@ module MMU (
     input logic clk,
     input logic reset,
 
-    Bus_if.MMU_side cpu_bus,
+    Bus_if.MMU_side   cpu_bus,
     Bus_if.MMU_master ppu_bus,
     Bus_if.MMU_master apu_bus,
     Bus_if.MMU_master cart_bus,
@@ -21,10 +21,8 @@ module MMU (
     Bus_if.MMU_master serial_bus,
     Bus_if.MMU_master timer_bus,
     Bus_if.MMU_master input_bus,
-    Interrupt_if.MMU_side IF_bus
+    Bus_if.MMU_master interrupt_bus
 );
-
-  logic [7:0] IF;
 
   assign ppu_bus.addr = cpu_bus.addr;
   assign apu_bus.addr = cpu_bus.addr;
@@ -79,6 +77,10 @@ module MMU (
   assign input_bus.read_en  = cpu_bus.read_en && input_selected;
   assign input_bus.write_en = cpu_bus.write_en && input_selected;
 
+  wire interrupt_selected = (cpu_bus.addr == 16'hFF0F) || (cpu_bus.addr == 16'hFFFF);
+  assign interrupt_bus.read_en  = cpu_bus.read_en && interrupt_selected;
+  assign interrupt_bus.write_en = cpu_bus.write_en && interrupt_selected;
+
   // Map Read Data
   always_comb begin
     cpu_bus.rdata = 8'h00;
@@ -102,10 +104,14 @@ module MMU (
       cpu_bus.rdata = timer_bus.rdata;
 
     end else if (unused_selected) begin
+      `LOG_WARN(("[MMU] Unmapped READ addr=%h", cpu_bus.addr));
       cpu_bus.rdata = 8'hFF;
 
     end else if (input_selected) begin
       cpu_bus.rdata = input_bus.rdata;
+
+    end else if (interrupt_selected) begin
+      cpu_bus.rdata = interrupt_bus.rdata;
 
     end else begin
       `LOG_WARN(("[MMU] Unmapped READ addr=%h", cpu_bus.addr));
@@ -113,26 +119,6 @@ module MMU (
       // TODO
     end
   end
-
-  always_ff @(posedge clk or posedge reset) begin
-    if (reset) begin
-      IF <= 8'b11100000;
-    end else begin
-      // CPU writing IF
-      if (cpu_bus.write_en && cpu_bus.addr == 16'hFF0F) begin
-        IF <= (cpu_bus.wdata & 8'b00011111) | 8'b11100000;
-      end
-
-      // Hardware interrupt sources only SET bits
-      if (IF_bus.vblank_req) IF[0] <= 1'b1;
-      if (IF_bus.stat_req) IF[1] <= 1'b1;
-      if (IF_bus.timer_req) IF[2] <= 1'b1;
-      if (IF_bus.serial_req) IF[3] <= 1'b1;
-      if (IF_bus.joypad_req) IF[4] <= 1'b1;
-    end
-  end
-
-
 endmodule
 
 `endif  // MMU_SV

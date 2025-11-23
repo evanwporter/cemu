@@ -7,3 +7,9 @@ There are two parts to this project
 (2) FPGA emualtor 
 
 The C++ emulator is working. I created it to get a better understanding about how the internals of the emulator works. The FPGA emulator is in progress.
+
+The FPGA emulator currently:
+
+![](./display.gif)
+
+So progress.

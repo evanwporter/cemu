@@ -19,10 +19,8 @@ typedef struct `PACK_REG {
   // Instruction Register
   logic [7:0] IR;
 
-  // Interrupt Enable
-  logic [7:0] IE;
-
-  logic [7:0] IME;
+  // Interrupt Master Enable
+  logic IME;
 
   logic [7:0] flags;
 

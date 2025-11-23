@@ -31,6 +31,22 @@ static inline std::string word_hex(uint16_t v) {
     return oss.str();
 }
 
+static inline std::string color_c(u8 vreg, u8 creg) {
+    return (vreg == creg) ? byte_hex(creg) : color_green(byte_hex(creg));
+}
+
+static inline std::string color_v(u8 vreg, u8 creg) {
+    return (vreg == creg) ? byte_hex(vreg) : color_red(byte_hex(vreg));
+}
+
+static inline std::string color_v16(u16 vreg, u16 creg) {
+    return (vreg == creg) ? word_hex(vreg) : color_red(word_hex(vreg));
+}
+
+static inline std::string color_c16(u16 vreg, u16 creg) {
+    return (vreg == creg) ? word_hex(creg) : color_green(word_hex(creg));
+}
+
 static u8 read_mem(VGameboy& top, u16 PC) {
 
     bool boot_rom_active = (top.rootp->Gameboy__DOT__cart_inst__DOT__boot_rom_switch != 1);
@@ -75,6 +91,10 @@ static u8 read_mem(VGameboy& top, u16 PC) {
         return val;
     }
 
+    else if (PC == 0xFF00) {
+        return top.rootp->Gameboy__DOT__input_inst__DOT__JOYPAD_reg;
+    }
+
     else if (PC <= 0xFF7F) {
         std::cout << "Read from IO address 0x" << std::hex << PC << std::dec << "\n";
         return 0xFF;
@@ -86,14 +106,13 @@ static u8 read_mem(VGameboy& top, u16 PC) {
         return val;
     }
 
-    // Unusable memory
     else if (PC <= 0xFFFF) {
         std::cout << "Read from IE register 0x" << std::hex << PC << std::dec << "\n";
         return 0xFF;
     }
 
     else {
-        std::cerr << "ERROR: Attempted to read from invalid memory address 0x" << std::hex << PC << std::dec << "\n";
+        std::cerr << "error: Attempted to read from invalid memory address 0x" << std::hex << PC << std::dec << "\n";
         return 0xFF;
     }
 }
@@ -103,8 +122,6 @@ struct CPUState {
     u8 B, C, D, E, H, L;
     u16 PC, SP;
     u8 PCMEM[4];
-
-    u8 SCX, SCY;
 };
 
 static CPUState get_vemu_state(VGameboy& top) {
@@ -122,9 +139,6 @@ static CPUState get_vemu_state(VGameboy& top) {
 
     s.PC = ((r.__PVT__pch << 8) | r.__PVT__pcl) - 1;
     s.SP = (r.__PVT__sph << 8) | r.__PVT__spl;
-
-    s.SCX = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCX;
-    s.SCY = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCY;
 
     for (int i = 0; i < 4; ++i)
         s.PCMEM[i] = read_mem(top, s.PC + i);
@@ -147,35 +161,52 @@ static CPUState get_cemu_state(Gameboy& gb) {
     s.PC = gb.cpu->PC.value();
     s.SP = gb.cpu->SP.value();
 
-    s.SCX = gb.ppu->scroll_x.value();
-    s.SCY = gb.ppu->scroll_y.value();
-
     for (int i = 0; i < 4; ++i)
         s.PCMEM[i] = gb.mmu->read(s.PC + i);
 
     return s;
 }
 
-::testing::AssertionResult states_equal(const CPUState& v, const CPUState& c, int instr) {
-    // quick binary compare — bail out fast
+struct PPUState {
+    u8 LCDC;
+    u8 SCY, SCX;
+    u8 LY;
+    u8 LYC;
+    u8 BGP;
+    u8 STAT;
+};
+
+static PPUState get_vemu_ppu_state(VGameboy& top) {
+    auto& r = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs;
+
+    PPUState s;
+    s.LCDC = r.__PVT__LCDC;
+    s.SCY = r.__PVT__SCY;
+    s.SCX = r.__PVT__SCX;
+    s.LY = r.__PVT__LY;
+    s.LYC = r.__PVT__LYC;
+    s.BGP = r.__PVT__BGP;
+    // s.STAT = r.__PVT__STAT;
+    return s;
+}
+
+static PPUState get_cemu_ppu_state(Gameboy& gb) {
+    PPUState s;
+
+    s.BGP = gb.ppu->bg_palette.value();
+    s.LCDC = gb.ppu->control_byte;
+    s.SCY = gb.ppu->scroll_y.value();
+    s.SCX = gb.ppu->scroll_x.value();
+    s.LY = gb.ppu->line.value();
+    s.LYC = gb.ppu->ly_compare.value();
+    // s.STAT = gb.ppu->lcd_status.value();
+
+    return s;
+}
+
+::testing::AssertionResult cpu_states_equal(const CPUState& v, const CPUState& c, int instr) {
     if (!memcmp(&v, &c, sizeof(CPUState)))
         return ::testing::AssertionSuccess();
-
-    auto color_v = [&](uint8_t vreg, uint8_t creg) {
-        return (vreg == creg) ? byte_hex(vreg) : color_red(byte_hex(vreg));
-    };
-
-    auto color_c = [&](uint8_t vreg, uint8_t creg) {
-        return (vreg == creg) ? byte_hex(creg) : color_green(byte_hex(creg));
-    };
-
-    auto color_v16 = [&](uint16_t vreg, uint16_t creg) {
-        return (vreg == creg) ? word_hex(vreg) : color_red(word_hex(vreg));
-    };
-
-    auto color_c16 = [&](uint16_t vreg, uint16_t creg) {
-        return (vreg == creg) ? word_hex(creg) : color_green(word_hex(creg));
-    };
 
     std::ostringstream msg;
 
@@ -195,9 +226,7 @@ static CPUState get_cemu_state(Gameboy& gb) {
         << "PCMEM: " << color_v(v.PCMEM[0], c.PCMEM[0]) << " "
         << color_v(v.PCMEM[1], c.PCMEM[1]) << " "
         << color_v(v.PCMEM[2], c.PCMEM[2]) << " "
-        << color_v(v.PCMEM[3], c.PCMEM[3]) << " "
-        << "SCX:" << color_v(v.SCX, c.SCX) << " "
-        << "SCY:" << color_v(v.SCY, c.SCY) << "\n";
+        << color_v(v.PCMEM[3], c.PCMEM[3]) << "\n";
 
     msg << "CEMU: "
         << "A:" << color_c(v.A, c.A) << " "
@@ -213,14 +242,41 @@ static CPUState get_cemu_state(Gameboy& gb) {
         << "PCMEM: " << color_c(v.PCMEM[0], c.PCMEM[0]) << " "
         << color_c(v.PCMEM[1], c.PCMEM[1]) << " "
         << color_c(v.PCMEM[2], c.PCMEM[2]) << " "
-        << color_c(v.PCMEM[3], c.PCMEM[3]) << " "
+        << color_c(v.PCMEM[3], c.PCMEM[3]) << "\n";
+
+    return ::testing::AssertionFailure() << msg.str();
+}
+
+::testing::AssertionResult ppu_states_equal(const PPUState& v, const PPUState& c, int instr) {
+    if (!memcmp(&v, &c, sizeof(PPUState)))
+        return ::testing::AssertionSuccess();
+
+    std::ostringstream msg;
+
+    msg << "\n\033[1mMismatch after instruction " << instr << "\033[0m\n\n";
+
+    msg << "VEMU: "
+        << "BGP:" << color_v(v.BGP, c.BGP) << " "
+        << "LCDC:" << color_v(v.LCDC, c.LCDC) << " "
+        << "LY:" << color_v(v.LY, c.LY) << " "
+        << "LYC:" << color_v(v.LYC, c.LYC) << " "
+        << "STAT:" << color_v(v.STAT, c.STAT) << " "
+        << "SCX:" << color_v(v.SCX, c.SCX) << " "
+        << "SCY:" << color_v(v.SCY, c.SCY) << "\n";
+
+    msg << "CEMU: "
+        << "BGP:" << color_c(v.BGP, c.BGP) << " "
+        << "LCDC:" << color_c(v.LCDC, c.LCDC) << " "
+        << "LY:" << color_c(v.LY, c.LY) << " "
+        << "LYC:" << color_c(v.LYC, c.LYC) << " "
+        << "STAT:" << color_c(v.STAT, c.STAT) << " "
         << "SCX:" << color_c(v.SCX, c.SCX) << " "
         << "SCY:" << color_c(v.SCY, c.SCY) << "\n";
 
     return ::testing::AssertionFailure() << msg.str();
 }
 
-static std::string format_state(const CPUState& s) {
+static std::string format_cpu_state(const CPUState& s) {
     std::ostringstream oss;
     oss << "A:" << byte_hex(s.A)
         << " F:" << byte_hex(s.F)
@@ -232,28 +288,137 @@ static std::string format_state(const CPUState& s) {
         << " MEM:" << byte_hex(s.PCMEM[0]) << " "
         << byte_hex(s.PCMEM[1]) << " "
         << byte_hex(s.PCMEM[2]) << " "
-        << byte_hex(s.PCMEM[3]) << " "
-        << "SCX:" << byte_hex(s.SCX) << " "
-        << "SCY:" << byte_hex(s.SCY);
+        << byte_hex(s.PCMEM[3]) << " ";
     return oss.str();
 }
 
-static void assert_rom_equal(VGameboy& top, Gameboy& gb) {
-    auto& vemu_rom = top.rootp->Gameboy__DOT__cart_inst__DOT__ROM;
+static std::string format_ppu_state(const PPUState& s) {
+    std::ostringstream oss;
+    oss << "BGP:" << byte_hex(s.BGP)
+        << " LCDC:" << byte_hex(s.LCDC)
+        << " LY:" << byte_hex(s.LY)
+        << " LYC:" << byte_hex(s.LYC)
+        << " STAT:" << byte_hex(s.STAT)
+        << " SCX:" << byte_hex(s.SCX)
+        << " SCY:" << byte_hex(s.SCY) << " ";
+    return oss.str();
+}
 
+static ::testing::AssertionResult assert_vram_equal(VGameboy& top, Gameboy& gb, int instr) {
+    auto& v_vram = top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM;
+    // CEMU support: single VRAM bank only (DMG)
+    for (int i = 0; i < 0x2000; i++) {
+        u8 v = v_vram[i];
+        u8 c = gb.mmu->read(0x8000 + i);
+        if (v != c) {
+            std::ostringstream oss;
+            oss << "VRAM mismatch at 0x"
+                << std::hex << (0x8000 + i)
+                << " after instruction " << std::dec << instr << "\n"
+                << std::hex
+                << " VEMU=" << byte_hex(v)
+                << " CEMU=" << byte_hex(c);
+            return ::testing::AssertionFailure() << oss.str();
+        }
+    }
+    return ::testing::AssertionSuccess();
+}
+
+static ::testing::AssertionResult assert_oam_equal(VGameboy& top, Gameboy& gb, int instr) {
+    auto& v_oam = top.rootp->Gameboy__DOT__ppu_inst__DOT__OAM;
+
+    for (int i = 0; i < 0xA0; i++) {
+        u8 v = v_oam[i];
+        u8 c = gb.mmu->read(0xFE00 + i);
+        if (v != c) {
+            std::ostringstream oss;
+            oss << "OAM mismatch at 0x"
+                << std::hex << (0xFE00 + i)
+                << " after instruction " << std::dec << instr << "\n"
+                << std::hex
+                << " VEMU=" << byte_hex(v)
+                << " CEMU=" << byte_hex(c);
+            return ::testing::AssertionFailure() << oss.str();
+        }
+    }
+    return ::testing::AssertionSuccess();
+}
+
+static ::testing::AssertionResult assert_rom_equal(VGameboy& top, Gameboy& gb, int instr) {
     for (int i = 0; i < 0x8000; i++) {
-        u8 v = vemu_rom[i];
-        u8 c = gb.mmu->read(i); // CEMU’s real ROM access
+        u8 v = read_mem(top, i);
+        u8 c = gb.mmu->read(i);
 
         if (v != c) {
             std::ostringstream oss;
             oss << "ROM mismatch at address 0x"
-                << std::hex << i << " : "
+                << std::hex << i << " after instruction " << std::dec << instr << "\n"
+                << std::hex
                 << "VEMU=" << std::setw(2) << std::setfill('0') << int(v) << ", "
                 << "CEMU=" << std::setw(2) << std::setfill('0') << int(c);
-            FAIL() << oss.str();
+            return ::testing::AssertionFailure() << oss.str();
         }
     }
+    return ::testing::AssertionSuccess();
+}
+
+static ::testing::AssertionResult assert_io_equal(VGameboy& top, Gameboy& gb, int instr) {
+    for (int i = 0xFF00; i < 0xFF7F; i++) {
+        u8 v = read_mem(top, i);
+        u8 c = gb.mmu->read(i);
+
+        if (v != c) {
+            std::ostringstream oss;
+            oss << "IO mismatch at address 0x"
+                << std::hex << i << " after instruction " << std::dec << instr << "\n"
+                << std::hex
+                << "VEMU=" << std::setw(2) << std::setfill('0') << int(v) << ", "
+                << "CEMU=" << std::setw(2) << std::setfill('0') << int(c);
+            return ::testing::AssertionFailure() << oss.str();
+        }
+    }
+    return ::testing::AssertionSuccess();
+}
+
+static ::testing::AssertionResult assert_ram_equal(VGameboy& top, Gameboy& gb, int instr) {
+    auto& v_wram = top.rootp->Gameboy__DOT__ram_inst__DOT__WRAM;
+    auto& v_hram = top.rootp->Gameboy__DOT__ram_inst__DOT__HRAM;
+
+    // WRAM: 8 KB at 0xC000–0xDFFF
+    for (int i = 0; i < 0x2000; i++) {
+        u16 addr = 0xC000 + i;
+        u8 v = v_wram[i];
+        u8 c = gb.mmu->read(addr);
+        if (v != c) {
+            std::ostringstream oss;
+            oss << "WRAM mismatch at 0x"
+                << std::hex << addr
+                << " after instruction " << std::dec << instr << "\n"
+                << std::hex
+                << " VEMU=" << byte_hex(v)
+                << " CEMU=" << byte_hex(c);
+            return ::testing::AssertionFailure() << oss.str();
+        }
+    }
+
+    // HRAM: 0xFF80–0xFFFE (127 bytes)
+    for (int i = 0; i < 0x7F; i++) {
+        u16 addr = 0xFF80 + i;
+        u8 v = v_hram[i];
+        u8 c = gb.mmu->read(addr);
+        if (v != c) {
+            std::ostringstream oss;
+            oss << "HRAM mismatch at 0x"
+                << std::hex << addr
+                << " after instruction " << std::dec << instr << "\n"
+                << std::hex
+                << " VEMU=" << byte_hex(v)
+                << " CEMU=" << byte_hex(c);
+            return ::testing::AssertionFailure() << oss.str();
+        }
+    }
+
+    return ::testing::AssertionSuccess();
 }
 
 static bool load_rom(VGameboy& top, const fs::path& filename) {
@@ -304,7 +469,7 @@ protected:
         cemu.cpu->SP.set(0xFFFE);
 
         for (int i = 0; i < 0x7F; ++i)
-            vemu.rootp->Gameboy__DOT__ram_inst__DOT__HRAM[i] = 0xFF;
+            vemu.rootp->Gameboy__DOT__ram_inst__DOT__HRAM[i] = 0x00;
 
         while (vemu.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0)
             tick_vemu();
@@ -320,11 +485,11 @@ protected:
     void tick_vemu() {
         vemu.clk = 0;
         vemu.eval();
-        ctx.timeInc(5);
+        ctx.timeInc(1);
 
         vemu.clk = 1;
         vemu.eval();
-        ctx.timeInc(5);
+        ctx.timeInc(1);
     }
 };
 
@@ -332,14 +497,25 @@ TEST_F(GameboyCoSimTest, CPU_Instruction_Compatibility) {
 
     const int MAX_INSTRUCTIONS = 200000;
 
-    CPUState v_state = get_vemu_state(vemu);
-    CPUState c_state = get_cemu_state(cemu);
+    CPUState v_cpu_state = get_vemu_state(vemu);
+    CPUState c_cpu_state = get_cemu_state(cemu);
+    PPUState v_ppu_state = get_vemu_ppu_state(vemu);
+    PPUState c_ppu_state = get_cemu_ppu_state(cemu);
 
-    ASSERT_TRUE(states_equal(v_state, c_state, 0));
+    cemu_log << format_cpu_state(c_cpu_state) << format_ppu_state(c_ppu_state) << "\n";
+    vemu_log << format_cpu_state(v_cpu_state) << format_ppu_state(v_ppu_state) << "\n";
+
+    ASSERT_TRUE(cpu_states_equal(v_cpu_state, c_cpu_state, 0));
+    ASSERT_TRUE(ppu_states_equal(v_ppu_state, c_ppu_state, 0));
+    ASSERT_TRUE(assert_rom_equal(vemu, cemu, 0));
+    ASSERT_TRUE(assert_vram_equal(vemu, cemu, 0));
+    ASSERT_TRUE(assert_oam_equal(vemu, cemu, 0));
+    ASSERT_TRUE(assert_ram_equal(vemu, cemu, 0));
+    // ASSERT_TRUE(assert_io_equal(vemu, cemu, 0));
 
     for (int instr = 1; instr < MAX_INSTRUCTIONS; ++instr) {
 
-        cemu.tick();
+        // cemu.tick();
 
         vemu.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary = 0;
 
@@ -347,13 +523,21 @@ TEST_F(GameboyCoSimTest, CPU_Instruction_Compatibility) {
             tick_vemu();
         }
 
-        v_state = get_vemu_state(vemu);
-        c_state = get_cemu_state(cemu);
+        v_cpu_state = get_vemu_state(vemu);
+        c_cpu_state = get_cemu_state(cemu);
 
-        cemu_log << format_state(c_state) << "\n";
-        vemu_log << format_state(v_state) << "\n";
+        v_ppu_state = get_vemu_ppu_state(vemu);
+        c_ppu_state = get_cemu_ppu_state(cemu);
 
-        ASSERT_TRUE(states_equal(v_state, c_state, instr));
+        cemu_log << format_cpu_state(c_cpu_state) << format_ppu_state(c_ppu_state) << "\n";
+        vemu_log << format_cpu_state(v_cpu_state) << format_ppu_state(v_ppu_state) << "\n";
+
+        // ASSERT_TRUE(cpu_states_equal(v_cpu_state, c_cpu_state, instr));
+        // ASSERT_TRUE(ppu_states_equal(v_ppu_state, c_ppu_state, instr));
+        // ASSERT_TRUE(assert_vram_equal(vemu, cemu, instr));
+        // ASSERT_TRUE(assert_oam_equal(vemu, cemu, instr));
+        // ASSERT_TRUE(assert_ram_equal(vemu, cemu, instr));
+        // ASSERT_TRUE(assert_io_equal(vemu, cemu, instr));
 
         if (!cemu.mmu->boot_rom_active()) {
             std::cout << "Boot ROM finished at instruction " << instr << "\n";

@@ -26,12 +26,15 @@ module cartridge_cpu_top (
   Bus_if serial_bus ();
   Bus_if timer_bus ();
   Bus_if input_bus ();
-  Interrupt_if IF_bus ();
+  Bus_if interrupt_bus ();
+  Bus IF_bus ();
 
   CPU cpu_inst (
-      .clk  (clk),
-      .reset(reset),
-      .bus  (cpu_bus)
+      .clk,
+      .reset,
+      .bus(cpu_bus),
+      .interrupt_bus(interrupt_bus),
+      .IF_bus(IF_bus)
   );
 
   assign pc_out = {cpu_inst.regs.pch, cpu_inst.regs.pcl};
@@ -47,7 +50,7 @@ module cartridge_cpu_top (
       .serial_bus(serial_bus),
       .timer_bus(timer_bus),
       .input_bus(input_bus),
-      .IF_bus(IF_bus)
+      .interrupt_bus(interrupt_bus)
   );
 
   Cartridge cart_inst (

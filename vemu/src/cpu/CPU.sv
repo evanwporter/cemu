@@ -6,6 +6,7 @@
 `include "cpu/control_words.sv"
 `include "cpu/cb_control_words.sv"
 `include "cpu/util.sv"
+`include "cpu/interrupt_control_words.sv"
 
 `include "util/logger.svh"
 
@@ -15,7 +16,9 @@ module CPU (
     input logic clk,
     input logic reset,
 
-    Bus_if.CPU_side bus
+    Bus_if.CPU_side bus,
+    Bus_if.Peripheral_side interrupt_bus,
+    Interrupt_if.CPU_side IF_bus
 );
 
   /// The CPU register
@@ -32,6 +35,12 @@ module CPU (
 
   // TODO: Perhaps rename to `instr_finished_flag`?
   logic instr_boundary;
+
+  // Interrupt flags
+  logic [7:0] IF;
+
+  // Interrupt enable register
+  logic [7:0] IE;
 
   localparam cycle_count_t MAX_CYCLE_INDEX = MAX_CYCLES_PER_INSTR - 1;
 
@@ -148,6 +157,39 @@ module CPU (
             end else begin
               control_word   <= control_words[regs.IR];
               instr_boundary <= 1'b1;
+
+              if (regs.IME) begin
+
+                logic [4:0] pending;
+                pending = IF[4:0] & IE[4:0];
+
+                if ((pending) != 5'b0) begin
+                  // Interrupt detected -> take the highest priority
+                  logic [2:0] irq_index;
+
+                  if (pending[0]) begin  // VBlank
+                    IF[3'd0] <= 1'b0;
+                    control_word <= interrupt_words[3'd0];
+                  end else if (pending[1]) begin  // STAT
+                    IF[3'd1] <= 1'b0;
+                    control_word <= interrupt_words[3'd1];
+                  end else if (pending[2]) begin  // Timer
+                    IF[3'd2] <= 1'b0;
+                    control_word <= interrupt_words[3'd2];
+                  end else if (pending[3]) begin  // Serial
+                    IF[3'd3] <= 1'b0;
+                    control_word <= interrupt_words[3'd3];
+                  end else if (pending[4]) begin  // Joypad
+                    IF[3'd4] <= 1'b0;
+                    control_word <= interrupt_words[3'd4];
+                  end
+
+                  // Disable master interrupt
+                  regs.IME <= 1'b0;
+
+                  instr_boundary <= 1'b0;  // Now executing new implicit instruction
+                end
+              end
             end
           end else begin
             cycle_count <= cycle_count + 1;
@@ -160,6 +202,38 @@ module CPU (
 
         end
       endcase
+    end
+  end
+
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      IF <= 8'b11100000;
+      IE <= 8'd0;
+    end else begin
+      if (interrupt_bus.write_en) begin
+        if (interrupt_bus.addr == 16'hFF0F) begin
+          IF <= (interrupt_bus.wdata & 8'b00011111) | 8'b11100000;
+        end else if (interrupt_bus.addr == 16'hFFFF) begin
+          IE <= interrupt_bus.wdata;
+        end
+      end
+
+      if (IF_bus.vblank_req) IF[0] <= 1'b1;
+      if (IF_bus.stat_req) IF[1] <= 1'b1;
+      if (IF_bus.timer_req) IF[2] <= 1'b1;
+      if (IF_bus.serial_req) IF[3] <= 1'b1;
+      if (IF_bus.joypad_req) IF[4] <= 1'b1;
+    end
+  end
+
+  always_comb begin
+    interrupt_bus.rdata = 8'h00;
+    if (interrupt_bus.read_en) begin
+      if (interrupt_bus.addr == 16'hFF0F) begin
+        interrupt_bus.rdata = IF;
+      end else if (interrupt_bus.addr == 16'hFFFF) begin
+        interrupt_bus.rdata = IE;
+      end
     end
   end
 

@@ -15,11 +15,11 @@ module PPU (
     input logic clk,
     input logic reset,
 
-    Bus_if.Peripheral_side bus
+    Bus_if.Peripheral_side bus,
+    Interrupt_if.PPU_side  IF_bus
 );
 
   logic [8:0] cycle_counter;
-  logic [7:0] line;
 
   ppu_regs_t regs;
 
@@ -36,12 +36,14 @@ module PPU (
   logic dot_en;
   assign dot_en = (mode == PPU_MODE_3);
 
+  logic [8:0] dot_counter;
+
   logic [7:0] VRAM[VRAM_len];
   logic [7:0] OAM[OAM_len];
 
   // Window active check
   logic window_active;
-  assign window_active = (regs.LCDC[5] && (line >= regs.WY) &&
+  assign window_active = (regs.LCDC[5] && (regs.LY >= regs.WY) &&
                          (/* current X >= WX - 7 */ 1'b1)); // TODO: implement per-dot window condition
 
 
@@ -83,7 +85,7 @@ module PPU (
       .regs         (regs),
       .x_clock      (cycle_counter),
       .window_active(window_active),
-      .y_screen     (line),
+      .y_screen     (regs.LY),
       // VRAM bus
       .vram_read_req(vram_read_req),
       .vram_addr    (vram_addr),
@@ -124,7 +126,7 @@ module PPU (
   // ======================================================
 
   // MMU Listeners for VRAM, OAM, Registers
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk or posedge reset) begin
     if (bus.write_en) begin
       `LOG_TRACE(("PPU: WRITE addr=%h data=%h", bus.addr, bus.wdata));
 
@@ -136,7 +138,7 @@ module PPU (
             VRAM[13'(bus.addr-16'h8000)] <= bus.wdata;
             `LOG_TRACE(("[PPU] VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
           end else begin
-            `LOG_INFO(
+            `LOG_TRACE(
                 ("[PPU] VRAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
           end
         end
@@ -145,23 +147,23 @@ module PPU (
         (bus.addr inside {[OAM_start : OAM_end]}): begin
           if (!(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
             OAM[8'(bus.addr-16'hFE00)] <= bus.wdata;
-            `LOG_TRACE(("PPU: OAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
+            `LOG_TRACE(("[PPU] OAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
           end else begin
             `LOG_INFO(
-                ("PPU: OAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
+                ("[PPU] OAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
           end
         end
 
         // PPU register writes
         // TODO: check whether this ever needs to be blocked
         (bus.addr inside {[PPU_regs_start : PPU_regs_end]}): begin
-          `LOG_WARN(("PPU: REG WRITE addr=%h data=%h", bus.addr, bus.wdata));
+          `LOG_TRACE(("[PPU] REG WRITE addr=%h data=%h", bus.addr, bus.wdata));
           unique case (bus.addr)
             16'hFF40: regs.LCDC <= bus.wdata;
             16'hFF42: regs.SCY <= bus.wdata;
             16'hFF43: regs.SCX <= bus.wdata;
             16'hFF44: begin
-              `LOG_WARN(("PPU: Attempted to write 0x%h to LY register", bus.wdata));
+              `LOG_WARN(("[PPU] Attempted to write 0x%h to LY register", bus.wdata));
             end
             16'hFF45: regs.LYC <= bus.wdata;
             16'hFF47: regs.BGP <= bus.wdata;
@@ -184,7 +186,7 @@ module PPU (
         // VRAM reads (blocked in Mode 3)
         [VRAM_start : VRAM_end]: begin
           bus.rdata = (mode == PPU_MODE_3) ? 8'hFF : VRAM[13'(bus.addr-VRAM_start)];
-          `LOG_TRACE(("PPU: VRAM READ addr=%h -> %h (mode=%0d)", bus.addr, bus.rdata, mode));
+          `LOG_TRACE(("[PPU] VRAM READ addr=%h -> %h (mode=%0d)", bus.addr, bus.rdata, mode));
         end
 
         // OAM reads (blocked in Mode 2 & 3)
@@ -192,12 +194,12 @@ module PPU (
           bus.rdata = (mode == PPU_MODE_2 || mode == PPU_MODE_3)
             ? 8'hFF
             : OAM[8'(bus.addr-OAM_start)];
-          `LOG_TRACE(("PPU: OAM READ addr=%h -> %h (mode=%0d)", bus.addr, bus.rdata, mode));
+          `LOG_TRACE(("[PPU] OAM READ addr=%h -> %h (mode=%0d)", bus.addr, bus.rdata, mode));
         end
 
         // PPU register reads
         [PPU_regs_start : PPU_regs_end]: begin
-          `LOG_WARN(("PPU: REG READ addr=%h -> %h", bus.addr, bus.rdata));
+          `LOG_TRACE(("[PPU] REG READ addr=%h -> %h", bus.addr, bus.rdata));
           unique case (bus.addr)
             16'hFF40: bus.rdata = regs.LCDC;
             16'hFF42: bus.rdata = regs.SCY;
@@ -215,30 +217,66 @@ module PPU (
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      mode          <= PPU_MODE_2;
-      line          <= 8'd0;
+      mode <= PPU_MODE_2;
+      regs.LY <= 8'd0;
       cycle_counter <= 0;
+      regs.LCDC <= 8'hCD;
+      dot_counter <= 0;
     end else begin
       cycle_counter <= cycle_counter + 1;
+      dot_counter   <= dot_counter + 1;
 
       // Mode switching logic
       unique case (mode)
-        PPU_MODE_2: if (cycle_counter == MODE2_LEN) mode <= PPU_MODE_3;
-        PPU_MODE_3: if (cycle_counter == MODE2_LEN + MODE3_LEN) mode <= PPU_MODE_0;
-        PPU_MODE_0: begin
-          if (cycle_counter == CYCLES_PER_LINE - 1) begin
+        PPU_MODE_2: begin
+          if (cycle_counter == 0)
+            `LOG_TRACE(
+                ("[PPU] Entered MODE2 (OAM Search) at LY=%0d and dots=%0d", regs.LY, dot_counter));
+
+          if (cycle_counter >= MODE2_LEN) begin
+            mode <= PPU_MODE_3;
             cycle_counter <= 0;
-            line <= line + 1;
-            if (line == 8'd143) mode <= PPU_MODE_1;
-            else mode <= PPU_MODE_2;
+            regs.STAT <= regs.STAT | 8'b00000011;  // set mode bits to 11
           end
         end
-        PPU_MODE_1: begin
+
+        PPU_MODE_3: begin
+          if (cycle_counter == 0)
+            `LOG_TRACE(
+                ("[PPU] Entered MODE3 (Pixel Transfer) at LY=%0d and dots=%0d", regs.LY, dot_counter));
+
+          if (cycle_counter >= MODE3_LEN) begin
+            mode <= PPU_MODE_0;
+            cycle_counter <= 0;
+          end
+        end
+
+        PPU_MODE_0: begin
+          if (cycle_counter == 0)
+            `LOG_TRACE(
+                ("[PPU] Entered MODE0 (HBlank) at LY=%0d and dots=%0d", regs.LY, dot_counter));
+
           if (cycle_counter == CYCLES_PER_LINE - 1) begin
             cycle_counter <= 0;
-            line <= line + 1;
-            if (line == LINES_PER_FRAME - 1) begin
-              line <= 8'd0;
+            regs.LY <= regs.LY + 1;
+
+            if (regs.LY == 8'd143) begin
+              mode <= PPU_MODE_1;
+              IF_bus.vblank_req <= 1;
+            end else mode <= PPU_MODE_2;
+          end
+        end
+
+        PPU_MODE_1: begin
+          if (cycle_counter == 0)
+            `LOG_TRACE(("[PPU] MODE1 (V-Blank) line=%0d and dots=%0d", regs.LY, dot_counter));
+
+          if (cycle_counter == CYCLES_PER_LINE - 1) begin
+            cycle_counter <= 0;
+            dot_counter <= 0;
+            regs.LY <= regs.LY + 1;
+            if (regs.LY == LINES_PER_FRAME - 1) begin
+              regs.LY <= 8'd0;
               mode <= PPU_MODE_2;
             end
           end
@@ -246,7 +284,6 @@ module PPU (
       endcase
     end
   end
-
 endmodule
 
 `endif  // PPU_SV

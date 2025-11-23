@@ -1,3 +1,6 @@
+#define SDL_MAIN_HANDLED
+#include <SDL.h>
+
 #include <VGameboy.h>
 #include <VGameboy___024root.h>
 #include <cstdint>
@@ -9,6 +12,51 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+
+#include "VGameboy.h"
+#include <verilated.h>
+
+static const int GB_WIDTH = 160;
+static const int GB_HEIGHT = 144;
+static const int SCALE = 3;
+
+static SDL_Window* window;
+static SDL_Renderer* renderer;
+static SDL_Texture* texture;
+
+static inline uint32_t gb_color(uint8_t c) {
+    switch (c & 0x3) {
+    case 0:
+        return 0xFFFFFFFF; // white
+    case 1:
+        return 0xAAAAAAFF; // light gray
+    case 2:
+        return 0x555555FF; // dark gray
+    case 3:
+        return 0x000000FF; // black
+    default:
+        return 0xFFFFFFFF;
+    }
+}
+
+static void draw_frame(VGameboy& top) {
+    void* pixels;
+    int pitch;
+    SDL_LockTexture(texture, nullptr, &pixels, &pitch);
+    uint32_t* buf = static_cast<uint32_t*>(pixels);
+
+    for (int y = 0; y < GB_HEIGHT; ++y) {
+        for (int x = 0; x < GB_WIDTH; ++x) {
+            int idx = y * GB_WIDTH + x;
+            uint8_t col = top.rootp->Gameboy__DOT__ppu_inst__DOT__framebuffer__DOT__buffer[idx];
+            buf[y * GB_WIDTH + x] = gb_color(col);
+        }
+    }
+
+    SDL_UnlockTexture(texture);
+    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+    SDL_RenderPresent(renderer);
+}
 
 namespace fs = std::filesystem;
 
@@ -210,6 +258,50 @@ static void set_initial_state(VGameboy& top) {
     // regs.__PVT__IR = 0x00;
 }
 
+static void draw_from_vram(VGameboy& top) {
+    void* pixels;
+    int pitch;
+    SDL_LockTexture(texture, nullptr, &pixels, &pitch);
+    uint32_t* out = (uint32_t*)pixels;
+
+    auto& vram = top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM;
+
+    uint8_t LCDC = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LCDC;
+    uint8_t SCX = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCX;
+    uint8_t SCY = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCY;
+
+    bool signed_index = !(LCDC & 0x10); // tile data at 0x8800 or 0x8000
+    uint16_t tilemap_base = (LCDC & 0x08) ? 0x1C00 : 0x1800; // 9800 or 9C00
+
+    for (int y = 0; y < GB_HEIGHT; ++y) {
+        int map_y = (y + SCY) & 255;
+        int tile_row = (map_y / 8) * 32;
+
+        for (int x = 0; x < GB_WIDTH; ++x) {
+            int map_x = (x + SCX) & 255;
+
+            int tile_col = map_x / 8;
+            uint8_t tile_index = vram[tilemap_base + tile_row + tile_col];
+
+            int tile = signed_index ? (int8_t)tile_index + 256 : tile_index;
+
+            int tile_y = map_y % 8;
+            int tile_x = 7 - (map_x % 8);
+
+            uint8_t* td = &vram[tile * 16 + tile_y * 2];
+            uint8_t lo = td[0];
+            uint8_t hi = td[1];
+            uint8_t color = ((hi >> tile_x) & 1) * 2 + ((lo >> tile_x) & 1);
+
+            out[y * GB_WIDTH + x] = gb_color(color);
+        }
+    }
+
+    SDL_UnlockTexture(texture);
+    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+    SDL_RenderPresent(renderer);
+}
+
 int main() {
     VerilatedContext ctx;
     ctx.debug(0);
@@ -231,6 +323,23 @@ int main() {
         return 1;
     }
 
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        std::cerr << "SDL init failed: " << SDL_GetError() << "\n";
+        return 1;
+    }
+
+    window = SDL_CreateWindow(
+        "Verilog Game Boy",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        GB_WIDTH * SCALE,
+        GB_HEIGHT * SCALE,
+        0);
+
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, GB_WIDTH, GB_HEIGHT);
+
     top.reset = 1;
     top.eval();
     top.reset = 0;
@@ -244,16 +353,34 @@ int main() {
 
     const uint64_t max_cycles = 200'000;
 
+    bool quit = false;
+    SDL_Event e;
+
     while (top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
         tick(top, ctx);
     }
 
     for (int i = 0; i < max_cycles; ++i) {
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT)
+                quit = true;
+        }
+
         top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary = 0;
         while (top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
             tick(top, ctx);
         }
-        dump_gd_trace(top, trace);
+
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT)
+                quit = true;
+        }
+
+        if (top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY == 144) {
+            draw_from_vram(top);
+        }
+
+        // dump_gd_trace(top, trace);
 
         if (top.rootp->Gameboy__DOT__cart_inst__DOT__boot_rom_switch == 1) {
             std::cout << "Boot ROM finished at instruction " << i << "\n";
@@ -263,10 +390,15 @@ int main() {
         if (handle_serial_output(top)) {
             if (serial_buffer.find("Passed") != std::string::npos) {
                 std::cout << "\n[INFO] Test Passed!\n";
-                return 0;
+                break;
             }
         }
     }
 
-    return 0;
+    SDL_DestroyTexture(texture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+    return 1;
 }

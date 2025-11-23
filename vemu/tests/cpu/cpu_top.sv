@@ -17,13 +17,16 @@ module cpu_top (
 );
 
   Bus_if cpu_bus ();
+  Interrupt_if IF_bus ();
+  Bus_if interrupt_bus ();
 
   CPU cpu_inst (
-      .clk  (clk),
+      .clk(clk),
       .reset(reset),
-      .bus  (cpu_bus)
+      .bus(cpu_bus),
+      .interrupt_bus(interrupt_bus),
+      .IF_bus(IF_bus)
   );
-
   MockMMU mmu_inst (
       .clk(clk),
       .reset(reset),

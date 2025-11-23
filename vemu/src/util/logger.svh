@@ -13,13 +13,45 @@
 `endif
 `endif
 
-`define __SVLOG_PREFIX(level) \
-    {"[", level, "] [", $sformatf("%0t", $time), "] "}
+integer __log_fd = 0;
 
-`define __SVLOG_FMT(msg) $sformatf msg
+`define __SVLOG_PRINT(level, msg) \
+  if (__log_fd == 32'd0) begin \
+    $display("[%s] [%0t] %s", level, $time, $sformatf msg); \
+  end else begin \
+    $fdisplay(__log_fd, "[%s] [%0t] %s", level, $time, $sformatf msg); \
+  end
 
 `define LOG_FATAL(msg) \
-        $fatal(1, {`__SVLOG_PREFIX("FATAL"), `__SVLOG_FMT(msg)})
+  if (__log_fd != 32'd0) \
+    $fdisplay(__log_fd, "[FATAL] [%0t] %s", $time, $sformatf msg); \
+  $fatal("[FATAL] [%0t] %s", $time, $sformatf msg);
+
+`define __SVLOG_ERROR(msg) \
+  if (__log_fd != 32'd0) \
+    $fdisplay(__log_fd, "[ERROR] [%0t] %s", $time, $sformatf msg); \
+  $error("[ERROR] [%0t] %s", $time, $sformatf msg);
+
+`define __SVLOG_WARN(msg) \
+  if (__log_fd == 32'd0) begin \
+    $display("[WARN] [%0t] %s", $time, $sformatf msg); \
+  end else begin \
+    $fdisplay(__log_fd, "[WARN] [%0t] %s", $time, $sformatf msg); \
+  end
+
+`define __SVLOG_INFO(msg) \
+  if (__log_fd == 32'd0) begin \
+    $display("[INFO] [%0t] %s", $time, $sformatf msg); \
+  end else begin \
+    $fdisplay(__log_fd, "[INFO] [%0t] %s", $time, $sformatf msg); \
+  end
+
+`define __SVLOG_TRACE(msg) \
+  if (__log_fd == 32'd0) begin \
+    $display("[TRACE] [%0t] %s", $time, $sformatf msg); \
+  end else begin \
+    $fdisplay(__log_fd, "[TRACE] [%0t] %s", $time, $sformatf msg); \
+  end
 
 `ifdef LOG_LEVEL_NONE
 
@@ -33,28 +65,28 @@
 `define LOG_TRACE(msg) 
 `define LOG_INFO(msg) 
 `define LOG_WARN(msg) 
-`define LOG_ERROR(msg) $error({`__SVLOG_PREFIX("ERROR"), `__SVLOG_FMT(msg)})
+`define LOG_ERROR(msg) `__SVLOG_ERROR(msg)
 
 `elsif LOG_LEVEL_WARN
 
 `define LOG_TRACE(msg) 
 `define LOG_INFO(msg) 
-`define LOG_WARN(msg) $display({`__SVLOG_PREFIX("WARN"), `__SVLOG_FMT(msg)})
-`define LOG_ERROR(msg) $error({`__SVLOG_PREFIX("ERROR"), `__SVLOG_FMT(msg)})
+`define LOG_WARN(msg) `__SVLOG_WARN(msg)
+`define LOG_ERROR(msg) `__SVLOG_ERROR(msg)
 
 `elsif LOG_LEVEL_INFO
 
 `define LOG_TRACE(msg) 
-`define LOG_INFO(msg) $display({`__SVLOG_PREFIX("INFO"), `__SVLOG_FMT(msg)})
-`define LOG_WARN(msg) $display({`__SVLOG_PREFIX("WARN"), `__SVLOG_FMT(msg)})
-`define LOG_ERROR(msg) $error({`__SVLOG_PREFIX("ERROR"), `__SVLOG_FMT(msg)})
+`define LOG_INFO(msg) `__SVLOG_INFO(msg)
+`define LOG_WARN(msg) `__SVLOG_WARN(msg)
+`define LOG_ERROR(msg) `__SVLOG_ERROR(msg)
 
 `elsif LOG_LEVEL_TRACE
 
-`define LOG_TRACE(msg) $display({`__SVLOG_PREFIX("TRACE"), `__SVLOG_FMT(msg)})
-`define LOG_INFO(msg) $display({`__SVLOG_PREFIX("INFO"), `__SVLOG_FMT(msg)})
-`define LOG_WARN(msg) $display({`__SVLOG_PREFIX("WARN"), `__SVLOG_FMT(msg)})
-`define LOG_ERROR(msg) $error({`__SVLOG_PREFIX("ERROR"), `__SVLOG_FMT(msg)})
+`define LOG_TRACE(msg) `__SVLOG_TRACE(msg)
+`define LOG_INFO(msg) `__SVLOG_INFO(msg)
+`define LOG_WARN(msg) `__SVLOG_WARN(msg)
+`define LOG_ERROR(msg) `__SVLOG_ERROR(msg)
 
 `endif
 

@@ -32,8 +32,8 @@ interface Interrupt_if;
   logic serial_req;
   logic joypad_req;
 
-  // MMU updates IF_reg through this modport
-  modport MMU_side(
+  // CPU updates IF & IE through this modport
+  modport CPU_side(
       input vblank_req,
       input stat_req,
       input timer_req,
@@ -41,14 +41,13 @@ interface Interrupt_if;
       input joypad_req
   );
 
-  // Hardware modules only set bits
-  modport Source_side(
-      output vblank_req,
-      output stat_req,
-      output timer_req,
-      output serial_req,
-      output joypad_req
-  );
+  // PPU sets vblank/stat requests
+  modport PPU_side(output vblank_req, output stat_req);
+
+  modport Timer_side(output timer_req);
+  modport Serial_side(output serial_req);
+  modport Input_side(output joypad_req);
+
 
 endinterface
 

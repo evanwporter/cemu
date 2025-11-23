@@ -1357,3 +1357,80 @@ with open(output_path, "w", newline="\n") as f:
 output_path_cb = "vemu/src/cpu/cb_control_words.sv"
 with open(output_path_cb, "w", newline="\n") as f:
     f.write(generate_cb_sv(cb_control_words, cb_opcode_comments))
+
+interrupt_vectors = {
+    0: "VBLANK",
+    1: "STAT",
+    2: "TIMER",
+    3: "SERIAL",
+    4: "JOYPAD",
+}
+
+interrupt_words = {}
+
+
+def make_interrupt_word(index):
+    return [
+        {
+            "addr_src": "ADDR_SP",
+            "idu_op": "IDU_OP_DEC",
+        },
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_op": "DATA_BUS_OP_WRITE",
+            "data_bus_src": "DATA_BUS_SRC_PC_HIGH",
+            "idu_op": "IDU_OP_DEC",
+        },
+        {
+            "addr_src": "ADDR_SP",
+            "data_bus_op": "DATA_BUS_OP_WRITE",
+            "data_bus_src": "DATA_BUS_SRC_PC_LOW",
+            "misc_op": "MISC_OP_SET_PC_INTERRUPT_VEC",
+            "misc_op_dst": f"misc_op_dst_t'(3'd{index})",
+        },
+        NOP,
+        None,
+        None,
+    ]
+
+
+# Populate interrupt_words dict
+for index in range(5):
+    interrupt_words[index] = make_interrupt_word(index)
+
+
+def generate_interrupt_sv(interrupt_words):
+    lines = []
+    lines.append(
+        "`ifndef INTERRUPT_CONTROL_WORDS_SV\n`define INTERRUPT_CONTROL_WORDS_SV\n"
+    )
+    lines.append('`include "cpu/opcodes.sv"\n\n')
+    lines.append("localparam control_word_t interrupt_words [0:4] = '{\n")
+
+    for index in range(5):
+        cycles = interrupt_words[index]
+        name = interrupt_vectors[index]
+
+        lines.append(f"    {index}: '{{  // INTERRUPT {name}\n")
+        lines.append(f"        num_cycles : 3'd4,\n")
+        lines.append("         cycles : '{\n")
+
+        for i in range(MAX_CYCLES):
+            entry = cycles[i] if i < len(cycles) else None
+            is_last = i == MAX_CYCLES - 1
+            lines.append(sv_literal(i, entry, is_last))
+
+        lines.append("        }\n    }")
+
+        if index != 4:
+            lines.append(",\n")
+        else:
+            lines.append("\n")
+
+    lines.append("};\n`endif // INTERRUPT_CONTROL_WORDS_SV\n")
+    return "".join(lines)
+
+
+output_path_int = "vemu/src/cpu/interrupt_control_words.sv"
+with open(output_path_int, "w", newline="\n") as f:
+    f.write(generate_interrupt_sv(interrupt_words))
