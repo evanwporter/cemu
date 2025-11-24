@@ -28,8 +28,9 @@ module Cartridge (
     if (reset) begin
       boot_rom_switch <= 8'd0;
     end else if (bus.write_en) begin
-      if (rom_selected) ROM[rom_index] <= bus.wdata;
-      else if (boot_switch_selected) begin
+      if (rom_selected) begin
+        `LOG_WARN(("Attempt to write to ROM at address %h", bus.addr));
+      end else if (boot_switch_selected) begin
         boot_rom_switch <= bus.wdata;
         `LOG_INFO(("Boot ROM disabled"));
       end

@@ -19,7 +19,11 @@ module PPU (
     Interrupt_if.PPU_side  IF_bus
 );
 
+  // Cycle counters (reset each mode)
   logic [8:0] cycle_counter;
+
+  // Dot counters (reset after each frame)
+  logic [8:0] dot_counter;
 
   ppu_regs_t regs;
 
@@ -35,8 +39,6 @@ module PPU (
 
   logic dot_en;
   assign dot_en = (mode == PPU_MODE_3);
-
-  logic [8:0] dot_counter;
 
   logic [7:0] VRAM[VRAM_len];
   logic [7:0] OAM[OAM_len];
@@ -226,62 +228,71 @@ module PPU (
       cycle_counter <= cycle_counter + 1;
       dot_counter   <= dot_counter + 1;
 
-      // Mode switching logic
-      unique case (mode)
-        PPU_MODE_2: begin
-          if (cycle_counter == 0)
-            `LOG_TRACE(
-                ("[PPU] Entered MODE2 (OAM Search) at LY=%0d and dots=%0d", regs.LY, dot_counter));
+      if (regs.LCDC[7] == 1'b0) begin
+        // LCD disabled
+        mode <= PPU_MODE_2;
+        regs.LY <= 8'd0;
+        cycle_counter <= 0;
+        dot_counter <= 0;
 
-          if (cycle_counter >= MODE2_LEN) begin
-            mode <= PPU_MODE_3;
-            cycle_counter <= 0;
-            regs.STAT <= regs.STAT | 8'b00000011;  // set mode bits to 11
-          end
-        end
+      end else begin
+        // Mode switching logic
+        unique case (mode)
+          PPU_MODE_2: begin
+            if (cycle_counter == 0) begin
+              `LOG_TRACE(
+                  ("[PPU] Entered MODE2 (OAM Search) at LY=%0d and dots=%0d", regs.LY, dot_counter));
+              dot_counter <= 0;
 
-        PPU_MODE_3: begin
-          if (cycle_counter == 0)
-            `LOG_TRACE(
-                ("[PPU] Entered MODE3 (Pixel Transfer) at LY=%0d and dots=%0d", regs.LY, dot_counter));
-
-          if (cycle_counter >= MODE3_LEN) begin
-            mode <= PPU_MODE_0;
-            cycle_counter <= 0;
-          end
-        end
-
-        PPU_MODE_0: begin
-          if (cycle_counter == 0)
-            `LOG_TRACE(
-                ("[PPU] Entered MODE0 (HBlank) at LY=%0d and dots=%0d", regs.LY, dot_counter));
-
-          if (cycle_counter == CYCLES_PER_LINE - 1) begin
-            cycle_counter <= 0;
-            regs.LY <= regs.LY + 1;
-
-            if (regs.LY == 8'd143) begin
-              mode <= PPU_MODE_1;
-              IF_bus.vblank_req <= 1;
-            end else mode <= PPU_MODE_2;
-          end
-        end
-
-        PPU_MODE_1: begin
-          if (cycle_counter == 0)
-            `LOG_TRACE(("[PPU] MODE1 (V-Blank) line=%0d and dots=%0d", regs.LY, dot_counter));
-
-          if (cycle_counter == CYCLES_PER_LINE - 1) begin
-            cycle_counter <= 0;
-            dot_counter <= 0;
-            regs.LY <= regs.LY + 1;
-            if (regs.LY == LINES_PER_FRAME - 1) begin
-              regs.LY <= 8'd0;
-              mode <= PPU_MODE_2;
+            end else if (cycle_counter >= MODE2_LEN) begin
+              mode <= PPU_MODE_3;
+              cycle_counter <= 0;
             end
           end
-        end
-      endcase
+
+          PPU_MODE_3: begin
+            if (cycle_counter == 0)
+              `LOG_TRACE(
+                  ("[PPU] Entered MODE3 (Pixel Transfer) at LY=%0d and dots=%0d", regs.LY, dot_counter));
+
+            if (cycle_counter >= MODE3_LEN) begin
+              mode <= PPU_MODE_0;
+              cycle_counter <= 0;
+            end
+          end
+
+          // Do nothing phase for rest of 456 dots
+          PPU_MODE_0: begin
+            if (cycle_counter == 0)
+              `LOG_TRACE(
+                  ("[PPU] Entered MODE0 (HBlank) at LY=%0d and dots=%0d", regs.LY, dot_counter));
+
+            if (cycle_counter == CYCLES_PER_LINE - 1) begin
+              cycle_counter <= 0;
+              regs.LY <= regs.LY + 1;
+
+              if (regs.LY == 8'd143) begin
+                mode <= PPU_MODE_1;
+                IF_bus.vblank_req <= 1;
+              end else mode <= PPU_MODE_2;
+            end
+          end
+
+          PPU_MODE_1: begin
+            if (cycle_counter == 0)
+              `LOG_INFO(("[PPU] MODE1 (V-Blank) line=%0d and dots=%0d", regs.LY, dot_counter));
+
+            if (cycle_counter == CYCLES_PER_LINE - 1) begin
+              cycle_counter <= 0;
+              regs.LY <= regs.LY + 1;
+              if (regs.LY == LINES_PER_FRAME - 1) begin
+                regs.LY <= 8'd0;
+                mode <= PPU_MODE_2;
+              end
+            end
+          end
+        endcase
+      end
     end
   end
 endmodule

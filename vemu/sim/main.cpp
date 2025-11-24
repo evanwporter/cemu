@@ -3,28 +3,29 @@
 
 #include <VGameboy.h>
 #include <VGameboy___024root.h>
-#include <cstdint>
-#include <iomanip>
 #include <verilated.h>
 
 #include "boot.hpp"
 
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
-
-#include "VGameboy.h"
-#include <verilated.h>
 
 static const int GB_WIDTH = 160;
 static const int GB_HEIGHT = 144;
 static const int SCALE = 3;
 
+using u8 = uint8_t;
+using u16 = uint16_t;
+using u32 = uint32_t;
+
 static SDL_Window* window;
 static SDL_Renderer* renderer;
 static SDL_Texture* texture;
 
-static inline uint32_t gb_color(uint8_t c) {
+static inline u32 gb_color(u8 c) {
     switch (c & 0x3) {
     case 0:
         return 0xFFFFFFFF; // white
@@ -43,12 +44,12 @@ static void draw_frame(VGameboy& top) {
     void* pixels;
     int pitch;
     SDL_LockTexture(texture, nullptr, &pixels, &pitch);
-    uint32_t* buf = static_cast<uint32_t*>(pixels);
+    u32* buf = static_cast<u32*>(pixels);
 
     for (int y = 0; y < GB_HEIGHT; ++y) {
         for (int x = 0; x < GB_WIDTH; ++x) {
             int idx = y * GB_WIDTH + x;
-            uint8_t col = top.rootp->Gameboy__DOT__ppu_inst__DOT__framebuffer__DOT__buffer[idx];
+            u8 col = top.rootp->Gameboy__DOT__ppu_inst__DOT__framebuffer__DOT__buffer[idx];
             buf[y * GB_WIDTH + x] = gb_color(col);
         }
     }
@@ -63,9 +64,6 @@ namespace fs = std::filesystem;
 static int opcodes_executed = 0;
 
 vluint64_t main_time = 0;
-
-using u8 = uint8_t;
-using u16 = uint16_t;
 
 double sc_time_stamp() {
     return main_time;
@@ -162,7 +160,6 @@ static void dump_gd_trace(VGameboy& top, std::ostream& os) {
     u8 pcm2 = read_mem(top, PC + 1);
     u8 pcm3 = read_mem(top, PC + 2);
 
-    // clang-format off
     // Ensure hex, uppercase, zero-padded
     os << std::uppercase << std::hex << std::setfill('0');
 
@@ -177,7 +174,6 @@ static void dump_gd_trace(VGameboy& top, std::ostream& os) {
        << " L:" << std::setw(2) << static_cast<int>(L)
        << " SP:" << std::setw(4) << static_cast<int>(SP)
        << " PC:" << std::setw(4) << static_cast<int>(PC - 1)
-    //    << " IR:" << std::setw(2) << static_cast<int>(IR)
        << " PCMEM:"
        << std::setw(2) << static_cast<int>(pcm0) << ","
        << std::setw(2) << static_cast<int>(pcm1) << ","
@@ -202,13 +198,14 @@ static bool load_rom(VGameboy& top, const fs::path& filename) {
     for (int i = 0; i < 0x8000; i++) {
         char byte;
         rom.read(&byte, 1);
-        top.rootp->Gameboy__DOT__cart_inst__DOT__ROM[i] = (uint8_t)byte;
+        top.rootp->Gameboy__DOT__cart_inst__DOT__ROM[i] = (u8)byte;
     }
     return true;
 }
 
-static uint8_t last_SC = 0;
+static u8 last_SC = 0;
 static std::string serial_buffer;
+
 static bool handle_serial_output(VGameboy& top) {
     u8 SB = top.rootp->Gameboy__DOT__serial_inst__DOT__SB;
     u8 SC = top.rootp->Gameboy__DOT__serial_inst__DOT__SC;
@@ -262,16 +259,16 @@ static void draw_from_vram(VGameboy& top) {
     void* pixels;
     int pitch;
     SDL_LockTexture(texture, nullptr, &pixels, &pitch);
-    uint32_t* out = (uint32_t*)pixels;
+    u32* out = (u32*)pixels;
 
     auto& vram = top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM;
 
-    uint8_t LCDC = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LCDC;
-    uint8_t SCX = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCX;
-    uint8_t SCY = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCY;
+    u8 LCDC = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LCDC;
+    u8 SCX = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCX;
+    u8 SCY = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCY;
 
     bool signed_index = !(LCDC & 0x10); // tile data at 0x8800 or 0x8000
-    uint16_t tilemap_base = (LCDC & 0x08) ? 0x1C00 : 0x1800; // 9800 or 9C00
+    u16 tilemap_base = (LCDC & 0x08) ? 0x1C00 : 0x1800; // 9800 or 9C00
 
     for (int y = 0; y < GB_HEIGHT; ++y) {
         int map_y = (y + SCY) & 255;
@@ -281,17 +278,17 @@ static void draw_from_vram(VGameboy& top) {
             int map_x = (x + SCX) & 255;
 
             int tile_col = map_x / 8;
-            uint8_t tile_index = vram[tilemap_base + tile_row + tile_col];
+            u8 tile_index = vram[tilemap_base + tile_row + tile_col];
 
             int tile = signed_index ? (int8_t)tile_index + 256 : tile_index;
 
             int tile_y = map_y % 8;
             int tile_x = 7 - (map_x % 8);
 
-            uint8_t* td = &vram[tile * 16 + tile_y * 2];
-            uint8_t lo = td[0];
-            uint8_t hi = td[1];
-            uint8_t color = ((hi >> tile_x) & 1) * 2 + ((lo >> tile_x) & 1);
+            u8* td = &vram[tile * 16 + tile_y * 2];
+            u8 lo = td[0];
+            u8 hi = td[1];
+            u8 color = ((hi >> tile_x) & 1) * 2 + ((lo >> tile_x) & 1);
 
             out[y * GB_WIDTH + x] = gb_color(color);
         }
@@ -315,7 +312,7 @@ int main() {
         return 1;
     }
 
-    static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/01-special.gb";
+    static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
 
     VGameboy top(&ctx);
 
@@ -382,16 +379,11 @@ int main() {
 
         // dump_gd_trace(top, trace);
 
-        if (top.rootp->Gameboy__DOT__cart_inst__DOT__boot_rom_switch == 1) {
-            std::cout << "Boot ROM finished at instruction " << i << "\n";
-            break;
-        }
-
         if (handle_serial_output(top)) {
-            if (serial_buffer.find("Passed") != std::string::npos) {
-                std::cout << "\n[INFO] Test Passed!\n";
-                break;
-            }
+            // if (serial_buffer.find("Passed") != std::string::npos) {
+            //     std::cout << "\n[INFO] Test Passed!\n";
+            //     break;
+            // }
         }
     }
 
