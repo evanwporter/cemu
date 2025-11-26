@@ -22,7 +22,7 @@ module PPU (
   // Cycle counters (reset each mode)
   logic [8:0] cycle_counter;
 
-  // Dot counters (reset after each frame)
+  // Dot counters (resets after each line)
   logic [8:0] dot_counter;
 
   ppu_regs_t regs;
@@ -251,11 +251,11 @@ module PPU (
           end
 
           PPU_MODE_3: begin
-            if (cycle_counter == 0)
+            if (cycle_counter == 0) begin
               `LOG_TRACE(
                   ("[PPU] Entered MODE3 (Pixel Transfer) at LY=%0d and dots=%0d", regs.LY, dot_counter));
 
-            if (cycle_counter >= MODE3_LEN) begin
+            end else if (cycle_counter >= MODE3_LEN) begin
               mode <= PPU_MODE_0;
               cycle_counter <= 0;
             end
@@ -263,26 +263,30 @@ module PPU (
 
           // Do nothing phase for rest of 456 dots
           PPU_MODE_0: begin
-            if (cycle_counter == 0)
+            if (cycle_counter == 0) begin
               `LOG_TRACE(
                   ("[PPU] Entered MODE0 (HBlank) at LY=%0d and dots=%0d", regs.LY, dot_counter));
 
-            if (cycle_counter == CYCLES_PER_LINE - 1) begin
+            end else if (cycle_counter == CYCLES_PER_LINE - 1) begin
               cycle_counter <= 0;
               regs.LY <= regs.LY + 1;
 
               if (regs.LY == 8'd143) begin
+                // We displayed everything so now we just display the 10 blank lines
                 mode <= PPU_MODE_1;
                 IF_bus.vblank_req <= 1;
-              end else mode <= PPU_MODE_2;
+              end else
+                // Goto next line
+                mode <= PPU_MODE_2;
             end
           end
 
           PPU_MODE_1: begin
-            if (cycle_counter == 0)
+            if (cycle_counter == 0) begin
               `LOG_INFO(("[PPU] MODE1 (V-Blank) line=%0d and dots=%0d", regs.LY, dot_counter));
+              dot_counter <= 0;
 
-            if (cycle_counter == CYCLES_PER_LINE - 1) begin
+            end else if (cycle_counter == CYCLES_PER_LINE - 1) begin
               cycle_counter <= 0;
               regs.LY <= regs.LY + 1;
               if (regs.LY == LINES_PER_FRAME - 1) begin
