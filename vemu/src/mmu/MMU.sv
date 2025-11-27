@@ -27,7 +27,7 @@ module MMU (
   logic [7:0] DMA;
   logic DMA_active;
   logic [7:0] DMA_index;  // sprite index 0-40
-  logic [15:0] DMA_addr = {DMA, DMA_index * 8'd4};
+  wire [15:0] DMA_addr = {DMA, DMA_index * 8'd4};
 
   assign DMA_active = 1'b0;
 
@@ -67,7 +67,7 @@ module MMU (
 
   // RAM
   wire ram_selected = (primary_addr inside {[WRAM_start : Echo_RAM_end]});
-  wire hram_selected = (primary_addr inside {[HRAM_start : HRAM_end]});
+  wire hram_selected = (cpu_bus.addr inside {[HRAM_start : HRAM_end]});
   assign ram_bus.read_en  = cpu_bus.read_en && (ram_selected || hram_selected);
   assign ram_bus.write_en = cpu_bus.write_en && (ram_selected || hram_selected);
 
@@ -96,41 +96,46 @@ module MMU (
   always_comb begin
     cpu_bus.rdata = 8'h00;
 
-    if (ppu_selected) begin
-      cpu_bus.rdata = ppu_bus.rdata;
-
-    end else if (apu_selected) begin
-      cpu_bus.rdata = apu_bus.rdata;
-
-    end else if (cart_selected) begin
-      cpu_bus.rdata = cart_bus.rdata;
-
-    end else if (ram_selected || hram_selected) begin
+    if (hram_selected) begin
       cpu_bus.rdata = ram_bus.rdata;
 
-    end else if (serial_selected) begin
-      cpu_bus.rdata = serial_bus.rdata;
+    end else if (DMA_active == 1'b0) begin
+      if (ppu_selected) begin
+        cpu_bus.rdata = ppu_bus.rdata;
 
-    end else if (timer_selected) begin
-      cpu_bus.rdata = timer_bus.rdata;
+      end else if (apu_selected) begin
+        cpu_bus.rdata = apu_bus.rdata;
 
-    end else if (unused_selected) begin
-      `LOG_WARN(("[MMU] Unmapped READ addr=%h", primary_addr));
-      cpu_bus.rdata = 8'hFF;
+      end else if (cart_selected) begin
+        cpu_bus.rdata = cart_bus.rdata;
 
-    end else if (input_selected) begin
-      cpu_bus.rdata = input_bus.rdata;
+      end else if (ram_selected) begin
+        cpu_bus.rdata = ram_bus.rdata;
 
-    end else if (interrupt_selected) begin
-      cpu_bus.rdata = interrupt_bus.rdata;
+      end else if (serial_selected) begin
+        cpu_bus.rdata = serial_bus.rdata;
 
-    end else if (DMA_selected) begin
-      cpu_bus.rdata = DMA;
+      end else if (timer_selected) begin
+        cpu_bus.rdata = timer_bus.rdata;
 
-    end else begin
-      `LOG_WARN(("[MMU] Unmapped READ addr=%h", primary_addr));
-      cpu_bus.rdata = 8'hFF;
-      // TODO
+      end else if (unused_selected) begin
+        `LOG_WARN(("[MMU] READ operation performed in unused area (addr=%h)", primary_addr));
+        cpu_bus.rdata = 8'hFF;
+
+      end else if (input_selected) begin
+        cpu_bus.rdata = input_bus.rdata;
+
+      end else if (interrupt_selected) begin
+        cpu_bus.rdata = interrupt_bus.rdata;
+
+      end else if (DMA_selected) begin
+        cpu_bus.rdata = DMA;
+
+      end else begin
+        `LOG_WARN(("[MMU] Unmapped READ addr=%h", primary_addr));
+        cpu_bus.rdata = 8'hFF;
+        // TODO
+      end
     end
   end
 
