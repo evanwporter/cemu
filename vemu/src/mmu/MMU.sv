@@ -27,8 +27,11 @@ module MMU (
   logic [7:0] DMA;
   logic DMA_active;
   logic [7:0] DMA_index;  // sprite index 0-40
+  logic [15:0] DMA_addr = {DMA, DMA_index * 8'd4};
 
-  wire [15:0] primary_addr = cpu_bus.addr;
+  assign DMA_active = 1'b0;
+
+  wire [15:0] primary_addr = DMA_active ? DMA_addr : cpu_bus.addr;
 
   assign ppu_bus.addr = primary_addr;
   assign apu_bus.addr = primary_addr;
