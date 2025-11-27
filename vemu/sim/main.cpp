@@ -386,11 +386,11 @@ int main() {
     ctx.debug(0);
     ctx.time(0);
 
-    static const fs::path trace_log_path = fs::path(SOURCE_DIR) / "trace.txt";
+    static const fs::path trace_log_path = fs::path(SOURCE_DIR) / "trace.log";
 
     std::ofstream trace(trace_log_path, std::ios::trunc);
     if (!trace.is_open()) {
-        std::cerr << "[Error] Unable to open trace.txt\n";
+        std::cerr << "[Error] Unable to open trace.log\n";
         return 1;
     }
 
