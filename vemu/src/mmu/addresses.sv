@@ -87,6 +87,9 @@ localparam address_t PPU_regs_start = 16'hFF40;
 localparam address_t PPU_regs_end = 16'hFF4B;
 localparam address_t PPU_regs_len = PPU_regs_end - PPU_regs_start + 1;
 
+// DMA OAM Transfer
+localparam address_t DMA_OAM_addr = 16'hFF46;
+
 // KEY0 and KEY1 (CGB only)
 localparam address_t CGB_KEY_addr_start = 16'hFF4C;
 localparam address_t CGB_KEY_addr_end = 16'hFF4D;
