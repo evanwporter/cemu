@@ -25,6 +25,7 @@ module top (
   Bus_if apu_bus ();
   Bus_if cart_bus ();
   Bus_if ram_bus ();
+  Bus_if hram_bus ();
   Bus_if serial_bus ();
   Bus_if timer_bus ();
   Bus_if input_bus ();
@@ -45,6 +46,7 @@ module top (
       .apu_bus(apu_bus.MMU_master),
       .cart_bus(cart_bus),
       .ram_bus(ram_bus),
+      .hram_bus(hram_bus),
       .serial_bus(serial_bus),
       .timer_bus(timer_bus),
       .interrupt_bus(interrupt_bus),

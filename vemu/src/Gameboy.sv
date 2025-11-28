@@ -37,6 +37,7 @@ module Gameboy (
   Bus_if timer_bus ();
   Bus_if input_bus ();
   Bus_if ram_bus ();
+  Bus_if hram_bus ();
   Bus_if serial_bus ();
   Bus_if interrupt_bus ();
 
@@ -58,6 +59,7 @@ module Gameboy (
       .apu_bus(apu_bus),
       .cart_bus(cart_bus),
       .ram_bus(ram_bus),
+      .hram_bus(hram_bus),
       .serial_bus(serial_bus),
       .timer_bus(timer_bus),
       .input_bus(input_bus),
@@ -96,9 +98,10 @@ module Gameboy (
   );
 
   RAM ram_inst (
-      .clk  (clk),
+      .clk(clk),
       .reset(reset),
-      .bus  (ram_bus)
+      .bus(ram_bus),
+      .hram_bus(hram_bus)
   );
 
 endmodule

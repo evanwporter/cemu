@@ -18,6 +18,7 @@ module MMU (
     Bus_if.MMU_master apu_bus,
     Bus_if.MMU_master cart_bus,
     Bus_if.MMU_master ram_bus,
+    Bus_if.MMU_master hram_bus,
     Bus_if.MMU_master serial_bus,
     Bus_if.MMU_master timer_bus,
     Bus_if.MMU_master input_bus,
@@ -48,15 +49,21 @@ module MMU (
   assign apu_bus.addr = effective_addr;
   assign cart_bus.addr = effective_addr;
   assign ram_bus.addr = effective_addr;
+  assign hram_bus.addr = cpu_bus.addr;
   assign serial_bus.addr = effective_addr;
   assign timer_bus.addr = effective_addr;
+  assign input_bus.addr = effective_addr;
+  assign interrupt_bus.addr = cpu_bus.addr;
 
   assign ppu_bus.wdata = cpu_bus.wdata;
   assign apu_bus.wdata = cpu_bus.wdata;
   assign cart_bus.wdata = cpu_bus.wdata;
   assign ram_bus.wdata = cpu_bus.wdata;
+  assign hram_bus.wdata = cpu_bus.wdata;
   assign serial_bus.wdata = cpu_bus.wdata;
   assign timer_bus.wdata = cpu_bus.wdata;
+  assign input_bus.wdata = cpu_bus.wdata;
+  assign interrupt_bus.wdata = cpu_bus.wdata;
 
   // PPU VRAM: $8000–$9FFF, OAM: $FE00–$FE9F, PPU I/O: $FF40–$FF4B
   wire ppu_selected =
@@ -78,9 +85,12 @@ module MMU (
 
   // RAM
   wire ram_selected = (effective_addr inside {[WRAM_start : Echo_RAM_end]});
-  wire hram_selected = (cpu_bus.addr inside {[HRAM_start : HRAM_end]});
   assign ram_bus.read_en  = (cpu_req_read || dma_req_read) && (ram_selected || hram_selected);
   assign ram_bus.write_en = cpu_req_write && (ram_selected || hram_selected);
+
+  wire hram_selected = (cpu_bus.addr inside {[HRAM_start : HRAM_end]});
+  assign hram_bus.read_en  = cpu_bus.read_en && hram_selected;
+  assign hram_bus.write_en = cpu_bus.write_en && hram_selected;
 
   // Serial
   wire serial_selected = effective_addr inside {[SERIAL_addr_start : SERIAL_addr_end]};
@@ -123,8 +133,11 @@ module MMU (
       end else if (cart_selected) begin
         cpu_bus.rdata = cart_bus.rdata;
 
-      end else if (ram_selected || hram_selected) begin
+      end else if (ram_selected) begin
         cpu_bus.rdata = ram_bus.rdata;
+
+      end else if (hram_selected) begin
+        cpu_bus.rdata = hram_bus.rdata;
 
       end else if (serial_selected) begin
         cpu_bus.rdata = serial_bus.rdata;

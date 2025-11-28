@@ -21,6 +21,7 @@ module cartridge_cpu_top (
   Bus_if cpu_bus ();
   Bus_if cart_bus ();
   Bus_if ram_bus ();
+  Bus_if hram_bus ();
   Bus_if ppu_bus ();
   Bus_if apu_bus ();
   Bus_if serial_bus ();
@@ -47,6 +48,7 @@ module cartridge_cpu_top (
       .apu_bus(apu_bus),
       .cart_bus(cart_bus),
       .ram_bus(ram_bus),
+      .hram_bus(hram_bus),
       .serial_bus(serial_bus),
       .timer_bus(timer_bus),
       .input_bus(input_bus),
