@@ -51,4 +51,20 @@ interface Interrupt_if;
 
 endinterface
 
+interface DMA_if;
+  logic [15:0] addr;
+  logic [ 7:0] wdata;
+  logic [ 7:0] rdata;
+  logic        read_en;
+  logic        write_en;
+  logic        active;
+
+  // The DMA is the bus master: it drives addr/wdata/read/write_en
+  modport DMA_side(output addr, wdata, read_en, write_en, active, input rdata);
+
+  // The DMA is a router: it reads CPU’s signals, passes them along,
+  // and gathers rdata from peripherals
+  modport MMU_side(input addr, wdata, read_en, write_en, active, output rdata);
+endinterface
+
 `endif

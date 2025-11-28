@@ -19,6 +19,7 @@ module cartridge_cpu_top (
 );
 
   Bus_if cpu_bus ();
+  DMA_if dma_bus ();
   Bus_if cart_bus ();
   Bus_if ram_bus ();
   Bus_if hram_bus ();
@@ -28,7 +29,7 @@ module cartridge_cpu_top (
   Bus_if timer_bus ();
   Bus_if input_bus ();
   Bus_if interrupt_bus ();
-  Bus IF_bus ();
+  Bus_if dma_wbus ();
 
   CPU cpu_inst (
       .clk,
@@ -44,6 +45,7 @@ module cartridge_cpu_top (
       .clk(clk),
       .reset(reset),
       .cpu_bus(cpu_bus),
+      .dma_bus(dma_bus),
       .ppu_bus(ppu_bus),
       .apu_bus(apu_bus),
       .cart_bus(cart_bus),
@@ -52,7 +54,8 @@ module cartridge_cpu_top (
       .serial_bus(serial_bus),
       .timer_bus(timer_bus),
       .input_bus(input_bus),
-      .interrupt_bus(interrupt_bus)
+      .interrupt_bus(interrupt_bus),
+      .dma_wbus(dma_wbus)
   );
 
   Cartridge cart_inst (

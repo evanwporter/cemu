@@ -21,6 +21,8 @@ module top (
 );
 
   Bus_if cpu_bus ();
+  DMA_if dma_bus ();
+
   Bus_if ppu_bus ();
   Bus_if apu_bus ();
   Bus_if cart_bus ();
@@ -31,6 +33,7 @@ module top (
   Bus_if input_bus ();
   Bus_if interrupt_bus ();
   Interrupt_if IF_bus ();
+  Bus_if dma_wbus ();
 
   assign cpu_bus.addr     = cpu_addr;
   assign cpu_bus.wdata    = cpu_wdata;
@@ -42,6 +45,7 @@ module top (
       .clk(clk),
       .reset(reset),
       .cpu_bus(cpu_bus.MMU_side),
+      .dma_bus(dma_bus.MMU_side),
       .ppu_bus(ppu_bus.MMU_master),
       .apu_bus(apu_bus.MMU_master),
       .cart_bus(cart_bus),
@@ -50,7 +54,8 @@ module top (
       .serial_bus(serial_bus),
       .timer_bus(timer_bus),
       .interrupt_bus(interrupt_bus),
-      .input_bus(input_bus)
+      .input_bus(input_bus),
+      .dma_wbus(dma_wbus)
   );
 
   PPU ppu (

@@ -13,6 +13,7 @@
 
 `include "mmu/MMU.sv"
 `include "mmu/interface.sv"
+`include "mmu/DMA.sv"
 
 `include "Cartridge.sv"
 `include "Serial.sv"
@@ -30,6 +31,8 @@ module Gameboy (
   end
 
   Bus_if cpu_bus ();
+  DMA_if dma_bus ();
+
   Bus_if ppu_bus ();
   Bus_if apu_bus ();
 
@@ -40,6 +43,7 @@ module Gameboy (
   Bus_if hram_bus ();
   Bus_if serial_bus ();
   Bus_if interrupt_bus ();
+  Bus_if dma_wbus ();
 
   Interrupt_if IF_bus ();
 
@@ -51,10 +55,18 @@ module Gameboy (
       .IF_bus(IF_bus)
   );
 
+  DMA dma_inst (
+      .clk(clk),
+      .reset(reset),
+      .bus(dma_wbus),
+      .mmu_bus(dma_bus)
+  );
+
   MMU mmu_inst (
       .clk(clk),
       .reset(reset),
       .cpu_bus(cpu_bus),
+      .dma_bus(dma_bus),
       .ppu_bus(ppu_bus),
       .apu_bus(apu_bus),
       .cart_bus(cart_bus),
@@ -63,7 +75,8 @@ module Gameboy (
       .serial_bus(serial_bus),
       .timer_bus(timer_bus),
       .input_bus(input_bus),
-      .interrupt_bus(interrupt_bus)
+      .interrupt_bus(interrupt_bus),
+      .dma_wbus(dma_wbus)
   );
 
   PPU ppu_inst (
