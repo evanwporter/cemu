@@ -1261,7 +1261,7 @@ def count_real_cycles(cycles: list) -> int:
 def generate_sv(control_words, opcode_comments) -> str:
     lines = []
     lines.append("`ifndef CONTROL_WORDS_SV\n`define CONTROL_WORDS_SV\n")
-    lines.append('`include "cpu/opcodes.sv"\n\n')
+    lines.append('`include "cpu/opcodes.svh"\n\n')
     lines.append("localparam control_word_t control_words [0:255] = '{\n")
 
     for opcode in range(256):
@@ -1310,7 +1310,7 @@ def generate_sv(control_words, opcode_comments) -> str:
 def generate_cb_sv(cb_control_words, cb_opcode_comments) -> str:
     lines = []
     lines.append("`ifndef CB_CONTROL_WORDS_SV\n`define CB_CONTROL_WORDS_SV\n")
-    lines.append('`include "cpu/opcodes.sv"\n\n')
+    lines.append('`include "cpu/opcodes.svh"\n\n')
     lines.append("localparam control_word_t cb_control_words [0:255] = '{\n")
 
     for opcode in range(256):
@@ -1350,11 +1350,11 @@ def generate_cb_sv(cb_control_words, cb_opcode_comments) -> str:
     return "".join(lines)
 
 
-output_path = "vemu/src/cpu/control_words.sv"
+output_path = "vemu/src/cpu/control_words.svh"
 with open(output_path, "w", newline="\n") as f:
     f.write(generate_sv(control_words, opcode_comments))
 
-output_path_cb = "vemu/src/cpu/cb_control_words.sv"
+output_path_cb = "vemu/src/cpu/cb_control_words.svh"
 with open(output_path_cb, "w", newline="\n") as f:
     f.write(generate_cb_sv(cb_control_words, cb_opcode_comments))
 
@@ -1404,7 +1404,7 @@ def generate_interrupt_sv(interrupt_words):
     lines.append(
         "`ifndef INTERRUPT_CONTROL_WORDS_SV\n`define INTERRUPT_CONTROL_WORDS_SV\n"
     )
-    lines.append('`include "cpu/opcodes.sv"\n\n')
+    lines.append('`include "cpu/opcodes.svh"\n\n')
     lines.append("localparam control_word_t interrupt_words [0:4] = '{\n")
 
     for index in range(5):
@@ -1431,6 +1431,6 @@ def generate_interrupt_sv(interrupt_words):
     return "".join(lines)
 
 
-output_path_int = "vemu/src/cpu/interrupt_control_words.sv"
+output_path_int = "vemu/src/cpu/interrupt_control_words.svh"
 with open(output_path_int, "w", newline="\n") as f:
     f.write(generate_interrupt_sv(interrupt_words))

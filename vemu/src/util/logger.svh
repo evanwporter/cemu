@@ -1,5 +1,5 @@
-`ifndef UTIL_LOGGER_SV
-`define UTIL_LOGGER_SV 
+`ifndef UTIL_LOGGER_SVH
+`define UTIL_LOGGER_SVH
 
 `ifndef LOG_LEVEL_NONE
 `ifndef LOG_LEVEL_ERROR

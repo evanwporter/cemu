@@ -1,6 +1,6 @@
 `ifndef CONTROL_WORDS_SV
 `define CONTROL_WORDS_SV
-`include "cpu/opcodes.sv"
+`include "cpu/opcodes.svh"
 
 localparam control_word_t control_words [0:255] = '{
     'h00: '{  //  NOP

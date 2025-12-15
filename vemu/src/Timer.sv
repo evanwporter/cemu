@@ -3,7 +3,7 @@
 
 // https://gbdev.io/pandocs/Timer_and_Divider_Registers.html#timer-and-divider-registers
 
-`include "mmu/addresses.sv"
+`include "mmu/addresses.svh"
 
 module Timer (
     input logic clk,

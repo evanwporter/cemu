@@ -1,5 +1,28 @@
 set(VEMU_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
+set(VERILOG_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Gameboy.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Input.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Cartridge.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Serial.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Timer.sv
+    
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ppu/PPU.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ppu/Fetcher.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ppu/FIFO.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ppu/Framebuffer.sv
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cpu/CPU.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cpu/RAM.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/cpu/util.sv
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/mmu/MMU.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/mmu/DMA.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/mmu/interface.sv
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/mmu/util.sv
+)
+
+add_subdirectory(builds)
 add_subdirectory(src)
 add_subdirectory(tests)
 

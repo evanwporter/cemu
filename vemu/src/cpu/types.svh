@@ -1,5 +1,5 @@
-`ifndef CPU_TYPES_SV
-`define CPU_TYPES_SV 
+`ifndef CPU_TYPES_SVH
+`define CPU_TYPES_SVH
 
 // When using Verilator I need it unpacked so I can access fields
 // from regs in C++.
@@ -43,4 +43,4 @@ typedef enum logic [1:0] {
   T4
 } t_phase_t;
 
-`endif  // CPU_TYPES_SV
+`endif  // CPU_TYPES_SVH

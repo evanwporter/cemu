@@ -4,7 +4,7 @@
 `ifndef MMU_ADDRESSES_SV
 `define MMU_ADDRESSES_SV 
 
-`include "mmu/types.sv"
+`include "mmu/types.svh"
 
 //-------------------------------
 // ROM

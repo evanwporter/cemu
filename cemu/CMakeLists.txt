@@ -13,7 +13,7 @@ set(EXE_SOURCES
 )
 
 include(FetchContent)
-set(FETCHCONTENT_FULLY_DISCONNECTED ON) 
+# set(FETCHCONTENT_FULLY_DISCONNECTED ON) 
 FetchContent_Declare(
     argparse
     GIT_REPOSITORY https://github.com/p-ranav/argparse.git

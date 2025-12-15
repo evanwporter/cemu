@@ -1,5 +1,5 @@
-`ifndef OPCODES_SV
-`define OPCODES_SV 
+`ifndef OPCODES_SVH
+`define OPCODES_SVH 
 
 typedef enum logic [3:0] {
   ADDR_NONE,
@@ -194,10 +194,10 @@ typedef struct packed {
 
 typedef logic [2:0] cycle_count_t;
 
-// Maximum number of cycles per instruction
-parameter cycle_count_t MAX_CYCLES_PER_INSTR = 6;
+/// Maximum number of cycles per instruction
+localparam cycle_count_t MAX_CYCLES_PER_INSTR = 6;
 
-// A control word is the set of all micro-cycles that make up one instruction
+/// A control word is the set of all micro-cycles that make up one instruction
 typedef struct packed {
   cycle_t [MAX_CYCLES_PER_INSTR-1:0] cycles;
   logic [2:0] num_cycles;  // number of valid cycles (1–6)
@@ -218,4 +218,4 @@ typedef struct packed {
   cond:         COND_NONE \
 }
 
-`endif  // OPCODES_SV
+`endif  // OPCODES_SVH

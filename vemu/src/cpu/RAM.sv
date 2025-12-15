@@ -1,8 +1,7 @@
 `ifndef CPU_RAM_SV
 `define CPU_RAM_SV 
 
-`include "mmu/addresses.sv"
-`include "mmu/interface.sv"
+`include "mmu/addresses.svh"
 
 module RAM (
     input logic clk,

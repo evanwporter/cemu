@@ -1,6 +1,9 @@
 `ifndef CPU_UTIL_SV
 `define CPU_UTIL_SV 
 
+`include "cpu/types.svh"
+`include "cpu/opcodes.svh"
+
 `define DISPLAY_CONTROL_WORD(CW, i) \
   begin \
     `LOG_TRACE(("--------------------------------------------------")); \
@@ -123,7 +126,7 @@ endfunction
 
 typedef struct packed {
   logic [7:0] result;  // The ALU output value
-  logic [7:0] flags;  // The full F register (Z N H C ---- ----)
+  logic [7:0] flags;  // The full F register (Z N H C ----)
   logic alu_carry;  // Carry out of the operation
 } alu_result_t;
 

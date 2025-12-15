@@ -1,6 +1,6 @@
 `ifndef INTERRUPT_CONTROL_WORDS_SV
 `define INTERRUPT_CONTROL_WORDS_SV
-`include "cpu/opcodes.sv"
+`include "cpu/opcodes.svh"
 
 localparam control_word_t interrupt_words [0:4] = '{
     0: '{  // INTERRUPT VBLANK

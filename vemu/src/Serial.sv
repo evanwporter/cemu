@@ -3,7 +3,7 @@
 
 // https://gbdev.io/pandocs/Serial_Data_Transfer_(Link_Cable).html#serial-data-transfer-link-cable
 
-`include "mmu/addresses.sv"
+`include "mmu/addresses.svh"
 
 module Serial (
     input logic clk,

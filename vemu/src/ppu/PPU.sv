@@ -1,13 +1,12 @@
 `ifndef PPU_SV
 `define PPU_SV 
 
-`include "ppu/types.sv"
+`include "ppu/types.svh"
 `include "ppu/FIFO.sv"
 `include "ppu/Fetcher.sv"
 `include "ppu/Framebuffer.sv"
 
-`include "mmu/interface.sv"
-`include "mmu/addresses.sv"
+`include "mmu/addresses.svh"
 
 `include "util/logger.svh"
 

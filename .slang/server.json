@@ -1,0 +1,4 @@
+{
+    "indexGlobs": ["./vemu/src/.../*.sv*"],
+    "flags": "-f ./build/debug/vemu/builds/gameboy.f"
+}

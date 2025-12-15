@@ -1,7 +1,7 @@
 `ifndef PPU_FETCHER_SV
 `define PPU_FETCHER_SV 
 
-`include "ppu/types.sv"
+`include "ppu/types.svh"
 
 `include "util/logger.svh"
 

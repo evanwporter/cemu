@@ -5,20 +5,7 @@
 
 `include "util/logger.svh"
 
-`include "cpu/CPU.sv"
-`include "cpu/RAM.sv"
-
-`include "ppu/PPU.sv"
-`include "ppu/types.sv"
-
-`include "mmu/MMU.sv"
-`include "mmu/interface.sv"
-`include "mmu/DMA.sv"
-
-`include "Cartridge.sv"
-`include "Serial.sv"
-`include "Timer.sv"
-`include "Input.sv"
+`include "ppu/types.svh"
 
 module Gameboy (
     input logic clk,

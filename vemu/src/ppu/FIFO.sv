@@ -1,7 +1,7 @@
 `ifndef PPU_FIFO_SV
 `define PPU_FIFO_SV 
 
-`include "ppu/types.sv"
+`include "ppu/types.svh"
 
 module FIFO (
     input  logic             clk,

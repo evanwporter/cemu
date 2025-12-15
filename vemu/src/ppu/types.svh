@@ -1,5 +1,5 @@
-`ifndef PPU_TYPES_SV
-`define PPU_TYPES_SV 
+`ifndef PPU_TYPES_SVH
+`define PPU_TYPES_SVH
 
 typedef enum logic [1:0] {
   PPU_MODE_0,
@@ -66,7 +66,7 @@ typedef enum logic [1:0] {
   GB_COLOR_BLACK
 } gb_color_t;
 
-// A pixel in FIFO (BG or OBJ)
+/// A pixel in FIFO (BG or OBJ)
 typedef struct `PACK_PX {
   gb_color_t  color;
   logic [2:0] palette;  // CGB: 0..7 ; DMG: only for OBJ select (0/1). Store here.
@@ -75,4 +75,4 @@ typedef struct `PACK_PX {
   logic       valid;    // for FIFO empty slots
 } ppu_pixel_t;
 
-`endif  // PPU_TYPES_SV
+`endif  // PPU_TYPES_SVH

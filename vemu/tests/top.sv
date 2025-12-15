@@ -5,7 +5,7 @@
 `include "cpu/RAM.sv"
 
 `include "ppu/PPU.sv"
-`include "ppu/types.sv"
+`include "ppu/types.svh"
 
 `include "mmu/MMU.sv"
 `include "mmu/interface.sv"

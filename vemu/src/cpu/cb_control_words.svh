@@ -1,6 +1,6 @@
 `ifndef CB_CONTROL_WORDS_SV
 `define CB_CONTROL_WORDS_SV
-`include "cpu/opcodes.sv"
+`include "cpu/opcodes.svh"
 
 localparam control_word_t cb_control_words [0:255] = '{
     'h00: '{  // RLC B

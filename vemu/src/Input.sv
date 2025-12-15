@@ -1,7 +1,7 @@
 `ifndef INPUT_SV
 `define INPUT_SV 
 
-`include "mmu/addresses.sv"
+`include "mmu/addresses.svh"
 `include "mmu/interface.sv"
 
 module Input (

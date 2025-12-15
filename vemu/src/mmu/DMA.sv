@@ -1,8 +1,8 @@
 `ifndef DMA_SV
 `define DMA_SV 
 
-`include "mmu/interface.sv"
-`include "mmu/addresses.sv"
+`include "mmu/addresses.svh"
+`include "util/logger.svh"
 
 module DMA (
     input logic clk,

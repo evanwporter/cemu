@@ -1,16 +1,15 @@
 `ifndef CPU_SV
 `define CPU_SV 
 
-`include "cpu/types.sv"
-`include "cpu/opcodes.sv"
-`include "cpu/control_words.sv"
-`include "cpu/cb_control_words.sv"
+`include "cpu/control_words.svh"
+`include "cpu/cb_control_words.svh"
+`include "cpu/interrupt_control_words.svh"
+`include "cpu/types.svh"
+`include "cpu/opcodes.svh"
+
 `include "cpu/util.sv"
-`include "cpu/interrupt_control_words.sv"
 
 `include "util/logger.svh"
-
-`include "mmu/interface.sv"
 
 module CPU (
     input logic clk,

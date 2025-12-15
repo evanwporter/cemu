@@ -1,11 +1,9 @@
 `ifndef MMU_SV
 `define MMU_SV 
 
-`include "mmu/util.sv"
-`include "mmu/interface.sv"
-`include "mmu/addresses.sv"
+`include "mmu/addresses.svh"
 
-`include "ppu/types.sv"
+`include "ppu/types.svh"
 
 `include "util/logger.svh"
 
