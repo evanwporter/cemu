@@ -1,12 +1,5 @@
-`ifndef PPU_SV
-`define PPU_SV 
-
-`include "ppu/types.svh"
-`include "ppu/FIFO.sv"
-`include "ppu/Fetcher.sv"
-`include "ppu/Framebuffer.sv"
-
-`include "mmu/addresses.svh"
+import ppu_types_pkg::*;
+import mmu_addresses_pkg::*;
 
 `include "util/logger.svh"
 
@@ -299,5 +292,3 @@ module PPU (
     end
   end
 endmodule
-
-`endif  // PPU_SV

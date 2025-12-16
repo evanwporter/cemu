@@ -1,5 +1,4 @@
-`ifndef CPU_TYPES_SVH
-`define CPU_TYPES_SVH
+package cpu_types_pkg;
 
 // When using Verilator I need it unpacked so I can access fields
 // from regs in C++.
@@ -43,4 +42,4 @@ typedef enum logic [1:0] {
   T4
 } t_phase_t;
 
-`endif  // CPU_TYPES_SVH
+endpackage

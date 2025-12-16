@@ -5,7 +5,7 @@
 
 `include "util/logger.svh"
 
-`include "ppu/types.svh"
+`include "cpu/CPU.sv"
 
 module Gameboy (
     input logic clk,

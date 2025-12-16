@@ -2,7 +2,6 @@
 `define CARTRIDGE_TOP_SV 
 
 `include "Cartridge.sv"
-`include "mmu/interface.sv"
 
 module cartridge_top (
     input logic clk,

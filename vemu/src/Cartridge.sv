@@ -1,7 +1,8 @@
 `ifndef CARTRIDGE_SV
 `define CARTRIDGE_SV 
 
-`include "mmu/addresses.svh"
+import mmu_addresses_pkg::*;
+
 `include "boot.svh"
 
 `include "util/logger.svh"

@@ -3,7 +3,8 @@
 
 `define FETCHER_TESTBENCH 
 
-`include "ppu/types.svh"
+import ppu_types_pkg::*;
+
 `include "ppu/Fetcher.sv"
 
 module fetcher_top (

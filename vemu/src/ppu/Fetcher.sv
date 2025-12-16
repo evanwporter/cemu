@@ -1,7 +1,4 @@
-`ifndef PPU_FETCHER_SV
-`define PPU_FETCHER_SV 
-
-`include "ppu/types.svh"
+import ppu_types_pkg::*;
 
 `include "util/logger.svh"
 
@@ -278,5 +275,3 @@ module Fetcher (
     end
   end
 endmodule
-
-`endif  // PPU_FETCHER_SV

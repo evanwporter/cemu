@@ -1,8 +1,7 @@
 `ifndef INPUT_SV
 `define INPUT_SV 
 
-`include "mmu/addresses.svh"
-`include "mmu/interface.sv"
+import mmu_addresses_pkg::*;
 
 module Input (
     input logic clk,

@@ -5,10 +5,9 @@
 `include "cpu/RAM.sv"
 
 `include "ppu/PPU.sv"
-`include "ppu/types.svh"
+import ppu_types_pkg::*;
 
 `include "mmu/MMU.sv"
-`include "mmu/interface.sv"
 
 `include "Cartridge.sv"
 `include "Serial.sv"

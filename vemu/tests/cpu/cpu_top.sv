@@ -7,7 +7,6 @@
 `include "cpu/RAM.sv"
 
 `include "MockMMU.sv"
-`include "mmu/interface.sv"
 
 // `include "svlogger.sv"
 

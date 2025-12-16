@@ -1,7 +1,5 @@
-`ifndef DMA_SV
-`define DMA_SV 
+import mmu_addresses_pkg::*;
 
-`include "mmu/addresses.svh"
 `include "util/logger.svh"
 
 module DMA (
@@ -56,5 +54,3 @@ module DMA (
   end
 
 endmodule
-
-`endif  // DMA_SV

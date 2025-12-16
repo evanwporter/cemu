@@ -1,7 +1,4 @@
-`ifndef PPU_FRAMEBUFFER_SV
-`define PPU_FRAMEBUFFER_SV 
-
-`include "ppu/types.svh"
+import ppu_types_pkg::*;
 
 `include "util/logger.svh"
 
@@ -77,5 +74,3 @@ module Framebuffer (
   end
 
 endmodule
-
-`endif  // PPU_FRAMEBUFFER_SV

@@ -1,8 +1,6 @@
 `ifndef MMU_SV
 `define MMU_SV 
 
-`include "mmu/interface.sv"
-
 module MockMMU (
     input logic clk,
     input logic reset,

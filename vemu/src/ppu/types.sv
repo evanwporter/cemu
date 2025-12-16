@@ -1,6 +1,8 @@
 `ifndef PPU_TYPES_SVH
 `define PPU_TYPES_SVH
 
+package ppu_types_pkg;
+
 typedef enum logic [1:0] {
   PPU_MODE_0,
   PPU_MODE_1,
@@ -74,5 +76,7 @@ typedef struct `PACK_PX {
   logic       bg_prio;  // OBJ-to-BG priority bit (1 = BG over OBJ).
   logic       valid;    // for FIFO empty slots
 } ppu_pixel_t;
+
+endpackage : ppu_types_pkg
 
 `endif  // PPU_TYPES_SVH

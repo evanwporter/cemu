@@ -1,4 +1,3 @@
-`include "mmu/interface.sv"
 `include "mmu/MMU.sv"
 
 `include "ppu/PPU.sv"

@@ -6,6 +6,10 @@ configure_file(
     @ONLY
 )
 
+foreach(src ${VEMU_PKGS})
+    file(APPEND ${GENERATED_F} "${src}\n")
+endforeach()
+
 foreach(src ${VERILOG_SOURCES})
     file(APPEND ${GENERATED_F} "${src}\n")
 endforeach()

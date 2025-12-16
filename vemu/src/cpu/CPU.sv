@@ -4,12 +4,15 @@
 `include "cpu/control_words.svh"
 `include "cpu/cb_control_words.svh"
 `include "cpu/interrupt_control_words.svh"
-`include "cpu/types.svh"
 `include "cpu/opcodes.svh"
 
-`include "cpu/util.sv"
+import cpu_types_pkg::*;
+import ppu_types_pkg::*;
+
+`include "cpu/util.svh"
 
 `include "util/logger.svh"
+
 
 module CPU (
     input logic clk,

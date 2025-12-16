@@ -1,9 +1,6 @@
-`ifndef MMU_SV
-`define MMU_SV 
+import mmu_addresses_pkg::*;
 
-`include "mmu/addresses.svh"
-
-`include "ppu/types.svh"
+import ppu_types_pkg::*;
 
 `include "util/logger.svh"
 
@@ -159,5 +156,3 @@ module MMU (
     end
   end
 endmodule
-
-`endif  // MMU_SV

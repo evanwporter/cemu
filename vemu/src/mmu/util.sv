@@ -1,7 +1,4 @@
-`ifndef MMU_UTIL_SV
-`define MMU_UTIL_SV 
-
-`include "ppu/types.svh"
+import ppu_types_pkg::*;
 
 function automatic logic is_cpu_blocked(input [15:0] addr, input ppu_mode_t mode);
   unique case (mode)
@@ -22,5 +19,3 @@ function automatic logic is_cpu_blocked(input [15:0] addr, input ppu_mode_t mode
 
   return 1'b0;
 endfunction
-
-`endif  // MMU_UTIL_SV
