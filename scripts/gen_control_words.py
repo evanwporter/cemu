@@ -539,14 +539,14 @@ for pair, base in {"BC": 0xC5, "DE": 0xD5, "HL": 0xE5, "AF": 0xF5}.items():
             "data_bus_src": "DATA_BUS_SRC_W",
             "data_bus_op": "DATA_BUS_OP_READ",
             "idu_op": "IDU_OP_INC",
+            "misc_op": "MISC_OP_R16_WZ_COPY",
+            "misc_op_dst": f"MISC_OP_DST_{pair}",
         },
         {
             "addr_src": "ADDR_PC",
             "data_bus_src": "DATA_BUS_SRC_IR",
             "data_bus_op": "DATA_BUS_OP_READ",
             "idu_op": "IDU_OP_INC",
-            "misc_op": "MISC_OP_R16_WZ_COPY",
-            "misc_op_dst": f"MISC_OP_DST_{pair}",
         },
     ]
     opcode_comments[base - 4] = f"POP {pair}"

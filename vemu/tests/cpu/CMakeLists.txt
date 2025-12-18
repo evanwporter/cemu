@@ -15,12 +15,28 @@ target_include_directories(test_cpu
     PRIVATE
         ${VEMU_TESTS_CPP_DIR}
 )
+
+get_target_property(VEMU_PACKAGES vemu_rtl INTERFACE_VEMU_PACKAGES)
+get_target_property(VEMU_INTERFACES vemu_rtl INTERFACE_VEMU_INTERFACES)
+
 verilate(test_cpu
+    PREFIX Vcpu_top
     TOP_MODULE cpu_top
     SOURCES
+        # ${VEMU_SRC_DIR}/cpu/types.sv
+        # ${VEMU_SRC_DIR}/ppu/types.sv
+
+        # ${VEMU_SRC_DIR}/mmu/addresses.sv
+        # ${VEMU_SRC_DIR}/mmu/interface.sv
+
+        ${VEMU_PACKAGES}
+        ${VEMU_INTERFACES}
+
+        ${VEMU_SRC_DIR}/cpu/CPU.sv
+
         ${CMAKE_CURRENT_SOURCE_DIR}/cpu_top.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/MockMMU.sv
-        ${VEMU_SRC_DIR}/cpu/CPU.sv
+
     VERILATOR_ARGS
         --sv
         --trace

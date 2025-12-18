@@ -29,7 +29,6 @@ macro(add_cpp_tb TB_NAME SV_FILE)
     )
     verilate(${TB_NAME}
         TOP_MODULE ${TOP_NAME}
-        SOURCES ${_SV_FILES}
         VERILATOR_ARGS
             --sv
             --trace
@@ -37,13 +36,14 @@ macro(add_cpp_tb TB_NAME SV_FILE)
             -Wno-fatal
             -I${VEMU_SRC_DIR}
             -I${CMAKE_CURRENT_BINARY_DIR}/
+            -f ${GENERATED_F}
     )
 endmacro()
 
-add_subdirectory(fetcher)
-add_subdirectory(mmu)
-add_subdirectory(fifo)
+# add_subdirectory(fetcher)
+# add_subdirectory(mmu)
+# add_subdirectory(fifo)
 add_subdirectory(cpu)
 # add_subdirectory(cartridge)
-add_subdirectory(integration)
+# add_subdirectory(integration)
 

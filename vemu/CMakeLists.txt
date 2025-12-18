@@ -1,5 +1,27 @@
 set(VEMU_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
+add_library(vemu_rtl INTERFACE)
+
+function(vemu_add_rtl)
+    cmake_parse_arguments(ARG "" "" "PACKAGES;INTERFACES;SOURCES" ${ARGN})
+
+    if(ARG_PACKAGES)
+        set_property(TARGET vemu_rtl APPEND PROPERTY
+            INTERFACE_VEMU_PACKAGES ${ARG_PACKAGES})
+    endif()
+
+    if(ARG_INTERFACES)
+        set_property(TARGET vemu_rtl APPEND PROPERTY
+            INTERFACE_VEMU_INTERFACES ${ARG_INTERFACES})
+    endif()
+
+    if(ARG_SOURCES)
+        set_property(TARGET vemu_rtl APPEND PROPERTY
+            INTERFACE_VEMU_SOURCES ${ARG_SOURCES})
+    endif()
+endfunction()
+
+
 set(VEMU_PKGS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ppu/types.sv
     ${CMAKE_CURRENT_SOURCE_DIR}/src/cpu/types.sv
@@ -27,9 +49,12 @@ set(VERILOG_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/mmu/util.sv
 )
 
-add_subdirectory(builds)
+set(VEMU_TEST_SOURCES
+    # ${CMAKE_CURRENT_SOURCE_DIR}/tests/cpu/cpu_top.sv
+)
+
 add_subdirectory(src)
-# add_subdirectory(tests)
+add_subdirectory(tests)
 
 find_package(Verilator REQUIRED HINTS $ENV{VERILATOR_ROOT})
 

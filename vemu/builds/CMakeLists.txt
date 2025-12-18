@@ -14,4 +14,8 @@ foreach(src ${VERILOG_SOURCES})
     file(APPEND ${GENERATED_F} "${src}\n")
 endforeach()
 
+foreach(src ${VEMU_TEST_SOURCES})
+    file(APPEND ${GENERATED_F} "${src}\n")
+endforeach()
+
 set(GENERATED_F ${GENERATED_F} PARENT_SCOPE)

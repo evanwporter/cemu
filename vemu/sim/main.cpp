@@ -237,22 +237,22 @@ static void tick(VGameboy& top, VerilatedContext& ctx) {
 static void set_initial_state(VGameboy& top) {
     auto& regs = top.rootp->Gameboy__DOT__cpu_inst__DOT__regs;
 
-    // regs.__PVT__a = 0x01;
-    // regs.__PVT__flags = 0xB0;
-    // regs.__PVT__b = 0x00;
-    // regs.__PVT__c = 0x13;
-    // regs.__PVT__d = 0x00;
-    // regs.__PVT__e = 0xD8;
-    // regs.__PVT__h = 0x01;
-    // regs.__PVT__l = 0x4D;
+    regs.__PVT__a = 0x01;
+    regs.__PVT__flags = 0xB0;
+    regs.__PVT__b = 0x00;
+    regs.__PVT__c = 0x13;
+    regs.__PVT__d = 0x00;
+    regs.__PVT__e = 0xD8;
+    regs.__PVT__h = 0x01;
+    regs.__PVT__l = 0x4D;
 
     regs.__PVT__sph = 0xFF;
     regs.__PVT__spl = 0xFE;
 
-    // regs.__PVT__pch = 0x01;
-    // regs.__PVT__pcl = 0x00;
+    regs.__PVT__pch = 0x01;
+    regs.__PVT__pcl = 0x00;
 
-    // regs.__PVT__IR = 0x00;
+    regs.__PVT__IR = 0x00;
 }
 
 void draw_sprites(VGameboy& top, u32* out) {
@@ -394,7 +394,8 @@ int main() {
         return 1;
     }
 
-    static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
+    // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
+    static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/01-special.gb";
 
     VGameboy top(&ctx);
 
@@ -459,7 +460,7 @@ int main() {
             draw_from_vram(top);
         }
 
-        // dump_gd_trace(top, trace);
+        dump_gd_trace(top, trace);
 
         if (handle_serial_output(top)) {
             // if (serial_buffer.find("Passed") != std::string::npos) {

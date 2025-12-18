@@ -1,0 +1,7 @@
+vemu_add_rtl(
+    PACKAGES ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
+    INTERFACES
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/CPU.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/RAM.sv
+)

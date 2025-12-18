@@ -1,0 +1,8 @@
+vemu_add_rtl(
+    PACKAGES ${CMAKE_CURRENT_SOURCE_DIR}/addresses.sv
+    INTERFACES ${CMAKE_CURRENT_SOURCE_DIR}/interface.sv
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/util.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/MMU.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/DMA.sv
+)
