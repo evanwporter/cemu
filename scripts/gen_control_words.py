@@ -961,6 +961,7 @@ control_words[0x2F] = [
 ]
 opcode_comments[0x2F] = "CPL"
 
+# DAA
 control_words[0x27] = [
     {
         "addr_src": "ADDR_PC",
@@ -1045,7 +1046,7 @@ opcode_comments[0xF8] = "LD HL, SP + e8"
 control_words[0xE9] = [
     {
         "addr_src": "ADDR_HL",
-        "data_bus_src": "DATA_BUS_SRC_Z",
+        "data_bus_src": "DATA_BUS_SRC_IR",
         "data_bus_op": "DATA_BUS_OP_READ",
         "idu_op": "IDU_OP_INC",
         "idu_dst": "ADDR_PC",

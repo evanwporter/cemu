@@ -186,6 +186,8 @@ static void dump_gd_trace(VGameboy& top, std::ostream& os) {
         os.flush();
         line_count = 0;
     }
+
+    os.flush();
 }
 
 static bool load_rom(VGameboy& top, const fs::path& filename) {

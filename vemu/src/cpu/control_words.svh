@@ -8070,7 +8070,7 @@ localparam control_word_t control_words [0:255] = '{
         cycles : '{
             0: '{  // M-cycle 1
                 addr_src : ADDR_HL,
-                data_bus_src : DATA_BUS_SRC_Z,
+                data_bus_src : DATA_BUS_SRC_IR,
                 data_bus_op : DATA_BUS_OP_READ,
                 idu_op : IDU_OP_INC,
                 idu_dst : ADDR_PC,
