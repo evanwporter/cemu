@@ -13,8 +13,8 @@
 #include <iomanip>
 #include <iostream>
 
-static const int GB_WIDTH = 160;
-static const int GB_HEIGHT = 144;
+static const int GB_WIDTH = 256; // 160;
+static const int GB_HEIGHT = 256; // 144;
 static const int SCALE = 3;
 
 using u8 = uint8_t;
@@ -24,6 +24,8 @@ using u32 = uint32_t;
 static SDL_Window* window;
 static SDL_Renderer* renderer;
 static SDL_Texture* texture;
+
+static u32 framebuffer[GB_WIDTH * GB_HEIGHT];
 
 static inline u32 gb_color(u8 c) {
     switch (c & 0x3) {
@@ -257,107 +259,26 @@ static void set_initial_state(VGameboy& top) {
     regs.__PVT__IR = 0x00;
 }
 
-void draw_sprites(VGameboy& top, u32* out) {
-    const auto& regs = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs;
-    const auto& OAM = top.rootp->Gameboy__DOT__ppu_inst__DOT__OAM;
-    const auto& VRAM = top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM;
-
-    const bool sprite_enable = regs.__PVT__LCDC & 0b00000010;
-    if (!sprite_enable)
-        return;
-
-    /// 8x16 sprites or 8x8 sprites
-    const bool tall_sprites = regs.__PVT__LCDC & 0b00000100;
-
-    const int sprite_height = tall_sprites ? 16 : 8;
-
-    for (int i = 0; i < 40; i++) {
-        // 0xA0 bytes of OAM, 4 bytes per sprite
-
-        /// Object’s vertical position on the screen + 16
-        const u8 y = OAM[i * 4 + 0];
-
-        /// Object’s horizontal position on the screen + 8.
-        const u8 x = OAM[i * 4 + 1];
-
-        /// Tile index
-        const u8 tile = OAM[i * 4 + 2];
-
-        /// Flags/attributes
-        const u8 flags = OAM[i * 4 + 3];
-
-        const int screen_y = (int)y - 16;
-        const int screen_x = (int)x - 8;
-
-        // ignore off-screen sprites
-        if (screen_y <= -sprite_height || screen_y >= GB_HEIGHT)
-            continue;
-
-        bool flipY = flags & 0x40;
-        bool flipX = flags & 0x20;
-
-        u8 palette = (flags & 0x10) ? regs.__PVT__OBP1 : regs.__PVT__OBP0;
-
-        for (int py = 0; py < sprite_height; py++) {
-            int draw_y = screen_y + py;
-            if (draw_y < 0 || draw_y >= GB_HEIGHT)
-                continue;
-
-            int src_y = flipY ? (sprite_height - 1 - py) : py;
-
-            // For 8x16, second tile follows immediately
-            u8 real_tile = tile;
-            if (tall_sprites) {
-                real_tile &= 0xFE; // ignore LSB
-                if (src_y >= 8) {
-                    real_tile |= 1; // second tile
-                    src_y -= 8;
-                }
-            }
-
-            const u8* td = &VRAM[real_tile * 16 + src_y * 2];
-            u8 lo = td[0];
-            u8 hi = td[1];
-
-            for (int px = 0; px < 8; px++) {
-                int draw_x = screen_x + px;
-                if (draw_x < 0 || draw_x >= GB_WIDTH)
-                    continue;
-
-                int src_x = flipX ? px : (7 - px);
-
-                u8 c = ((hi >> src_x) & 1) << 1 | ((lo >> src_x) & 1);
-
-                if (c == 0)
-                    continue; // transparent
-
-                out[draw_y * GB_WIDTH + draw_x] = gb_color(c);
-            }
-        }
-    }
-}
-
 static void draw_from_vram(VGameboy& top) {
-    void* pixels;
-    int pitch;
-    SDL_LockTexture(texture, nullptr, &pixels, &pitch);
-    u32* out = (u32*)pixels;
-
     auto& vram = top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM;
+    const auto& regs = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs;
 
-    u8 LCDC = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LCDC;
-    u8 SCX = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCX;
-    u8 SCY = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCY;
+    const u8 LCDC = regs.__PVT__LCDC;
+    const u8 SCX = regs.__PVT__SCX;
+    const u8 SCY = regs.__PVT__SCY;
 
-    bool signed_index = !(LCDC & 0x10); // tile data at 0x8800 or 0x8000
-    u16 tilemap_base = (LCDC & 0x08) ? 0x1C00 : 0x1800; // 9800 or 9C00
+    bool signed_index = !(LCDC & 0b00010000); // tile data at 0x8800 or 0x8000
+    u16 tilemap_base = (LCDC & 0b00001000) ? 0x1C00 : 0x1800; // 9800 or 9C00
+
+    bool window_enable = LCDC & 0b00100000;
+    assert(!window_enable); // Not implemented
 
     for (int y = 0; y < GB_HEIGHT; ++y) {
-        int map_y = (y + SCY) & 255;
+        int map_y = y; // (y + SCY) & 255;
         int tile_row = (map_y / 8) * 32;
 
         for (int x = 0; x < GB_WIDTH; ++x) {
-            int map_x = (x + SCX) & 255;
+            int map_x = x; //(x + SCX) & 255;
 
             int tile_col = map_x / 8;
             u8 tile_index = vram[tilemap_base + tile_row + tile_col];
@@ -372,13 +293,17 @@ static void draw_from_vram(VGameboy& top) {
             u8 hi = td[1];
             u8 color = ((hi >> tile_x) & 1) * 2 + ((lo >> tile_x) & 1);
 
-            out[y * GB_WIDTH + x] = gb_color(color);
+            framebuffer[y * GB_WIDTH + x] = gb_color(color);
         }
     }
+}
 
-    draw_sprites(top, out);
-
-    SDL_UnlockTexture(texture);
+static void present_frame() {
+    SDL_UpdateTexture(
+        texture,
+        nullptr,
+        framebuffer,
+        GB_WIDTH * sizeof(u32));
     SDL_RenderCopy(renderer, texture, nullptr, nullptr);
     SDL_RenderPresent(renderer);
 }
@@ -460,6 +385,7 @@ int main() {
 
         if (top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY == 144) {
             draw_from_vram(top);
+            present_frame();
         }
 
         dump_gd_trace(top, trace);
