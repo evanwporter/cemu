@@ -30,11 +30,11 @@ static inline u32 gb_color(u8 c) {
     case 0:
         return 0xFFFFFFFF; // white
     case 1:
-        return 0xAAAAAAFF; // light gray
+        return 0xFFAAAAAA; // light gray
     case 2:
-        return 0x555555FF; // dark gray
+        return 0xFF555555; // dark gray
     case 3:
-        return 0x000000FF; // black
+        return 0xFF000000; // black
     default:
         return 0xFFFFFFFF;
     }
