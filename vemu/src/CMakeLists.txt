@@ -41,6 +41,7 @@ ${VEMU_SOURCES}
 string(REPLACE ";" "\n" VEMU_F_CONTENT "${VEMU_F_CONTENT}")
 
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/vemu.f "${VEMU_F_CONTENT}\n")
+file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/vemu.f "+incdir+${CMAKE_CURRENT_SOURCE_DIR}\n")
 
 verilate(libvemu
     SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/Gameboy.sv

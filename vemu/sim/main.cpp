@@ -13,8 +13,8 @@
 #include <iomanip>
 #include <iostream>
 
-static const int GB_WIDTH = 256; // 160;
-static const int GB_HEIGHT = 256; // 144;
+static const int GB_WIDTH = 160;
+static const int GB_HEIGHT = 144;
 static const int SCALE = 3;
 
 using u8 = uint8_t;
@@ -42,25 +42,6 @@ static inline u32 gb_color(u8 c) {
     }
 }
 
-static void draw_frame(VGameboy& top) {
-    void* pixels;
-    int pitch;
-    SDL_LockTexture(texture, nullptr, &pixels, &pitch);
-    u32* buf = static_cast<u32*>(pixels);
-
-    for (int y = 0; y < GB_HEIGHT; ++y) {
-        for (int x = 0; x < GB_WIDTH; ++x) {
-            int idx = y * GB_WIDTH + x;
-            u8 col = top.rootp->Gameboy__DOT__ppu_inst__DOT__framebuffer__DOT__buffer[idx];
-            buf[y * GB_WIDTH + x] = gb_color(col);
-        }
-    }
-
-    SDL_UnlockTexture(texture);
-    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
-    SDL_RenderPresent(renderer);
-}
-
 namespace fs = std::filesystem;
 
 static int opcodes_executed = 0;
@@ -70,6 +51,9 @@ vluint64_t main_time = 0;
 double sc_time_stamp() {
     return main_time;
 }
+
+static std::ofstream vram_log;
+static int vram_log_counter = 0;
 
 static u8 read_mem(VGameboy& top, u16 PC) {
 
@@ -241,22 +225,22 @@ static void tick(VGameboy& top, VerilatedContext& ctx) {
 static void set_initial_state(VGameboy& top) {
     auto& regs = top.rootp->Gameboy__DOT__cpu_inst__DOT__regs;
 
-    regs.__PVT__a = 0x01;
-    regs.__PVT__flags = 0xB0;
-    regs.__PVT__b = 0x00;
-    regs.__PVT__c = 0x13;
-    regs.__PVT__d = 0x00;
-    regs.__PVT__e = 0xD8;
-    regs.__PVT__h = 0x01;
-    regs.__PVT__l = 0x4D;
+    // regs.__PVT__a = 0x01;
+    // regs.__PVT__flags = 0xB0;
+    // regs.__PVT__b = 0x00;
+    // regs.__PVT__c = 0x13;
+    // regs.__PVT__d = 0x00;
+    // regs.__PVT__e = 0xD8;
+    // regs.__PVT__h = 0x01;
+    // regs.__PVT__l = 0x4D;
 
     regs.__PVT__sph = 0xFF;
     regs.__PVT__spl = 0xFE;
 
-    regs.__PVT__pch = 0x01;
-    regs.__PVT__pcl = 0x00;
+    // regs.__PVT__pch = 0x01;
+    // regs.__PVT__pcl = 0x00;
 
-    regs.__PVT__IR = 0x00;
+    // regs.__PVT__IR = 0x00;
 }
 
 static void draw_from_vram(VGameboy& top) {
@@ -270,16 +254,17 @@ static void draw_from_vram(VGameboy& top) {
     bool signed_index = !(LCDC & 0b00010000); // tile data at 0x8800 or 0x8000
     u16 tilemap_base = (LCDC & 0b00001000) ? 0x1C00 : 0x1800; // 9800 or 9C00
 
+    u16 tile_data_base = (LCDC & 0x10) ? 0x0000 : 0x0800;
+
     bool window_enable = LCDC & 0b00100000;
     assert(!window_enable); // Not implemented
 
     for (int y = 0; y < GB_HEIGHT; ++y) {
-        int map_y = y; // (y + SCY) & 255;
+        int map_y = (y + SCY) & 255;
         int tile_row = (map_y / 8) * 32;
 
         for (int x = 0; x < GB_WIDTH; ++x) {
-            int map_x = x; //(x + SCX) & 255;
-
+            int map_x = (x + SCX) & 255;
             int tile_col = map_x / 8;
             u8 tile_index = vram[tilemap_base + tile_row + tile_col];
 
@@ -321,8 +306,18 @@ int main() {
         return 1;
     }
 
+    static const fs::path vram_log_path = fs::path(SOURCE_DIR) / "vram_9810.log";
+
+    vram_log.open(vram_log_path, std::ios::trunc);
+    if (!vram_log.is_open()) {
+        std::cerr << "[Error] Unable to open vram_9810.log\n";
+        return 1;
+    }
+
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
-    static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/01-special.gb";
+    // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/02-interrupts.gb";
+    // static const fs::path rom_path = "tetris.gb";
+    static const fs::path rom_path = fs::path(TEST_DIR) / "dmg-acid2.gb";
 
     VGameboy top(&ctx);
 
@@ -388,7 +383,17 @@ int main() {
             present_frame();
         }
 
-        dump_gd_trace(top, trace);
+        // dump_gd_trace(top, trace);
+
+        // {
+        //     auto& vram = top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM;
+        //     vram_log << std::hex << std::uppercase << std::setfill('0');
+        //     for (int addr = 0; addr < 8192; addr += 16) {
+        //         vram_log << std::setw(2) << (int)vram[addr] << " ";
+        //     }
+
+        //     vram_log << "\n";
+        // }
 
         if (handle_serial_output(top)) {
             // if (serial_buffer.find("Passed") != std::string::npos) {

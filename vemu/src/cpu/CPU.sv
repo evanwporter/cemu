@@ -11,6 +11,9 @@ import ppu_types_pkg::*;
 
 `include "cpu/util.svh"
 
+`include "cpu/alu_ops.svh"
+`include "cpu/idu_ops.svh"
+
 `include "util/logger.svh"
 
 
@@ -59,13 +62,13 @@ module CPU (
       bus.wdata <= '0;
       instr_boundary <= 1'b0;
 
-      `LOG_INFO(("[CPU] RESET: PC=%04h SP=%04h", {regs.pch, regs.pcl}, {regs.sph, regs.spl}));
+      `LOG_INFO(("[CPU] RESET: PC=%04h SP=%04h", {regs.pch, regs.pcl}, {regs.sph, regs.spl}))
 
     end else begin
       `LOG_TRACE(
           ("[CPU] Phase=%s Cycle=%0d PC=%04h Addr=%04h ReadDataBus=%02h IR=%02h", 
                t_phase.name(), cycle_count, {
-          regs.pch, regs.pcl}, bus.addr, bus.rdata, regs.IR));
+          regs.pch, regs.pcl}, bus.addr, bus.rdata, regs.IR))
 
       instr_boundary <= 1'b0;
       unique case (t_phase)
@@ -91,13 +94,13 @@ module CPU (
             DATA_BUS_OP_READ: begin
               bus.read_en  <= 1'b1;
               bus.write_en <= 1'b0;
-              `LOG_TRACE(("[CPU] READ request at addr %h", bus.addr));
+              `LOG_TRACE(("[CPU] READ request at addr %h", bus.addr))
             end
             DATA_BUS_OP_WRITE: begin
               bus.wdata    <= pick_wdata(control_word.cycles[cycle_count].data_bus_src, regs);
               bus.write_en <= 1'b1;
               bus.read_en  <= 1'b0;
-              `LOG_TRACE(("[CPU] WRITE request at addr %h data=%h", bus.addr, bus.wdata));
+              `LOG_TRACE(("[CPU] WRITE request at addr %h data=%h", bus.addr, bus.wdata))
             end
             DATA_BUS_OP_NONE: begin
               bus.write_en <= 1'b0;
@@ -111,36 +114,36 @@ module CPU (
         /// T3 is generally the cycle where data is read from the bus or the write is completed.
         T3: begin
           if (control_word.cycles[cycle_count].data_bus_op == DATA_BUS_OP_READ) begin
-            `LOAD_REG_FROM_BYTE(control_word.cycles[cycle_count].data_bus_src, bus.rdata, regs);
-            `LOG_TRACE(("[CPU] READ complete: data=%h", bus.rdata));
+            `LOAD_REG_FROM_BYTE(control_word.cycles[cycle_count].data_bus_src, bus.rdata, regs)
+            `LOG_TRACE(("[CPU] READ complete: data=%h", bus.rdata))
           end
           t_phase <= T4;
         end
 
         T4: begin
 
-          `DISPLAY_CONTROL_WORD(control_word, cycle_count);
+          `DISPLAY_CONTROL_WORD(control_word, cycle_count)
 
           // applies the idu op to the address bus
           if (control_word.cycles[cycle_count].idu_dst == ADDR_NONE) begin
             `APPLY_IDU_OP(control_word.cycles[cycle_count].addr_src,
                           control_word.cycles[cycle_count].addr_src,
-                          control_word.cycles[cycle_count].idu_op, regs);
+                          control_word.cycles[cycle_count].idu_op, regs)
           end else begin
             `APPLY_IDU_OP(control_word.cycles[cycle_count].addr_src,
                           control_word.cycles[cycle_count].idu_dst,
-                          control_word.cycles[cycle_count].idu_op, regs);
+                          control_word.cycles[cycle_count].idu_op, regs)
           end
 
           // applies the alu op to the specified registers
           `APPLY_ALU_OP(control_word.cycles[cycle_count].alu_op,
                         control_word.cycles[cycle_count].alu_dst,
                         control_word.cycles[cycle_count].alu_src,
-                        control_word.cycles[cycle_count].alu_bit, regs);
+                        control_word.cycles[cycle_count].alu_bit, regs)
 
           // applies the misc op to the specified registers
           `APPLY_MISC_OP(control_word.cycles[cycle_count].misc_op,
-                         control_word.cycles[cycle_count].misc_op_dst, regs);
+                         control_word.cycles[cycle_count].misc_op_dst, regs)
 
           bus.read_en  <= 1'b0;
           bus.write_en <= 1'b0;
@@ -198,7 +201,7 @@ module CPU (
           end
 
           `LOG_TRACE(("[CPU] End of T4: Next cycle=%0d Next phase=T1 PC=%h", cycle_count, {
-                     regs.pch, regs.pcl}));
+                     regs.pch, regs.pcl}))
 
           t_phase <= T1;
 

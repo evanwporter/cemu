@@ -1,6 +1,12 @@
 #include "gameboy.hpp"
 #include "cartridge/cartridge.hpp"
+#include <fstream>
+#include <iostream>
 #include <memory>
+
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 Gameboy::Gameboy(Options& options) :
     cpu(std::make_unique<CPU>(*this, options)),
@@ -57,8 +63,24 @@ void Gameboy::run(
 
     ppu->register_vblank_callback(_vblank_callback);
 
+    static const fs::path vram_log_path = "./vram_9810.log";
+
+    std::ofstream vram_log(vram_log_path, std::ios::trunc);
+    if (!vram_log.is_open()) {
+        std::cerr << "[Error] Unable to open vram_9810.log\n";
+        return;
+    }
+
     while (!should_close_callback()) {
         tick();
+        {
+            vram_log << std::hex << std::uppercase << std::setfill('0');
+            for (int addr = 0; addr < 8192; addr += 16) {
+                vram_log << std::setw(2) << (int)ppu->read(addr) << " ";
+            }
+
+            vram_log << "\n";
+        }
     }
 }
 
