@@ -110,6 +110,10 @@
   "python.testing.pytestArgs": [
     "${workspaceFolder}/test/external/test.py"
   ],
+  "[cpp]":{
+    "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+    "editor.formatOnSave": true
+  },
   "[systemverilog]": {
     "editor.defaultFormatter": "bmpenuelas.systemverilog-formatter-vscode",
     // "editor.defaultFormatter": "teros-technology.teroshdl",
