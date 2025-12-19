@@ -10,7 +10,8 @@
             "request": "launch",
             "program": "${workspaceFolder}/build/debug/cemu/cemu.exe",
             "args": [
-                "${workspaceFolder}/tests/gb-test-roms/cpu_instrs/cpu_instrs.gb"
+                // "${workspaceFolder}/tests/gb-test-roms/cpu_instrs/cpu_instrs.gb"
+                "${workspaceFolder}/tests/gb-test-roms/cpu_instrs/individual/01-special.gb"
                 // "${workspaceFolder}/tests/Pokemon_Red.gb"
             ],
             "stopAtEntry": false,
