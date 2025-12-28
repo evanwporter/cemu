@@ -1054,7 +1054,6 @@ control_words[0xE9] = [
 ]
 
 # RETI
-opcode_comments[0xD9] = "RETI"
 control_words[0xD9] = [
     {
         "addr_src": "ADDR_SP",
@@ -1079,6 +1078,7 @@ control_words[0xD9] = [
         "misc_op": "MISC_OP_IME_ENABLE",
     },
 ]
+opcode_comments[0xD9] = "RETI"
 
 # BIT
 for b in range(8):

@@ -170,8 +170,6 @@ module CPU (
 
                 if ((pending) != 5'b0) begin
                   // Interrupt detected -> take the highest priority
-                  logic [2:0] irq_index;
-
                   if (pending[0]) begin  // VBlank
                     IF[3'd0] <= 1'b0;
                     control_word <= interrupt_words[3'd0];

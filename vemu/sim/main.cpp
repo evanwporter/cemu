@@ -306,14 +306,6 @@ int main() {
         return 1;
     }
 
-    static const fs::path vram_log_path = fs::path(SOURCE_DIR) / "vram_9810.log";
-
-    vram_log.open(vram_log_path, std::ios::trunc);
-    if (!vram_log.is_open()) {
-        std::cerr << "[Error] Unable to open vram_9810.log\n";
-        return 1;
-    }
-
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/02-interrupts.gb";
     // static const fs::path rom_path = "tetris.gb";
@@ -383,17 +375,7 @@ int main() {
             present_frame();
         }
 
-        // dump_gd_trace(top, trace);
-
-        // {
-        //     auto& vram = top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM;
-        //     vram_log << std::hex << std::uppercase << std::setfill('0');
-        //     for (int addr = 0; addr < 8192; addr += 16) {
-        //         vram_log << std::setw(2) << (int)vram[addr] << " ";
-        //     }
-
-        //     vram_log << "\n";
-        // }
+        dump_gd_trace(top, trace);
 
         if (handle_serial_output(top)) {
             // if (serial_buffer.find("Passed") != std::string::npos) {

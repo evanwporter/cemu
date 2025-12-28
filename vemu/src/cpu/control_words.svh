@@ -7304,7 +7304,7 @@ localparam control_word_t control_words [0:255] = '{
             }
         }
     },
-    'hD9: '{  //  UNDEFINED
+    'hD9: '{  //  RETI
         num_cycles : 3'd4,
         cycles : '{
             0: '{  // M-cycle 1
@@ -7331,7 +7331,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
                 alu_bit : ALU_BIT_0,
-                misc_op : MISC_OP_IME_ENABLE,
+                misc_op : MISC_OP_NONE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
@@ -7359,7 +7359,7 @@ localparam control_word_t control_words [0:255] = '{
                 alu_dst : ALU_SRC_NONE,
                 alu_src : ALU_SRC_NONE,
                 alu_bit : ALU_BIT_0,
-                misc_op : MISC_OP_NONE,
+                misc_op : MISC_OP_IME_ENABLE,
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },

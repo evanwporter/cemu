@@ -59,7 +59,7 @@ interface DMA_if;
   // The DMA is the bus master: it drives addr/wdata/read/write_en
   modport DMA_side(output addr, wdata, read_en, write_en, active, input rdata);
 
-  // The DMA is a router: it reads CPU’s signals, passes them along,
+  // The MMU is a router: it reads CPU’s signals, passes them along,
   // and gathers rdata from peripherals
   modport MMU_side(input addr, wdata, read_en, write_en, active, output rdata);
 endinterface
