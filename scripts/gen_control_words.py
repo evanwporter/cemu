@@ -1053,7 +1053,8 @@ control_words[0xE9] = [
     },
 ]
 
-# // TODO: Comment
+# RETI
+opcode_comments[0xD9] = "RETI"
 control_words[0xD9] = [
     {
         "addr_src": "ADDR_SP",
@@ -1068,10 +1069,15 @@ control_words[0xD9] = [
         "data_bus_op": "DATA_BUS_OP_READ",
         "idu_op": "IDU_OP_INC",
         "idu_dst": "ADDR_SP",
-        "misc_op": "MISC_OP_IME_ENABLE",
     },
     {"misc_op": "MISC_OP_R16_WZ_COPY", "misc_op_dst": "MISC_OP_DST_PC"},
-    NOP,
+    {
+        "addr_src": "ADDR_PC",
+        "data_bus_op": "DATA_BUS_OP_READ",
+        "data_bus_src": "DATA_BUS_SRC_IR",
+        "idu_op": "IDU_OP_INC",
+        "misc_op": "MISC_OP_IME_ENABLE",
+    },
 ]
 
 # BIT
