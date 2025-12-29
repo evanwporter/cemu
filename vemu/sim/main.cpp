@@ -20,6 +20,7 @@ static const int SCALE = 3;
 using u8 = uint8_t;
 using u16 = uint16_t;
 using u32 = uint32_t;
+using u64 = uint64_t;
 
 static SDL_Window* window;
 static SDL_Renderer* renderer;
@@ -46,14 +47,13 @@ namespace fs = std::filesystem;
 
 static int opcodes_executed = 0;
 
+static u64 ticks_executed = 0;
+
 vluint64_t main_time = 0;
 
 double sc_time_stamp() {
     return main_time;
 }
-
-static std::ofstream vram_log;
-static int vram_log_counter = 0;
 
 static u8 read_mem(VGameboy& top, u16 PC) {
 
@@ -212,7 +212,7 @@ static bool handle_serial_output(VGameboy& top) {
     return printed;
 }
 
-static void tick(VGameboy& top, VerilatedContext& ctx) {
+static void tick(VGameboy& top, VerilatedContext& ctx, u64& cycles) {
     top.clk = 0;
     top.eval();
     ctx.timeInc(5);
@@ -220,27 +220,29 @@ static void tick(VGameboy& top, VerilatedContext& ctx) {
     top.clk = 1;
     top.eval();
     ctx.timeInc(5);
+
+    cycles++;
 }
 
 static void set_initial_state(VGameboy& top) {
     auto& regs = top.rootp->Gameboy__DOT__cpu_inst__DOT__regs;
 
-    // regs.__PVT__a = 0x01;
-    // regs.__PVT__flags = 0xB0;
-    // regs.__PVT__b = 0x00;
-    // regs.__PVT__c = 0x13;
-    // regs.__PVT__d = 0x00;
-    // regs.__PVT__e = 0xD8;
-    // regs.__PVT__h = 0x01;
-    // regs.__PVT__l = 0x4D;
+    regs.__PVT__a = 0x01;
+    regs.__PVT__flags = 0xB0;
+    regs.__PVT__b = 0x00;
+    regs.__PVT__c = 0x13;
+    regs.__PVT__d = 0x00;
+    regs.__PVT__e = 0xD8;
+    regs.__PVT__h = 0x01;
+    regs.__PVT__l = 0x4D;
 
     regs.__PVT__sph = 0xFF;
     regs.__PVT__spl = 0xFE;
 
-    // regs.__PVT__pch = 0x01;
-    // regs.__PVT__pcl = 0x00;
+    regs.__PVT__pch = 0x01;
+    regs.__PVT__pcl = 0x00;
 
-    // regs.__PVT__IR = 0x00;
+    regs.__PVT__IR = 0x00;
 }
 
 static void draw_from_vram(VGameboy& top) {
@@ -307,9 +309,12 @@ int main() {
     }
 
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
+    // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/01-special.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/02-interrupts.gb";
+    // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/03-op sp,hl.gb";
+    static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/04-op r,imm.gb";
     // static const fs::path rom_path = "tetris.gb";
-    static const fs::path rom_path = fs::path(TEST_DIR) / "dmg-acid2.gb";
+    // static const fs::path rom_path = fs::path(TEST_DIR) / "dmg-acid2.gb";
 
     VGameboy top(&ctx);
 
@@ -345,13 +350,15 @@ int main() {
         top.rootp->Gameboy__DOT__ram_inst__DOT__HRAM[i] = 0xFF;
     }
 
-    const uint64_t max_cycles = 1'000'000;
+    const uint64_t max_cycles = 1'000'000'000;
 
     bool quit = false;
     SDL_Event e;
 
+    u64 cycles = 0;
+
     while (top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
-        tick(top, ctx);
+        tick(top, ctx, cycles);
     }
 
     for (int i = 0; i < max_cycles; ++i) {
@@ -362,7 +369,7 @@ int main() {
 
         top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary = 0;
         while (top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
-            tick(top, ctx);
+            tick(top, ctx, cycles);
         }
 
         while (SDL_PollEvent(&e)) {

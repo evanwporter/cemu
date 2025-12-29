@@ -8,7 +8,6 @@ import cpu_types_pkg::*;
 typedef struct packed {
   logic [7:0] result;  // The ALU output value
   logic [7:0] flags;  // The full F register (Z N H C ----)
-  logic alu_carry;  // Carry out of the operation
 } alu_result_t;
 
 function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t dst_sel,
@@ -85,8 +84,6 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
 
       sub_flag      = 1'b0;
       zero_flag     = (dst_val == 8'h00);
-
-      res.alu_carry = carry_flag;
     end
 
     ALU_OP_ADC: begin
@@ -197,13 +194,6 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       else zero_flag = (dst_val == 8'h00);
     end
 
-    ALU_OP_ADD_SIGNED: begin
-      // For LD HL,SP+e8 high byte add: SPH + sign(Z) + carry
-      tmp           = {1'b0, dst_val} + {1'b0, {8{regs.z[7]}}} + {8'b0, regs.alu_carry};
-      dst_val       = tmp[7:0];
-      res.alu_carry = tmp[8];
-    end
-
     ALU_OP_CP: begin
       tmp        = {1'b0, dst_val} - {1'b0, src_val};
       carry_flag = tmp[8];
@@ -231,11 +221,24 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       sub_flag   = 1'b0;
     end
 
+    ALU_OP_ADD_SIGNED_LOW: begin
+      regs.e8_sign = dst_val[7];
+
+      half_sum   = {1'b0, dst_val[3:0]} + {1'b0, src_val[3:0]};
+      half_flag  = half_sum[4];
+
+      tmp        = {1'b0, dst_val} + {1'b0, src_val};
+      dst_val    = tmp[7:0];
+      carry_flag = tmp[8];
+      
+      sub_flag   = 1'b0;
+      zero_flag  = 1'b0;
+    end
+
     ALU_OP_ADD_SIGNED_HIGH: begin
-      tmp = {1'b0, src_val} + {1'b0, regs.z[7] ? 8'hFF : 8'h00} + {8'b0, regs.alu_carry};
+      tmp = {1'b0, src_val} - {1'b0, regs.e8_sign ? 8'h01 : 8'h00} + {8'b0, carry_flag};
 
       dst_val = tmp[7:0];
-      res.alu_carry = 1'b0;
     end
 
     ALU_OP_SCF: begin
@@ -361,7 +364,6 @@ endfunction
       ALU_SRC_NONE: ; \
     endcase \
     (REGS).flags <= __alu_res.flags; \
-    (REGS).alu_carry <= __alu_res.alu_carry; \
   end
 
 `endif

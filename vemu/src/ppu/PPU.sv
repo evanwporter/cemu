@@ -128,13 +128,13 @@ module PPU (
 
         // VRAM writes (blocked in Mode 3)
         (bus.addr inside {[VRAM_start : VRAM_end]}): begin
-          if (mode != PPU_MODE_3) begin
+          // if (mode != PPU_MODE_3) begin
             VRAM[13'(bus.addr-16'h8000)] <= bus.wdata;
-            `LOG_TRACE(("[PPU] VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
-          end else begin
-            `LOG_TRACE(
-                ("[PPU] VRAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
-          end
+            `LOG_TRACE(("[PPU] VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
+          // end else begin
+          //   `LOG_TRACE(
+          //       ("[PPU] VRAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
+          // end
         end
 
         // OAM writes (blocked in Mode 2 & 3)

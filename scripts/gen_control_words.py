@@ -927,7 +927,7 @@ control_words[0xE8] = [
     {
         "addr_src": "ADDR_NONE",
         "data_bus_op": "DATA_BUS_OP_NONE",
-        "alu_op": "ALU_OP_ADD_LOW",
+        "alu_op": "ALU_OP_ADD_SIGNED_LOW",
         "alu_dst": "ALU_SRC_Z",
         "alu_src": "ALU_SRC_SP_LOW",
     },
@@ -1020,7 +1020,7 @@ control_words[0xF8] = [
         "data_bus_src": "DATA_BUS_SRC_Z",
         "data_bus_op": "DATA_BUS_OP_READ",
         "idu_op": "IDU_OP_INC",
-        "alu_op": "ALU_OP_ADD_LOW",
+        "alu_op": "ALU_OP_ADD_SIGNED_LOW",
         "alu_dst": "ALU_SRC_Z",
         "alu_src": "ALU_SRC_SP_LOW",
     },

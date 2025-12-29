@@ -161,7 +161,7 @@ module CPU (
               // Importantly we do not set the instruction boundary here
             end else begin
               control_word   <= control_words[regs.IR];
-              instr_boundary <= 1'b1;
+              // instr_boundary <= 1'b1;
 
               if (regs.IME) begin
 
@@ -191,8 +191,8 @@ module CPU (
                   regs.IME <= 1'b0;
 
                   instr_boundary <= 1'b0;  // Now executing new implicit instruction
-                end
-              end
+                end else instr_boundary <= 1'b1;
+              end else instr_boundary <= 1'b1;
             end
           end else begin
             cycle_count <= cycle_count + 1;

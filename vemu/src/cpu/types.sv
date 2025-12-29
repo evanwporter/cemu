@@ -29,7 +29,7 @@ typedef struct `PACK_REG {
   // stack pointer
   logic [7:0] sph, spl;
 
-  logic alu_carry;
+  logic e8_sign;
 } cpu_regs_t;
 // verilog_format: on
 

@@ -98,7 +98,6 @@ static void dump_gd_trace(Vcpu_top& top, std::ostream& os) {
     }
 }
 
-
 void tick(Vcpu_top& top, VerilatedContext& ctx) {
     top.clk = 0;
     top.eval();
@@ -241,7 +240,9 @@ void run_single_file(const fs::path& path, bool is_cb) {
         verify_registers(top, testCase["final"], test_name);
         verify_ram(top, ctx, testCase["final"]["ram"], test_name);
 
-        break; // TODO
+        if (::testing::Test::HasFailure()) {
+            break;
+        }
     }
 }
 
