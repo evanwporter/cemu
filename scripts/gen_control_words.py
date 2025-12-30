@@ -1419,8 +1419,8 @@ def generate_interrupt_sv(interrupt_words):
         name = interrupt_vectors[index]
 
         lines.append(f"    {index}: '{{  // INTERRUPT {name}\n")
-        lines.append(f"        num_cycles : 3'd4,\n")
-        lines.append("         cycles : '{\n")
+        lines.append("        num_cycles : 3'd4,\n")
+        lines.append("        cycles : '{\n")
 
         for i in range(MAX_CYCLES):
             entry = cycles[i] if i < len(cycles) else None
