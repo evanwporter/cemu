@@ -29,6 +29,10 @@ public:
 
     bool run(const std::filesystem::path& rom_path, InstructionCallback on_instruction = nullptr);
 
+    std::string get_serial_buffer() const {
+        return serial_buffer;
+    }
+
 private:
     bool gui_enabled;
     bool dump_trace_enabled;

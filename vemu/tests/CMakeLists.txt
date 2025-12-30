@@ -44,6 +44,7 @@ endmacro()
 # add_subdirectory(mmu)
 # add_subdirectory(fifo)
 add_subdirectory(cpu)
+add_subdirectory(blargh)
 # add_subdirectory(cartridge)
 # add_subdirectory(integration)
 

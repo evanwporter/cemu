@@ -54,13 +54,31 @@ set(VEMU_TEST_SOURCES
 )
 
 add_subdirectory(src)
+
+add_library(libvemu_harness)
+
+target_sources(libvemu_harness PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/sim/gb.cpp)
+
+target_include_directories(libvemu_harness PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/sim/)
+
+target_link_libraries(libvemu_harness PUBLIC
+    libvemu
+    SDL2::SDL2main 
+    SDL2::SDL2
+)
+
+target_compile_definitions(libvemu_harness PUBLIC
+    TEST_DIR="${CMAKE_SOURCE_DIR}/tests/"
+    SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+)
+
 add_subdirectory(tests)
 
 find_package(Verilator REQUIRED HINTS $ENV{VERILATOR_ROOT})
 
 find_package(SDL2 CONFIG REQUIRED)
 
-add_executable(vemu ${CMAKE_CURRENT_SOURCE_DIR}/sim/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/sim/gb.cpp)
+add_executable(vemu ${CMAKE_CURRENT_SOURCE_DIR}/sim/main.cpp)
 
 target_include_directories(vemu PRIVATE
     ${CMAKE_BINARY_DIR}/vemu/CMakeFiles/libvemu.dir/VGameboy.dir
@@ -69,11 +87,5 @@ target_include_directories(vemu PRIVATE
 
 target_link_libraries(vemu PRIVATE
     libvemu
-    SDL2::SDL2main 
-    SDL2::SDL2
-)
-
-target_compile_definitions(vemu PRIVATE
-    TEST_DIR="${CMAKE_SOURCE_DIR}/tests/"
-    SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+    libvemu_harness
 )

@@ -1,5 +1,6 @@
+#ifndef SDL_MAIN_HANDLED
 #define SDL_MAIN_HANDLED
-#include <SDL.h>
+#endif
 
 #include <VGameboy.h>
 #include <VGameboy___024root.h>
