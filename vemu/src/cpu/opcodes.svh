@@ -61,7 +61,7 @@ typedef enum logic [2:0] {
   IDU_SRC_AF
 } idu_src_t;
 
-typedef enum logic [4:0] {
+typedef enum logic [5:0] {
   ALU_OP_NONE,
   ALU_OP_COPY,
   ALU_OP_ADD,
@@ -79,6 +79,11 @@ typedef enum logic [4:0] {
   ALU_OP_RRC,
   ALU_OP_RL,
   ALU_OP_RLC,
+
+  ALU_OP_RRA,
+  ALU_OP_RRCA,
+  ALU_OP_RLA,
+  ALU_OP_RLCA,
 
   ALU_OP_CCF,
   ALU_OP_SCF,

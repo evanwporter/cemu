@@ -177,12 +177,7 @@ void verify_registers(const Vcpu_top& top, const json& expected, const std::stri
         << "Test: " << test_name;
 }
 
-struct TestParam {
-    fs::path path;
-    bool is_cb;
-};
-
-void run_single_file(const fs::path& path, bool is_cb) {
+void run_single_file(const fs::path& path) {
 
     std::ifstream f(path);
     ASSERT_TRUE(f.is_open()) << "Failed to open test file: " << path;
@@ -249,13 +244,13 @@ void run_single_file(const fs::path& path, bool is_cb) {
 class GameboyOpcodeTest : public ::testing::TestWithParam<fs::path> { };
 
 TEST_P(GameboyOpcodeTest, Run) {
-    run_single_file(GetParam(), false);
+    run_single_file(GetParam());
 }
 
 class GameboyCBOpcodeTest : public ::testing::TestWithParam<fs::path> { };
 
 TEST_P(GameboyCBOpcodeTest, Run) {
-    run_single_file(GetParam(), true);
+    run_single_file(GetParam());
 }
 
 INSTANTIATE_TEST_SUITE_P(

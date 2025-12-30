@@ -586,7 +586,7 @@ for name, opcode in {"RLCA": 0x07, "RRCA": 0x0F, "RLA": 0x17, "RRA": 0x1F}.items
             "addr_src": "ADDR_PC",
             "data_bus_op": "DATA_BUS_OP_READ",
             "data_bus_src": "DATA_BUS_SRC_IR",
-            "alu_op": f"ALU_OP_{name[:-1]}",
+            "alu_op": f"ALU_OP_{name}",
             "alu_src": "ALU_SRC_A",
             "alu_dst": "ALU_SRC_A",
             "idu_op": "IDU_OP_INC",

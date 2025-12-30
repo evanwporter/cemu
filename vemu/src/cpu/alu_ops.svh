@@ -164,8 +164,7 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       dst_val    = {regs.flags[4], dst_val[7:1]};
       sub_flag   = 1'b0;
       half_flag  = 1'b0;
-      if (dst_sel == ALU_SRC_A) zero_flag = 1'b0;
-      else zero_flag = (dst_val == 8'h00);
+      zero_flag = (dst_val == 8'h00);
     end
 
     ALU_OP_RRC: begin
@@ -173,8 +172,7 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       dst_val    = {dst_val[0], dst_val[7:1]};
       sub_flag   = 1'b0;
       half_flag  = 1'b0;
-      if (dst_sel == ALU_SRC_A) zero_flag = 1'b0;
-      else zero_flag = (dst_val == 8'h00);
+      zero_flag = (dst_val == 8'h00);
     end
 
     ALU_OP_RL: begin
@@ -182,8 +180,7 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       dst_val    = {dst_val[6:0], regs.flags[4]};
       sub_flag   = 1'b0;
       half_flag  = 1'b0;
-      if (dst_sel == ALU_SRC_A) zero_flag = 1'b0;
-      else zero_flag = (dst_val == 8'h00);
+      zero_flag = (dst_val == 8'h00);
     end
 
     ALU_OP_RLC: begin
@@ -191,10 +188,39 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       dst_val    = {dst_val[6:0], dst_val[7]};
       sub_flag   = 1'b0;
       half_flag  = 1'b0;
+      zero_flag = (dst_val == 8'h00);
+    end
 
-      // RLCA special case (Z always 0)
-      if (dst_sel == ALU_SRC_A) zero_flag = 1'b0;
-      else zero_flag = (dst_val == 8'h00);
+    ALU_OP_RRA: begin
+      carry_flag = dst_val[0];
+      dst_val    = {regs.flags[4], dst_val[7:1]};
+      sub_flag   = 1'b0;
+      half_flag  = 1'b0;
+      zero_flag = 1'b0;
+    end
+
+    ALU_OP_RRCA: begin
+      carry_flag = dst_val[0];
+      dst_val    = {dst_val[0], dst_val[7:1]};
+      sub_flag   = 1'b0;
+      half_flag  = 1'b0;
+      zero_flag = 1'b0;
+    end
+
+    ALU_OP_RLA: begin
+      carry_flag = dst_val[7];
+      dst_val    = {dst_val[6:0], regs.flags[4]};
+      sub_flag   = 1'b0;
+      half_flag  = 1'b0;
+      zero_flag = 1'b0;
+    end
+
+    ALU_OP_RLCA: begin
+      carry_flag = dst_val[7];
+      dst_val    = {dst_val[6:0], dst_val[7]};
+      sub_flag   = 1'b0;
+      half_flag  = 1'b0;
+      zero_flag = 1'b0;
     end
 
     ALU_OP_CP: begin
