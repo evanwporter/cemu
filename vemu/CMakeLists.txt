@@ -60,7 +60,7 @@ find_package(Verilator REQUIRED HINTS $ENV{VERILATOR_ROOT})
 
 find_package(SDL2 CONFIG REQUIRED)
 
-add_executable(vemu ${CMAKE_CURRENT_SOURCE_DIR}/sim/main.cpp)
+add_executable(vemu ${CMAKE_CURRENT_SOURCE_DIR}/sim/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/sim/gb.cpp)
 
 target_include_directories(vemu PRIVATE
     ${CMAKE_BINARY_DIR}/vemu/CMakeFiles/libvemu.dir/VGameboy.dir
