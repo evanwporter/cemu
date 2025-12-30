@@ -16,7 +16,6 @@ import ppu_types_pkg::*;
 
 `include "util/logger.svh"
 
-
 module CPU (
     input logic clk,
     input logic reset,
@@ -161,7 +160,7 @@ module CPU (
               control_word <= cb_control_words[regs.IR];
               // Importantly we do not set the instruction boundary here
             end else begin
-              control_word   <= control_words[regs.IR];
+              control_word <= control_words[regs.IR];
               // instr_boundary <= 1'b1;
 
               if (regs.IME) begin

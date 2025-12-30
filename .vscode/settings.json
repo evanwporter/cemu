@@ -107,16 +107,17 @@
     "shared_mutex": "cpp"
   },
   "C_Cpp.default.compileCommands": "${workspaceFolder}/build/debug/compile_commands.json",
-  "python.testing.pytestArgs": [
-    "${workspaceFolder}/test/external/test.py"
-  ],
-  "[cpp]":{
+  "python.testing.pytestArgs": ["${workspaceFolder}/test/external/test.py"],
+  "[cpp]": {
     "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
     "editor.formatOnSave": true
   },
   "[systemverilog]": {
     "editor.defaultFormatter": "bmpenuelas.systemverilog-formatter-vscode",
-    // "editor.defaultFormatter": "teros-technology.teroshdl",
+    "editor.formatOnSave": true
+  },
+  "[systemverilogheader]": {
+    "editor.defaultFormatter": "bmpenuelas.systemverilog-formatter-vscode",
     "editor.formatOnSave": true
   },
   "python.testing.cwd": "${workspaceFolder}/test/external",

@@ -148,7 +148,6 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       half_flag = ((dst_val[3:0] == 4'h0));  // overflow from bit3->4
       sub_flag  = 1'b0;
       zero_flag = (dst_val == 8'h00);
-      // carry_flag unchanged
     end
 
     ALU_OP_DEC: begin
@@ -156,7 +155,6 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
       half_flag = ((dst_val[3:0] == 4'hF));  // borrow into bit4
       sub_flag  = 1'b1;
       zero_flag = (dst_val == 8'h00);
-      // carry_flag unchanged
     end
 
     ALU_OP_RR: begin
