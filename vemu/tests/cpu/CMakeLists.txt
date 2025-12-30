@@ -3,9 +3,8 @@ find_package(GTest CONFIG REQUIRED)
 
 add_library(test_cpu)
 
-target_link_libraries(test_cpu
+target_link_libraries(test_cpu PRIVATE
     GTest::gtest
-    GTest::gtest_main
     nlohmann_json::nlohmann_json
 )
 
