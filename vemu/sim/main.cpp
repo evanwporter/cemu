@@ -12,6 +12,12 @@
 
 namespace fs = std::filesystem;
 
+vluint64_t main_time = 0;
+
+double sc_time_stamp() {
+    return main_time;
+}
+
 int main() {
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
     static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/01-special.gb";

@@ -15,10 +15,6 @@ using json = nlohmann::json;
 using u8 = uint8_t;
 using u16 = uint16_t;
 
-static vluint64_t timestamp = 0;
-
-double sc_time_stamp() { return timestamp; }
-
 static const fs::path kTestDir = fs::path(TEST_DIR) / "GameboyCPUTests/v2";
 static const fs::path kCBTestDir = fs::path(TEST_DIR) / "GameboyCPUTests/v2/cb";
 
@@ -274,7 +270,7 @@ INSTANTIATE_TEST_SUITE_P(
     });
 
 INSTANTIATE_TEST_SUITE_P(
-    CPUCBTests,
+    CPUTests,
     GameboyCBOpcodeTest,
     ::testing::ValuesIn([] {
         std::vector<fs::path> files;

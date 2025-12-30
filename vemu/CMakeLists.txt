@@ -63,7 +63,7 @@ target_include_directories(libvemu_harness PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/si
 
 target_link_libraries(libvemu_harness PUBLIC
     libvemu
-    SDL2::SDL2main 
+    # SDL2::SDL2main 
     SDL2::SDL2
 )
 
@@ -88,4 +88,5 @@ target_include_directories(vemu PRIVATE
 target_link_libraries(vemu PRIVATE
     libvemu
     libvemu_harness
+    SDL2::SDL2main 
 )

@@ -18,12 +18,6 @@
 
 #include "gb.hpp"
 
-vluint64_t main_time = 0;
-
-double sc_time_stamp() {
-    return main_time;
-}
-
 namespace fs = std::filesystem;
 
 bool GameboyHarness::run(const fs::path& rom_path, InstructionCallback on_instruction) {

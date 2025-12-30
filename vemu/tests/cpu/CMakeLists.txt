@@ -1,9 +1,7 @@
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(GTest CONFIG REQUIRED)
 
-add_executable(test_cpu
-    test_cpu.cpp
-)
+add_library(test_cpu)
 
 target_link_libraries(test_cpu
     GTest::gtest

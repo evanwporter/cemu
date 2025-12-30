@@ -6,12 +6,12 @@
 
 namespace fs = std::filesystem;
 
-static constexpr uint64_t MAX_INSTRUCTIONS = 50'000'000;
+static constexpr uint64_t MAX_INSTRUCTIONS = 10'000'000;
 
 class BlarghRomTest : public ::testing::TestWithParam<std::string> { };
 
 TEST_P(BlarghRomTest, Passes) {
-    GameboyHarness harness;
+    GameboyHarness harness(false, false);
 
     const fs::path base = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual";
 

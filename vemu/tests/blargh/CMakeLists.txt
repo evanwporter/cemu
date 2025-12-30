@@ -1,6 +1,6 @@
 find_package(GTest CONFIG REQUIRED)
 
-add_executable(test_blargh test_blargh.cpp)
+add_library(test_blargh test_blargh.cpp)
 
 target_link_libraries(test_blargh PRIVATE
     libvemu

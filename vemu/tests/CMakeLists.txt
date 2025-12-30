@@ -1,3 +1,6 @@
+find_package(nlohmann_json CONFIG REQUIRED)
+find_package(GTest CONFIG REQUIRED)
+
 set(VEMU_TESTS_CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 macro(add_cpp_tb TB_NAME SV_FILE)
@@ -47,4 +50,26 @@ add_subdirectory(cpu)
 add_subdirectory(blargh)
 # add_subdirectory(cartridge)
 # add_subdirectory(integration)
+
+add_executable(test_vemu
+    ${CMAKE_CURRENT_SOURCE_DIR}/verilator_time.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cpu/test_cpu.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/blargh/test_blargh.cpp
+)
+
+target_link_libraries(test_vemu
+    PRIVATE
+        test_cpu
+        # test_blargh
+        libvemu
+        libvemu_harness
+)
+
+target_compile_definitions(test_vemu PRIVATE
+    TEST_DIR="${CMAKE_SOURCE_DIR}/tests/"
+)
+
+target_include_directories(test_vemu PRIVATE
+    ${VEMU_TESTS_CPP_DIR}
+)
 
