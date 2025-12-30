@@ -25,23 +25,6 @@ import cpu_types_pkg::*;
     `LOG_TRACE(("--------------------------------------------------")); \
   end
 
-`define DEFINE_REG_PAIR(PAIR, HI, LO) \
-  function automatic logic [15:0] get_``PAIR``(ref cpu_regs_t regs); \
-    return {regs.``HI``, regs.``LO``}; \
-  endfunction \
-  \
-  function automatic void set_``PAIR``(ref cpu_regs_t regs, logic [15:0] val); \
-    regs.``HI`` = val[15:8]; \
-    regs.``LO`` = val[7:0]; \
-  endfunction
-
-`DEFINE_REG_PAIR(af, a, flags)
-`DEFINE_REG_PAIR(bc, b, c)
-`DEFINE_REG_PAIR(de, d, e)
-`DEFINE_REG_PAIR(hl, h, l)
-`DEFINE_REG_PAIR(wz, w, z)
-`undef DEFINE_REG_PAIR
-
 function automatic logic [7:0] pick_wdata(data_bus_src_t s, cpu_regs_t r);
   unique case (s)
     DATA_BUS_SRC_IR: pick_wdata = r.IR;
@@ -155,7 +138,7 @@ localparam logic [15:0] INTERRUPT_VECTOR_TABLE[0:4] = '{
       MISC_OP_JR_SIGNED: begin \
         logic signed [7:0] offset; \
         logic [15:0] new_pc; \
-        offset = (REGS).z; \
+        offset = $signed((REGS).z); \
         new_pc = { (REGS).pch, (REGS).pcl } + {{8{offset[7]}}, offset}; \
         (REGS).pch <= new_pc[15:8]; \
         (REGS).pcl <= new_pc[7:0]; \

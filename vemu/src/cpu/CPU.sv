@@ -41,12 +41,13 @@ module CPU (
   // TODO: Perhaps rename to `instr_finished_flag`?
   logic instr_boundary;
 
-  // Interrupt flags
+  /// Interrupt flags
   logic [7:0] IF;
 
-  // Interrupt enable register
+  /// Interrupt enable register
   logic [7:0] IE;
 
+  /// Maximum index for cycle count (5 since 0-based)
   localparam cycle_count_t MAX_CYCLE_INDEX = MAX_CYCLES_PER_INSTR - 1;
 
   always_ff @(posedge clk or posedge reset) begin
@@ -111,7 +112,7 @@ module CPU (
           t_phase <= T3;
         end
 
-        /// T3 is generally the cycle where data is read from the bus or the write is completed.
+        // T3 is generally the cycle where data is read from the bus or the write is completed.
         T3: begin
           if (control_word.cycles[cycle_count].data_bus_op == DATA_BUS_OP_READ) begin
             `LOAD_REG_FROM_BYTE(control_word.cycles[cycle_count].data_bus_src, bus.rdata, regs)
