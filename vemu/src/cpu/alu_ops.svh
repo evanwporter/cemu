@@ -108,12 +108,15 @@ function automatic alu_result_t apply_alu_op(input alu_op_t op, input alu_src_t 
     end
 
     ALU_OP_SBC: begin
-      tmp        = {1'b0, dst_val} - {1'b0, src_val} - {8'b0, regs.flags[4]};
+      tmp = {1'b0, dst_val} - {1'b0, src_val} - {8'b0, regs.flags[4]};
       carry_flag = tmp[8];
-      half_flag  = (dst_val[3:0] < (src_val[3:0] + {3'b000, regs.flags[4]}));
-      sub_flag   = 1'b1;
-      dst_val    = tmp[7:0];
-      zero_flag  = (dst_val == 8'h00);
+      half_sum = {1'b0, dst_val[3:0]}
+               - {1'b0, src_val[3:0]}
+               - {4'b0, regs.flags[4]};
+      half_flag = half_sum[4];
+      sub_flag = 1'b1;
+      dst_val = tmp[7:0];
+      zero_flag = (dst_val == 8'h00);
     end
 
     ALU_OP_AND: begin
