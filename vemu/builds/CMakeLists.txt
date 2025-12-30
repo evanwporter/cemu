@@ -10,7 +10,7 @@ foreach(src ${VEMU_PKGS})
     file(APPEND ${GENERATED_F} "${src}\n")
 endforeach()
 
-foreach(src ${VERILOG_SOURCES})
+foreach(src ${VEMU_SOURCES})
     file(APPEND ${GENERATED_F} "${src}\n")
 endforeach()
 

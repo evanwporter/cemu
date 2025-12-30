@@ -1,3 +1,5 @@
+# TODO: The CMake is incredibly messy right now. Clean it up.
+
 set(VEMU_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 add_library(vemu_rtl INTERFACE)
@@ -28,7 +30,7 @@ set(VEMU_PKGS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/mmu/addresses.sv
 )
 
-set(VERILOG_SOURCES
+set(VEMU_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ppu/PPU.sv
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ppu/Fetcher.sv
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ppu/FIFO.sv
