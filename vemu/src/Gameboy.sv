@@ -67,9 +67,9 @@ module Gameboy (
   );
 
   PPU ppu_inst (
-      .clk(clk),
-      .reset(reset),
-      .bus(ppu_bus),
+      .clk   (clk),
+      .reset (reset),
+      .bus   (ppu_bus),
       .IF_bus(IF_bus)
   );
 
@@ -80,9 +80,10 @@ module Gameboy (
   );
 
   Timer timer_inst (
-      .clk  (clk),
-      .reset(reset),
-      .bus  (timer_bus)
+      .clk   (clk),
+      .reset (reset),
+      .bus   (timer_bus),
+      .IF_bus(IF_bus)
   );
 
   Input input_inst (

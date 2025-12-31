@@ -6,9 +6,8 @@ import mmu_addresses_pkg::*;
 module PPU (
     input logic clk,
     input logic reset,
-
     Bus_if.Peripheral_side bus,
-    Interrupt_if.PPU_side  IF_bus
+    Interrupt_if.PPU_side IF_bus
 );
 
   // Cycle counters (reset each mode)
