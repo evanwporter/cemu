@@ -217,7 +217,10 @@ module PPU (
       dot_counter <= 0;
     end else begin
       cycle_counter <= cycle_counter + 1;
-      dot_counter   <= dot_counter + 1;
+      dot_counter <= dot_counter + 1;
+
+      // Regardless of mode, clear VBlank interrupt request
+      IF_bus.vblank_req <= 1'd0;
 
       if (regs.LCDC[7] == 1'b0) begin
         // LCD disabled

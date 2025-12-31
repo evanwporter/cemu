@@ -22,11 +22,19 @@ endinterface
 
 interface Interrupt_if;
 
-  // Hardware source requests — one bit per interrupt
+  /// VBlank interrupt request
   logic vblank_req;
+
+  /// STAT interrupt request
   logic stat_req;
+
+  /// Timer interrupt request
   logic timer_req;
+
+  /// Serial interrupt request
   logic serial_req;
+
+  /// Joypad interrupt request
   logic joypad_req;
 
   // CPU updates IF & IE through this modport

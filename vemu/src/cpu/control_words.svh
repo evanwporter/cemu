@@ -3745,15 +3745,28 @@ localparam control_word_t control_words [0:255] = '{
             5: `DEFAULT_CYCLE  // M-cycle 6
         }
     },
-    'h76: '{  //  UNDEFINED
-        num_cycles : 3'd0,
+    'h76: '{  //  HALT
+        num_cycles : 3'd1,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            0: '{  // M-cycle 1
+                addr_src : ADDR_NONE,
+                data_bus_src : DATA_BUS_SRC_NONE,
+                data_bus_op : DATA_BUS_OP_NONE,
+                idu_op : IDU_OP_NONE,
+                idu_dst : ADDR_NONE,
+                alu_op : ALU_OP_NONE,
+                alu_dst : ALU_SRC_NONE,
+                alu_src : ALU_SRC_NONE,
+                alu_bit : ALU_BIT_0,
+                misc_op : MISC_OP_HALT,
+                misc_op_dst : MISC_OP_DST_NONE,
+                cond : COND_NONE
+            },
+            1: `DEFAULT_CYCLE,  // M-cycle 2
+            2: `DEFAULT_CYCLE,  // M-cycle 3
+            3: `DEFAULT_CYCLE,  // M-cycle 4
+            4: `DEFAULT_CYCLE,  // M-cycle 5
+            5: `DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h77: '{  //  LD (HL), A

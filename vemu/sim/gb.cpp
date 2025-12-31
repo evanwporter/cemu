@@ -1,5 +1,6 @@
 #ifndef SDL_MAIN_HANDLED
 #define SDL_MAIN_HANDLED
+#include "VGameboy_Bus_if.h"
 #endif
 
 #include <SDL.h>
@@ -194,7 +195,7 @@ u8 GameboyHarness::read_mem(VGameboy& top, u16 PC) {
 
     // Unusable memory
     else if (PC <= 0xFFFF) {
-        std::cout << "Read from IE register 0x" << std::hex << PC << std::dec << "\n";
+        // std::cout << "Read from IE register 0x" << std::hex << PC << std::dec << "\n";
         return 0xFF;
     }
 
@@ -228,6 +229,11 @@ void GameboyHarness::dump_gd_trace(VGameboy& top, std::ostream& os) {
     u8 pcm2 = read_mem(top, PC + 1);
     u8 pcm3 = read_mem(top, PC + 2);
 
+    u8 spm0 = read_mem(top, SP);
+    u8 spm1 = read_mem(top, SP + 1);
+    u8 spm2 = read_mem(top, SP + 2);
+    u8 spm3 = read_mem(top, SP + 3);
+
     // Ensure hex, uppercase, zero-padded
     os << std::uppercase << std::hex << std::setfill('0');
 
@@ -247,6 +253,11 @@ void GameboyHarness::dump_gd_trace(VGameboy& top, std::ostream& os) {
        << std::setw(2) << static_cast<int>(pcm1) << ","
        << std::setw(2) << static_cast<int>(pcm2) << ","
        << std::setw(2) << static_cast<int>(pcm3)
+       << " SPMEM:"
+       << std::setw(2) << static_cast<int>(spm0) << ","
+       << std::setw(2) << static_cast<int>(spm1) << ","
+       << std::setw(2) << static_cast<int>(spm2) << ","
+       << std::setw(2) << static_cast<int>(spm3)
        << "\n";
     // clang-format on
 
@@ -306,22 +317,22 @@ void GameboyHarness::tick(VGameboy& top, VerilatedContext& ctx, u64& cycles) {
 void GameboyHarness::set_initial_state(VGameboy& top) {
     auto& regs = top.rootp->Gameboy__DOT__cpu_inst__DOT__regs;
 
-    regs.__PVT__a = 0x01;
-    regs.__PVT__flags = 0xB0;
-    regs.__PVT__b = 0x00;
-    regs.__PVT__c = 0x13;
-    regs.__PVT__d = 0x00;
-    regs.__PVT__e = 0xD8;
-    regs.__PVT__h = 0x01;
-    regs.__PVT__l = 0x4D;
+    // regs.__PVT__a = 0x01;
+    // regs.__PVT__flags = 0xB0;
+    // regs.__PVT__b = 0x00;
+    // regs.__PVT__c = 0x13;
+    // regs.__PVT__d = 0x00;
+    // regs.__PVT__e = 0xD8;
+    // regs.__PVT__h = 0x01;
+    // regs.__PVT__l = 0x4D;
 
     regs.__PVT__sph = 0xFF;
     regs.__PVT__spl = 0xFE;
 
-    regs.__PVT__pch = 0x01;
-    regs.__PVT__pcl = 0x00;
+    // regs.__PVT__pch = 0x01;
+    // regs.__PVT__pcl = 0x00;
 
-    regs.__PVT__IR = 0x00;
+    // regs.__PVT__IR = 0x00;
 }
 
 void GameboyHarness::present_frame() {

@@ -1225,8 +1225,15 @@ control_words[0xCB] = [
         "misc_op": "MISC_OP_CB_PREFIX",
     }
 ]
-
 opcode_comments[0xCB] = "PREFIX CB"
+
+# HALT
+control_words[0x76] = [
+    {
+        "misc_op": "MISC_OP_HALT",
+    }
+]
+opcode_comments[0x76] = "HALT"
 
 
 def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
@@ -1379,6 +1386,10 @@ interrupt_words = {}
 def make_interrupt_word(index):
     return [
         {
+            "addr_src": "ADDR_PC",
+            "idu_op": "IDU_OP_DEC",
+        },
+        {
             "addr_src": "ADDR_SP",
             "idu_op": "IDU_OP_DEC",
         },
@@ -1396,7 +1407,6 @@ def make_interrupt_word(index):
             "misc_op_dst": f"misc_op_dst_t'(3'd{index})",
         },
         NOP,
-        None,
         None,
     ]
 
