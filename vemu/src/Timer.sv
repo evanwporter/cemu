@@ -1,14 +1,9 @@
 `ifndef TIMER_SV
 `define TIMER_SV 
 
-`define LOG_LEVEL_INFO 
-
-`include "util/logger.svh"
-
 // https://gbdev.io/pandocs/Timer_and_Divider_Registers.html#timer-and-divider-registers
 
 import mmu_addresses_pkg::*;
-
 
 module Timer (
     input logic clk,
@@ -16,11 +11,6 @@ module Timer (
     Bus_if.Peripheral_side bus,
     Interrupt_if.Timer_side IF_bus
 );
-  initial begin
-    __log_fd = $fopen("simulation.log", "w");
-    $display("Logging to simulation.log, log fd: %0d", __log_fd);
-  end
-
   /// Divider Register
   // To the CPU the DIV appears as an 8-bit register at address 0xFF04. However,
   // internally it is a 16-bit counter that increments at every t-cycle, where
@@ -57,7 +47,6 @@ module Timer (
     if (reset) begin
       timer_prescaler  <= 10'd0;
       IF_bus.timer_req <= 1'b0;
-
     end else begin
       // Increment DIV every t-cycle
       DIV <= DIV + 16'd1;

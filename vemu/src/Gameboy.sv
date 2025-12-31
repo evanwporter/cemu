@@ -12,10 +12,10 @@ module Gameboy (
     input logic reset
 );
 
-  //   initial begin
-  //     __log_fd = $fopen("simulation.log", "w");
-  //     $display("Logging to simulation.log, log fd: %0d", __log_fd);
-  //   end
+  initial begin
+    __log_fd = $fopen("simulation.log", "w");
+    $display("Logging to simulation.log, log fd: %0d", __log_fd);
+  end
 
   Bus_if cpu_bus ();
   DMA_if dma_bus ();
