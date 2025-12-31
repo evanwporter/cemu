@@ -4,7 +4,7 @@
 
 localparam control_word_t interrupt_words [0:4] = '{
     0: '{  // INTERRUPT VBLANK
-        num_cycles : 3'd4,
+        num_cycles : 3'd5,
         cycles : '{
             0: '{  // M-cycle 1
                 addr_src : ADDR_SP,
@@ -67,7 +67,7 @@ localparam control_word_t interrupt_words [0:4] = '{
         }
     },
     1: '{  // INTERRUPT STAT
-        num_cycles : 3'd4,
+        num_cycles : 3'd5,
         cycles : '{
             0: '{  // M-cycle 1
                 addr_src : ADDR_SP,
@@ -130,7 +130,7 @@ localparam control_word_t interrupt_words [0:4] = '{
         }
     },
     2: '{  // INTERRUPT TIMER
-        num_cycles : 3'd4,
+        num_cycles : 3'd5,
         cycles : '{
             0: '{  // M-cycle 1
                 addr_src : ADDR_SP,
@@ -193,7 +193,7 @@ localparam control_word_t interrupt_words [0:4] = '{
         }
     },
     3: '{  // INTERRUPT SERIAL
-        num_cycles : 3'd4,
+        num_cycles : 3'd5,
         cycles : '{
             0: '{  // M-cycle 1
                 addr_src : ADDR_SP,
@@ -256,7 +256,7 @@ localparam control_word_t interrupt_words [0:4] = '{
         }
     },
     4: '{  // INTERRUPT JOYPAD
-        num_cycles : 3'd4,
+        num_cycles : 3'd5,
         cycles : '{
             0: '{  // M-cycle 1
                 addr_src : ADDR_SP,
