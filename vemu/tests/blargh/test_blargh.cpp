@@ -28,11 +28,13 @@ TEST_P(BlarghRomTest, Passes) {
 
             if (serial.find("Passed") != std::string::npos) {
                 saw_passed = true;
+                std::cout << "\n";
                 return false; // stop execution
             }
 
             if (serial.find("Failed") != std::string::npos) {
                 saw_failed = true;
+                std::cout << "\n";
                 return false; // stop execution
             }
 

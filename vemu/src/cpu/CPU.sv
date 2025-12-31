@@ -143,10 +143,6 @@ module CPU (
 
           T4: begin
 
-            if (regs.IR == 8'h76) begin
-              halted <= 1'b1;
-            end
-
             `DISPLAY_CONTROL_WORD(control_word, cycle_count)
 
             // applies the idu op to the address bus
@@ -168,7 +164,7 @@ module CPU (
 
             // applies the misc op to the specified registers
             `APPLY_MISC_OP(control_word.cycles[cycle_count].misc_op,
-                           control_word.cycles[cycle_count].misc_op_dst, regs)
+                           control_word.cycles[cycle_count].misc_op_dst, regs, halted)
 
             bus.read_en  <= 1'b0;
             bus.write_en <= 1'b0;

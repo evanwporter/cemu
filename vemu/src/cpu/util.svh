@@ -96,9 +96,12 @@ localparam logic [15:0] INTERRUPT_VECTOR_TABLE[0:4] = '{
     'd4: 16'h0060  // 4: Joypad
 };
 
-`define APPLY_MISC_OP(OP, DST, REGS) \
+`define APPLY_MISC_OP(OP, DST, REGS, HALTED) \
   begin \
     unique case (OP) \
+      MISC_OP_HALT: begin \
+        HALTED <= 1'b1; \
+      end \
       MISC_OP_IME_ENABLE: begin \
         (REGS).IME <= 1'd1; \
       end \
