@@ -7,6 +7,8 @@ add_executable(test_vemu
     ${CMAKE_CURRENT_SOURCE_DIR}/verilator_time.cpp
 )
 
+add_subdirectory(util)
+
 add_test(
     NAME test_vemu
     COMMAND test_vemu
@@ -27,6 +29,6 @@ target_compile_definitions(test_vemu PRIVATE
 )
 
 target_include_directories(test_vemu PRIVATE
-    ${VEMU_TESTS_CPP_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}
 )
 

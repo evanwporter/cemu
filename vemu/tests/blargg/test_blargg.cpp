@@ -3,14 +3,13 @@
 #include <string>
 
 #include "gb.hpp"
+#include "util/util.hpp"
 
 namespace fs = std::filesystem;
 
 static constexpr uint64_t MAX_INSTRUCTIONS = 10'000'000;
 
-class BlarggRomTest : public ::testing::TestWithParam<std::string> { };
-
-TEST_P(BlarggRomTest, Passes) {
+static void run_single_file(const fs::path& path) {
     GameboyHarness harness(false, false);
 
     const fs::path base = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual";
@@ -20,7 +19,7 @@ TEST_P(BlarggRomTest, Passes) {
     uint64_t instr_count = 0;
 
     bool ok = harness.run(
-        base / GetParam(),
+        path,
         [&](GameboyHarness& h, VGameboy&) {
             ++instr_count;
 
@@ -60,25 +59,22 @@ TEST_P(BlarggRomTest, Passes) {
         << harness.get_serial_buffer();
 }
 
-INSTANTIATE_TEST_SUITE_P(
-    BlarggCPUInstrs,
-    BlarggRomTest,
-    ::testing::Values(
-        "01-special.gb",
-        "02-interrupts.gb",
-        "03-op sp,hl.gb",
-        "04-op r,imm.gb",
-        "05-op rp.gb",
-        "06-ld r,r.gb",
-        "07-jr,jp,call,ret,rst.gb",
-        "08-misc instrs.gb",
-        "09-op r,r.gb",
-        "10-bit ops.gb",
-        "11-op a,(hl).gb"),
-    [](const ::testing::TestParamInfo<std::string>& info) {
-        std::string name = info.param;
+class BlarggCPUInstrs : public ::testing::TestWithParam<fs::path> { };
 
-        // GoogleTest test names must be valid C identifiers
+TEST_P(BlarggCPUInstrs, Passes) {
+    run_single_file(GetParam());
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    BlarggROMTests,
+    BlarggCPUInstrs,
+    ::testing::ValuesIn(collect_files_in_directory(
+        fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual",
+        ".gb")),
+    [](const ::testing::TestParamInfo<fs::path>& info) {
+        std::string name = info.param.filename().stem().string();
+
+        // GTest test names must be valid C identifiers
         for (char& c : name) {
             if (!std::isalnum(static_cast<unsigned char>(c)))
                 c = '_';

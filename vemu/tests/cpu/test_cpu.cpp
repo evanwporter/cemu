@@ -8,6 +8,8 @@
 #include <Vcpu_top___024root.h>
 #include <verilated.h>
 
+#include "util/util.hpp"
+
 using namespace std;
 namespace fs = std::filesystem;
 using json = nlohmann::json;
@@ -18,23 +20,23 @@ using u16 = uint16_t;
 static const fs::path kTestDir = fs::path(TEST_DIR) / "GameboyCPUTests/v2";
 static const fs::path kCBTestDir = fs::path(TEST_DIR) / "GameboyCPUTests/v2/cb";
 
-inline u16 get_u16(u8 hi, u8 lo) {
+static inline u16 get_u16(u8 hi, u8 lo) {
     return static_cast<u16>((hi << 8) | lo);
 }
 
-inline void set_u16(u8& hi, u8& lo, u16 val) {
+static inline void set_u16(u8& hi, u8& lo, u16 val) {
     hi = static_cast<u8>(val >> 8);
     lo = static_cast<u8>(val & 0xFF);
 }
 
-inline u8 read_u8(const json& j) {
+static inline u8 read_u8(const json& j) {
     if (j.is_string()) {
         return static_cast<u8>(std::stoul(j.get<std::string>(), nullptr, 16));
     }
     return j.get<u8>();
 }
 
-inline u16 read_u16(const json& j) {
+static inline u16 read_u16(const json& j) {
     if (j.is_string()) {
         return static_cast<u16>(std::stoul(j.get<std::string>(), nullptr, 16));
     }
@@ -94,7 +96,7 @@ static void dump_gd_trace(Vcpu_top& top, std::ostream& os) {
     }
 }
 
-void tick(Vcpu_top& top, VerilatedContext& ctx) {
+static void tick(Vcpu_top& top, VerilatedContext& ctx) {
     top.clk = 0;
     top.eval();
     ctx.timeInc(5);
@@ -104,7 +106,7 @@ void tick(Vcpu_top& top, VerilatedContext& ctx) {
     ctx.timeInc(5);
 }
 
-void apply_ram(Vcpu_top& gb, VerilatedContext& ctx, const json& ramList) {
+static void apply_ram(Vcpu_top& gb, VerilatedContext& ctx, const json& ramList) {
     for (const auto& pair : ramList) {
         u16 addr = read_u16(pair[0]);
         u8 val = read_u8(pair[1]);
@@ -113,7 +115,7 @@ void apply_ram(Vcpu_top& gb, VerilatedContext& ctx, const json& ramList) {
     }
 }
 
-void verify_ram(Vcpu_top& gb, VerilatedContext& ctx, const json& ramList, const std::string& test_name) {
+static void verify_ram(Vcpu_top& gb, VerilatedContext& ctx, const json& ramList, const std::string& test_name) {
     for (const auto& pair : ramList) {
         u16 addr = read_u16(pair[0]);
         u8 expected = read_u8(pair[1]);
@@ -125,7 +127,7 @@ void verify_ram(Vcpu_top& gb, VerilatedContext& ctx, const json& ramList, const 
     }
 }
 
-void apply_initial_state(Vcpu_top& gb, VerilatedContext& ctx, const json& init) {
+static void apply_initial_state(Vcpu_top& gb, VerilatedContext& ctx, const json& init) {
     auto* regs = &gb.rootp->cpu_top__DOT__cpu_inst__DOT__regs;
 
     if (init.contains("a"))
@@ -156,7 +158,7 @@ void apply_initial_state(Vcpu_top& gb, VerilatedContext& ctx, const json& init) 
     apply_ram(gb, ctx, init["ram"]);
 }
 
-void verify_registers(const Vcpu_top& top, const json& expected, const std::string& test_name) {
+static void verify_registers(const Vcpu_top& top, const json& expected, const std::string& test_name) {
     auto* regs = &top.rootp->cpu_top__DOT__cpu_inst__DOT__regs;
 
     EXPECT_EQ(regs->__PVT__a, read_u8(expected["a"])) << "Test: " << test_name;
@@ -173,7 +175,7 @@ void verify_registers(const Vcpu_top& top, const json& expected, const std::stri
         << "Test: " << test_name;
 }
 
-void run_single_file(const fs::path& path) {
+static void run_single_file(const fs::path& path) {
 
     std::ifstream f(path);
     ASSERT_TRUE(f.is_open()) << "Failed to open test file: " << path;
@@ -243,6 +245,17 @@ TEST_P(GameboyOpcodeTest, Run) {
     run_single_file(GetParam());
 }
 
+INSTANTIATE_TEST_SUITE_P(
+    CPUTests,
+    GameboyOpcodeTest,
+    ::testing::ValuesIn(collect_files_in_directory(
+        kTestDir,
+        ".json",
+        { "cb.json" })),
+    [](const ::testing::TestParamInfo<fs::path>& info) {
+        return info.param.stem().string();
+    });
+
 class GameboyCBOpcodeTest : public ::testing::TestWithParam<fs::path> { };
 
 TEST_P(GameboyCBOpcodeTest, Run) {
@@ -251,39 +264,10 @@ TEST_P(GameboyCBOpcodeTest, Run) {
 
 INSTANTIATE_TEST_SUITE_P(
     CPUTests,
-    GameboyOpcodeTest,
-    ::testing::ValuesIn([] {
-        std::vector<fs::path> files;
-        if (fs::exists(kTestDir)) {
-            for (auto& entry : fs::directory_iterator(kTestDir)) {
-                if (entry.path().extension() == ".json") {
-                    if (entry.path().filename() == "cb.json")
-                        continue;
-                    files.push_back(entry.path());
-                }
-            }
-        }
-        return files;
-    }()),
-    [](const ::testing::TestParamInfo<fs::path>& info) {
-        return info.param.stem().string();
-    });
-
-INSTANTIATE_TEST_SUITE_P(
-    CPUTests,
     GameboyCBOpcodeTest,
-    ::testing::ValuesIn([] {
-        std::vector<fs::path> files;
-        if (fs::exists(kCBTestDir)) {
-            for (auto& entry : fs::directory_iterator(kCBTestDir)) {
-                auto name = entry.path().filename().string();
-                if (entry.path().extension() == ".json") {
-                    files.push_back(entry.path());
-                }
-            }
-        }
-        return files;
-    }()),
+    ::testing::ValuesIn(collect_files_in_directory(
+        kTestDir,
+        ".json")),
     [](const ::testing::TestParamInfo<fs::path>& info) {
         return info.param.stem().string();
     });

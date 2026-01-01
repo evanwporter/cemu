@@ -1,0 +1,30 @@
+#include <algorithm>
+#include <filesystem>
+#include <string>
+#include <unordered_set>
+#include <vector>
+
+#include "util/util.hpp"
+
+namespace fs = std::filesystem;
+
+std::vector<fs::path> collect_files_in_directory(const fs::path& dir, const std::string& extension, std::unordered_set<std::string> exclude) {
+    std::vector<fs::path> roms;
+
+    if (!fs::exists(dir) || !fs::is_directory(dir))
+        return roms;
+
+    for (const auto& entry : fs::directory_iterator(dir)) {
+        if (!entry.is_regular_file())
+            continue;
+
+        if (entry.path().extension() == extension) {
+            if (exclude.find(entry.path().filename().string()) != exclude.end())
+                continue;
+            roms.push_back(entry.path());
+        }
+    }
+
+    std::sort(roms.begin(), roms.end());
+    return roms;
+}
