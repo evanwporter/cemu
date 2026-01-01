@@ -1,13 +1,10 @@
-#ifndef SDL_MAIN_HANDLED
-#define SDL_MAIN_HANDLED
-#include "VGameboy_Bus_if.h"
-#endif
-
 #include <SDL.h>
 
+#include "VGameboy_Bus_if.h"
 #include <VGameboy.h>
 #include <VGameboy___024root.h>
 #include <verilated.h>
+#include <verilated_types.h>
 
 #include "boot.hpp"
 
@@ -146,8 +143,14 @@ u8 GameboyHarness::read_mem(VGameboy& top, u16 PC) {
         return bootDMG[PC];
     }
 
+    if (PC <= 0x3FFF) {
+        u8 val = static_cast<u8>(top.rootp->Gameboy__DOT__cart_inst__DOT__ROM[PC]);
+        return val;
+    }
+
     if (PC <= 0x7FFF) {
-        u8 val = top.rootp->Gameboy__DOT__cart_inst__DOT__ROM[PC];
+        u32 addr = top.rootp->Gameboy__DOT__cart_inst__DOT__selected_rom_bank * 16 * 1024 + PC - 0x4000;
+        u8 val = static_cast<u8>(top.rootp->Gameboy__DOT__cart_inst__DOT__ROM[addr]);
         return val;
     }
 
@@ -271,16 +274,71 @@ void GameboyHarness::dump_gd_trace(VGameboy& top, std::ostream& os) {
 
 bool GameboyHarness::load_rom(VGameboy& top, const fs::path& filename) {
     std::ifstream rom(filename, std::ios::binary);
-    if (!rom.good()) {
-        printf("Cannot open ROM!\n");
+    if (!rom) {
+        std::cerr << "Cannot open ROM!\n";
         return false;
     }
 
+    size_t file_size = 0;
+    char tmp;
+    while (rom.read(&tmp, 1))
+        file_size++;
+
+    rom.clear();
+    rom.seekg(0);
+
+    for (size_t i = 0; i < sizeof(top.rootp->Gameboy__DOT__cart_inst__DOT__ROM); i++) {
+        top.rootp->Gameboy__DOT__cart_inst__DOT__ROM[i] = 0;
+    }
+
     for (int i = 0; i < 0x8000; i++) {
-        char byte;
+        char byte = 0;
         rom.read(&byte, 1);
+        if (!rom)
+            break;
         top.rootp->Gameboy__DOT__cart_inst__DOT__ROM[i] = (u8)byte;
     }
+
+    u8 rom_size_code = top.rootp->Gameboy__DOT__cart_inst__DOT__ROM[0x0148];
+
+    static const int banks[9] = {
+        2, // 0x00
+        4, // 0x01
+        8, // 0x02
+        16, // 0x03
+        32, // 0x04
+        64, // 0x05
+        128, // 0x06
+        256, // 0x07
+        512 // 0x08
+    };
+
+    if (rom_size_code > 8) {
+        std::cerr << "Invalid ROM size code\n";
+        return false;
+    }
+
+    size_t expected_size = banks[rom_size_code] * 16 * 1024;
+
+    if (file_size != expected_size) {
+        std::cerr
+            << "ROM size mismatch:\n"
+            << "  Header says : " << expected_size << " bytes\n"
+            << "  File size   : " << file_size << " bytes\n";
+        return false; // or warn + continue
+    }
+
+    const int total_bytes = banks[rom_size_code] * 16 * 1024;
+
+    for (int i = 0x8000; i < total_bytes; i++) {
+        char byte = 0;
+        rom.read(&byte, 1);
+        if (!rom)
+            break;
+        top.rootp->Gameboy__DOT__cart_inst__DOT__ROM[i] = (u8)byte;
+    }
+
+    std::cout << "Loaded ROM: " << total_bytes / 1024 << " KiB\n";
     return true;
 }
 

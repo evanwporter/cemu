@@ -51,6 +51,9 @@ module CPU (
 
   logic halted;
 
+  // ======================================================
+  // CPU Tick Operation
+  // ======================================================
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       {regs.pch, regs.pcl} <= 16'h0000;
@@ -237,6 +240,11 @@ module CPU (
     end
   end
 
+  // ======================================================
+  // Interrupt Read/Write Logic
+  // ======================================================
+
+  // Write
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       IF <= 8'b11100000;
@@ -258,6 +266,7 @@ module CPU (
     end
   end
 
+  // Read
   always_comb begin
     interrupt_bus.rdata = 8'h00;
     if (interrupt_bus.read_en) begin

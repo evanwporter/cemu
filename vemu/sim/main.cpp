@@ -21,7 +21,7 @@ double sc_time_stamp() {
 int main() {
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/01-special.gb";
-    static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/02-interrupts.gb";
+    // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/02-interrupts.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/03-op sp,hl.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/04-op r,imm.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/05-op rp.gb";
@@ -33,6 +33,7 @@ int main() {
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/11-op a,(hl).gb";
     // static const fs::path rom_path = "tetris.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "dmg-acid2.gb";
+    static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
 
     GameboyHarness harness(false, false);
 

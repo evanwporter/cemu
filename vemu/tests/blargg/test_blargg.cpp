@@ -82,3 +82,7 @@ INSTANTIATE_TEST_SUITE_P(
 
         return name;
     });
+
+TEST(BlarggROMTests, CPUInstrsAll) {
+    run_single_file(fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb");
+}

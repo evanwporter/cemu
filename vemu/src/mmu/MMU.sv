@@ -136,7 +136,7 @@ module MMU (
         cpu_bus.rdata = timer_bus.rdata;
 
       end else if (unused_selected) begin
-        `LOG_WARN(("[MMU] READ operation performed in unused area (addr=%h)", effective_addr));
+        `LOG_WARN(("[MMU] READ operation performed in unused area (addr=%h)", effective_addr))
         cpu_bus.rdata = 8'hFF;
 
       end else if (input_selected) begin

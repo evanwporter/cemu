@@ -5,13 +5,13 @@ add_library(libvemu)
 add_subdirectory(ppu)
 add_subdirectory(mmu)
 add_subdirectory(cpu)
+add_subdirectory(cartridge)
 
 vemu_add_rtl(
     PACKAGES
     INTERFACES
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Input.sv
-        ${CMAKE_CURRENT_SOURCE_DIR}/Cartridge.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/Serial.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/Timer.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/Gameboy.sv
