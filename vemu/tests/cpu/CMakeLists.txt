@@ -3,6 +3,11 @@ find_package(GTest CONFIG REQUIRED)
 
 add_library(test_cpu)
 
+target_sources(test_cpu
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/test_cpu.cpp
+)
+
 target_link_libraries(test_cpu PRIVATE
     GTest::gtest
     nlohmann_json::nlohmann_json
@@ -20,19 +25,10 @@ verilate(test_cpu
     PREFIX Vcpu_top
     TOP_MODULE cpu_top
     SOURCES
-        # ${VEMU_SRC_DIR}/cpu/types.sv
-        # ${VEMU_SRC_DIR}/ppu/types.sv
-
-        # ${VEMU_SRC_DIR}/mmu/addresses.sv
-        # ${VEMU_SRC_DIR}/mmu/interface.sv
-
         ${VEMU_PACKAGES}
         ${VEMU_INTERFACES}
 
-        ${VEMU_SRC_DIR}/cpu/CPU.sv
-
         ${CMAKE_CURRENT_SOURCE_DIR}/cpu_top.sv
-        ${CMAKE_CURRENT_SOURCE_DIR}/MockMMU.sv
 
     VERILATOR_ARGS
         --sv
@@ -43,6 +39,6 @@ verilate(test_cpu
         -I${CMAKE_CURRENT_BINARY_DIR}/
 )
 
-target_compile_definitions(test_cpu PRIVATE
+target_compile_definitions(test_cpu PUBLIC
     TEST_DIR="${CMAKE_SOURCE_DIR}/tests/"
 )

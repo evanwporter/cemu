@@ -23,53 +23,18 @@ function(vemu_add_rtl)
     endif()
 endfunction()
 
-
-set(VEMU_PKGS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ppu/types.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/cpu/types.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/mmu/addresses.sv
-)
-
-set(VEMU_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ppu/PPU.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ppu/Fetcher.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ppu/FIFO.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ppu/Framebuffer.sv
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Gameboy.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Input.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Cartridge.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Serial.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Timer.sv
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/cpu/CPU.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/cpu/RAM.sv
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/mmu/MMU.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/mmu/DMA.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/mmu/interface.sv
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/mmu/util.sv
-)
-
-set(VEMU_TEST_SOURCES
-    # ${CMAKE_CURRENT_SOURCE_DIR}/tests/cpu/cpu_top.sv
-)
-
 add_subdirectory(src)
 
-add_library(libvemu_harness)
+target_sources(libvemu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/sim/gb.cpp)
 
-target_sources(libvemu_harness PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/sim/gb.cpp)
+target_include_directories(libvemu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/sim/)
 
-target_include_directories(libvemu_harness PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/sim/)
-
-target_link_libraries(libvemu_harness PUBLIC
-    libvemu
-    # SDL2::SDL2main 
+find_package(SDL2 CONFIG REQUIRED)
+target_link_libraries(libvemu PUBLIC
     SDL2::SDL2
 )
 
-target_compile_definitions(libvemu_harness PUBLIC
+target_compile_definitions(libvemu PUBLIC
     TEST_DIR="${CMAKE_SOURCE_DIR}/tests/"
     SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
 )
@@ -77,8 +42,6 @@ target_compile_definitions(libvemu_harness PUBLIC
 add_subdirectory(tests)
 
 find_package(Verilator REQUIRED HINTS $ENV{VERILATOR_ROOT})
-
-find_package(SDL2 CONFIG REQUIRED)
 
 add_executable(vemu ${CMAKE_CURRENT_SOURCE_DIR}/sim/main.cpp)
 
@@ -89,6 +52,4 @@ target_include_directories(vemu PRIVATE
 
 target_link_libraries(vemu PRIVATE
     libvemu
-    libvemu_harness
-    SDL2::SDL2main 
 )

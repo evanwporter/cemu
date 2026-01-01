@@ -132,9 +132,6 @@
     // "--header-insertion=never"
   ],
   "cmake.ctest.testExplorerIntegrationEnabled": false,
-  "cmake.environment": {
-    "VCPKG_DISABLE_METRICS": "true"
-  },
   "slang.path": "C:/Users/evanw/slang-server/build/win64-debug/bin/slang-server.exe",
   "python-envs.defaultEnvManager": "ms-python.python:conda",
   "python-envs.defaultPackageManager": "ms-python.python:conda",

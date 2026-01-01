@@ -8,9 +8,9 @@ namespace fs = std::filesystem;
 
 static constexpr uint64_t MAX_INSTRUCTIONS = 10'000'000;
 
-class BlarghRomTest : public ::testing::TestWithParam<std::string> { };
+class BlarggRomTest : public ::testing::TestWithParam<std::string> { };
 
-TEST_P(BlarghRomTest, Passes) {
+TEST_P(BlarggRomTest, Passes) {
     GameboyHarness harness(false, false);
 
     const fs::path base = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual";
@@ -61,8 +61,8 @@ TEST_P(BlarghRomTest, Passes) {
 }
 
 INSTANTIATE_TEST_SUITE_P(
-    BlarghCPUInstrs,
-    BlarghRomTest,
+    BlarggCPUInstrs,
+    BlarggRomTest,
     ::testing::Values(
         "01-special.gb",
         "02-interrupts.gb",
