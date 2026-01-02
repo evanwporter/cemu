@@ -1,7 +1,7 @@
 `ifndef GAMEBOY_SV
 `define GAMEBOY_SV 
 
-`define LOG_LEVEL_INFO 
+`define LOG_LEVEL_WARN 
 
 `include "util/logger.svh"
 
