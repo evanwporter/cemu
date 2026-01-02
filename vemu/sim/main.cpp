@@ -33,7 +33,8 @@ int main() {
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/11-op a,(hl).gb";
     // static const fs::path rom_path = "tetris.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "dmg-acid2.gb";
-    static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
+    // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
+    static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/instr_timing/instr_timing.gb";
 
     GameboyHarness harness(false, false);
 
