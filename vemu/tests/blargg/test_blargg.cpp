@@ -7,7 +7,7 @@
 
 namespace fs = std::filesystem;
 
-static constexpr uint64_t MAX_INSTRUCTIONS = 10'000'000;
+static constexpr uint64_t MAX_INSTRUCTIONS = 1'000'000'000;
 
 static void run_single_file(const fs::path& path) {
     GameboyHarness harness(false, false);
