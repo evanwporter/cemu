@@ -117,13 +117,13 @@ module PPU (
 
 
   // ======================================================
-
-  // MMU Listeners for VRAM, OAM, Registers
+  // Write
+  // ======================================================
   always_ff @(posedge clk or posedge reset) begin
     if (bus.write_en) begin
       `LOG_TRACE(("PPU: WRITE addr=%h data=%h", bus.addr, bus.wdata));
 
-      unique case (1'b1)
+      case (1'b1)
 
         // VRAM writes (blocked in Mode 3)
         (bus.addr inside {[VRAM_start : VRAM_end]}): begin
@@ -151,7 +151,7 @@ module PPU (
         // TODO: check whether this ever needs to be blocked
         (bus.addr inside {[PPU_regs_start : PPU_regs_end]}): begin
           `LOG_TRACE(("[PPU] REG WRITE addr=%h data=%h", bus.addr, bus.wdata))
-          unique case (bus.addr)
+          case (bus.addr)
             16'hFF40: regs.LCDC <= bus.wdata;
             16'hFF41: regs.STAT[6:2] <= bus.wdata[6:2];  // only bits 2-6 are writable
             16'hFF42: regs.SCY <= bus.wdata;
