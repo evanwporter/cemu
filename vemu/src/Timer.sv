@@ -19,53 +19,55 @@ module Timer (
   logic [15:0] DIV;
 
   /// Timer Counter
-  logic [ 7:0] TIMA;
+  logic [7:0] TIMA;
 
   /// Timer Modulo
-  logic [ 7:0] TMA;
+  logic [7:0] TMA;
 
   /// Timer Control
-  logic [ 7:0] TAC;
+  logic [7:0] TAC;
 
-  /// Number of t-cycles since last TIMA increment
-  logic [ 9:0] timer_prescaler;
+  logic tima_overflow_pending;
 
-  /// Number of t-cycles per TIMA increment
-  logic [ 9:0] timer_limit;
+  logic sel_div_bit, sel_div_bit_prev;
 
   always_comb begin
     unique case (TAC[1:0])
-      2'b00: timer_limit = 10'd1023;  // t-cycles
-      2'b01: timer_limit = 10'd15;
-      2'b10: timer_limit = 10'd63;
-      2'b11: timer_limit = 10'd255;
+      2'b00: sel_div_bit = DIV[9];
+      2'b01: sel_div_bit = DIV[3];
+      2'b10: sel_div_bit = DIV[5];
+      2'b11: sel_div_bit = DIV[7];
     endcase
   end
+
+  wire timer_tick = (sel_div_bit_prev == 1'b1) && (sel_div_bit == 1'b0);  // falling edge
 
   // Tick
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      timer_prescaler  <= 10'd0;
+      sel_div_bit_prev <= 1'b0;
+      tima_overflow_pending <= 1'b0;
+      IF_bus.timer_req <= 1'b0;
       IF_bus.timer_req <= 1'b0;
     end else begin
       // Increment DIV every t-cycle
       DIV <= DIV + 16'd1;
 
-      // Clear timer interrupt request
+      sel_div_bit_prev <= sel_div_bit;
+
+      // Clear timer interrupt request by default
       IF_bus.timer_req <= 1'b0;
 
-      if (TAC[2]) begin  // Timer enabled
-        timer_prescaler <= timer_prescaler + 10'd1;
-
-        if (timer_prescaler >= timer_limit) begin // less than or equal to to account for changes in TAC
-          timer_prescaler <= 10'd0;
-
-          if (TIMA == 8'hFF) begin
-            TIMA <= TMA;
-            IF_bus.timer_req <= 1'b1;
-          end else begin
-            TIMA <= TIMA + 8'h01;
-          end
+      if (tima_overflow_pending) begin
+        tima_overflow_pending <= 1'b0;
+        TIMA <= TMA;
+        IF_bus.timer_req <= 1'b1;
+      end else if (TAC[2] && timer_tick) begin
+        if (TIMA == 8'hFF) begin
+          TIMA <= 8'h00;
+          tima_overflow_pending <= 1'b1;
+        end else begin
+          TIMA <= TIMA + 8'h01;
         end
       end
     end
@@ -96,10 +98,10 @@ module Timer (
   always_comb begin
     bus.rdata = 8'hFF;
     if (bus.read_en) begin
-      if (div_selected) bus.rdata = DIV[15:8];
+      if (div_selected) bus.rdata = DIV[15:8];  // Return the upper 8 bytes of DIV (MSB)
       else if (tima_selected) bus.rdata = TIMA;
       else if (tma_selected) bus.rdata = TMA;
-      else if (tac_selected) bus.rdata = TAC;
+      else if (tac_selected) bus.rdata = TAC & 8'b00000111;  // Only lower 3 bits readable
     end
   end
 

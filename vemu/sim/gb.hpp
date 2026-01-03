@@ -83,5 +83,7 @@ private:
 
     void draw_from_vram(VGameboy& top);
 
+    void draw_sprites(VGameboy& top);
+
     void present_frame();
 };

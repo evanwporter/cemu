@@ -104,6 +104,7 @@ bool GameboyHarness::run(const fs::path& rom_path, InstructionCallback on_instru
 
             if (top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY == 144) {
                 draw_from_vram(top);
+                // draw_sprites(top);
                 present_frame();
             }
         }
@@ -439,6 +440,100 @@ void GameboyHarness::draw_from_vram(VGameboy& top) {
             u8 color = ((hi >> tile_x) & 1) * 2 + ((lo >> tile_x) & 1);
 
             framebuffer[y * GB_WIDTH + x] = gb_color(color);
+        }
+    }
+}
+
+void GameboyHarness::draw_sprites(VGameboy& top) {
+    struct SpriteAttr {
+        bool priority;
+        bool y_flip;
+        bool x_flip;
+        bool dmg_palette;
+
+        SpriteAttr() = default;
+
+        SpriteAttr(u8 attr_byte) {
+            priority = attr_byte & 0b10000000;
+            y_flip = attr_byte & 0b01000000;
+            x_flip = attr_byte & 0b00100000;
+            dmg_palette = attr_byte & 0b00010000;
+        }
+    };
+
+    struct Sprite {
+        u8 y_pos;
+        u8 x_pos;
+        u8 tile_index;
+        SpriteAttr attributes;
+    };
+
+    auto& vram = top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM;
+    auto& oam = top.rootp->Gameboy__DOT__ppu_inst__DOT__OAM;
+    const auto& regs = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs;
+
+    const u8 LCDC = regs.__PVT__LCDC;
+    const u8 OBP0 = regs.__PVT__OBP0;
+    const u8 OBP1 = regs.__PVT__OBP1;
+
+    /// True means 8x16 sprites, false means 8x8 sprites
+    const bool sprite_16 = LCDC & 0b00000100;
+
+    for (int i = 0; i < oam.size(); i += 4) {
+        Sprite sprite;
+
+        sprite.y_pos = oam[i] - 16;
+        sprite.x_pos = oam[i + 1] - 8;
+        sprite.tile_index = oam[i + 2];
+        sprite.attributes = oam[i + 3];
+
+        const u8 palette = sprite.attributes.dmg_palette ? OBP1 : OBP0;
+
+        int height = sprite_16 ? 16 : 8;
+
+        if (sprite_16) {
+            sprite.tile_index &= 0xFE; // lower bit ignored in 8x16 mode
+        }
+
+        for (int py = 0; py < height; py++) {
+            int sy = sprite.y_pos + py;
+            if (sy < 0 || sy >= GB_HEIGHT)
+                continue;
+
+            int tile_y = sprite.attributes.y_flip ? (height - 1 - py) : py;
+            int tile_index = sprite.tile_index;
+
+            if (sprite_16 && tile_y >= 8) {
+                tile_index++;
+                tile_y -= 8;
+            }
+
+            u8* tile_data = &vram[tile_index * 16 + tile_y * 2];
+            u8 lo = tile_data[0];
+            u8 hi = tile_data[1];
+
+            for (int px = 0; px < 8; px++) {
+                int sx = sprite.x_pos + px;
+                if (sx < 0 || sx >= GB_WIDTH)
+                    continue;
+
+                int bit = sprite.attributes.x_flip ? px : (7 - px);
+                u8 color = ((hi >> bit) & 1) << 1 | ((lo >> bit) & 1);
+
+                if (color == 0)
+                    continue; // transparent
+
+                // Background priority check
+                if (sprite.attributes.priority) {
+                    u32 bg_pixel = framebuffer[sy * GB_WIDTH + sx];
+                    if (bg_pixel != gb_color(0))
+                        continue;
+                }
+
+                // Apply palette
+                u8 shade = (palette >> (color * 2)) & 0x03;
+                framebuffer[sy * GB_WIDTH + sx] = gb_color(shade);
+            }
         }
     }
 }
