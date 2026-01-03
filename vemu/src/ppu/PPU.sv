@@ -174,6 +174,8 @@ module PPU (
   // Update STAT
   // ======================================================
 
+  // The lower 3 bits of the STAT register are updated combinationally.
+  // Then it is combined with the writable bits when a read occurs.
   logic [2:0] stat_comb;
 
   // Update the mode bits in STAT register
