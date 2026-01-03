@@ -22,8 +22,8 @@ using u64 = uint64_t;
 
 class GameboyHarness {
 public:
-    GameboyHarness(bool gui_enabled = true, bool dump_trace_enabled = false) :
-        gui_enabled(gui_enabled), dump_trace_enabled(dump_trace_enabled) { }
+    GameboyHarness(bool gui_enabled = true, bool dump_trace_enabled = false, bool skip_boot_rom = false) :
+        gui_enabled(gui_enabled), dump_trace_enabled(dump_trace_enabled), skip_boot_rom(skip_boot_rom) { }
 
     using InstructionCallback = std::function<bool(GameboyHarness&, VGameboy&)>;
 
@@ -36,6 +36,7 @@ public:
 private:
     bool gui_enabled;
     bool dump_trace_enabled;
+    bool skip_boot_rom;
 
     static constexpr int GB_WIDTH = 160;
     static constexpr int GB_HEIGHT = 144;

@@ -1,6 +1,5 @@
 #include <SDL.h>
 
-#include "VGameboy_Bus_if.h"
 #include <VGameboy.h>
 #include <VGameboy___024root.h>
 #include <verilated.h>
@@ -376,22 +375,24 @@ void GameboyHarness::tick(VGameboy& top, VerilatedContext& ctx, u64& cycles) {
 void GameboyHarness::set_initial_state(VGameboy& top) {
     auto& regs = top.rootp->Gameboy__DOT__cpu_inst__DOT__regs;
 
-    // regs.__PVT__a = 0x01;
-    // regs.__PVT__flags = 0xB0;
-    // regs.__PVT__b = 0x00;
-    // regs.__PVT__c = 0x13;
-    // regs.__PVT__d = 0x00;
-    // regs.__PVT__e = 0xD8;
-    // regs.__PVT__h = 0x01;
-    // regs.__PVT__l = 0x4D;
-
     regs.__PVT__sph = 0xFF;
     regs.__PVT__spl = 0xFE;
 
-    // regs.__PVT__pch = 0x01;
-    // regs.__PVT__pcl = 0x00;
+    if (skip_boot_rom) {
+        regs.__PVT__a = 0x01;
+        regs.__PVT__flags = 0xB0;
+        regs.__PVT__b = 0x00;
+        regs.__PVT__c = 0x13;
+        regs.__PVT__d = 0x00;
+        regs.__PVT__e = 0xD8;
+        regs.__PVT__h = 0x01;
+        regs.__PVT__l = 0x4D;
 
-    // regs.__PVT__IR = 0x00;
+        regs.__PVT__pch = 0x01;
+        regs.__PVT__pcl = 0x00;
+
+        regs.__PVT__IR = 0x00;
+    }
 }
 
 void GameboyHarness::present_frame() {

@@ -36,7 +36,7 @@ int main() {
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/instr_timing/instr_timing.gb";
 
-    GameboyHarness harness(true, false);
+    GameboyHarness harness(true, false, true);
 
     if (!harness.run(rom_path)) {
         return 1;
