@@ -153,6 +153,7 @@ module PPU (
           `LOG_TRACE(("[PPU] REG WRITE addr=%h data=%h", bus.addr, bus.wdata))
           unique case (bus.addr)
             16'hFF40: regs.LCDC <= bus.wdata;
+            16'hFF41: regs.STAT[6:2] <= bus.wdata[6:2];  // only bits 2-6 are writable
             16'hFF42: regs.SCY <= bus.wdata;
             16'hFF43: regs.SCX <= bus.wdata;
             16'hFF44: begin
@@ -169,7 +170,68 @@ module PPU (
     end
   end
 
-  // ---------------- Read Mux -------------------
+  // ======================================================
+  // Update STAT
+  // ======================================================
+
+  logic [2:0] stat_comb;
+
+  // Update the mode bits in STAT register
+  always_comb begin
+    unique case (mode)
+      PPU_MODE_0: stat_comb[1:0] = 2'd0;
+      PPU_MODE_1: stat_comb[1:0] = 2'd1;
+      PPU_MODE_2: stat_comb[1:0] = 2'd2;
+      PPU_MODE_3: stat_comb[1:0] = 2'd3;
+    endcase
+  end
+
+  // Update LY == LYC flag
+  always_comb begin
+    if (regs.LY == regs.LYC) begin
+      stat_comb[2] = 1'b1;
+    end else begin
+      stat_comb[2] = 1'b0;
+    end
+  end
+
+  // Raise interrupt
+  logic stat_interrupt_prev;
+
+  logic stat_interrupt_now;
+
+  always_comb begin
+    stat_interrupt_now = 1'b0;
+
+    // LY == LYC
+    if (regs.STAT[6] && regs.STAT[2]) stat_interrupt_now = 1'b1;
+
+    // Mode 2 (OAM)
+    else if (regs.STAT[5] && mode == PPU_MODE_2) stat_interrupt_now = 1'b1;
+
+    // Mode 0 (HBlank)
+    else if (regs.STAT[4] && mode == PPU_MODE_0) stat_interrupt_now = 1'b1;
+
+    // Mode 1 (VBlank)
+    else if (regs.STAT[3] && mode == PPU_MODE_1) stat_interrupt_now = 1'b1;
+  end
+
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      stat_interrupt_prev <= 1'b0;
+      IF_bus.stat_req     <= 1'b0;
+    end else begin
+      // Rising edge detect
+      IF_bus.stat_req <= stat_interrupt_now & ~stat_interrupt_prev;
+
+      // Latch previous value
+      stat_interrupt_prev <= stat_interrupt_now;
+    end
+  end
+
+  // ======================================================
+  // Read
+  // ======================================================
   always_comb begin
     bus.rdata = 8'hFF;  // open bus unless selected & allowed
 
@@ -193,8 +255,9 @@ module PPU (
         // PPU register reads
         [PPU_regs_start : PPU_regs_end]: begin
           `LOG_TRACE(("[PPU] REG READ addr=%h -> %h", bus.addr, bus.rdata))
-          unique case (bus.addr)
+          case (bus.addr)
             16'hFF40: bus.rdata = regs.LCDC;
+            16'hFF41: bus.rdata = regs.STAT;
             16'hFF42: bus.rdata = regs.SCY;
             16'hFF43: bus.rdata = regs.SCX;
             16'hFF44: bus.rdata = 8'h90;  // regs.LY;
@@ -221,6 +284,8 @@ module PPU (
 
       // Regardless of mode, clear VBlank interrupt request
       IF_bus.vblank_req <= 1'd0;
+
+      regs.STAT[2:0] <= stat_comb[2:0];
 
       if (regs.LCDC[7] == 1'b0) begin
         // LCD disabled
