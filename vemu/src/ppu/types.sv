@@ -4,9 +4,20 @@
 package ppu_types_pkg;
 
 typedef enum logic [1:0] {
+  /// HBlank
+  // Waiting until the end of the scanline
   PPU_MODE_0,
+
+  /// VBlank
+  // PPU is waiting until the next frame
   PPU_MODE_1,
+
+  /// OAM Scan
+  // PPU is searching for OBJs which overlap this line
   PPU_MODE_2,
+
+  /// Drawing Pixels
+  // PPU is sending pixels to the LCD
   PPU_MODE_3
 } ppu_mode_t;
 

@@ -10,21 +10,21 @@ module PPU (
     Interrupt_if.PPU_side IF_bus
 );
 
-  // Cycle counters (reset each mode)
-  logic [8:0] cycle_counter;
-
   // Dot counters (resets after each line)
   logic [8:0] dot_counter;
 
   ppu_regs_t regs;
 
-  localparam logic [8:0] CYCLES_PER_LINE = 456;
+  localparam logic [7:0] SCREEN_HEIGHT = 144;
+  localparam logic [7:0] SCREEN_WIDTH = 160;
+
+  localparam logic [8:0] DOTS_PER_LINE = 456;
   localparam logic [7:0] LINES_PER_FRAME = 154;
 
   // Mode durations in clock cycles
   localparam logic [8:0] MODE2_LEN = 80;
   localparam logic [8:0] MODE3_LEN = 172;
-  localparam logic [8:0] MODE0_LEN = 204;
+  localparam logic [8:0] MODE0_LEN = 204;  // 376 - 172;
 
   ppu_mode_t mode;
 
@@ -69,7 +69,6 @@ module PPU (
 
   // Raise interrupt
   logic stat_interrupt_prev;
-
   logic stat_interrupt_now;
 
   always_comb begin
@@ -201,90 +200,54 @@ module PPU (
 
 
   // ======================================================
+  // Update Mode
+  // ======================================================
+  always_comb begin
+    if (regs.LY >= 8'd144) begin
+      mode = PPU_MODE_1;  // VBlank
+    end else if (dot_counter < MODE2_LEN) begin
+      mode = PPU_MODE_2;  // OAM Scan
+    end else if (dot_counter < MODE2_LEN + MODE3_LEN) begin
+      mode = PPU_MODE_3;  // Pixel Transfer
+    end else begin
+      mode = PPU_MODE_0;  // HBlank
+    end
+  end
+
+  // ======================================================
   // Tick
   // ======================================================
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      mode <= PPU_MODE_2;
+      dot_counter <= 9'd0;
       regs.LY <= 8'd0;
-      cycle_counter <= 0;
-      regs.LCDC <= 8'hCD;
-      dot_counter <= 0;
+      IF_bus.vblank_req <= 1'b0;
     end else begin
-      cycle_counter <= cycle_counter + 1;
-      dot_counter <= dot_counter + 1;
-
       // Regardless of mode, clear VBlank interrupt request
       IF_bus.vblank_req <= 1'd0;
 
-      if (regs.LCDC[7] == 1'b0) begin
-        // LCD disabled
-        mode <= PPU_MODE_2;
+      if (regs.LCDC[7] == 1'b0) begin  // LCD disabled
+        dot_counter <= 9'd0;
         regs.LY <= 8'd0;
-        cycle_counter <= 0;
-        dot_counter <= 0;
-
       end else begin
-        // Mode switching logic
-        unique case (mode)
-          PPU_MODE_2: begin
-            if (cycle_counter == 0) begin
-              `LOG_TRACE(
-                  ("[PPU] Entered MODE2 (OAM Search) at LY=%0d and dots=%0d", regs.LY, dot_counter))
-              dot_counter <= 0;
+        // Advance dot
+        if (dot_counter == DOTS_PER_LINE - 1) begin  // Reached end of line
+          dot_counter <= 9'd0;
 
-            end else if (cycle_counter >= MODE2_LEN) begin
-              mode <= PPU_MODE_3;
-              cycle_counter <= 0;
-            end
-          end
+          // Reset LY at end of frame
+          if (regs.LY == LINES_PER_FRAME - 1) regs.LY <= 8'd0;
 
-          PPU_MODE_3: begin
-            if (cycle_counter == 0) begin
-              `LOG_TRACE(
-                  ("[PPU] Entered MODE3 (Pixel Transfer) at LY=%0d and dots=%0d", regs.LY, dot_counter))
+          // Advance LY at end of line
+          else
+            regs.LY <= regs.LY + 1'b1;
 
-            end else if (cycle_counter >= MODE3_LEN) begin
-              mode <= PPU_MODE_0;
-              cycle_counter <= 0;
-            end
-          end
+          // Raise vblank interrupt exactly when entering LY=144
+          if (regs.LY == SCREEN_HEIGHT - 1) IF_bus.vblank_req <= 1'b1;
 
-          // Do nothing phase for rest of 456 dots
-          PPU_MODE_0: begin
-            if (cycle_counter == 0) begin
-              `LOG_TRACE(
-                  ("[PPU] Entered MODE0 (HBlank) at LY=%0d and dots=%0d", regs.LY, dot_counter))
-
-            end else if (cycle_counter == CYCLES_PER_LINE - 1) begin
-              cycle_counter <= 0;
-              regs.LY <= regs.LY + 1;
-
-              if (regs.LY == 8'd143) begin
-                // We displayed everything so now we just display the 10 blank lines
-                mode <= PPU_MODE_1;
-                IF_bus.vblank_req <= 1;
-              end else
-                // Goto next line
-                mode <= PPU_MODE_2;
-            end
-          end
-
-          PPU_MODE_1: begin
-            if (cycle_counter == 0) begin
-              `LOG_INFO(("[PPU] MODE1 (V-Blank) line=%0d and dots=%0d", regs.LY, dot_counter))
-              dot_counter <= 0;
-
-            end else if (cycle_counter == CYCLES_PER_LINE) begin
-              cycle_counter <= 0;
-              regs.LY <= regs.LY + 1;
-              if (regs.LY == LINES_PER_FRAME - 1) begin
-                regs.LY <= 8'd0;
-                mode <= PPU_MODE_2;
-              end
-            end
-          end
-        endcase
+        end else begin
+          // If we haven't reached end of line, then advance dot
+          dot_counter <= dot_counter + 1'b1;
+        end
       end
     end
   end
