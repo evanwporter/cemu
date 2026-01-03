@@ -39,59 +39,6 @@ module PPU (
   assign window_active = (regs.LCDC[5] && (regs.LY >= regs.WY) &&
                          (/* current X >= WX - 7 */ 1'b1)); // TODO: implement per-dot window condition
 
-  // ======================================================
-  // Write
-  // ======================================================
-  always_ff @(posedge clk or posedge reset) begin
-    if (bus.write_en) begin
-      `LOG_TRACE(("PPU: WRITE addr=%h data=%h", bus.addr, bus.wdata));
-
-      case (1'b1)
-
-        // VRAM writes (blocked in Mode 3)
-        (bus.addr inside {[VRAM_start : VRAM_end]}): begin
-          // if (mode != PPU_MODE_3) begin
-          VRAM[13'(bus.addr-16'h8000)] <= bus.wdata;
-          `LOG_TRACE(("[PPU] VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
-          // end else begin
-          //   `LOG_TRACE(
-          //       ("[PPU] VRAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
-          // end
-        end
-
-        // OAM writes (blocked in Mode 2 & 3)
-        (bus.addr inside {[OAM_start : OAM_end]}): begin
-          if (!(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
-            OAM[8'(bus.addr-16'hFE00)] <= bus.wdata;
-            `LOG_TRACE(("[PPU] OAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
-          end else begin
-            `LOG_INFO(
-                ("[PPU] OAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
-          end
-        end
-
-        // PPU register writes
-        // TODO: check whether this ever needs to be blocked
-        (bus.addr inside {[PPU_regs_start : PPU_regs_end]}): begin
-          `LOG_TRACE(("[PPU] REG WRITE addr=%h data=%h", bus.addr, bus.wdata))
-          case (bus.addr)
-            16'hFF40: regs.LCDC <= bus.wdata;
-            16'hFF41: regs.STAT[6:2] <= bus.wdata[6:2];  // only bits 2-6 are writable
-            16'hFF42: regs.SCY <= bus.wdata;
-            16'hFF43: regs.SCX <= bus.wdata;
-            16'hFF44: begin
-              `LOG_WARN(("[PPU] Attempted to write 0x%h to LY register", bus.wdata))
-            end
-            16'hFF45: regs.LYC <= bus.wdata;
-            16'hFF47: regs.BGP <= bus.wdata;
-            default:  ;
-          endcase
-        end
-
-        default:  /* ignore */;
-      endcase
-    end
-  end
 
   // ======================================================
   // Update STAT
@@ -153,6 +100,61 @@ module PPU (
       stat_interrupt_prev <= stat_interrupt_now;
     end
   end
+
+  // ======================================================
+  // Write
+  // ======================================================
+  always_ff @(posedge clk or posedge reset) begin
+    if (bus.write_en) begin
+      `LOG_TRACE(("PPU: WRITE addr=%h data=%h", bus.addr, bus.wdata));
+
+      case (1'b1)
+
+        // VRAM writes (blocked in Mode 3)
+        (bus.addr inside {[VRAM_start : VRAM_end]}): begin
+          // if (mode != PPU_MODE_3) begin
+          VRAM[13'(bus.addr-16'h8000)] <= bus.wdata;
+          `LOG_TRACE(("[PPU] VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
+          // end else begin
+          //   `LOG_TRACE(
+          //       ("[PPU] VRAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
+          // end
+        end
+
+        // OAM writes (blocked in Mode 2 & 3)
+        (bus.addr inside {[OAM_start : OAM_end]}): begin
+          if (!(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
+            OAM[8'(bus.addr-16'hFE00)] <= bus.wdata;
+            `LOG_TRACE(("[PPU] OAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
+          end else begin
+            `LOG_INFO(
+                ("[PPU] OAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
+          end
+        end
+
+        // PPU register writes
+        // TODO: check whether this ever needs to be blocked
+        (bus.addr inside {[PPU_regs_start : PPU_regs_end]}): begin
+          `LOG_TRACE(("[PPU] REG WRITE addr=%h data=%h", bus.addr, bus.wdata))
+          case (bus.addr)
+            16'hFF40: regs.LCDC <= bus.wdata;
+            16'hFF41: regs.STAT[6:2] <= bus.wdata[6:2];  // only bits 2-6 are writable
+            16'hFF42: regs.SCY <= bus.wdata;
+            16'hFF43: regs.SCX <= bus.wdata;
+            16'hFF44: begin
+              `LOG_WARN(("[PPU] Attempted to write 0x%h to LY register", bus.wdata))
+            end
+            16'hFF45: regs.LYC <= bus.wdata;
+            16'hFF47: regs.BGP <= bus.wdata;
+            default:  ;
+          endcase
+        end
+
+        default:  /* ignore */;
+      endcase
+    end
+  end
+
 
   // ======================================================
   // Read
