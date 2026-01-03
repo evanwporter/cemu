@@ -76,7 +76,7 @@ module PPU (
     stat_interrupt_now = 1'b0;
 
     // LY == LYC
-    if (regs.STAT[6] && regs.STAT[2]) stat_interrupt_now = 1'b1;
+    if (regs.STAT[6] && stat_comb[2]) stat_interrupt_now = 1'b1;
 
     // Mode 2 (OAM)
     else if (regs.STAT[5] && mode == PPU_MODE_2) stat_interrupt_now = 1'b1;
@@ -139,7 +139,7 @@ module PPU (
           `LOG_TRACE(("[PPU] REG WRITE addr=%h data=%h", bus.addr, bus.wdata))
           case (bus.addr)
             16'hFF40: regs.LCDC <= bus.wdata;
-            16'hFF41: regs.STAT[6:2] <= bus.wdata[6:2];  // only bits 2-6 are writable
+            16'hFF41: regs.STAT[6:3] <= bus.wdata[6:3];  // only bits 3-6 are writable
             16'hFF42: regs.SCY <= bus.wdata;
             16'hFF43: regs.SCX <= bus.wdata;
             16'hFF44: begin
@@ -185,10 +185,10 @@ module PPU (
           `LOG_TRACE(("[PPU] REG READ addr=%h -> %h", bus.addr, bus.rdata))
           case (bus.addr)
             16'hFF40: bus.rdata = regs.LCDC;
-            16'hFF41: bus.rdata = regs.STAT;
+            16'hFF41: bus.rdata = {1'b0, regs.STAT[6:3], stat_comb};
             16'hFF42: bus.rdata = regs.SCY;
             16'hFF43: bus.rdata = regs.SCX;
-            16'hFF44: bus.rdata = 8'h90;  // regs.LY;
+            16'hFF44: bus.rdata = regs.LY;
             16'hFF45: bus.rdata = regs.LYC;
             // TODO: DMA transfer
             16'hFF47: bus.rdata = regs.BGP;
@@ -216,8 +216,6 @@ module PPU (
 
       // Regardless of mode, clear VBlank interrupt request
       IF_bus.vblank_req <= 1'd0;
-
-      regs.STAT[2:0] <= stat_comb[2:0];
 
       if (regs.LCDC[7] == 1'b0) begin
         // LCD disabled
@@ -277,7 +275,7 @@ module PPU (
               `LOG_INFO(("[PPU] MODE1 (V-Blank) line=%0d and dots=%0d", regs.LY, dot_counter))
               dot_counter <= 0;
 
-            end else if (cycle_counter == CYCLES_PER_LINE - 1) begin
+            end else if (cycle_counter == CYCLES_PER_LINE) begin
               cycle_counter <= 0;
               regs.LY <= regs.LY + 1;
               if (regs.LY == LINES_PER_FRAME - 1) begin
