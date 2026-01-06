@@ -39,7 +39,6 @@ module PPU (
   assign window_active = (regs.LCDC[5] && (regs.LY >= regs.WY) &&
                          (/* current X >= WX - 7 */ 1'b1)); // TODO: implement per-dot window condition
 
-
   // ======================================================
   // Update STAT
   // ======================================================
@@ -71,29 +70,34 @@ module PPU (
   logic stat_interrupt_prev;
   logic stat_interrupt_now;
 
-  always_comb begin
-    stat_interrupt_now = 1'b0;
-
-    // LY == LYC
-    if (regs.STAT[6] && stat_comb[2]) stat_interrupt_now = 1'b1;
-
-    // Mode 2 (OAM)
-    else if (regs.STAT[5] && mode == PPU_MODE_2) stat_interrupt_now = 1'b1;
-
-    // Mode 0 (HBlank)
-    else if (regs.STAT[4] && mode == PPU_MODE_0) stat_interrupt_now = 1'b1;
-
-    // Mode 1 (VBlank)
-    else if (regs.STAT[3] && mode == PPU_MODE_1) stat_interrupt_now = 1'b1;
+  logic lyc_match;
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      lyc_match <= 1'b0;
+    end else begin
+      if (regs.LY + 1 == 8'd145) lyc_match <= (0 == regs.LYC);
+      else lyc_match <= (regs.LY + 1 == regs.LYC);
+    end
   end
+
+  assign stat_interrupt_now =
+    (regs.STAT[6] & lyc_match) |
+    (regs.STAT[5] & (mode == PPU_MODE_2)) |
+    (regs.STAT[4] & (mode == PPU_MODE_0)) |
+    (regs.STAT[3] & (mode == PPU_MODE_1));
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       stat_interrupt_prev <= 1'b0;
       IF_bus.stat_req     <= 1'b0;
     end else begin
+      IF_bus.stat_req <= 1'b0;
+
       // Rising edge detect
-      IF_bus.stat_req <= stat_interrupt_now & ~stat_interrupt_prev;
+      if (stat_interrupt_now & ~stat_interrupt_prev) begin
+        IF_bus.stat_req <= 1'b1;
+        $display("PPU STAT INTERRUPT RAISED at LY=%0d, mode=%0d", regs.LY, mode);
+      end
 
       // Latch previous value
       stat_interrupt_prev <= stat_interrupt_now;
@@ -112,24 +116,24 @@ module PPU (
 
         // VRAM writes (blocked in Mode 3)
         (bus.addr inside {[VRAM_start : VRAM_end]}): begin
-          // if (mode != PPU_MODE_3) begin
-          VRAM[13'(bus.addr-16'h8000)] <= bus.wdata;
-          `LOG_TRACE(("[PPU] VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
-          // end else begin
-          //   `LOG_TRACE(
-          //       ("[PPU] VRAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
-          // end
+          if (mode != PPU_MODE_3) begin
+            VRAM[13'(bus.addr-16'h8000)] <= bus.wdata;
+            `LOG_TRACE(("[PPU] VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
+          end else begin
+            `LOG_TRACE(
+                ("[PPU] VRAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
+          end
         end
 
         // OAM writes (blocked in Mode 2 & 3)
         (bus.addr inside {[OAM_start : OAM_end]}): begin
-          if (!(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
-            OAM[8'(bus.addr-16'hFE00)] <= bus.wdata;
-            `LOG_TRACE(("[PPU] OAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
-          end else begin
-            `LOG_INFO(
-                ("[PPU] OAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
-          end
+          // if (!(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
+          OAM[8'(bus.addr-16'hFE00)] <= bus.wdata;
+          `LOG_TRACE(("[PPU] OAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
+          // end else begin
+          //   `LOG_INFO(
+          //       ("[PPU] OAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
+          // end
         end
 
         // PPU register writes
@@ -173,9 +177,7 @@ module PPU (
 
         // OAM reads (blocked in Mode 2 & 3)
         [OAM_start : OAM_end]: begin
-          bus.rdata = (mode == PPU_MODE_2 || mode == PPU_MODE_3)
-            ? 8'hFF
-            : OAM[8'(bus.addr-OAM_start)];
+          bus.rdata = OAM[8'(bus.addr-OAM_start)];
           `LOG_TRACE(("[PPU] OAM READ addr=%h -> %h (mode=%0d)", bus.addr, bus.rdata, mode))
         end
 
@@ -184,7 +186,7 @@ module PPU (
           `LOG_TRACE(("[PPU] REG READ addr=%h -> %h", bus.addr, bus.rdata))
           case (bus.addr)
             16'hFF40: bus.rdata = regs.LCDC;
-            16'hFF41: bus.rdata = {1'b0, regs.STAT[6:3], stat_comb};
+            16'hFF41: bus.rdata = {1'b1, regs.STAT[6:3], stat_comb};
             16'hFF42: bus.rdata = regs.SCY;
             16'hFF43: bus.rdata = regs.SCX;
             16'hFF44: bus.rdata = regs.LY;

@@ -2,6 +2,13 @@ import mmu_addresses_pkg::*;
 
 `include "util/logger.svh"
 
+typedef enum logic [1:0] {
+  T1,
+  T2,
+  T3,
+  T4
+} t_phase_t;
+
 module DMA (
     input logic clk,
     input logic reset,
@@ -19,10 +26,18 @@ module DMA (
   wire [15:0] DMA_read_addr = {DMA, dma_index};
   wire [15:0] DMA_write_addr = {OAM_start[15:8], dma_index};
 
-  // Write logic
+  localparam logic [7:0] DMA_MAX_CYCLES = 160;
+
+  assign mmu_bus.active = dma_active;
+
+  t_phase_t t_phase;
+
+  // ======================================================
+  // Write
+  // ======================================================
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      `LOG_INFO(("[MMU] [DMA] DMA reset"));
+      `LOG_INFO(("[MMU] [DMA] DMA reset"))
       DMA <= 8'd0;
       dma_index <= 8'd0;
       dma_active <= 1'b0;
@@ -34,22 +49,59 @@ module DMA (
     end
   end
 
-  // Read logic
+  // ======================================================
+  // Read
+  // ======================================================
   always_comb begin
     bus.rdata = 8'hFF;
     if (bus.read_en && dma_selected) bus.rdata = DMA;
   end
 
+  // ======================================================
+  // Tick
+  // ======================================================
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       dma_index <= 8'd0;
     end else if (dma_active) begin
-      if (dma_index == 8'd159) begin
-        dma_active <= 1'b0;
-        dma_index  <= 8'd0;
-      end else begin
-        dma_index <= dma_index + 8'd1;
-      end
+      unique case (t_phase)
+        T1: begin
+          // start read
+          mmu_bus.addr <= DMA_read_addr;
+          mmu_bus.read_en <= 1'b1;
+          mmu_bus.write_en <= 1'b0;
+          t_phase <= T2;
+        end
+        T2: begin
+          // read has finished
+          // start write
+          mmu_bus.addr <= DMA_write_addr;
+          mmu_bus.wdata <= mmu_bus.rdata;
+          mmu_bus.read_en <= 1'b0;
+          mmu_bus.write_en <= 1'b1;
+          t_phase <= T3;
+          `LOG_TRACE(
+              ("[MMU] [DMA] Transferred byte %0h, from %0h to %0h", mmu_bus.rdata,
+                   DMA_read_addr, DMA_write_addr))
+        end
+        T3: begin
+          // in this cycle, the OAM has recieved the wdata and the signal to begin writing
+          // and it has now started the write.
+          t_phase <= T4;
+        end
+        T4: begin
+          // write has finished
+          mmu_bus.write_en <= 1'b0;
+          if (dma_index == DMA_MAX_CYCLES - 1) begin
+            dma_active <= 1'b0;
+            dma_index  <= 8'd0;
+          end else begin
+            dma_index <= dma_index + 8'd1;
+          end
+
+          t_phase <= T1;
+        end
+      endcase
     end
   end
 

@@ -82,6 +82,8 @@ bool GameboyHarness::run(const fs::path& rom_path, InstructionCallback on_instru
         tick(top, ctx, cycles);
     }
 
+    int LYs = 0;
+
     for (int i = 0; i < max_cycles; ++i) {
         if (gui_enabled) {
             while (SDL_PollEvent(&e)) {
@@ -102,9 +104,14 @@ bool GameboyHarness::run(const fs::path& rom_path, InstructionCallback on_instru
             }
 
             if (top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY == 144) {
-                draw_from_vram(top);
-                // draw_sprites(top);
-                present_frame();
+                if (LYs == 10) {
+                    draw_from_vram(top);
+                    // draw_sprites(top);
+                    present_frame();
+                    LYs = 0;
+                } else {
+                    LYs++;
+                }
             }
         }
 
@@ -186,7 +193,7 @@ u8 GameboyHarness::read_mem(VGameboy& top, u16 PC) {
     }
 
     else if (PC <= 0xFF7F) {
-        std::cout << "Read from IO address 0x" << std::hex << PC << std::dec << "\n";
+        // std::cout << "Read from IO address 0x" << std::hex << PC << std::dec << "\n";
         return 0xFF;
     }
 
@@ -212,6 +219,8 @@ void GameboyHarness::dump_gd_trace(VGameboy& top, std::ostream& os) {
     static int line_count = 0;
 
     auto& regs = top.rootp->Gameboy__DOT__cpu_inst__DOT__regs;
+
+    const auto& oam = top.rootp->Gameboy__DOT__ppu_inst__DOT__OAM;
 
     u8 A = regs.__PVT__a;
     u8 F = regs.__PVT__flags;
@@ -261,6 +270,9 @@ void GameboyHarness::dump_gd_trace(VGameboy& top, std::ostream& os) {
        << std::setw(2) << static_cast<int>(spm1) << ","
        << std::setw(2) << static_cast<int>(spm2) << ","
        << std::setw(2) << static_cast<int>(spm3)
+       << " SCX:" << std::setw(2) << static_cast<int>(top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCX)
+       << " SCY:" << std::setw(2) << static_cast<int>(top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCY)
+       << " LYC:" << std::setw(2) << static_cast<int>(top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LYC)
        << "\n";
     // clang-format on
 

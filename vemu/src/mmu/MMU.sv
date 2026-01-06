@@ -40,8 +40,9 @@ module MMU (
   assign timer_bus.addr = effective_addr;
   assign input_bus.addr = effective_addr;
   assign interrupt_bus.addr = cpu_bus.addr;
+  assign dma_wbus.addr = effective_addr;
 
-  assign ppu_bus.wdata = cpu_bus.wdata;
+  assign ppu_bus.wdata = dma_bus.active ? dma_bus.wdata : cpu_bus.wdata;
   assign apu_bus.wdata = cpu_bus.wdata;
   assign cart_bus.wdata = cpu_bus.wdata;
   assign ram_bus.wdata = cpu_bus.wdata;
@@ -50,6 +51,7 @@ module MMU (
   assign timer_bus.wdata = cpu_bus.wdata;
   assign input_bus.wdata = cpu_bus.wdata;
   assign interrupt_bus.wdata = cpu_bus.wdata;
+  assign dma_wbus.wdata = cpu_bus.wdata;
 
   // PPU VRAM: $8000–$9FFF, OAM: $FE00–$FE9F, PPU I/O: $FF40–$FF4B
   wire ppu_selected =
@@ -99,21 +101,31 @@ module MMU (
   assign interrupt_bus.read_en  = cpu_bus.read_en && interrupt_selected;
   assign interrupt_bus.write_en = cpu_bus.write_en && interrupt_selected;
 
-  wire DMA_selected = (effective_addr == DMA_OAM_addr);
-  assign dma_wbus.read_en  = cpu_req_read && DMA_selected;
-  assign dma_wbus.write_en = cpu_req_write && DMA_selected;
+  wire DMA_selected = (cpu_bus.addr == DMA_OAM_addr);
+  assign dma_wbus.read_en  = cpu_bus.read_en && DMA_selected;
+  assign dma_wbus.write_en = cpu_bus.write_en && DMA_selected;
 
   // Map Read Data
   always_comb begin
     cpu_bus.rdata = 8'hFF;
+    dma_bus.rdata = 8'hFF;
 
     if (dma_bus.active == 1'b1) begin
       if (hram_selected) begin
-        // HRAM has priority over RAM when DMA is inactive
-        cpu_bus.rdata = ram_bus.rdata;
+        // When DMA is active, only HRAM can be accessed by the CPU
+        cpu_bus.rdata = hram_bus.rdata;
       end
 
-    end else if (dma_bus.active == 1'b0) begin
+      if (ram_selected) begin
+        // DMA can read from RAM
+        dma_bus.rdata = ram_bus.rdata;
+      end else if (cart_selected) begin
+        // DMA can read from Cartridge
+        dma_bus.rdata = cart_bus.rdata;
+      end
+
+      // DMA is not active
+    end else begin
       if (ppu_selected) begin
         cpu_bus.rdata = ppu_bus.rdata;
 

@@ -33,6 +33,8 @@ public:
         return serial_buffer;
     }
 
+    u8 read_mem(VGameboy& top, u16 PC);
+
 private:
     bool gui_enabled;
     bool dump_trace_enabled;
@@ -69,8 +71,6 @@ private:
 
     u8 last_SC = 0;
     std::string serial_buffer;
-
-    u8 read_mem(VGameboy& top, u16 PC);
 
     void dump_gd_trace(VGameboy& top, std::ostream& os);
 

@@ -80,4 +80,5 @@ interface DMA_if;
 
   // TODO: Explain what this modport is for
   modport MMU_side(input addr, wdata, read_en, write_en, active, output rdata);
+
 endinterface

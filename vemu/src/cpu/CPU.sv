@@ -199,6 +199,9 @@ module CPU (
                   pending = IF[4:0] & IE[4:0];
 
                   if ((pending) != 5'b0) begin
+
+                    $display("[CPU] Interrupt detected: IF=%b IE=%b Pending=%b", IF, IE, pending);
+
                     // Interrupt detected -> take the highest priority
                     if (pending[0]) begin  // VBlank
                       IF[3'd0] <= 1'b0;
@@ -206,6 +209,7 @@ module CPU (
                     end else if (pending[1]) begin  // STAT
                       IF[3'd1] <= 1'b0;
                       control_word <= interrupt_words[3'd1];
+                      $display("[CPU] Taking STAT interrupt");
                     end else if (pending[2]) begin  // Timer
                       IF[3'd2] <= 1'b0;
                       control_word <= interrupt_words[3'd2];
@@ -217,8 +221,8 @@ module CPU (
                       control_word <= interrupt_words[3'd4];
                     end
 
-                    // Disable master interrupt
-                    regs.IME <= 1'b0;
+                    // // Disable master interrupt
+                    // regs.IME <= 1'b0;
 
                     instr_boundary <= 1'b0;  // Now executing new implicit instruction
                   end
@@ -255,11 +259,15 @@ module CPU (
           IF <= (interrupt_bus.wdata & 8'b00011111) | 8'b11100000;
         end else if (interrupt_bus.addr == 16'hFFFF) begin
           IE <= interrupt_bus.wdata;
+          $display("[CPU] IE register set to %b", interrupt_bus.wdata);
         end
       end
 
       if (IF_bus.vblank_req) IF[0] <= 1'b1;
-      if (IF_bus.stat_req) IF[1] <= 1'b1;
+      if (IF_bus.stat_req) begin
+        $display("[CPU] Setting STAT interrupt flag in IF register");
+        IF[1] <= 1'b1;
+      end
       if (IF_bus.timer_req) IF[2] <= 1'b1;
       if (IF_bus.serial_req) IF[3] <= 1'b1;
       if (IF_bus.joypad_req) IF[4] <= 1'b1;

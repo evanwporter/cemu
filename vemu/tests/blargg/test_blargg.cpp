@@ -20,7 +20,7 @@ static void run_single_file(const fs::path& path) {
 
     bool ok = harness.run(
         path,
-        [&](GameboyHarness& h, VGameboy&) {
+        [&](GameboyHarness& h, VGameboy& top) {
             ++instr_count;
 
             const std::string serial = h.get_serial_buffer();
