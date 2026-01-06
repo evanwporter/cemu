@@ -7,3 +7,9 @@
 [submodule "tests/gameboy-doctor"]
 	path = tests/gameboy-doctor
 	url = https://github.com/evanwporter/gameboy-doctor.git
+[submodule "tests/mooneye-test-suite"]
+	path = tests/mooneye-test-suite
+	url = https://github.com/evanwporter/mooneye-test-suite
+[submodule "vemu/debug"]
+	path = vemu/debug
+	url = https://github.com/evanwporter/GBDebugger
