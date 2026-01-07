@@ -85,6 +85,27 @@ TEST(MooneyeROMTests, InstrDAA) {
     run_single_file(fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/instr/daa.gb", 1'000'000);
 }
 
-TEST(MooneyeROMTests, DIVWrite) {
-    run_single_file(fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/timer/div_write.gb", 1'000'000);
+class Timer : public ::testing::TestWithParam<fs::path> { };
+
+TEST_P(Timer, Passes) {
+    run_single_file(GetParam());
 }
+
+INSTANTIATE_TEST_SUITE_P(
+    MooneyeROMTests,
+    Timer,
+    ::testing::ValuesIn(collect_files_in_directory(
+        fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/timer",
+        ".gb",
+        { "tima-reload.gb", "tima_write_reloading.gb", "tma_write_reloading.gb", "rapid_toggle.gb", "tim00_div_trigger.gb", "tim01_div_trigger.gb", "tim10_div_trigger.gb", "tim11_div_trigger.gb" })),
+    [](const ::testing::TestParamInfo<fs::path>& info) {
+        std::string name = info.param.filename().stem().string();
+
+        // GTest test names must be valid C identifiers
+        for (char& c : name) {
+            if (!std::isalnum(static_cast<unsigned char>(c)))
+                c = '_';
+        }
+
+        return name;
+    });

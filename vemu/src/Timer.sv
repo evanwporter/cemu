@@ -33,10 +33,10 @@ module Timer (
 
   always_comb begin
     unique case (TAC[1:0])
-      2'b00: sel_div_bit = DIV[9];
-      2'b01: sel_div_bit = DIV[3];
-      2'b10: sel_div_bit = DIV[5];
-      2'b11: sel_div_bit = DIV[7];
+      2'b00: sel_div_bit = DIV[9] & TAC[2];  // DMG ANDs with TAC[2] before falling edge detections
+      2'b01: sel_div_bit = DIV[3] & TAC[2];
+      2'b10: sel_div_bit = DIV[5] & TAC[2];
+      2'b11: sel_div_bit = DIV[7] & TAC[2];
     endcase
   end
 
@@ -45,9 +45,12 @@ module Timer (
   wire tma_selected = bus.addr == 16'hFF06;
   wire tac_selected = bus.addr == 16'hFF07;
 
-  wire timer_tick = (sel_div_bit_prev == 1'b1) && (sel_div_bit == 1'b0);  // falling edge
+  /// Timer Tick (Falling Edge Detection)
+  wire timer_tick = (sel_div_bit_prev == 1'b1) && (sel_div_bit == 1'b0);
 
+  // ======================================================
   // Tick
+  // ======================================================
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       sel_div_bit_prev <= 1'b0;
@@ -69,7 +72,7 @@ module Timer (
         tima_overflow_pending <= 1'b0;
         TIMA <= TMA;
         IF_bus.timer_req <= 1'b1;
-      end else if (TAC[2] && timer_tick) begin
+      end else if (timer_tick) begin
         if (TIMA == 8'hFF) begin
           TIMA <= 8'h00;
           tima_overflow_pending <= 1'b1;
@@ -92,7 +95,10 @@ module Timer (
     end else if (bus.write_en) begin
       // TODO: DIV
       if (div_selected) begin
-        DIV <= 16'h0000;  // Writing any value resets DIV to 0
+        // Writing any value resets DIV to 0.
+        // TODO: Why 4? Idk, but this is what this does:
+        // https://github.com/zephray/VerilogBoy/blob/ba256042fbd3274090df86828d84d09527559113/rtl/timer.v#L87
+        DIV <= 16'd4;
       end else if (tima_selected) TIMA <= bus.wdata;
       else if (tma_selected) TMA <= bus.wdata;
       else if (tac_selected) TAC <= bus.wdata | 8'b11111000;
