@@ -17,6 +17,59 @@
 
 namespace fs = std::filesystem;
 
+bool GameboyHarness::setup(const fs::path& rom_path) {
+    ctx.debug(0);
+    ctx.time(0);
+
+    top = std::make_unique<VGameboy>(&ctx);
+
+    if (!load_rom(*top, rom_path)) {
+        return false;
+    }
+
+    top->reset = 1;
+    top->eval();
+    top->reset = 0;
+    top->eval();
+
+    set_initial_state(*top);
+
+    for (int i = 0; i < 0x7F; i++) {
+        top->rootp->Gameboy__DOT__ram_inst__DOT__HRAM[i] = 0xFF;
+    }
+
+    while (top->rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
+        tick(*top, ctx, cycles);
+    }
+
+    return true;
+}
+
+void GameboyHarness::run() {
+    running = true;
+    const uint64_t max_cycles = 1'000'000'000;
+    for (int i = 0; i < max_cycles; ++i) {
+        step();
+    }
+    running = false;
+}
+
+void GameboyHarness::step(TickCallback on_tick) {
+    const u8 opcode = top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__IR;
+
+    operation_history.push_back({ opcode, {} });
+
+    top->rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary = 0;
+    while (top->rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
+        tick(*top, ctx, cycles);
+
+        if (on_tick)
+            on_tick(*this, *top, opcode);
+    }
+
+    handle_serial_output(*top);
+}
+
 bool GameboyHarness::run(const fs::path& rom_path, InstructionCallback on_instruction) {
 
     VerilatedContext ctx;

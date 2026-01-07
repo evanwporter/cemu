@@ -45,7 +45,7 @@ module DMA (
       DMA <= bus.wdata;
       dma_index <= 8'd0;
       dma_active <= 1'b1;
-      `LOG_INFO(("[MMU] [DMA] DMA started source=%02h00", bus.wdata));
+      `LOG_INFO(("[MMU] [DMA] DMA started source=%02h00", bus.wdata))
     end
   end
 

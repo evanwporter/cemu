@@ -161,7 +161,7 @@ module MMU (
         cpu_bus.rdata = dma_wbus.rdata;
 
       end else begin
-        `LOG_WARN(("[MMU] Unmapped READ addr=%h", effective_addr));
+        `LOG_WARN(("[MMU] Unmapped READ addr=%h", effective_addr))
         cpu_bus.rdata = 8'hFF;
         // TODO
       end

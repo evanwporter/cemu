@@ -24,6 +24,7 @@ interface Bus_if;
   /// Peripherals (PPU/APU/etc.) are slaves: they listen to addr, write_en/read_en,
   /// and drive rdata when selected.
   modport Peripheral_side(input addr, wdata, read_en, write_en, output rdata);
+
 endinterface
 
 interface Interrupt_if;

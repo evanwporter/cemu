@@ -17,6 +17,9 @@ module Gameboy (
     $display("Logging to simulation.log, log fd: %0d", __log_fd);
   end
 
+  logic [15:0] addr_bus;
+  logic write_en_bus;
+
   Bus_if cpu_bus ();
   DMA_if dma_bus ();
 

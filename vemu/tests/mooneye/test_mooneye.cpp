@@ -1,6 +1,5 @@
 #include <filesystem>
 #include <gtest/gtest.h>
-#include <string>
 
 #include "gb.hpp"
 #include "util/util.hpp"

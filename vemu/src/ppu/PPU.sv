@@ -110,7 +110,7 @@ module PPU (
   // ======================================================
   always_ff @(posedge clk or posedge reset) begin
     if (bus.write_en) begin
-      `LOG_TRACE(("PPU: WRITE addr=%h data=%h", bus.addr, bus.wdata));
+      `LOG_TRACE(("PPU: WRITE addr=%h data=%h", bus.addr, bus.wdata))
 
       case (1'b1)
 
@@ -121,7 +121,7 @@ module PPU (
             `LOG_TRACE(("[PPU] VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
           end else begin
             `LOG_TRACE(
-                ("[PPU] VRAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode));
+                ("[PPU] VRAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
           end
         end
 
