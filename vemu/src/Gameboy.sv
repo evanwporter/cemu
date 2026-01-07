@@ -20,6 +20,9 @@ module Gameboy (
   logic [15:0] addr_bus;
   logic write_en_bus;
 
+  /// Current t-cycle within machine cycle
+  gameboy_types_pkg::t_phase_t t_phase;
+
   Bus_if cpu_bus ();
   DMA_if dma_bus ();
 
@@ -40,6 +43,7 @@ module Gameboy (
   CPU cpu_inst (
       .clk(clk),
       .reset(reset),
+      .t_phase(t_phase),
       .bus(cpu_bus),
       .interrupt_bus(interrupt_bus),
       .IF_bus(IF_bus)
@@ -85,6 +89,7 @@ module Gameboy (
   Timer timer_inst (
       .clk   (clk),
       .reset (reset),
+      .t_phase(t_phase),
       .bus   (timer_bus),
       .IF_bus(IF_bus)
   );

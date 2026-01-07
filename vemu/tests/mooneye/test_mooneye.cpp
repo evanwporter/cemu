@@ -97,7 +97,7 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::ValuesIn(collect_files_in_directory(
         fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/timer",
         ".gb",
-        { "tima_reload.gb", "tima_write_reloading.gb", "tma_write_reloading.gb", "rapid_toggle.gb" })),
+        { "tima_write_reloading.gb", "tma_write_reloading.gb", "rapid_toggle.gb" })),
     [](const ::testing::TestParamInfo<fs::path>& info) {
         std::string name = info.param.filename().stem().string();
 

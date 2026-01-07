@@ -8,6 +8,7 @@ import mmu_addresses_pkg::*;
 module Timer (
     input logic clk,
     input logic reset,
+    input gameboy_types_pkg::t_phase_t t_phase,
     Bus_if.Peripheral_side bus,
     Interrupt_if.Timer_side IF_bus
 );
@@ -68,7 +69,7 @@ module Timer (
       // Clear timer interrupt request by default
       IF_bus.timer_req <= 1'b0;
 
-      if (tima_overflow_pending) begin
+      if (t_phase == gameboy_types_pkg::T1 && tima_overflow_pending) begin
         tima_overflow_pending <= 1'b0;
         TIMA <= TMA;
         IF_bus.timer_req <= 1'b1;

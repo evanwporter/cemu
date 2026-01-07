@@ -35,11 +35,4 @@ typedef struct `PACK_REG {
 
 `undef PACK_REG
 
-typedef enum logic [1:0] {
-  T1,
-  T2,
-  T3,
-  T4
-} t_phase_t;
-
 endpackage

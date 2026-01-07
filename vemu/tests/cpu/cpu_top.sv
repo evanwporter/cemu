@@ -15,6 +15,8 @@ module cpu_top (
     input logic reset
 );
 
+  gameboy_types_pkg::t_phase_t t_phase;
+
   Bus_if cpu_bus ();
   Interrupt_if IF_bus ();
   Bus_if interrupt_bus ();
@@ -22,6 +24,7 @@ module cpu_top (
   CPU cpu_inst (
       .clk(clk),
       .reset(reset),
+      .t_phase(t_phase),
       .bus(cpu_bus),
       .interrupt_bus(interrupt_bus),
       .IF_bus(IF_bus)

@@ -8,6 +8,7 @@
 
 import cpu_types_pkg::*;
 import ppu_types_pkg::*;
+import gameboy_types_pkg::*;
 
 `include "cpu/util.svh"
 
@@ -19,6 +20,8 @@ import ppu_types_pkg::*;
 module CPU (
     input logic clk,
     input logic reset,
+
+    output t_phase_t t_phase,
 
     Bus_if.CPU_side bus,
     Bus_if.Peripheral_side interrupt_bus,
@@ -33,9 +36,6 @@ module CPU (
 
   /// Curent machine cycle within instruction
   cycle_count_t cycle_count;
-
-  /// Current t-cycle within machine cycle
-  t_phase_t t_phase;
 
   // TODO: Perhaps rename to `instr_finished_flag`?
   logic instr_boundary;
