@@ -39,7 +39,7 @@ public:
     bool setup(const std::filesystem::path& rom_path);
 
     using InstructionCallback = std::function<bool(GameboyHarness&, VGameboy&)>;
-    using TickCallback = std::function<void(GameboyHarness&, VGameboy&, uint8_t)>;
+    using TickCallback = std::function<void(GameboyHarness&, VGameboy&, uint8_t, bool)>;
 
     void run();
     bool run(const std::filesystem::path& rom_path, InstructionCallback on_instruction = nullptr);
@@ -71,8 +71,6 @@ private:
     SDL_Window* window;
     SDL_Renderer* renderer;
     SDL_Texture* texture;
-
-    std::vector<Operation> operation_history;
 
     VerilatedContext ctx;
 

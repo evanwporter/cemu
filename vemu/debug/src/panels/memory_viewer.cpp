@@ -11,24 +11,6 @@ namespace debug::panels {
         memory_[addr] = value;
     }
 
-    void MemoryViewerPanel::render_region(u16 start, u16 end) {
-        ImGui::BeginChild("mem_scroll", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
-
-        for (u32 addr = start; addr <= end; addr += 16) {
-            char line[128];
-            int offset = std::snprintf(line, sizeof(line), "%04X: ", addr);
-
-            for (int i = 0; i < 16 && addr + i <= end; ++i) {
-                offset += std::snprintf(
-                    line + offset, sizeof(line) - offset, "%02X ", memory_[addr + i]);
-            }
-
-            ImGui::TextUnformatted(line);
-        }
-
-        ImGui::EndChild();
-    }
-
     void MemoryViewerPanel::render() {
         if (!visible_)
             return;
@@ -75,6 +57,73 @@ namespace debug::panels {
         }
 
         ImGui::End();
+    }
+
+    void MemoryViewerPanel::render_region(u16 start, u16 end) {
+        ImGui::BeginChild("mem_scroll", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+
+        for (u32 addr = start; addr <= end; addr += 16) {
+
+            bool row_has_highlight = false;
+            for (int i = 0; i < 16 && addr + i <= end; ++i) {
+                if (highlight_[addr + i]) {
+                    row_has_highlight = true;
+                    break;
+                }
+            }
+
+            if (row_has_highlight) {
+                ImGui::PushStyleColor(
+                    ImGuiCol_Text,
+                    IM_COL32(255, 80, 80, 255));
+            }
+
+            char line[128];
+            int offset = std::snprintf(line, sizeof(line), "%04X: ", addr);
+
+            for (int i = 0; i < 16 && addr + i <= end; ++i) {
+                offset += std::snprintf(
+                    line + offset,
+                    sizeof(line) - offset,
+                    "%02X ",
+                    memory_[addr + i]);
+            }
+
+            ImGui::TextUnformatted(line);
+
+            // Auto-scroll to focused address
+            if (focus_addr_ && addr <= *focus_addr_ && *focus_addr_ < addr + 16) {
+                ImGui::SetScrollHereY(0.35f);
+            }
+
+            if (row_has_highlight) {
+                ImGui::PopStyleColor();
+            }
+        }
+
+        ImGui::EndChild();
+    }
+
+    void MemoryViewerPanel::set_snapshot(
+        const std::array<u8, 0x10000>& mem) {
+        memory_ = mem;
+        highlight_.fill(false);
+        focus_addr_.reset();
+    }
+
+    void MemoryViewerPanel::set_selection(const MemorySelection& sel) {
+        highlight_.fill(false);
+        focus_addr_.reset();
+
+        if (!sel.valid)
+            return;
+
+        for (u16 addr : sel.addresses) {
+            highlight_[addr] = true;
+        }
+
+        // Focus first modified address
+        focus_addr_ = sel.addresses.front();
     }
 
 }

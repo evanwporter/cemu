@@ -41,6 +41,14 @@ namespace debug {
             return operations.back().history.back();
         }
 
+        Operation& back() {
+            return operations.back();
+        }
+
+        const std::vector<Operation>& get_operations() const {
+            return operations;
+        }
+
     private:
         Memory current {}; // always latest state
 

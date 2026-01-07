@@ -18,4 +18,16 @@ namespace debug {
         u16 SP;
         u16 PC;
     };
+
+    enum class ExecMode {
+        Running,
+        Paused,
+        StepOnce,
+        Stopped
+    };
+
+    struct MemorySelection {
+        bool valid = false;
+        std::vector<u16> addresses;
+    };
 }

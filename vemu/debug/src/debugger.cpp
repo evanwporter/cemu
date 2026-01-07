@@ -60,6 +60,9 @@ namespace debug {
         ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
         ImGui_ImplSDLRenderer2_Init(renderer);
 
+        instr_history_panel.set_history(&operation_history);
+        tiles_panel.set_snapshot(memory_snapshot);
+
         return true;
     }
 
@@ -96,7 +99,41 @@ namespace debug {
         while (!quit) {
             process_events();
 
-            emu.step([this, &emu](GameboyHarness&, VGameboy& top, u8 opcode) {
+            bool should_step = false;
+
+            switch (exec_mode) {
+            case ExecMode::Running:
+                should_step = true;
+                break;
+
+            case ExecMode::Paused:
+                should_step = false;
+                break;
+
+            case ExecMode::StepOnce:
+                should_step = true;
+                exec_mode = ExecMode::Paused;
+                break;
+
+            case ExecMode::Stopped:
+                should_step = false;
+                break;
+            }
+
+            // if (reset_requested) {
+            //     emu.reset(); // YOU implement this
+            //     operation_history.clear();
+            //     memory_panel.clear();
+            //     reset_requested = false;
+            //     exec_mode = ExecMode::Paused;
+            // }
+
+            if (should_step) {
+                emu.step([this, &emu](GameboyHarness&, VGameboy& top, u8 opcode, bool first_tick) {
+                if (first_tick) {
+                    operation_history.push({ opcode, {} });
+                }
+
                 if (top.rootp->__PVT__Gameboy__DOT__cpu_bus->write_en) {
                     const auto delta = Delta {
                         .addr = static_cast<u16>(top.rootp->__PVT__Gameboy__DOT__cpu_bus->addr),
@@ -104,10 +141,11 @@ namespace debug {
                     };
                     if (operation_history.get_latest_delta() && operation_history.get_latest_delta()->addr != delta.addr) {
                         // Write operation is performed
-                        operation_history.push({ opcode, { delta } });
+                        operation_history.back().history.push_back(delta);
                         memory_snapshot[delta.addr] = delta.value;
                     }
                 } });
+            }
 
             const auto A = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__a;
             const auto F = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__flags;
@@ -177,6 +215,26 @@ namespace debug {
 
             cpu_panel.render();
             memory_panel.render();
+            render_controls();
+            tiles_panel.render();
+
+            if (auto selected = instr_history_panel.render(exec_mode)) {
+                size_t op_index = *selected;
+
+                auto snapshot = operation_history.get_state_at(op_index);
+                memory_panel.set_snapshot(snapshot);
+
+                memory_selection.addresses.clear();
+                for (const auto& d : operation_history
+                                         .get_operations()[op_index]
+                                         .history) {
+                    memory_selection.addresses.push_back(d.addr);
+                }
+
+                memory_selection.valid = !memory_selection.addresses.empty();
+
+                memory_panel.set_selection(memory_selection);
+            }
 
             end_frame();
 
@@ -184,4 +242,34 @@ namespace debug {
         }
     }
 
+    void Debugger::render_controls() {
+        ImGui::Begin("Controls");
+
+        if (exec_mode == ExecMode::Running) {
+            if (ImGui::Button("Pause")) {
+                exec_mode = ExecMode::Paused;
+            }
+        } else {
+            if (ImGui::Button("Play")) {
+                exec_mode = ExecMode::Running;
+            }
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("Step")) {
+            exec_mode = ExecMode::StepOnce;
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("Stop")) {
+            exec_mode = ExecMode::Stopped;
+        }
+
+        ImGui::SameLine();
+        if (ImGui::Button("Reset")) {
+            // reset_requested = true;
+        }
+
+        ImGui::End();
+    }
 }

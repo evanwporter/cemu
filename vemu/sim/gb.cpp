@@ -57,14 +57,18 @@ void GameboyHarness::run() {
 void GameboyHarness::step(TickCallback on_tick) {
     const u8 opcode = top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__IR;
 
-    operation_history.push_back({ opcode, {} });
-
     top->rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary = 0;
+
+    bool first_instr_tick = true;
+
     while (top->rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
         tick(*top, ctx, cycles);
 
         if (on_tick)
-            on_tick(*this, *top, opcode);
+            on_tick(*this, *top, opcode, first_instr_tick);
+
+        if (first_instr_tick)
+            first_instr_tick = false;
     }
 
     handle_serial_output(*top);
