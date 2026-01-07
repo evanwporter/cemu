@@ -53,7 +53,7 @@ typedef struct `PACK_REG {
   logic [7:0] LYC;
 
   /// 0xFF46: DMA Transfer and Start Address
-  logic [7:0] DMA;
+  // Handled in DMA module
 
   /// 0xFF47: BG Palette Data
   logic [7:0] BGP;

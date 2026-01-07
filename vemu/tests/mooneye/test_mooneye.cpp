@@ -77,13 +77,29 @@ INSTANTIATE_TEST_SUITE_P(
         return name;
     });
 
-TEST(MooneyeROMTests, OamDmaBasic) {
-    run_single_file(fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/oam_dma/basic.gb", 100'000);
+class Instructions : public ::testing::TestWithParam<fs::path> { };
+
+TEST_P(Instructions, Passes) {
+    run_single_file(GetParam());
 }
 
-TEST(MooneyeROMTests, InstrDAA) {
-    run_single_file(fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/instr/daa.gb", 1'000'000);
-}
+INSTANTIATE_TEST_SUITE_P(
+    MooneyeROMTests,
+    Instructions,
+    ::testing::ValuesIn(collect_files_in_directory(
+        fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/instr",
+        ".gb")),
+    [](const ::testing::TestParamInfo<fs::path>& info) {
+        std::string name = info.param.filename().stem().string();
+
+        // GTest test names must be valid C identifiers
+        for (char& c : name) {
+            if (!std::isalnum(static_cast<unsigned char>(c)))
+                c = '_';
+        }
+
+        return name;
+    });
 
 class Timer : public ::testing::TestWithParam<fs::path> { };
 
@@ -98,6 +114,31 @@ INSTANTIATE_TEST_SUITE_P(
         fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/timer",
         ".gb",
         { "tima_write_reloading.gb", "tma_write_reloading.gb", "rapid_toggle.gb" })),
+    [](const ::testing::TestParamInfo<fs::path>& info) {
+        std::string name = info.param.filename().stem().string();
+
+        // GTest test names must be valid C identifiers
+        for (char& c : name) {
+            if (!std::isalnum(static_cast<unsigned char>(c)))
+                c = '_';
+        }
+
+        return name;
+    });
+
+class OAM_DMA : public ::testing::TestWithParam<fs::path> { };
+
+TEST_P(OAM_DMA, Passes) {
+    run_single_file(GetParam());
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    MooneyeROMTests,
+    OAM_DMA,
+    ::testing::ValuesIn(collect_files_in_directory(
+        fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/oam_dma",
+        ".gb",
+        { "sources-GS.gb" })),
     [](const ::testing::TestParamInfo<fs::path>& info) {
         std::string name = info.param.filename().stem().string();
 

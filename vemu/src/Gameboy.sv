@@ -36,7 +36,7 @@ module Gameboy (
   Bus_if hram_bus ();
   Bus_if serial_bus ();
   Bus_if interrupt_bus ();
-  Bus_if dma_wbus ();
+  Bus_if dma_wrbus ();
 
   Interrupt_if IF_bus ();
 
@@ -52,7 +52,7 @@ module Gameboy (
   DMA dma_inst (
       .clk(clk),
       .reset(reset),
-      .bus(dma_wbus),
+      .bus(dma_wrbus),
       .mmu_bus(dma_bus)
   );
 
@@ -70,7 +70,7 @@ module Gameboy (
       .timer_bus(timer_bus),
       .input_bus(input_bus),
       .interrupt_bus(interrupt_bus),
-      .dma_wbus(dma_wbus)
+      .dma_wrbus(dma_wrbus)
   );
 
   PPU ppu_inst (

@@ -38,8 +38,7 @@ module DMA (
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       `LOG_INFO(("[MMU] [DMA] DMA reset"))
-      DMA <= 8'd0;
-      dma_index <= 8'd0;
+      dma_index  <= 8'd0;
       dma_active <= 1'b0;
     end else if (bus.write_en && dma_selected) begin
       DMA <= bus.wdata;
@@ -54,11 +53,11 @@ module DMA (
   // Read
   // ======================================================
   always_comb begin
-    bus.rdata = 8'hFF;
-    if (bus.read_en && dma_selected) begin
-      bus.rdata = DMA;
-      $display("[DMA] Read DMA register: %02h", DMA);
-    end
+    bus.rdata = 8'h9F;
+    if (dma_selected)
+      if (bus.read_en && dma_selected) begin
+        bus.rdata = DMA;
+      end
   end
 
   // ======================================================
