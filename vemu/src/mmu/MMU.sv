@@ -111,7 +111,14 @@ module MMU (
     dma_bus.rdata = 8'hFF;
 
     if (dma_bus.active == 1'b1) begin
-      if (hram_selected) begin
+      if (DMA_selected) begin
+        // DMA can read from DMA register
+        cpu_bus.rdata = dma_wbus.rdata;
+
+        $display("[MMU] [DMA] CPU read from DMA register addr=%h data=%02h bool=%b", cpu_bus.addr,
+                 dma_wbus.rdata, dma_bus.read_en);
+
+      end else if (hram_selected) begin
         // When DMA is active, only HRAM can be accessed by the CPU
         cpu_bus.rdata = hram_bus.rdata;
 

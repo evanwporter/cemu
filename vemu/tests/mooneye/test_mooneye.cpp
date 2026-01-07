@@ -84,3 +84,7 @@ TEST(MooneyeROMTests, OamDmaBasic) {
 TEST(MooneyeROMTests, InstrDAA) {
     run_single_file(fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/instr/daa.gb", 1'000'000);
 }
+
+TEST(MooneyeROMTests, DIVWrite) {
+    run_single_file(fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/timer/div_write.gb", 1'000'000);
+}

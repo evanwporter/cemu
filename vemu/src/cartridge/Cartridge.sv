@@ -135,13 +135,6 @@ module Cartridge (
     endcase
   end
 
-  initial begin
-    $monitor("Cart Type: %0d, ROM Size: %0d, RAM Size: %0d", cartridge_type, rom_size, ram_size);
-    // $monitor(
-    //     "MBC1: RAM Enable: %0d, ROM Bank Select: %0d, ROM/RAM Bank Select: %0d, Bank Mode: %0d",
-    //     mbc1.RAM_enable, mbc1.ROM_bank_select, mbc1.ROM_RAM_bank_select, mbc1.bank_mode);
-  end
-
   // ======================================================
   // Read/Write Logic
   // ======================================================

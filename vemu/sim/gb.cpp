@@ -161,9 +161,9 @@ bool GameboyHarness::run(const fs::path& rom_path, InstructionCallback on_instru
             }
 
             if (top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY == 144) {
-                if (LYs == 10) {
+                if (LYs == 100) {
                     draw_from_vram(top);
-                    // draw_sprites(top);
+                    draw_sprites(top);
                     present_frame();
                     LYs = 0;
                 } else {

@@ -40,6 +40,11 @@ module Timer (
     endcase
   end
 
+  wire div_selected = bus.addr == 16'hFF04;
+  wire tima_selected = bus.addr == 16'hFF05;
+  wire tma_selected = bus.addr == 16'hFF06;
+  wire tac_selected = bus.addr == 16'hFF07;
+
   wire timer_tick = (sel_div_bit_prev == 1'b1) && (sel_div_bit == 1'b0);  // falling edge
 
   // Tick
@@ -48,10 +53,12 @@ module Timer (
       sel_div_bit_prev <= 1'b0;
       tima_overflow_pending <= 1'b0;
       IF_bus.timer_req <= 1'b0;
-      IF_bus.timer_req <= 1'b0;
     end else begin
-      // Increment DIV every t-cycle
-      DIV <= DIV + 16'd1;
+      if (bus.write_en && div_selected) begin
+      end else begin
+        // Increment DIV every t-cycle
+        DIV <= DIV + 16'd1;
+      end
 
       sel_div_bit_prev <= sel_div_bit;
 
@@ -73,11 +80,6 @@ module Timer (
     end
   end
 
-  wire div_selected = bus.addr == 16'hFF04;
-  wire tima_selected = bus.addr == 16'hFF05;
-  wire tma_selected = bus.addr == 16'hFF06;
-  wire tac_selected = bus.addr == 16'hFF07;
-
   // ======================================================
   // Write
   // ======================================================
@@ -89,10 +91,11 @@ module Timer (
       TAC  <= 8'b11111000;
     end else if (bus.write_en) begin
       // TODO: DIV
-      if (div_selected) DIV <= 16'h0000;  // Writing any value resets DIV to 0
-      else if (tima_selected) TIMA <= bus.wdata;
+      if (div_selected) begin
+        DIV <= 16'h0000;  // Writing any value resets DIV to 0
+      end else if (tima_selected) TIMA <= bus.wdata;
       else if (tma_selected) TMA <= bus.wdata;
-      else if (tac_selected) TAC <= bus.wdata | 8'b11111000;  // Only lower 3 bits writable
+      else if (tac_selected) TAC <= bus.wdata | 8'b11111000;
     end
   end
 

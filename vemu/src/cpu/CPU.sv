@@ -200,7 +200,7 @@ module CPU (
 
                   if ((pending) != 5'b0) begin
 
-                    $display("[CPU] Interrupt detected: IF=%b IE=%b Pending=%b", IF, IE, pending);
+                    // $display("[CPU] Interrupt detected: IF=%b IE=%b Pending=%b", IF, IE, pending);
 
                     // Interrupt detected -> take the highest priority
                     if (pending[0]) begin  // VBlank
