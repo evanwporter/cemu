@@ -28,10 +28,10 @@ target_include_directories(imgui PUBLIC
 target_link_libraries(imgui PUBLIC SDL2::SDL2)
 
 add_library(gb_debugger)
+target_include_directories(gb_debugger PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_subdirectory(src)
 
-target_include_directories(gb_debugger PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(gb_debugger PUBLIC SDL2::SDL2 imgui libvemu)
 
 add_subdirectory(tests)
