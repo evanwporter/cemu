@@ -14,14 +14,22 @@ module Input (
 
   wire joypad_selected = bus.addr == JOYPAD_addr;
 
+  // ======================================================
+  // Write
+  // ======================================================
   always_ff @(posedge clk or posedge reset) begin
-    if (reset) JOYPAD_reg <= 8'h3F;
-    else if (bus.write_en && joypad_selected) JOYPAD_reg <= bus.wdata;
+    if (reset) JOYPAD_reg <= 8'b11000000;
+    else if (bus.write_en && joypad_selected) JOYPAD_reg <= bus.wdata | 8'b11000000;
   end
 
+  // ======================================================
+  // Read
+  // ======================================================
   always_comb begin
     bus.rdata = 8'hFF;
-    if (bus.read_en && joypad_selected) bus.rdata = JOYPAD_reg;
+    if (bus.read_en && joypad_selected) begin
+      bus.rdata = JOYPAD_reg;
+    end
   end
 
 endmodule

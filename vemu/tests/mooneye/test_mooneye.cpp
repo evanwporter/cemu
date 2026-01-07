@@ -52,6 +52,35 @@ static void run_single_file(
         << "B=3 C=5 D=8 E=13 H=21 L=34\n";
 }
 
+class Bits : public ::testing::TestWithParam<fs::path> { };
+
+TEST_P(Bits, Passes) {
+    run_single_file(GetParam());
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    MooneyeROMTests,
+    Bits,
+    ::testing::ValuesIn(collect_files_in_directory(
+        fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/bits",
+        ".gb",
+        { "unused_hwio-GS.gb" })),
+    [](const ::testing::TestParamInfo<fs::path>& info) {
+        std::string name = info.param.filename().stem().string();
+
+        // GTest test names must be valid C identifiers
+        for (char& c : name) {
+            if (!std::isalnum(static_cast<unsigned char>(c)))
+                c = '_';
+        }
+
+        return name;
+    });
+
 TEST(MooneyeROMTests, OamDmaBasic) {
     run_single_file(fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/oam_dma/basic.gb", 100'000);
+}
+
+TEST(MooneyeROMTests, InstrDAA) {
+    run_single_file(fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/instr/daa.gb", 1'000'000);
 }

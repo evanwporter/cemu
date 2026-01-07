@@ -36,7 +36,9 @@ int main() {
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/instr_timing/instr_timing.gb";
 
-    static const fs::path rom_path = fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/oam_dma/basic.gb";
+    // static const fs::path rom_path = fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/oam_dma/basic.gb";
+    static const fs::path rom_path = fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/jp_timing.gb";
+    // static const fs::path rom_path = fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/bits/unused_hwio-GS.gb";
 
     GameboyHarness harness(true, true, true);
 

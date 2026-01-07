@@ -114,6 +114,9 @@ module MMU (
       if (hram_selected) begin
         // When DMA is active, only HRAM can be accessed by the CPU
         cpu_bus.rdata = hram_bus.rdata;
+
+        // $display("[MMU] [DMA] CPU read from HRAM during DMA addr=%h data=%02h", cpu_bus.addr,
+        //          hram_bus.rdata);
       end
 
       if (ram_selected) begin

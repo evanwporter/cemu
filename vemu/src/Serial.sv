@@ -22,16 +22,22 @@ module Serial (
   wire sb_selected = bus.addr == SB_addr;
   wire sc_selected = bus.addr == SC_addr;
 
+  // ======================================================
+  // Write
+  // ======================================================
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       SB <= 8'h00;
-      SC <= 8'h7E;
+      SC <= 8'b01111100;
     end else if (bus.write_en) begin
       if (sb_selected) SB <= bus.wdata;
-      else if (sc_selected) SC <= bus.wdata;
+      else if (sc_selected) SC <= bus.wdata | 8'b01111110;  // TODO: CGB CLock speed mode
     end
   end
 
+  // ======================================================
+  // Read
+  // ======================================================
   always_comb begin
     bus.rdata = 8'hFF;
     if (bus.read_en) begin

@@ -78,30 +78,34 @@ module Timer (
   wire tma_selected = bus.addr == 16'hFF06;
   wire tac_selected = bus.addr == 16'hFF07;
 
+  // ======================================================
   // Write
+  // ======================================================
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       DIV  <= 16'h0000;
       TIMA <= 8'h00;
       TMA  <= 8'h00;
-      TAC  <= 8'h00;
+      TAC  <= 8'b11111000;
     end else if (bus.write_en) begin
       // TODO: DIV
       if (div_selected) DIV <= 16'h0000;  // Writing any value resets DIV to 0
       else if (tima_selected) TIMA <= bus.wdata;
       else if (tma_selected) TMA <= bus.wdata;
-      else if (tac_selected) TAC <= bus.wdata & 8'b00000111;  // Only lower 3 bits writable
+      else if (tac_selected) TAC <= bus.wdata | 8'b11111000;  // Only lower 3 bits writable
     end
   end
 
+  // ======================================================
   // Read
+  // ======================================================
   always_comb begin
     bus.rdata = 8'hFF;
     if (bus.read_en) begin
       if (div_selected) bus.rdata = DIV[15:8];  // Return the upper 8 bytes of DIV (MSB)
       else if (tima_selected) bus.rdata = TIMA;
       else if (tma_selected) bus.rdata = TMA;
-      else if (tac_selected) bus.rdata = TAC & 8'b00000111;  // Only lower 3 bits readable
+      else if (tac_selected) bus.rdata = TAC;
     end
   end
 
