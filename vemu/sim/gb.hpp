@@ -113,6 +113,8 @@ private:
 
     void draw_from_vram(VGameboy& top);
 
+    void draw_scanline(VGameboy& top, int ly);
+
     void draw_sprites(VGameboy& top);
 
     void present_frame();

@@ -61,14 +61,3 @@ target_link_libraries(vemu PRIVATE
     libvemu
     argparse
 )
-
-add_subdirectory(debug)
-
-add_executable(debugger)
-target_sources(debugger PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/sim/debug.cpp
-)
-target_link_libraries(debugger PRIVATE
-    gb_debugger
-    libvemu
-)

@@ -13,3 +13,6 @@
 [submodule "vemu/debug"]
 	path = vemu/debug
 	url = https://github.com/evanwporter/GBDebugger
+[submodule "tests/gbmicrotest"]
+	path = tests/gbmicrotest
+	url = https://github.com/evanwporter/gbmicrotest

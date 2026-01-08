@@ -135,8 +135,16 @@ bool GameboyHarness::run(const fs::path& rom_path, InstructionCallback on_instru
 
     u64 cycles = 0;
 
+    const u8& LY = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY;
+    u8 LY_prev = LY;
+
     while (top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
         tick(top, ctx, cycles);
+
+        if (LY != LY_prev) {
+
+            LY_prev = LY;
+        }
     }
 
     int LYs = 0;
@@ -475,7 +483,7 @@ void GameboyHarness::present_frame() {
     SDL_RenderPresent(renderer);
 }
 
-void GameboyHarness::draw_from_vram(VGameboy& top) {
+void GameboyHarness::draw_scanline(VGameboy& top, int ly) {
     auto& vram = top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM;
     const auto& regs = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs;
 
@@ -483,11 +491,45 @@ void GameboyHarness::draw_from_vram(VGameboy& top) {
     const u8 SCX = regs.__PVT__SCX;
     const u8 SCY = regs.__PVT__SCY;
 
+    // BG disabled?
+    if (!(LCDC & 0x01))
+        return;
+
     bool signed_index = !(LCDC & 0b00010000); // tile data at 0x8800 or 0x8000
     u16 tilemap_base = (LCDC & 0b00001000) ? 0x1C00 : 0x1800; // 9800 or 9C00
 
     u16 tile_data_base = (LCDC & 0x10) ? 0x0000 : 0x0800;
 
+    int map_y = (ly + SCY) % 256;
+    int tile_y = map_y % 8;
+    int tile_row = (map_y >> 3) * 32;
+
+    for (int x = 0; x < GB_WIDTH; ++x) {
+        int map_x = (x + SCX) & 255;
+        int tile_col = map_x / 8;
+        u8 tile_index = vram[tilemap_base + tile_row + tile_col];
+
+        int tile = signed_index ? (int8_t)tile_index + 256 : tile_index;
+
+        int tile_x = 7 - (map_x % 8);
+
+        u8* td = &vram[tile * 16 + tile_y * 2];
+        u8 lo = td[0];
+        u8 hi = td[1];
+
+        u8 color = ((hi >> tile_x) & 1) * 2 + ((lo >> tile_x) & 1);
+        framebuffer[ly * GB_WIDTH + x] = gb_color(color);
+    }
+}
+
+void GameboyHarness::draw_from_vram(VGameboy& top) {
+    auto& vram = top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM;
+    const auto& regs = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs;
+
+    const u8 LCDC = regs.__PVT__LCDC;
+    const u8 SCY = regs.__PVT__SCY;
+
+    // TODO: Window no enabled
     bool window_enable = LCDC & 0b00100000;
     assert(!window_enable); // Not implemented
 
@@ -495,23 +537,7 @@ void GameboyHarness::draw_from_vram(VGameboy& top) {
         int map_y = (y + SCY) & 255;
         int tile_row = (map_y / 8) * 32;
 
-        for (int x = 0; x < GB_WIDTH; ++x) {
-            int map_x = (x + SCX) & 255;
-            int tile_col = map_x / 8;
-            u8 tile_index = vram[tilemap_base + tile_row + tile_col];
-
-            int tile = signed_index ? (int8_t)tile_index + 256 : tile_index;
-
-            int tile_y = map_y % 8;
-            int tile_x = 7 - (map_x % 8);
-
-            u8* td = &vram[tile * 16 + tile_y * 2];
-            u8 lo = td[0];
-            u8 hi = td[1];
-            u8 color = ((hi >> tile_x) & 1) * 2 + ((lo >> tile_x) & 1);
-
-            framebuffer[y * GB_WIDTH + x] = gb_color(color);
-        }
+        draw_scanline(top, y);
     }
 }
 
