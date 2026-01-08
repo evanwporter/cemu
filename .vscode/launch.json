@@ -24,9 +24,12 @@
       "type": "cppvsdbg",
       "request": "launch",
       "program": "${workspaceFolder}/build/debug/vemu/vemu.exe",
-      // "args": [
-      //     "${workspaceFolder}/tests/gb-test-roms/cpu_instrs/cpu_instrs.gb"
-      // ],
+      "args": [
+        "${workspaceFolder}/tests/dmg-acid2.gb",
+        // "--skip-boot-rom",
+        "--gui"
+        // "--trace"
+      ],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],

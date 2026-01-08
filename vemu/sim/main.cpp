@@ -8,6 +8,8 @@
 
 #include <filesystem>
 
+#include <argparse/argparse.hpp>
+
 #include "gb.hpp"
 
 namespace fs = std::filesystem;
@@ -18,7 +20,24 @@ double sc_time_stamp() {
     return main_time;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    argparse::ArgumentParser program("vemu");
+
+    program.add_argument("rom")
+        .help("Path to the ROM file to load.");
+
+    program.add_argument("-s", "--skip-boot-rom")
+        .help("Skip the boot ROM and start execution directly at 0x0100.")
+        .flag();
+
+    program.add_argument("-g", "--gui")
+        .help("Enable the SDL2 GUI.")
+        .flag();
+
+    program.add_argument("-t", "--trace")
+        .help("Enable gameboy trace dumping.")
+        .flag();
+
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/01-special.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/02-interrupts.gb";
@@ -37,11 +56,24 @@ int main() {
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/instr_timing/instr_timing.gb";
 
     // static const fs::path rom_path = fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/timer/tima_write_reloading.gb";
-    static const fs::path rom_path = fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/oam_dma/reg_read.gb";
+    // static const fs::path rom_path = fs::path(TEST_DIR) / "Blue.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/jp_timing.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/bits/unused_hwio-GS.gb";
 
-    GameboyHarness harness(true, true, true);
+    try {
+        program.parse_args(argc, argv);
+    } catch (const std::exception& err) {
+        std::cerr << err.what() << std::endl;
+        std::cerr << program;
+        return 1;
+    }
+
+    const fs::path rom_path = program.get<std::string>("rom");
+    const bool skip_boot_rom = program.get<bool>("--skip-boot-rom");
+    const bool gui_enabled = program.get<bool>("--gui");
+    const bool dump_trace_enabled = program.get<bool>("--trace");
+
+    GameboyHarness harness(gui_enabled, dump_trace_enabled, skip_boot_rom);
 
     if (!harness.run(rom_path)) {
         return 1;

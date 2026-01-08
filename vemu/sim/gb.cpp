@@ -329,6 +329,7 @@ void GameboyHarness::dump_gd_trace(VGameboy& top, std::ostream& os) {
        << std::setw(2) << static_cast<int>(spm3)
        << " SCX:" << std::setw(2) << static_cast<int>(top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCX)
        << " SCY:" << std::setw(2) << static_cast<int>(top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCY)
+       << " LY:" << std::setw(2) << static_cast<int>(top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY)
        << " LYC:" << std::setw(2) << static_cast<int>(top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LYC)
        << "\n";
     // clang-format on

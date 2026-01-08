@@ -47,10 +47,19 @@ interface Interrupt_if;
   /// CPU collects interrupt requests and updates IF & IE 
   /// through this modport
   modport CPU_side(
+      /// VBlank interrupt request
       input vblank_req,
+
+      /// STAT interrupt request
       input stat_req,
+
+      /// Timer interrupt request
       input timer_req,
+
+      /// Serial interrupt request
       input serial_req,
+
+      /// Joypad interrupt request
       input joypad_req
   );
 

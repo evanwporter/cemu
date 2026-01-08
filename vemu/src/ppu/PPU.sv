@@ -43,64 +43,44 @@ module PPU (
   // Update STAT
   // ======================================================
 
-  // The lower 3 bits of the STAT register are updated combinationally.
-  // Then it is combined with the writable bits when a read occurs.
-  logic [2:0] stat_comb;
-
-  // Update the mode bits in STAT register
-  always_comb begin
-    unique case (mode)
-      PPU_MODE_0: stat_comb[1:0] = 2'd0;
-      PPU_MODE_1: stat_comb[1:0] = 2'd1;
-      PPU_MODE_2: stat_comb[1:0] = 2'd2;
-      PPU_MODE_3: stat_comb[1:0] = 2'd3;
-    endcase
-  end
-
-  // Update LY == LYC flag
-  always_comb begin
-    if (regs.LY == regs.LYC) begin
-      stat_comb[2] = 1'b1;
+  // Update the LY==LYC flag in STAT register
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      regs.STAT[2] <= 1'b0;
     end else begin
-      stat_comb[2] = 1'b0;
+      regs.STAT[2] <= (regs.LY == regs.LYC);
     end
   end
 
-  // Raise interrupt
-  logic stat_interrupt_prev;
-  logic stat_interrupt_now;
+  logic [7:0] LY_prev;
+  ppu_mode_t mode_prev;
 
-  logic lyc_match;
-  always_ff @(posedge clk or posedge reset) begin
-    if (reset) begin
-      lyc_match <= 1'b0;
-    end else begin
-      if (regs.LY + 1 == 8'd145) lyc_match <= (0 == regs.LYC);
-      else lyc_match <= (regs.LY + 1 == regs.LYC);
-    end
-  end
-
-  assign stat_interrupt_now =
-    (regs.STAT[6] & lyc_match) |
-    (regs.STAT[5] & (mode == PPU_MODE_2)) |
-    (regs.STAT[4] & (mode == PPU_MODE_0)) |
-    (regs.STAT[3] & (mode == PPU_MODE_1));
+  // Enable STAT interrupt requests
+  wire stat_en_lyc = regs.STAT[6];
+  wire stat_en_mode2 = regs.STAT[5];
+  wire stat_en_mode1 = regs.STAT[4];
+  wire stat_en_mode0 = regs.STAT[3];
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      stat_interrupt_prev <= 1'b0;
-      IF_bus.stat_req     <= 1'b0;
+      IF_bus.stat_req <= 1'b0;
     end else begin
       IF_bus.stat_req <= 1'b0;
 
-      // Rising edge detect
-      if (stat_interrupt_now & ~stat_interrupt_prev) begin
+      if (stat_en_lyc && regs.LY != LY_prev && regs.LY == regs.LYC) begin
         IF_bus.stat_req <= 1'b1;
-        $display("PPU STAT INTERRUPT RAISED at LY=%0d, mode=%0d", regs.LY, mode);
+      end else if (mode != mode_prev) begin
+        if (stat_en_mode2 && mode == PPU_MODE_2) begin
+          IF_bus.stat_req <= 1'b1;
+        end else if (stat_en_mode1 && mode == PPU_MODE_1) begin
+          IF_bus.stat_req <= 1'b1;
+        end else if (stat_en_mode0 && mode == PPU_MODE_0) begin
+          IF_bus.stat_req <= 1'b1;
+        end
       end
 
-      // Latch previous value
-      stat_interrupt_prev <= stat_interrupt_now;
+      LY_prev   <= regs.LY;
+      mode_prev <= mode;
     end
   end
 
@@ -117,7 +97,6 @@ module PPU (
   always_ff @(posedge clk or posedge reset) begin
     if (bus.write_en) begin
       `LOG_TRACE(("PPU: WRITE addr=%h data=%h", bus.addr, bus.wdata))
-
 
       // VRAM writes (blocked in Mode 3)
       if (VRAM_selected) begin
@@ -139,8 +118,8 @@ module PPU (
         //   `LOG_INFO(
         //       ("[PPU] OAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
         // end
-      end  
-      
+      end
+
       // PPU register writes
       // TODO: check whether this ever needs to be blocked 
       if (PPU_regs_selected) begin
@@ -150,14 +129,14 @@ module PPU (
           16'hFF41: regs.STAT[6:3] <= bus.wdata[6:3];  // only bits 3-6 are writable
           16'hFF42: begin
             regs.SCY <= bus.wdata;
-            $display("[PPU] SCY set to 0x%h", bus.wdata);
+            // $display("[PPU] SCY set to 0x%h", bus.wdata);
           end
           16'hFF43: regs.SCX <= bus.wdata;
           16'hFF44: begin
             `LOG_WARN(("[PPU] Attempted to write 0x%h to LY register", bus.wdata))
           end
           16'hFF45: regs.LYC <= bus.wdata;
-          // DMA transfer
+          // DMA transfer handled elsewhere
           16'hFF47: regs.BGP <= bus.wdata;
           default:  ;
         endcase
@@ -189,7 +168,7 @@ module PPU (
         `LOG_TRACE(("[PPU] REG READ addr=%h -> %h", bus.addr, bus.rdata))
         case (bus.addr)
           16'hFF40: bus.rdata = regs.LCDC;
-          16'hFF41: bus.rdata = {1'b1, regs.STAT[6:3], stat_comb};
+          16'hFF41: bus.rdata = {1'b1, regs.STAT[6:2], mode};
           16'hFF42: bus.rdata = regs.SCY;
           16'hFF43: bus.rdata = regs.SCX;
           16'hFF44: bus.rdata = regs.LY;
@@ -229,6 +208,8 @@ module PPU (
     end else begin
       // Regardless of mode, clear VBlank interrupt request
       IF_bus.vblank_req <= 1'd0;
+
+      regs.STAT[2] <= regs.LY == regs.LYC;
 
       if (regs.LCDC[7] == 1'b0) begin  // LCD disabled
         dot_counter <= 9'd0;

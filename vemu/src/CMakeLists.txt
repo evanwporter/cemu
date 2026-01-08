@@ -46,5 +46,6 @@ verilate(libvemu
         --trace
         # -Wall
         -I${CMAKE_CURRENT_SOURCE_DIR}
+        -O3
 )
 
