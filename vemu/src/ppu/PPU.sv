@@ -104,6 +104,12 @@ module PPU (
     end
   end
 
+  // ======================================================
+  // Address Selections
+  // ======================================================
+  wire VRAM_selected = bus.addr inside {[VRAM_start : VRAM_end]};
+  wire OAM_selected = bus.addr inside {[OAM_start : OAM_end]};
+  wire PPU_regs_selected = bus.addr inside {[PPU_regs_start : PPU_regs_end]} & (bus.addr != DMA_OAM_addr);
 
   // ======================================================
   // Write
@@ -112,53 +118,52 @@ module PPU (
     if (bus.write_en) begin
       `LOG_TRACE(("PPU: WRITE addr=%h data=%h", bus.addr, bus.wdata))
 
-      case (1'b1)
 
-        // VRAM writes (blocked in Mode 3)
-        (bus.addr inside {[VRAM_start : VRAM_end]}): begin
-          if (mode != PPU_MODE_3) begin
-            VRAM[13'(bus.addr-16'h8000)] <= bus.wdata;
-            `LOG_TRACE(("[PPU] VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
-          end else begin
-            `LOG_TRACE(
-                ("[PPU] VRAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
+      // VRAM writes (blocked in Mode 3)
+      if (VRAM_selected) begin
+        if (mode != PPU_MODE_3) begin
+          VRAM[13'(bus.addr-16'h8000)] <= bus.wdata;
+          `LOG_TRACE(("[PPU] VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
+        end else begin
+          `LOG_TRACE(
+              ("[PPU] VRAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
+        end
+      end
+
+      // OAM writes (blocked in Mode 2 & 3)
+      if (OAM_selected) begin
+        // if (!(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
+        OAM[8'(bus.addr-16'hFE00)] <= bus.wdata;
+        `LOG_TRACE(("[PPU] OAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
+        // end else begin
+        //   `LOG_INFO(
+        //       ("[PPU] OAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
+        // end
+      end  
+      
+      // PPU register writes
+      // TODO: check whether this ever needs to be blocked 
+      if (PPU_regs_selected) begin
+        `LOG_TRACE(("[PPU] REG WRITE addr=%h data=%h", bus.addr, bus.wdata))
+        case (bus.addr)
+          16'hFF40: regs.LCDC <= bus.wdata;
+          16'hFF41: regs.STAT[6:3] <= bus.wdata[6:3];  // only bits 3-6 are writable
+          16'hFF42: begin
+            regs.SCY <= bus.wdata;
+            $display("[PPU] SCY set to 0x%h", bus.wdata);
           end
-        end
-
-        // OAM writes (blocked in Mode 2 & 3)
-        (bus.addr inside {[OAM_start : OAM_end]}): begin
-          // if (!(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
-          OAM[8'(bus.addr-16'hFE00)] <= bus.wdata;
-          `LOG_TRACE(("[PPU] OAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
-          // end else begin
-          //   `LOG_INFO(
-          //       ("[PPU] OAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
-          // end
-        end
-
-        // PPU register writes
-        // TODO: check whether this ever needs to be blocked
-        (bus.addr inside {[PPU_regs_start : PPU_regs_end]}): begin
-          `LOG_TRACE(("[PPU] REG WRITE addr=%h data=%h", bus.addr, bus.wdata))
-          case (bus.addr)
-            16'hFF40: regs.LCDC <= bus.wdata;
-            16'hFF41: regs.STAT[6:3] <= bus.wdata[6:3];  // only bits 3-6 are writable
-            16'hFF42: regs.SCY <= bus.wdata;
-            16'hFF43: regs.SCX <= bus.wdata;
-            16'hFF44: begin
-              `LOG_WARN(("[PPU] Attempted to write 0x%h to LY register", bus.wdata))
-            end
-            16'hFF45: regs.LYC <= bus.wdata;
-            16'hFF47: regs.BGP <= bus.wdata;
-            default:  ;
-          endcase
-        end
-
-        default:  /* ignore */;
-      endcase
+          16'hFF43: regs.SCX <= bus.wdata;
+          16'hFF44: begin
+            `LOG_WARN(("[PPU] Attempted to write 0x%h to LY register", bus.wdata))
+          end
+          16'hFF45: regs.LYC <= bus.wdata;
+          // DMA transfer
+          16'hFF47: regs.BGP <= bus.wdata;
+          default:  ;
+        endcase
+      end
     end
   end
-
 
   // ======================================================
   // Read
@@ -167,36 +172,33 @@ module PPU (
     bus.rdata = 8'hFF;  // open bus unless selected & allowed
 
     if (bus.read_en) begin
-      unique case (bus.addr) inside
+      // VRAM reads (blocked in Mode 3)
+      if (VRAM_selected) begin
+        bus.rdata = (mode == PPU_MODE_3) ? 8'hFF : VRAM[13'(bus.addr-VRAM_start)];
+        `LOG_TRACE(("[PPU] VRAM READ addr=%h -> %h (mode=%0d)", bus.addr, bus.rdata, mode))
+      end
 
-        // VRAM reads (blocked in Mode 3)
-        [VRAM_start : VRAM_end]: begin
-          bus.rdata = (mode == PPU_MODE_3) ? 8'hFF : VRAM[13'(bus.addr-VRAM_start)];
-          `LOG_TRACE(("[PPU] VRAM READ addr=%h -> %h (mode=%0d)", bus.addr, bus.rdata, mode))
-        end
+      // OAM reads (blocked in Mode 2 & 3)
+      if (OAM_selected) begin
+        bus.rdata = OAM[8'(bus.addr-OAM_start)];
+        `LOG_TRACE(("[PPU] OAM READ addr=%h -> %h (mode=%0d)", bus.addr, bus.rdata, mode))
+      end
 
-        // OAM reads (blocked in Mode 2 & 3)
-        [OAM_start : OAM_end]: begin
-          bus.rdata = OAM[8'(bus.addr-OAM_start)];
-          `LOG_TRACE(("[PPU] OAM READ addr=%h -> %h (mode=%0d)", bus.addr, bus.rdata, mode))
-        end
-
-        // PPU register reads
-        [PPU_regs_start : PPU_regs_end]: begin
-          `LOG_TRACE(("[PPU] REG READ addr=%h -> %h", bus.addr, bus.rdata))
-          case (bus.addr)
-            16'hFF40: bus.rdata = regs.LCDC;
-            16'hFF41: bus.rdata = {1'b1, regs.STAT[6:3], stat_comb};
-            16'hFF42: bus.rdata = regs.SCY;
-            16'hFF43: bus.rdata = regs.SCX;
-            16'hFF44: bus.rdata = regs.LY;
-            16'hFF45: bus.rdata = regs.LYC;
-            // TODO: DMA transfer
-            16'hFF47: bus.rdata = regs.BGP;
-            default:  bus.rdata = 8'hFF;
-          endcase
-        end
-      endcase
+      // PPU register reads
+      if (PPU_regs_selected) begin
+        `LOG_TRACE(("[PPU] REG READ addr=%h -> %h", bus.addr, bus.rdata))
+        case (bus.addr)
+          16'hFF40: bus.rdata = regs.LCDC;
+          16'hFF41: bus.rdata = {1'b1, regs.STAT[6:3], stat_comb};
+          16'hFF42: bus.rdata = regs.SCY;
+          16'hFF43: bus.rdata = regs.SCX;
+          16'hFF44: bus.rdata = regs.LY;
+          16'hFF45: bus.rdata = regs.LYC;
+          // DMA transfer
+          16'hFF47: bus.rdata = regs.BGP;
+          default:  bus.rdata = 8'hFF;
+        endcase
+      end
     end
   end
 
