@@ -71,17 +71,7 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::ValuesIn(collect_files_in_directory(
         fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual",
         ".gb")),
-    [](const ::testing::TestParamInfo<fs::path>& info) {
-        std::string name = info.param.filename().stem().string();
-
-        // GTest test names must be valid C identifiers
-        for (char& c : name) {
-            if (!std::isalnum(static_cast<unsigned char>(c)))
-                c = '_';
-        }
-
-        return name;
-    });
+    get_test_name);
 
 TEST(BlarggROMTests, CPUInstrsAll) {
     run_single_file(fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb");

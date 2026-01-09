@@ -65,17 +65,7 @@ INSTANTIATE_TEST_SUITE_P(
         fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/bits",
         ".gb",
         { "unused_hwio-GS.gb" })),
-    [](const ::testing::TestParamInfo<fs::path>& info) {
-        std::string name = info.param.filename().stem().string();
-
-        // GTest test names must be valid C identifiers
-        for (char& c : name) {
-            if (!std::isalnum(static_cast<unsigned char>(c)))
-                c = '_';
-        }
-
-        return name;
-    });
+    get_test_name);
 
 class Instructions : public ::testing::TestWithParam<fs::path> { };
 
@@ -89,17 +79,7 @@ INSTANTIATE_TEST_SUITE_P(
     ::testing::ValuesIn(collect_files_in_directory(
         fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/instr",
         ".gb")),
-    [](const ::testing::TestParamInfo<fs::path>& info) {
-        std::string name = info.param.filename().stem().string();
-
-        // GTest test names must be valid C identifiers
-        for (char& c : name) {
-            if (!std::isalnum(static_cast<unsigned char>(c)))
-                c = '_';
-        }
-
-        return name;
-    });
+    get_test_name);
 
 class Timer : public ::testing::TestWithParam<fs::path> { };
 
@@ -114,17 +94,7 @@ INSTANTIATE_TEST_SUITE_P(
         fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/timer",
         ".gb",
         { "tima_write_reloading.gb", "tma_write_reloading.gb", "rapid_toggle.gb" })),
-    [](const ::testing::TestParamInfo<fs::path>& info) {
-        std::string name = info.param.filename().stem().string();
-
-        // GTest test names must be valid C identifiers
-        for (char& c : name) {
-            if (!std::isalnum(static_cast<unsigned char>(c)))
-                c = '_';
-        }
-
-        return name;
-    });
+    get_test_name);
 
 class OAM_DMA : public ::testing::TestWithParam<fs::path> { };
 
@@ -139,14 +109,4 @@ INSTANTIATE_TEST_SUITE_P(
         fs::path(TEST_DIR) / "mooneye-test-suite/acceptance/oam_dma",
         ".gb",
         { "sources-GS.gb" })),
-    [](const ::testing::TestParamInfo<fs::path>& info) {
-        std::string name = info.param.filename().stem().string();
-
-        // GTest test names must be valid C identifiers
-        for (char& c : name) {
-            if (!std::isalnum(static_cast<unsigned char>(c)))
-                c = '_';
-        }
-
-        return name;
-    });
+    get_test_name);

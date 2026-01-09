@@ -28,3 +28,15 @@ std::vector<fs::path> collect_files_in_directory(const fs::path& dir, const std:
     std::sort(roms.begin(), roms.end());
     return roms;
 }
+
+std::string get_test_name(const ::testing::TestParamInfo<std::filesystem::path>& info) {
+    std::string name = info.param.filename().stem().string();
+
+    // GTest test names must be valid C identifiers
+    for (char& c : name) {
+        if (!std::isalnum(static_cast<unsigned char>(c)))
+            c = '_';
+    }
+
+    return name;
+};
