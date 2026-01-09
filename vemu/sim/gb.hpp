@@ -64,6 +64,8 @@ private:
     bool dump_trace_enabled;
     bool skip_boot_rom;
 
+    u8 window_line = 0;
+
     static constexpr int GB_WIDTH = 160;
     static constexpr int GB_HEIGHT = 144;
     static constexpr int SCALE = 3;

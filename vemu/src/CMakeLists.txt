@@ -43,7 +43,7 @@ verilate(libvemu
     TOP_MODULE Gameboy
     VERILATOR_ARGS
         --sv
-        --trace
+        --trace-vcd
         # -Wall
         -I${CMAKE_CURRENT_SOURCE_DIR}
         -O3

@@ -140,11 +140,6 @@ bool GameboyHarness::run(const fs::path& rom_path, InstructionCallback on_instru
 
     while (top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
         tick(top, ctx, cycles);
-
-        if (LY != LY_prev) {
-
-            LY_prev = LY;
-        }
     }
 
     int LYs = 0;
@@ -160,6 +155,16 @@ bool GameboyHarness::run(const fs::path& rom_path, InstructionCallback on_instru
         top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary = 0;
         while (top.rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
             tick(top, ctx, cycles);
+
+            if (gui_enabled && LY != LY_prev) {
+                while (SDL_PollEvent(&e)) {
+                    if (e.type == SDL_QUIT)
+                        quit = true;
+                }
+
+                draw_scanline(top, LY_prev);
+                LY_prev = LY;
+            }
         }
 
         if (gui_enabled) {
@@ -170,8 +175,8 @@ bool GameboyHarness::run(const fs::path& rom_path, InstructionCallback on_instru
 
             if (top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY == 144) {
                 if (LYs == 100) {
-                    draw_from_vram(top);
-                    draw_sprites(top);
+                    // draw_from_vram(top);
+                    // draw_sprites(top);
                     present_frame();
                     LYs = 0;
                 } else {
@@ -484,6 +489,9 @@ void GameboyHarness::present_frame() {
 }
 
 void GameboyHarness::draw_scanline(VGameboy& top, int ly) {
+    if (ly < 0 || ly >= GB_HEIGHT)
+        return;
+
     auto& vram = top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM;
     const auto& regs = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs;
 
@@ -500,18 +508,18 @@ void GameboyHarness::draw_scanline(VGameboy& top, int ly) {
 
     u16 tile_data_base = (LCDC & 0x10) ? 0x0000 : 0x0800;
 
-    int map_y = (ly + SCY) % 256;
-    int tile_y = map_y % 8;
-    int tile_row = (map_y >> 3) * 32;
+    int bg_y = (ly + SCY) % 256;
+    int tile_y = bg_y % 8;
+    int tile_row = (bg_y >> 3) * 32;
 
     for (int x = 0; x < GB_WIDTH; ++x) {
-        int map_x = (x + SCX) & 255;
-        int tile_col = map_x / 8;
+        int bg_x = (x + SCX) & 255;
+        int tile_col = bg_x / 8;
         u8 tile_index = vram[tilemap_base + tile_row + tile_col];
 
         int tile = signed_index ? (int8_t)tile_index + 256 : tile_index;
 
-        int tile_x = 7 - (map_x % 8);
+        int tile_x = 7 - (bg_x % 8);
 
         u8* td = &vram[tile * 16 + tile_y * 2];
         u8 lo = td[0];
@@ -519,6 +527,41 @@ void GameboyHarness::draw_scanline(VGameboy& top, int ly) {
 
         u8 color = ((hi >> tile_x) & 1) * 2 + ((lo >> tile_x) & 1);
         framebuffer[ly * GB_WIDTH + x] = gb_color(color);
+    }
+
+    // TODO: Window
+
+    const u8 WX = regs.__PVT__WX;
+    const u8 WY = regs.__PVT__WY;
+
+    const bool window_enable = LCDC & 0b00100000;
+    const bool window_visible = false; /// window_enable && (ly >= WY) && ((WX - 7) < GB_WIDTH);
+    const u16 window_tilemap_base = (LCDC & 0b01000000) ? 0x1C00 : 0x1800;
+
+    if (window_visible) {
+        int window_y = ly - WY;
+        int tile_y = window_y % 8;
+        int tile_row = (window_y >> 3) * 32;
+
+        int win_x_start = WX - 7;
+        int x_start = std::max(0, win_x_start);
+
+        for (int x = win_x_start; x < GB_WIDTH; ++x) {
+            int window_x = x - (WX - 7);
+            int tile_col = window_x / 8;
+            u8 tile_index = vram[window_tilemap_base + tile_row + tile_col];
+
+            int tile = signed_index ? (int8_t)tile_index + 256 : tile_index;
+
+            int tile_x = 7 - (window_x % 8);
+
+            u8* td = &vram[tile * 16 + tile_y * 2];
+            u8 lo = td[0];
+            u8 hi = td[1];
+
+            u8 color = ((hi >> tile_x) & 1) * 2 + ((lo >> tile_x) & 1);
+            framebuffer[ly * GB_WIDTH + x] = gb_color(color);
+        }
     }
 }
 
@@ -534,8 +577,8 @@ void GameboyHarness::draw_from_vram(VGameboy& top) {
     assert(!window_enable); // Not implemented
 
     for (int y = 0; y < GB_HEIGHT; ++y) {
-        int map_y = (y + SCY) & 255;
-        int tile_row = (map_y / 8) * 32;
+        int bg_y = (y + SCY) & 255;
+        int tile_row = (bg_y / 8) * 32;
 
         draw_scanline(top, y);
     }
