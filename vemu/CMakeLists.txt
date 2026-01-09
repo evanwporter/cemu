@@ -60,9 +60,11 @@ target_include_directories(vemu PRIVATE
 target_link_libraries(vemu PRIVATE
     libvemu
     argparse
+    GameboyHarness
 )
 
 add_subdirectory(debug)
+add_subdirectory(sim)
 
 add_executable(debug)
 target_sources(debug PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/sim/debug.cpp)

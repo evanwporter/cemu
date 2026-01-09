@@ -535,31 +535,37 @@ void GameboyHarness::draw_scanline(VGameboy& top, int ly) {
     const u8 WY = regs.__PVT__WY;
 
     const bool window_enable = LCDC & 0b00100000;
-    const bool window_visible = false; /// window_enable && (ly >= WY) && ((WX - 7) < GB_WIDTH);
+    const bool window_visible = window_enable && (ly >= WY) && ((WX - 7) < GB_WIDTH);
     const u16 window_tilemap_base = (LCDC & 0b01000000) ? 0x1C00 : 0x1800;
 
     if (window_visible) {
         int window_y = ly - WY;
-        int tile_y = window_y % 8;
-        int tile_row = (window_y >> 3) * 32;
+        int tile_y = window_y & 7;
+        int tile_row = ((window_y >> 3) & 31) * 32;
 
         int win_x_start = WX - 7;
         int x_start = std::max(0, win_x_start);
 
-        for (int x = win_x_start; x < GB_WIDTH; ++x) {
-            int window_x = x - (WX - 7);
-            int tile_col = window_x / 8;
+        for (int x = x_start; x < GB_WIDTH; ++x) {
+            int window_x = x - win_x_start;
+            int tile_col = (window_x >> 3) & 31;
+
             u8 tile_index = vram[window_tilemap_base + tile_row + tile_col];
 
-            int tile = signed_index ? (int8_t)tile_index + 256 : tile_index;
+            int tile;
+            if (signed_index)
+                tile = (int8_t)tile_index + 128;
+            else
+                tile = tile_index;
 
-            int tile_x = 7 - (window_x % 8);
+            int tile_x = 7 - (window_x & 7);
 
             u8* td = &vram[tile * 16 + tile_y * 2];
             u8 lo = td[0];
             u8 hi = td[1];
 
-            u8 color = ((hi >> tile_x) & 1) * 2 + ((lo >> tile_x) & 1);
+            u8 color = ((hi >> tile_x) & 1) << 1 | ((lo >> tile_x) & 1);
+
             framebuffer[ly * GB_WIDTH + x] = gb_color(color);
         }
     }

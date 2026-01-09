@@ -2,6 +2,8 @@
 #define SDL_MAIN_HANDLED
 #endif
 
+#include "include/gbh.hpp"
+
 #include <VGameboy.h>
 #include <VGameboy___024root.h>
 #include <verilated.h>
@@ -75,9 +77,23 @@ int main(int argc, char* argv[]) {
 
     GameboyHarness harness(gui_enabled, dump_trace_enabled, skip_boot_rom);
 
-    if (!harness.run(rom_path)) {
+    GB::Options gb_options {
+        .gui_enabled = gui_enabled,
+        .dump_trace_enabled = dump_trace_enabled,
+        .skip_boot_rom = skip_boot_rom,
+    };
+
+    GB gb(gb_options);
+
+    if (!gb.setup(rom_path)) {
         return 1;
     }
+
+    gb.run();
+
+    // if (!harness.run(rom_path)) {
+    //     return 1;
+    // }
 
     return 0;
 }

@@ -43,15 +43,6 @@ module PPU (
   // Update STAT
   // ======================================================
 
-  // Update the LY==LYC flag in STAT register
-  always_ff @(posedge clk or posedge reset) begin
-    if (reset) begin
-      regs.STAT[2] <= 1'b0;
-    end else begin
-      regs.STAT[2] <= (regs.LY == regs.LYC);
-    end
-  end
-
   logic [7:0] LY_prev;
   ppu_mode_t mode_prev;
 
@@ -127,10 +118,7 @@ module PPU (
         case (bus.addr)
           16'hFF40: regs.LCDC <= bus.wdata;
           16'hFF41: regs.STAT[6:3] <= bus.wdata[6:3];  // only bits 3-6 are writable
-          16'hFF42: begin
-            regs.SCY <= bus.wdata;
-            // $display("[PPU] SCY set to 0x%h", bus.wdata);
-          end
+          16'hFF42: regs.SCY <= bus.wdata;
           16'hFF43: regs.SCX <= bus.wdata;
           16'hFF44: begin
             `LOG_WARN(("[PPU] Attempted to write 0x%h to LY register", bus.wdata))
@@ -138,6 +126,8 @@ module PPU (
           16'hFF45: regs.LYC <= bus.wdata;
           // DMA transfer handled elsewhere
           16'hFF47: regs.BGP <= bus.wdata;
+          16'hFF4A: regs.WY <= bus.wdata;
+          16'hFF4B: regs.WX <= bus.wdata;
           default:  ;
         endcase
       end
@@ -173,8 +163,10 @@ module PPU (
           16'hFF43: bus.rdata = regs.SCX;
           16'hFF44: bus.rdata = regs.LY;
           16'hFF45: bus.rdata = regs.LYC;
-          // DMA transfer
+          // 16'hFF46: bus.rdata = regs.DMA;
           16'hFF47: bus.rdata = regs.BGP;
+          16'hFF4A: bus.rdata = regs.WY;
+          16'hFF4B: bus.rdata = regs.WX;
           default:  bus.rdata = 8'hFF;
         endcase
       end
