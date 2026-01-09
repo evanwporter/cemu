@@ -12,6 +12,8 @@ namespace debug {
 
     struct Operation {
         u8 opcode;
+        CPURegisters cpu_reg;
+
         std::vector<Delta> history;
 
         std::vector<u16> read_addresses;

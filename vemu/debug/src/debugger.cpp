@@ -13,7 +13,15 @@ namespace debug {
 
     Debugger::Debugger() { }
 
-    bool Debugger::init(GameboyHarness& emu) {
+    bool Debugger::init(int argc, char** argv) {
+
+        // load ROM from command line
+        if (argc > 1) {
+            if (!emu.setup(argv[1])) {
+                std::cerr << "Failed to load ROM: " << argv[1] << "\n";
+                return false;
+            }
+        }
 
         for (int i = 0; i < 0x10000; ++i) {
             memory_snapshot[i] = 0x00;
@@ -95,7 +103,7 @@ namespace debug {
         SDL_RenderPresent(renderer);
     }
 
-    void Debugger::run(GameboyHarness& emu) {
+    void Debugger::run() {
         while (!quit) {
             process_events();
 
@@ -121,17 +129,37 @@ namespace debug {
             }
 
             // if (reset_requested) {
-            //     emu.reset(); // YOU implement this
+            //     emu.reset();
             //     operation_history.clear();
             //     memory_panel.clear();
             //     reset_requested = false;
             //     exec_mode = ExecMode::Paused;
             // }
 
+            const u8 A = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__a;
+            const u8 F = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__flags;
+            const u8 B = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__b;
+            const u8 C = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__c;
+            const u8 D = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__d;
+            const u8 E = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__e;
+            const u8 H = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__h;
+            const u8 L = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__l;
+            const u8 W = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__w;
+            const u8 Z = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__z;
+            const u16 SP = (emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__sph << 8) | emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__spl;
+            const u16 PC = (emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__pch << 8) | emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__pcl;
+
             if (should_step) {
-                emu.step([this, &emu](GameboyHarness&, VGameboy& top, u8 opcode, bool first_tick) {
+                emu.step([this, A, F, B, C, D, E, H, L, W, Z, SP, PC](GameboyHarness&, VGameboy& top, u8 opcode, bool first_tick) {
                 if (first_tick) {
-                    operation_history.push({ opcode, {} });
+                    operation_history.push({ opcode, CPURegisters {
+                        .AF = static_cast<u16>((A << 8) | F),
+                        .BC = static_cast<u16>((B << 8) | C),
+                        .DE = static_cast<u16>((D << 8) | E),
+                        .HL = static_cast<u16>((H << 8) | L),
+                        .SP = SP,
+                        .PC = PC,
+                    }});
                 }
 
                 if (top.rootp->__PVT__Gameboy__DOT__cpu_bus->write_en) {
@@ -146,19 +174,6 @@ namespace debug {
                     }
                 } });
             }
-
-            const auto A = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__a;
-            const auto F = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__flags;
-            const auto B = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__b;
-            const auto C = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__c;
-            const auto D = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__d;
-            const auto E = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__e;
-            const auto H = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__h;
-            const auto L = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__l;
-            const auto W = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__w;
-            const auto Z = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__z;
-            const auto SP = (emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__sph << 8) | emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__spl;
-            const auto PC = (emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__pch << 8) | emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__pcl;
 
             const auto cpu_state = debug::CPURegisters {
                 .AF = static_cast<debug::u16>((A << 8) | F),

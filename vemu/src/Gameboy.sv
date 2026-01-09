@@ -5,8 +5,6 @@
 
 `include "util/logger.svh"
 
-`include "cpu/CPU.sv"
-
 module Gameboy (
     input logic clk,
     input logic reset

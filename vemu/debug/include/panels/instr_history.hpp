@@ -1,6 +1,8 @@
 #include "op_history.hpp"
 #include "types.hpp"
 
+#include <optional>
+
 namespace debug::panels {
 
     class InstructionHistoryPanel {

@@ -23,12 +23,12 @@ int main(int argc, char** argv) {
 
     debug::Debugger debugger;
 
-    if (!debugger.init(emu)) {
+    if (!debugger.init(argc, argv)) {
         std::cerr << "Failed to initialize debugger\n";
         return -1;
     }
 
-    debugger.run(emu);
+    debugger.run();
 
     debugger.shutdown();
     return 0;

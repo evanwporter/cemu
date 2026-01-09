@@ -2,6 +2,8 @@
 
 #include "types.hpp"
 
+#include <filesystem>
+
 namespace debug {
     enum class MemAddrSrc : u8 {
         NONE = 0,

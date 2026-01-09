@@ -5,6 +5,8 @@
 
 #include <SDL2/SDL.h>
 
+#include <array>
+
 #include "gb.hpp"
 #include "op_history.hpp"
 #include "panels/tiles.hpp"
@@ -16,14 +18,16 @@ namespace debug {
     public:
         Debugger();
 
-        bool init(GameboyHarness& emu);
-        void run(GameboyHarness& emu);
+        bool init(int argc, char** argv);
+        void run();
         void shutdown();
 
     private:
         MemorySelection memory_selection;
 
         ExecMode exec_mode = ExecMode::Running;
+
+        GameboyHarness emu;
 
         // Panels
         panels::CPUStatePanel cpu_panel;

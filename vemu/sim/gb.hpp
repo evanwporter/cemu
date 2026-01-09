@@ -31,6 +31,19 @@ struct Operation {
     std::vector<Delta> history;
 };
 
+struct CPURegisters {
+    u8& A;
+    u8& F;
+    u8& B;
+    u8& C;
+    u8& D;
+    u8& E;
+    u8& H;
+    u8& L;
+    u16& SP;
+    u16& PC;
+};
+
 class GameboyHarness {
 public:
     GameboyHarness(bool gui_enabled = true, bool dump_trace_enabled = false, bool skip_boot_rom = false) :
@@ -58,6 +71,8 @@ public:
     bool running = false;
 
     std::unique_ptr<VGameboy> top;
+
+    void tick();
 
 private:
     bool gui_enabled;

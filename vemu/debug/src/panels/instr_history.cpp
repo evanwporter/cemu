@@ -1,4 +1,5 @@
 #include "panels/instr_history.hpp"
+#include "opcodes.hpp"
 
 #include "imgui.h"
 #include <optional>
@@ -9,7 +10,7 @@ namespace debug::panels {
         history_ = history;
     }
 
-    std::optional<size_t> InstructionHistoryPanel::render(ExecMode exec_mode) {
+    std::optional<std::size_t> InstructionHistoryPanel::render(ExecMode exec_mode) {
         if (!history_)
             return std::nullopt;
 
@@ -20,11 +21,22 @@ namespace debug::panels {
 
         ImGui::Begin("Instruction History");
 
+        bool cb_opcode = false;
+
         for (size_t i = 0; i < visible_count_; ++i) {
             const auto& op = history_->get_operations()[i];
 
             char label[64];
-            snprintf(label, sizeof(label), "%06zu | OPCODE %02X | %zu writes", i, op.opcode, op.history.size());
+
+            if (op.opcode == 0xCB) {
+                cb_opcode = true;
+                continue;
+            }
+
+            if (cb_opcode)
+                snprintf(label, sizeof(label), "%02X %s", op.opcode, opcode_cb_names[op.opcode]);
+            else
+                snprintf(label, sizeof(label), "%02X %s", op.opcode, opcode_names[op.opcode]);
 
             if (ImGui::Selectable(label, selected_ == (int)i)) {
                 selected_ = (int)i;
