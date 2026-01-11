@@ -86,7 +86,7 @@ typedef struct `PACK_PX {
   logic [5:0] spr_idx;  // OBJ priority (OAM index). DMG can leave 0.
   logic       bg_prio;  // OBJ-to-BG priority bit (1 = BG over OBJ).
   logic       valid;    // for FIFO empty slots
-} ppu_pixel_t;
+} pixel_t;
 
 endpackage : ppu_types_pkg
 

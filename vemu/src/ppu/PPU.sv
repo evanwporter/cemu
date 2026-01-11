@@ -1,5 +1,6 @@
 import ppu_types_pkg::*;
 import mmu_addresses_pkg::*;
+import ppu_util_pkg::*;
 
 `include "util/logger.svh"
 
@@ -15,29 +16,49 @@ module PPU (
 
   ppu_regs_t regs;
 
-  localparam logic [7:0] SCREEN_HEIGHT = 144;
-  localparam logic [7:0] SCREEN_WIDTH = 160;
-
-  localparam logic [8:0] DOTS_PER_LINE = 456;
-  localparam logic [7:0] LINES_PER_FRAME = 154;
-
-  // Mode durations in clock cycles
-  localparam logic [8:0] MODE2_LEN = 80;
-  localparam logic [8:0] MODE3_LEN = 172;
-  localparam logic [8:0] MODE0_LEN = 204;  // 376 - 172;
-
   ppu_mode_t mode;
+
+  // ======================================================
+  // Renderer Submodules
+  // ======================================================
 
   logic dot_en;
   assign dot_en = (mode == PPU_MODE_3);
 
+  Fetcher_if fetcher_bus (.regs(regs));
+  FIFO_if fifo_bus ();
+
+  // Fetcher
+  Fetcher fetcher_inst (
+      .clk(clk),
+      .reset(reset),
+      .bus(fetcher_bus),
+      .fifo_bus(fifo_bus),
+      .dot_en(dot_en),
+      .regs(regs),
+      .flush(1'b0)  // TODO: implement flush on window start
+  );
+
+  // FIFO
+  FIFO fifo_inst (
+      .clk(clk),
+      .reset(reset),
+      .dot_en(dot_en),
+      .bus(fifo_bus)
+  );
+
+  // Framebuffer
+  Framebuffer framebuffer_inst (
+      .clk(clk),
+      .reset(reset),
+      .dot_en(dot_en),
+      .fifo_bus(fifo_bus),
+      .flush(1'b0)
+  );
+
+
   logic [7:0] VRAM[VRAM_len];
   logic [7:0] OAM[OAM_len];
-
-  // Window active check
-  logic window_active;
-  assign window_active = (regs.LCDC[5] && (regs.LY >= regs.WY) &&
-                         (/* current X >= WX - 7 */ 1'b1)); // TODO: implement per-dot window condition
 
   // ======================================================
   // Update STAT
@@ -219,7 +240,7 @@ module PPU (
             regs.LY <= regs.LY + 1'b1;
 
           // Raise vblank interrupt exactly when entering LY=144
-          if (regs.LY == SCREEN_HEIGHT - 1) IF_bus.vblank_req <= 1'b1;
+          if (regs.LY == GB_SCREEN_HEIGHT - 1) IF_bus.vblank_req <= 1'b1;
 
         end else begin
           // If we haven't reached end of line, then advance dot

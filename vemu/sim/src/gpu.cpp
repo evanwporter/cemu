@@ -23,11 +23,13 @@ void GPU::draw_scanline(const u8 LY) {
 
     int bg_y = (LY + SCY) % 256;
     int tile_y = bg_y % 8;
-    int tile_row = (bg_y >> 3) * 32;
+    int tile_row = (bg_y / 8) * 32;
 
     for (int x = 0; x < GB_WIDTH; ++x) {
         int bg_x = (x + SCX) & 255;
         int tile_col = bg_x / 8;
+
+        // tile index in tilemap
         u8 tile_index = vram[tilemap_base + tile_row + tile_col];
 
         int tile = signed_index ? (int8_t)tile_index + 256 : tile_index;

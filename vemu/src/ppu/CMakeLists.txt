@@ -1,6 +1,9 @@
 vemu_add_rtl(
-    PACKAGES ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
+    PACKAGES 
+        ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/util.sv
     INTERFACES
+        ${CMAKE_CURRENT_SOURCE_DIR}/interface.sv
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Fetcher.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/PPU.sv

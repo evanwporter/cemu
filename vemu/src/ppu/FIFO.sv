@@ -4,17 +4,9 @@ module FIFO (
     input logic clk,
     input logic reset,
 
-    // Producer (fetcher) writes
-    input logic write_en,
-    input pixel_t write_data,
-    output logic full,  // FIFO is full (can't accept writes)
+    input logic dot_en,
 
-    // Consumer (framebuffer) reads
-    input logic read_en,
-    output pixel_t read_data,
-    output logic empty,  // FIFO is empty (can't be read)
-
-    output logic [3:0] count  // number of pixels inside
+    FIFO_if.FIFO_side bus
 );
   localparam logic [3:0] DEPTH = 8;
 
@@ -34,8 +26,8 @@ module FIFO (
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       write_ptr <= '0;
-    end else if (write_en && !full) begin
-      buffer[write_ptr] <= write_data;
+    end else if (bus.write_en && !bus.full && dot_en) begin
+      buffer[write_ptr] <= bus.write_data;
       write_ptr <= write_ptr + 1'b1;
     end
   end
@@ -51,34 +43,35 @@ module FIFO (
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      read_ptr  <= '0;
-      read_data <= '0;
-    end else if (read_en && !empty) begin
-      read_data <= buffer[read_ptr];
-      read_ptr  <= read_ptr + 1'b1;
+      read_ptr <= '0;
+    end else if (bus.read_en && !bus.empty) begin
+      read_ptr <= read_ptr + 1'b1;
     end
   end
+
+  assign bus.read_data = buffer[read_ptr];
 
 
   // ======================================================
   // Update Count
   // ======================================================
+
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      count <= '0;
+      bus.count <= '0;
     end else begin
       case ({
-        write_en && !full, read_en && !empty
+        bus.write_en && !bus.full, bus.read_en && !bus.empty
       })
-        2'b10:   count <= count + 1;  // Write only
-        2'b01:   count <= count - 1;  // Read only
-        default: count <= count;  // No change or simultaneous read/write
+        2'b10:   bus.count <= bus.count + 1;  // Write only
+        2'b01:   bus.count <= bus.count - 1;  // Read only
+        default: bus.count <= bus.count;  // No change or simultaneous read/write
       endcase
     end
   end
 
 
-  assign empty = (count == 0);
-  assign full  = (count == DEPTH);
+  assign bus.empty = (bus.count == 0);
+  assign bus.full  = (bus.count == DEPTH);
 
 endmodule
