@@ -1,45 +1,84 @@
 import ppu_types_pkg::*;
 
 module FIFO (
-    input  logic             clk,
-    input  logic             reset,
-    // push
-    input  logic             push_en,
-    input  ppu_pixel_t       push_px,
-    output logic             full,
-    // pop
-    input  logic             pop_en,
-    output ppu_pixel_t       top_px,
-    output logic             empty,
-    // utils
-    output logic       [4:0] count,
-    input  logic             flush
+    input logic clk,
+    input logic reset,
+
+    // Producer (fetcher) writes
+    input logic write_en,
+    input pixel_t write_data,
+    output logic full,  // FIFO is full (can't accept writes)
+
+    // Consumer (framebuffer) reads
+    input logic read_en,
+    output pixel_t read_data,
+    output logic empty,  // FIFO is empty (can't be read)
+
+    output logic [3:0] count  // number of pixels inside
 );
-  localparam logic [4:0] DEPTH = 5'd16;
+  localparam logic [3:0] DEPTH = 8;
 
-  ppu_pixel_t mem[DEPTH];
-  logic [4:0] rptr, wptr;
+  pixel_t buffer[DEPTH];
 
-  // TODO: Mod count somewhere
-  assign count = wptr - rptr;
-  assign empty = (count == 0);
-  assign full = (count == DEPTH);
-  assign top_px = (empty) ?
-      '{color: GB_COLOR_WHITE, palette: 3'd0, spr_idx: 6'd0, bg_prio: 1'b0, valid: 1'b0}
-      : mem[rptr[3:0]];
+  logic [2:0] write_ptr;
+  logic [2:0] read_ptr;
+
+  // ======================================================
+  // Push (Write) Logic
+  // ======================================================
+  // 1) Check: Is the FIFO full?
+  // 2) Write data at write_ptr
+  // 3) Increment write_ptr
+  // 4) Increase count
 
   always_ff @(posedge clk or posedge reset) begin
-    if (reset || flush) begin
-      rptr <= '0;
-      wptr <= '0;
-    end else begin
-      if (push_en && !full) begin
-        mem[wptr[3:0]] <= push_px;
-        wptr <= wptr + 1;
-      end
-      if (pop_en && !empty) begin
-        rptr <= rptr + 1;
-      end
+    if (reset) begin
+      write_ptr <= '0;
+    end else if (write_en && !full) begin
+      buffer[write_ptr] <= write_data;
+      write_ptr <= write_ptr + 1'b1;
     end
   end
+
+
+  // ======================================================
+  // Pop (Read) Logic
+  // ======================================================
+  // 1) Check: Is the FIFO empty?
+  // 2) Read data at read_ptr
+  // 3) Increment read_ptr
+  // 4) Decrease count
+
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      read_ptr  <= '0;
+      read_data <= '0;
+    end else if (read_en && !empty) begin
+      read_data <= buffer[read_ptr];
+      read_ptr  <= read_ptr + 1'b1;
+    end
+  end
+
+
+  // ======================================================
+  // Update Count
+  // ======================================================
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      count <= '0;
+    end else begin
+      case ({
+        write_en && !full, read_en && !empty
+      })
+        2'b10:   count <= count + 1;  // Write only
+        2'b01:   count <= count - 1;  // Read only
+        default: count <= count;  // No change or simultaneous read/write
+      endcase
+    end
+  end
+
+
+  assign empty = (count == 0);
+  assign full  = (count == DEPTH);
+
 endmodule
