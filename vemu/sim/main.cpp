@@ -40,6 +40,10 @@ int main(int argc, char* argv[]) {
         .help("Enable gameboy trace dumping.")
         .flag();
 
+    program.add_argument("-d", "--debug")
+        .help("Enable the built-in debugger.")
+        .flag();
+
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/01-special.gb";
     // static const fs::path rom_path = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual/02-interrupts.gb";
@@ -74,6 +78,7 @@ int main(int argc, char* argv[]) {
     const bool skip_boot_rom = program.get<bool>("--skip-boot-rom");
     const bool gui_enabled = program.get<bool>("--gui");
     const bool dump_trace_enabled = program.get<bool>("--trace");
+    const bool enable_debugger = program.get<bool>("--debug");
 
     GameboyHarness harness(gui_enabled, dump_trace_enabled, skip_boot_rom);
 
@@ -81,6 +86,7 @@ int main(int argc, char* argv[]) {
         .gui_enabled = gui_enabled,
         .dump_trace_enabled = dump_trace_enabled,
         .skip_boot_rom = skip_boot_rom,
+        .enable_debugger = enable_debugger,
     };
 
     GB gb(gb_options);
@@ -90,10 +96,6 @@ int main(int argc, char* argv[]) {
     }
 
     gb.run();
-
-    // if (!harness.run(rom_path)) {
-    //     return 1;
-    // }
 
     return 0;
 }

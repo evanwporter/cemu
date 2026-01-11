@@ -14,6 +14,8 @@
 
 #include "gpu.hpp"
 
+#include "debugger.hpp"
+
 class GB {
 private:
     struct CPU {
@@ -32,8 +34,12 @@ private:
         u8& get_E() { return cpu_regs.__PVT__e; }
         u8& get_H() { return cpu_regs.__PVT__h; }
         u8& get_L() { return cpu_regs.__PVT__l; }
+        u8& get_W() { return cpu_regs.__PVT__w; }
+        u8& get_Z() { return cpu_regs.__PVT__z; }
         u16 get_SP() { return (static_cast<u16>(cpu_regs.__PVT__sph) << 8) | cpu_regs.__PVT__spl; }
         u16 get_PC() { return static_cast<u16>(cpu_regs.__PVT__pch) << 8 | cpu_regs.__PVT__pcl; }
+
+        u8 get_opcode() { return cpu_regs.__PVT__IR; }
     };
 
 public:
@@ -41,7 +47,11 @@ public:
         bool gui_enabled = true;
         bool dump_trace_enabled = false;
         bool skip_boot_rom = false;
+        bool enable_debugger = true;
     };
+
+    GB() :
+        options(Options { true, false, false, false }) { };
 
     GB(Options options) :
         options(options) { }
@@ -52,13 +62,13 @@ public:
     bool setup(const std::filesystem::path& rom_path);
 
     /// Advances the simulation by one tick (clock).
-    void tick();
+    bool tick();
 
     /// Advance the simulation by one CPU instruction.
-    void step();
+    bool step();
 
     /// Runs the Gameboy until completion.
-    void run();
+    bool run();
 
     /// Reads a byte from the Gameboy's memory.
     u8 read_memory(u16 addr) const;
@@ -66,9 +76,16 @@ public:
     /// Return true if we are at the beginning of an instruction.
     bool began_instruction() const;
 
+    /// API is subject to change
+    VGameboy& get_top() {
+        return *top;
+    }
+
 private:
     std::unique_ptr<VGameboy> top;
     std::optional<GPU> gpu;
+
+    std::unique_ptr<debug::Debugger> debugger;
 
     VerilatedContext ctx;
 

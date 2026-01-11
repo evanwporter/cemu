@@ -36,4 +36,5 @@ target_link_libraries(gb_debugger
     PUBLIC 
         SDL2::SDL2 
         imgui 
-        libvemu)
+        # libvemu
+        GameboyHarness)

@@ -3,12 +3,13 @@
 #include "VGameboy.h"
 #include "VGameboy___024root.h"
 #include "types.hpp"
+
 #include <SDL.h>
 
 /// Graphics Processing Unit
 class GPU {
 private:
-    bool enabled;
+    bool enabled = true;
 
     static constexpr int GB_WIDTH = 160;
     static constexpr int GB_HEIGHT = 144;
@@ -46,7 +47,8 @@ private:
 
 public:
     GPU(VGameboy& top, bool enabled = true) :
-        vram(top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM), regs(top.rootp->Gameboy__DOT__ppu_inst__DOT__regs),
+        vram(top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM),
+        regs(top.rootp->Gameboy__DOT__ppu_inst__DOT__regs),
         enabled(enabled) { };
 
     bool setup();

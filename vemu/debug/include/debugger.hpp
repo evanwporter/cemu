@@ -7,27 +7,54 @@
 
 #include <array>
 
-#include "gb.hpp"
+// #include "gbh.hpp"
 #include "op_history.hpp"
 #include "panels/tiles.hpp"
 #include "types.hpp"
 
+class GB;
+
 namespace debug {
+
+    enum class DebugCommand {
+        None,
+        Run,
+        Pause,
+        StepOnce,
+        Stop,
+        Reset,
+        Quit,
+    };
 
     class Debugger {
     public:
-        Debugger();
+        Debugger(GB& gb, VGameboy& top, bool enabled = false) :
+            emu(gb), top(top), enabled(enabled) { };
 
-        bool init(int argc, char** argv);
-        void run();
-        void shutdown();
+        /// Sets up the debugger GUI and state
+        bool setup();
+
+        /// This function is called after every tick (clock)
+        void on_tick();
+
+        /// This function is called after every instruction step
+        void on_step();
+
+        /// Shuts down the debugger and cleans up resources
+        void exit();
+
+        /// Polls for debugger commands
+        DebugCommand poll_command();
 
     private:
+        GB& emu;
+        VGameboy& top;
+
+        bool enabled = true;
+
         MemorySelection memory_selection;
 
         ExecMode exec_mode = ExecMode::Running;
-
-        GameboyHarness emu;
 
         // Panels
         panels::CPUStatePanel cpu_panel;

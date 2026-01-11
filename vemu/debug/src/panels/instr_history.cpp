@@ -6,25 +6,25 @@
 
 namespace debug::panels {
 
-    void InstructionHistoryPanel::set_history(const OperationHistory* history) {
-        history_ = history;
+    void InstructionHistoryPanel::set_history(const OperationHistory* history_) {
+        history = history_;
     }
 
     std::optional<std::size_t> InstructionHistoryPanel::render(ExecMode exec_mode) {
-        if (!history_)
+        if (!history)
             return std::nullopt;
 
         // Freeze while running
         if (exec_mode != ExecMode::Running) {
-            visible_count_ = history_->get_operations().size();
+            visible_count = history->get_operations().size();
         }
 
         ImGui::Begin("Instruction History");
 
         bool cb_opcode = false;
 
-        for (size_t i = 0; i < visible_count_; ++i) {
-            const auto& op = history_->get_operations()[i];
+        for (size_t i = 0; i < visible_count; ++i) {
+            const auto& op = history->get_operations()[i];
 
             char label[64];
 
@@ -38,8 +38,8 @@ namespace debug::panels {
             else
                 snprintf(label, sizeof(label), "%02X %s", op.opcode, opcode_names[op.opcode]);
 
-            if (ImGui::Selectable(label, selected_ == (int)i)) {
-                selected_ = (int)i;
+            if (ImGui::Selectable(label, selected == (int)i)) {
+                selected = (int)i;
                 ImGui::End();
                 return i;
             }

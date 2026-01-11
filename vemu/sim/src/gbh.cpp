@@ -18,6 +18,7 @@ namespace fs = std::filesystem;
 
 bool GB::setup(const std::filesystem::path& rom_path) {
     top = std::make_unique<VGameboy>();
+    debugger = std::make_unique<debug::Debugger>(*this, *top, options.enable_debugger);
     gpu.emplace(*top, options.gui_enabled);
     cpu.emplace(*top);
 
@@ -36,7 +37,7 @@ bool GB::setup(const std::filesystem::path& rom_path) {
         top->rootp->Gameboy__DOT__ram_inst__DOT__HRAM[i] = 0xFF;
     }
 
-    while (top->rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
+    while (began_instruction()) {
         tick();
     }
 
@@ -51,6 +52,10 @@ bool GB::setup(const std::filesystem::path& rom_path) {
     }
 
     if (!gpu->setup()) {
+        return false;
+    }
+
+    if (!debugger->setup()) {
         return false;
     }
 
@@ -224,7 +229,14 @@ void GB::set_initial_state() {
 }
 
 bool GB::began_instruction() const {
-    return static_cast<bool>(top->rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary);
+    if (top->rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
+        return true;
+    }
+
+    else {
+        top->rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary = 0;
+        return false;
+    }
 };
 
 void GB::dump_gd_trace(std::ostream& os) {
@@ -286,7 +298,7 @@ void GB::dump_gd_trace(std::ostream& os) {
     os.flush();
 }
 
-void GB::tick() {
+bool GB::tick() {
     top->clk = 0;
     top->eval();
     ctx.timeInc(5);
@@ -296,23 +308,78 @@ void GB::tick() {
     ctx.timeInc(5);
 
     cycles++;
+
+    if (!gpu->update()) {
+        return false;
+    }
+
+    return true;
 }
 
-void GB::run() {
-    bool running = true;
-    const uint64_t max_cycles = 1'000'000'000;
-    for (int i = 0; i < max_cycles; ++i) {
-        top->rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary = 0;
+bool GB::step() {
+    while (began_instruction()) {
+        if (!tick())
+            return false;
+        debugger->on_tick();
+    }
+    debugger->on_step();
+    handle_serial_output();
+    return true;
+}
 
-        while (top->rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
-            tick();
+bool GB::run() {
 
-            gpu->update();
+    using namespace debug;
+
+    bool quit = false;
+    while (!quit) {
+        const auto cmd = options.enable_debugger
+            ? debugger->poll_command()
+            : DebugCommand::Run;
+
+        switch (cmd) {
+        case DebugCommand::Quit:
+            quit = true;
+            break;
+
+        case DebugCommand::Reset:
+            // reset(); // implement: rebuild top, reload rom, re-init state
+            break;
+
+        case DebugCommand::Stop:
+            // maybe just pause forever until quit/reset?
+            break;
+
+        case DebugCommand::Pause:
+            // don't advance emu, but keep drawing debugger UI
+            // if (debugger)
+            //     debugger->on_idle();
+            break;
+
+        case DebugCommand::StepOnce:
+            // if (debugger)
+            //     debugger->on_step(); // update panels
+            break;
+
+        case DebugCommand::Run:
+            // if (debugger)
+            //     debugger->on_step();
+            if (!step()) {
+                quit = true;
+                break;
+            }
+            break;
+
+        case DebugCommand::None:
+            // treat as Pause or Run depending on preference
+            break;
         }
     }
-    running = false;
 
+    debugger->exit();
     gpu->exit();
+
+    return true;
 }
 
 bool GB::handle_serial_output() {

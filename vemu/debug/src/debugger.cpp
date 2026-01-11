@@ -3,7 +3,7 @@
 #include "VGameboy_Bus_if.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_sdlrenderer2.h"
-#include "gb.hpp"
+#include "gbh.hpp"
 #include "imgui.h"
 #include "mem_write_table.hpp"
 
@@ -11,17 +11,9 @@
 
 namespace debug {
 
-    Debugger::Debugger() { }
-
-    bool Debugger::init(int argc, char** argv) {
-
-        // load ROM from command line
-        if (argc > 1) {
-            if (!emu.setup(argv[1])) {
-                std::cerr << "Failed to load ROM: " << argv[1] << "\n";
-                return false;
-            }
-        }
+    bool Debugger::setup() {
+        if (!enabled)
+            return true;
 
         for (int i = 0; i < 0x10000; ++i) {
             memory_snapshot[i] = 0x00;
@@ -32,9 +24,12 @@ namespace debug {
         }
 
         return true;
-    }
+    };
 
-    void Debugger::shutdown() {
+    void Debugger::exit() {
+        if (!enabled)
+            return;
+
         shutdown_imgui();
 
         if (renderer)
@@ -103,158 +98,124 @@ namespace debug {
         SDL_RenderPresent(renderer);
     }
 
-    void Debugger::run() {
-        while (!quit) {
-            process_events();
+    void Debugger::on_tick() {
+        if (!enabled)
+            return;
 
-            bool should_step = false;
-
-            switch (exec_mode) {
-            case ExecMode::Running:
-                should_step = true;
-                break;
-
-            case ExecMode::Paused:
-                should_step = false;
-                break;
-
-            case ExecMode::StepOnce:
-                should_step = true;
-                exec_mode = ExecMode::Paused;
-                break;
-
-            case ExecMode::Stopped:
-                should_step = false;
-                break;
-            }
-
-            // if (reset_requested) {
-            //     emu.reset();
-            //     operation_history.clear();
-            //     memory_panel.clear();
-            //     reset_requested = false;
-            //     exec_mode = ExecMode::Paused;
-            // }
-
-            const u8 A = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__a;
-            const u8 F = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__flags;
-            const u8 B = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__b;
-            const u8 C = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__c;
-            const u8 D = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__d;
-            const u8 E = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__e;
-            const u8 H = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__h;
-            const u8 L = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__l;
-            const u8 W = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__w;
-            const u8 Z = emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__z;
-            const u16 SP = (emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__sph << 8) | emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__spl;
-            const u16 PC = (emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__pch << 8) | emu.top->rootp->Gameboy__DOT__cpu_inst__DOT__regs.__PVT__pcl;
-
-            if (should_step) {
-                emu.step([this, A, F, B, C, D, E, H, L, W, Z, SP, PC](GameboyHarness&, VGameboy& top, u8 opcode, bool first_tick) {
-                if (first_tick) {
-                    operation_history.push({ opcode, CPURegisters {
-                        .AF = static_cast<u16>((A << 8) | F),
-                        .BC = static_cast<u16>((B << 8) | C),
-                        .DE = static_cast<u16>((D << 8) | E),
-                        .HL = static_cast<u16>((H << 8) | L),
-                        .SP = SP,
-                        .PC = PC,
-                    }});
-                }
-
-                if (top.rootp->__PVT__Gameboy__DOT__cpu_bus->write_en) {
-                    const auto delta = Delta {
-                        .addr = static_cast<u16>(top.rootp->__PVT__Gameboy__DOT__cpu_bus->addr),
-                        .value = static_cast<u8>(top.rootp->__PVT__Gameboy__DOT__cpu_bus->wdata)
-                    };
-                    if (operation_history.get_latest_delta() && operation_history.get_latest_delta()->addr != delta.addr) {
-                        // Write operation is performed
-                        operation_history.back().history.push_back(delta);
-                        memory_snapshot[delta.addr] = delta.value;
-                    }
-                } });
-            }
-
-            const auto cpu_state = debug::CPURegisters {
-                .AF = static_cast<debug::u16>((A << 8) | F),
-                .BC = static_cast<debug::u16>((B << 8) | C),
-                .DE = static_cast<debug::u16>((D << 8) | E),
-                .HL = static_cast<debug::u16>((H << 8) | L),
-                .SP = static_cast<debug::u16>(SP),
-                .PC = static_cast<debug::u16>(PC),
+        // Update any per-tick debugger state here
+        if (emu.get_top().rootp->__PVT__Gameboy__DOT__cpu_bus->write_en) {
+            const auto delta = Delta {
+                .addr = static_cast<u16>(emu.get_top().rootp->__PVT__Gameboy__DOT__cpu_bus->addr),
+                .value = static_cast<u8>(emu.get_top().rootp->__PVT__Gameboy__DOT__cpu_bus->wdata)
             };
-
-            const u8 opcode = emu.read_mem(PC);
-
-            const auto& info = mem_write_table[opcode];
-
-            for (int i = 0; i < info.count; i++) {
-                const auto& w = info.writes[i];
-
-                u16 base = 0;
-                switch (w.addr_src) {
-                case MemAddrSrc::HL:
-                    base = cpu_state.HL;
-                    break;
-                case MemAddrSrc::BC:
-                    base = cpu_state.BC;
-                    break;
-                case MemAddrSrc::DE:
-                    base = cpu_state.DE;
-                    break;
-                case MemAddrSrc::SP:
-                    base = cpu_state.SP;
-                    break;
-                case MemAddrSrc::WZ:
-                    base = (W << 8) | Z;
-                    break;
-                case MemAddrSrc::FF_C:
-                    base = 0xFF00 | (cpu_state.BC & 0xFF);
-                    break;
-                case MemAddrSrc::FF_Z:
-                    base = 0xFF00 | Z;
-                    break;
-                default:
-                    continue;
-                }
-
-                const u16 addr = base + w.offset;
-                const u8 new_value = emu.read_mem(addr);
-
-                memory_panel.update(addr, new_value);
+            if (operation_history.get_latest_delta() && operation_history.get_latest_delta()->addr != delta.addr) {
+                // Write operation is performed
+                operation_history.back().history.push_back(delta);
+                memory_snapshot[delta.addr] = delta.value;
             }
-
-            cpu_panel.update(cpu_state);
-
-            begin_frame();
-
-            cpu_panel.render();
-            memory_panel.render();
-            render_controls();
-            tiles_panel.render();
-
-            if (auto selected = instr_history_panel.render(exec_mode)) {
-                size_t op_index = *selected;
-
-                auto snapshot = operation_history.get_state_at(op_index);
-                memory_panel.set_snapshot(snapshot);
-
-                memory_selection.addresses.clear();
-                for (const auto& d : operation_history
-                                         .get_operations()[op_index]
-                                         .history) {
-                    memory_selection.addresses.push_back(d.addr);
-                }
-
-                memory_selection.valid = !memory_selection.addresses.empty();
-
-                memory_panel.set_selection(memory_selection);
-            }
-
-            end_frame();
-
-            last_cpu_state = cpu_state;
         }
+    }
+
+    void Debugger::on_step() {
+        if (!enabled)
+            return;
+
+        const u8 A = emu.cpu->get_A();
+        const u8 F = emu.cpu->get_F();
+        const u8 B = emu.cpu->get_B();
+        const u8 C = emu.cpu->get_C();
+        const u8 D = emu.cpu->get_D();
+        const u8 E = emu.cpu->get_E();
+        const u8 H = emu.cpu->get_H();
+        const u8 L = emu.cpu->get_L();
+        const u8 W = emu.cpu->get_W();
+        const u8 Z = emu.cpu->get_Z();
+
+        const u16 SP = emu.cpu->get_SP();
+        const u16 PC = emu.cpu->get_PC();
+
+        const u8 opcode = emu.cpu->get_opcode();
+        const std::optional<u8> cb_opcode = opcode == 0xCB
+            ? std::optional<u8>(emu.read_memory(PC))
+            : std::nullopt;
+
+        const auto cpu_state = debug::CPURegisters {
+            .AF = static_cast<debug::u16>((A << 8) | F),
+            .BC = static_cast<debug::u16>((B << 8) | C),
+            .DE = static_cast<debug::u16>((D << 8) | E),
+            .HL = static_cast<debug::u16>((H << 8) | L),
+            .SP = static_cast<debug::u16>(SP),
+            .PC = static_cast<debug::u16>(PC),
+        };
+
+        const auto& info = mem_write_table[opcode];
+
+        for (int i = 0; i < info.count; i++) {
+            const auto& w = info.writes[i];
+
+            u16 base = 0;
+            switch (w.addr_src) {
+            case MemAddrSrc::HL:
+                base = cpu_state.HL;
+                break;
+            case MemAddrSrc::BC:
+                base = cpu_state.BC;
+                break;
+            case MemAddrSrc::DE:
+                base = cpu_state.DE;
+                break;
+            case MemAddrSrc::SP:
+                base = cpu_state.SP;
+                break;
+            case MemAddrSrc::WZ:
+                base = (W << 8) | Z;
+                break;
+            case MemAddrSrc::FF_C:
+                base = 0xFF00 | (cpu_state.BC & 0xFF);
+                break;
+            case MemAddrSrc::FF_Z:
+                base = 0xFF00 | Z;
+                break;
+            default:
+                continue;
+            }
+
+            const u16 addr = base + w.offset;
+            const u8 new_value = emu.read_memory(addr);
+
+            memory_panel.update(addr, new_value);
+        }
+
+        cpu_panel.update(cpu_state);
+
+        begin_frame();
+
+        cpu_panel.render();
+        memory_panel.render();
+        render_controls();
+        tiles_panel.render();
+
+        if (auto selected = instr_history_panel.render(exec_mode)) {
+            size_t op_index = *selected;
+
+            auto snapshot = operation_history.get_state_at(op_index);
+            memory_panel.set_snapshot(snapshot);
+
+            memory_selection.addresses.clear();
+            for (const auto& d : operation_history
+                                     .get_operations()[op_index]
+                                     .history) {
+                memory_selection.addresses.push_back(d.addr);
+            }
+
+            memory_selection.valid = !memory_selection.addresses.empty();
+
+            memory_panel.set_selection(memory_selection);
+        }
+
+        end_frame();
+
+        last_cpu_state = cpu_state;
     }
 
     void Debugger::render_controls() {
@@ -286,5 +247,28 @@ namespace debug {
         }
 
         ImGui::End();
+    }
+
+    DebugCommand Debugger::poll_command() {
+        if (!enabled)
+            return DebugCommand::None;
+
+        process_events();
+
+        if (quit)
+            return DebugCommand::Quit;
+
+        switch (exec_mode) {
+        case ExecMode::Running:
+            return DebugCommand::Run;
+        case ExecMode::Paused:
+            return DebugCommand::Pause;
+        case ExecMode::StepOnce:
+            exec_mode = ExecMode::Paused;
+            return DebugCommand::StepOnce;
+        case ExecMode::Stopped:
+            return DebugCommand::Stop;
+        }
+        return DebugCommand::None;
     }
 }
