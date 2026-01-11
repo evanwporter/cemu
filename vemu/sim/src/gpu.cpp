@@ -44,43 +44,53 @@ void GPU::draw_scanline(const u8 LY) {
 
     // TODO: Window
 
+    static constexpr u32 green[4] = {
+        0xFF9BBC0F, // lightest
+        0xFF8BAC0F, // light
+        0xFF306230, // dark
+        0xFF0F380F, // darkest
+    };
+
     const u8 WX = regs.__PVT__WX;
     const u8 WY = regs.__PVT__WY;
+
+    static u8 window_line = 0;
+
+    if (LY == 0)
+        window_line = 0;
 
     const bool window_enable = LCDC & 0b00100000;
     const bool window_visible = window_enable && (LY >= WY) && ((WX - 7) < GB_WIDTH);
     const u16 window_tilemap_base = (LCDC & 0b01000000) ? 0x1C00 : 0x1800;
 
     if (window_visible) {
-        int window_y = LY - WY;
-        int tile_y = window_y & 7;
-        int tile_row = ((window_y >> 3) & 31) * 32;
+        const int window_y = window_line; // LY - WY;
+        const int tile_y = window_y & 7;
+        const int tile_row = ((window_y >> 3) & 31) * 32;
 
-        int win_x_start = WX - 7;
-        int x_start = std::max(0, win_x_start);
+        const int win_x_start = WX - 7;
+        const int x_start = std::max(0, win_x_start);
 
         for (int x = x_start; x < GB_WIDTH; ++x) {
-            int window_x = x - win_x_start;
-            int tile_col = (window_x >> 3) & 31;
+            const int window_x = x - win_x_start;
+            const int tile_col = (window_x >> 3) & 31;
 
-            u8 tile_index = vram[window_tilemap_base + tile_row + tile_col];
+            const u8 tile_index = vram[window_tilemap_base + tile_row + tile_col];
 
-            int tile;
-            if (signed_index)
-                tile = (int8_t)tile_index + 128;
-            else
-                tile = tile_index;
+            const int tile = signed_index ? (int8_t)tile_index + 256 : tile_index;
 
-            int tile_x = 7 - (window_x & 7);
+            const int tile_x = 7 - (window_x & 7);
 
             const u8* td = &vram[tile * 16 + tile_y * 2];
-            u8 lo = td[0];
-            u8 hi = td[1];
+            const u8 lo = td[0];
+            const u8 hi = td[1];
 
-            u8 color = ((hi >> tile_x) & 1) << 1 | ((lo >> tile_x) & 1);
+            const u8 color = ((hi >> tile_x) & 1) << 1 | ((lo >> tile_x) & 1);
 
-            framebuffer[LY * GB_WIDTH + x] = gb_color(color);
+            framebuffer[LY * GB_WIDTH + x] = green[color];
         }
+
+        window_line++;
     }
 }
 
