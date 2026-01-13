@@ -9,18 +9,17 @@ interface Fetcher_if (
   // ======================================================
 
   /// VRAM read request
-  logic vram_read_req;
+  logic read_req;
 
   /// VRAM address to read from
-  logic [15:0] vram_addr;
+  logic [15:0] addr;
 
   /// VRAM read data
-  logic [7:0] vram_rdata;
+  logic [7:0] rdata;
 
-  modport PPU_side(input vram_read_req, vram_addr, output vram_rdata);
+  modport PPU_side(input read_req, addr, output rdata);
 
-  modport Fetcher_side(input vram_rdata, regs, output vram_read_req, vram_addr);
-
+  modport Fetcher_side(input rdata, regs, output read_req, addr);
 endinterface
 
 

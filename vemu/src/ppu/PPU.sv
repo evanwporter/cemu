@@ -35,7 +35,6 @@ module PPU (
       .bus(fetcher_bus),
       .fifo_bus(fifo_bus),
       .dot_en(dot_en),
-      .regs(regs),
       .flush(1'b0)  // TODO: implement flush on window start
   );
 
@@ -160,6 +159,14 @@ module PPU (
   // ======================================================
   always_comb begin
     bus.rdata = 8'hFF;  // open bus unless selected & allowed
+    fetcher_bus.rdata = 8'hFF;
+
+    if (fetcher_bus.read_req) begin
+      // VRAM reads for fetcher (not blocked in Mode 3)
+      fetcher_bus.rdata = VRAM[13'(fetcher_bus.addr)];
+      `LOG_TRACE(
+          ("[PPU] VRAM FETCHER READ addr=%h -> %h (mode=%0d)", fetcher_bus.addr, fetcher_bus.rdata, mode))
+    end
 
     if (bus.read_en) begin
       // VRAM reads (blocked in Mode 3)

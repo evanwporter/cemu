@@ -12,9 +12,6 @@ module Fetcher (
     // timing
     input logic dot_en,  // literally just checks if the PPU is in mode 3
 
-    // regs/scroll
-    input ppu_regs_t regs,
-
     // control
     input logic flush  // clear internal state (e.g., on window start)
 );
@@ -34,15 +31,15 @@ module Fetcher (
   logic [4:0] fetcher_x;
 
   /// Which tilemap to use (either 0x9800 or 0x9C00)
-  wire [15:0] tilemap_base = regs.LCDC[6] ? 16'h1C00 : 16'h1800;
+  wire [15:0] tilemap_base = bus.regs.LCDC[6] ? 16'h1C00 : 16'h1800;
 
   /// The X coordinate of the pixel being fetched in the tilemap
-  /// Effectively: ((SCX / 3) + fetcher_x) % 32
-  wire [4:0] tilemap_x = (regs.SCX[7:3] + fetcher_x) & 5'd31;
+  /// Effectively: ((SCX / 8) + fetcher_x) % 32
+  wire [4:0] tilemap_x = (bus.regs.SCX[7:3] + fetcher_x) & 5'd31;
 
   /// The exact Y position (row) that we want to fetch from the tile
   /// Effectively: (SCY + LY) % 256
-  wire [7:0] tilemax_y = (regs.SCY + regs.LY) & 8'd255;
+  wire [7:0] tilemax_y = (bus.regs.SCY + bus.regs.LY) & 8'd255;
 
   /// Compute the tilemap address (the address to the index of exact tile to fetch)
   /// Effectively: tilemap_base + (tile_y * 32) + tile_x
@@ -97,8 +94,8 @@ module Fetcher (
 
           unique case (dot_phase)
             DOT_PHASE_0: begin
-              bus.vram_addr <= tilemap_addr;
-              bus.vram_read_req <= 1'b1;
+              bus.addr <= tilemap_addr;
+              bus.read_req <= 1'b1;
               dot_phase <= DOT_PHASE_1;
 
               `LOG_TRACE(
@@ -111,12 +108,12 @@ module Fetcher (
               // In this cycle, the PPU has recieved our tilemap read request and updated vram_rdata
 
               // Latch the tile index from the tilemap
-              tile_index <= bus.vram_rdata;
-              bus.vram_read_req <= 1'b0;
+              tile_index <= bus.rdata;
+              bus.read_req <= 1'b0;
               state <= FETCHER_GET_LOW;
               dot_phase <= DOT_PHASE_0;
 
-              `LOG_TRACE(("FETCHER_GET_TILE PH1: tile_index=%0d", bus.vram_rdata))
+              `LOG_TRACE(("FETCHER_GET_TILE PH1: tile_index=%0d", bus.rdata))
             end
           endcase
         end
@@ -125,24 +122,24 @@ module Fetcher (
           // Compute tiledata address based on LCDC.4 and signedness
           unique case (dot_phase)
             DOT_PHASE_0: begin
-              bus.vram_addr <= tile_row_addr_fn(regs.LCDC[4], tile_index, tile_y);
+              bus.addr <= tile_row_addr_fn(bus.regs.LCDC[4], tile_index, tile_y);
 
-              bus.vram_read_req <= 1'b1;
+              bus.read_req <= 1'b1;
 
               dot_phase <= DOT_PHASE_1;
 
               `LOG_TRACE(
                   ("FETCHER_GET_LOW  PH0: addr=%h (tile_index=%02h row=%0d lcdc4=%0b)", 
-                       bus.vram_addr, tile_index, tile_y, regs.LCDC[4]))
+                       bus.addr, tile_index, tile_y, bus.regs.LCDC[4]))
             end
 
             DOT_PHASE_1: begin
-              tile_low_byte <= bus.vram_rdata;
-              bus.vram_read_req <= 1'b0;
+              tile_low_byte <= bus.rdata;
+              bus.read_req <= 1'b0;
               state <= FETCHER_GET_HIGH;
               dot_phase <= DOT_PHASE_0;
 
-              `LOG_TRACE(("FETCHER_GET_LOW  PH1: tile_low_byte=%02h", bus.vram_rdata))
+              `LOG_TRACE(("FETCHER_GET_LOW  PH1: tile_low_byte=%02h", bus.rdata))
             end
           endcase
         end
@@ -151,20 +148,20 @@ module Fetcher (
           // Compute tiledata address based on LCDC.4 and signedness
           unique case (dot_phase)
             DOT_PHASE_0: begin
-              bus.vram_addr <= tile_row_addr_fn(regs.LCDC[4], tile_index, tile_y) + 16'd1;
-              bus.vram_read_req <= 1'b1;
+              bus.addr <= tile_row_addr_fn(bus.regs.LCDC[4], tile_index, tile_y) + 16'd1;
+              bus.read_req <= 1'b1;
               dot_phase <= DOT_PHASE_1;
 
-              `LOG_TRACE(("FETCHER_GET_HIGH PH0: addr=%h", bus.vram_addr))
+              `LOG_TRACE(("FETCHER_GET_HIGH PH0: addr=%h", bus.addr))
             end
 
             DOT_PHASE_1: begin
-              tile_high_byte <= bus.vram_rdata;
-              bus.vram_read_req <= 1'b0;
+              tile_high_byte <= bus.rdata;
+              bus.read_req <= 1'b0;
               state <= FETCHER_SLEEP;
               dot_phase <= DOT_PHASE_0;
 
-              `LOG_TRACE(("FETCHER_GET_HIGH PH1: tile_high_byte=%02h", bus.vram_rdata))
+              `LOG_TRACE(("FETCHER_GET_HIGH PH1: tile_high_byte=%02h", bus.rdata))
             end
           endcase
         end
