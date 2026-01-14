@@ -25,7 +25,11 @@ module PPU (
   logic dot_en;
   assign dot_en = (mode == PPU_MODE_3);
 
-  Fetcher_if fetcher_bus (.regs(regs));
+  Fetcher_if fetcher_bus (
+      .regs(regs),
+      .dot_counter(dot_counter),
+      .mode(mode)
+  );
   FIFO_if fifo_bus ();
 
   // Fetcher
@@ -235,6 +239,7 @@ module PPU (
         dot_counter <= 9'd0;
         regs.LY <= 8'd0;
       end else begin
+
         // Advance dot
         if (dot_counter == DOTS_PER_LINE - 1) begin  // Reached end of line
           dot_counter <= 9'd0;

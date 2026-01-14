@@ -1,4 +1,5 @@
 import ppu_types_pkg::*;
+import ppu_util_pkg::*;
 
 `include "util/logger.svh"
 
@@ -8,9 +9,6 @@ module Fetcher (
 
     Fetcher_if.Fetcher_side bus,
     FIFO_if.Fetcher_side fifo_bus,
-
-    // timing
-    input logic dot_en,  // literally just checks if the PPU is in mode 3
 
     // control
     input logic flush  // clear internal state (e.g., on window start)
@@ -24,6 +22,10 @@ module Fetcher (
   } fetcher_state_t;
 
   fetcher_state_t state;
+
+  /// At the beginning of mode 3, how many pixels to discard 
+  /// from the start of the line
+  logic [2:0] discard_pixel_count;
 
   /// Tile column index (0–31) of the tile currently being
   /// fetched from the 32x32 background/window map.
@@ -60,7 +62,7 @@ module Fetcher (
   /// 0..7 index of pixel being pushed inside tile
   logic [2:0] push_i;
 
-  /// pixel index inside tile byte (bit 7 first unless HFLIP)
+  /// Pixel index inside tile byte (bit 7 first unless HFLIP)
   wire [2:0] bits_to_push = 7 - push_i;
 
   /// Low and high bytes of tile data.
@@ -69,22 +71,39 @@ module Fetcher (
 
   function automatic [15:0] tile_row_addr_fn(input logic lcdc4, input logic [7:0] tid,
                                              input logic [2:0] row);
-    if (lcdc4) tile_row_addr_fn = 16'h8000 + {4'b0, tid, 4'b0} + {12'b0, row, 1'b0};
-    else tile_row_addr_fn = 16'h9000 + ($signed({{8{tid[7]}}, tid}) <<< 4) + {12'b0, row, 1'b0};
+    if (lcdc4) begin
+      // 0x8000 + (tid * 16) + (row * 2)
+      tile_row_addr_fn = 16'h8000 + 16'(tid << 4) + 16'(row << 1);
+    end else begin
+      // 0x9000 + (signed(tid) * 16) + (row * 2)
+      tile_row_addr_fn = 16'h9000 + 16'($signed(tid) << 4) + 16'(row << 1);
+    end
   endfunction
+
 
   // reset on flush/window start
   always_ff @(posedge clk or posedge reset) begin
     if (reset || flush) begin
-      state             <= FETCHER_GET_TILE;
-      dot_phase         <= DOT_PHASE_0;
-      fetcher_x         <= 5'd0;
-      tile_index        <= 8'h00;
-      tile_low_byte     <= 8'h00;
-      tile_high_byte    <= 8'h00;
-      fifo_bus.write_en <= 1'b0;
-      push_i            <= 3'd0;
-    end else if (dot_en) begin
+      state               <= FETCHER_GET_TILE;
+      dot_phase           <= DOT_PHASE_0;
+      tile_index          <= 8'h00;
+      tile_low_byte       <= 8'h00;
+      tile_high_byte      <= 8'h00;
+      fifo_bus.write_en   <= 1'b0;
+      push_i              <= 3'd0;
+      discard_pixel_count <= 3'd0;
+    end else if (bus.mode == PPU_MODE_2 && bus.dot_counter == MODE2_LEN) begin
+      // Check if we are starting mode 3 this dot
+
+      // We start off by fetching the tile at (SCX / 8)
+      fetcher_x <= 5'(bus.regs.SCX >> 3);
+
+      // We discard the first SCX % 8 pixels fetched
+      discard_pixel_count <= bus.regs.SCX[2:0];
+
+    end else if (bus.mode == PPU_MODE_3) begin
+      // Only operate in MODE 3 (drawing pixels)
+
       // default outputs
       fifo_bus.write_en <= 1'b0;
 
@@ -149,7 +168,9 @@ module Fetcher (
           unique case (dot_phase)
             DOT_PHASE_0: begin
               bus.addr <= tile_row_addr_fn(bus.regs.LCDC[4], tile_index, tile_y) + 16'd1;
+
               bus.read_req <= 1'b1;
+
               dot_phase <= DOT_PHASE_1;
 
               `LOG_TRACE(("FETCHER_GET_HIGH PH0: addr=%h", bus.addr))
@@ -170,13 +191,13 @@ module Fetcher (
           unique case (dot_phase)
             DOT_PHASE_0: begin
               dot_phase <= DOT_PHASE_1;
-              `LOG_TRACE(("FETCHER_SLEEP   PH0"))
+              `LOG_TRACE(("FETCHER_SLEEP PH0"))
             end
 
             DOT_PHASE_1: begin
               dot_phase <= DOT_PHASE_0;
               state <= FETCHER_PUSH;
-              `LOG_TRACE(("FETCHER_SLEEP   PH1 -> FETCHER_PUSH"))
+              `LOG_TRACE(("FETCHER_SLEEP PH1 -> FETCHER_PUSH"))
             end
           endcase
         end

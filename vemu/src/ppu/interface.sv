@@ -1,7 +1,9 @@
 import ppu_types_pkg::*;
 
 interface Fetcher_if (
-    input ppu_regs_t regs
+    input ppu_regs_t regs,
+    input logic [8:0] dot_counter,
+    input ppu_mode_t mode
 );
 
   // ======================================================
@@ -19,7 +21,7 @@ interface Fetcher_if (
 
   modport PPU_side(input read_req, addr, output rdata);
 
-  modport Fetcher_side(input rdata, regs, output read_req, addr);
+  modport Fetcher_side(input rdata, regs, mode, dot_counter, output read_req, addr);
 endinterface
 
 
