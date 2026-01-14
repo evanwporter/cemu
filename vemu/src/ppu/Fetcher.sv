@@ -17,15 +17,10 @@ module Fetcher (
     FETCHER_GET_TILE,
     FETCHER_GET_LOW,
     FETCHER_GET_HIGH,
-    FETCHER_SLEEP,
     FETCHER_PUSH
   } fetcher_state_t;
 
   fetcher_state_t state;
-
-  /// At the beginning of mode 3, how many pixels to discard 
-  /// from the start of the line
-  logic [2:0] discard_pixel_count;
 
   /// Tile column index (0–31) of the tile currently being
   /// fetched from the 32x32 background/window map.
@@ -59,12 +54,6 @@ module Fetcher (
     DOT_PHASE_1
   } dot_phase;
 
-  /// 0..7 index of pixel being pushed inside tile
-  logic [2:0] push_i;
-
-  /// Pixel index inside tile byte (bit 7 first unless HFLIP)
-  wire [2:0] bits_to_push = 7 - push_i;
-
   /// Low and high bytes of tile data.
   /// Together they correspond to one row of 8 pixels
   logic [7:0] tile_low_byte, tile_high_byte;
@@ -84,22 +73,17 @@ module Fetcher (
   // reset on flush/window start
   always_ff @(posedge clk or posedge reset) begin
     if (reset || flush) begin
-      state               <= FETCHER_GET_TILE;
-      dot_phase           <= DOT_PHASE_0;
-      tile_index          <= 8'h00;
-      tile_low_byte       <= 8'h00;
-      tile_high_byte      <= 8'h00;
-      fifo_bus.write_en   <= 1'b0;
-      push_i              <= 3'd0;
-      discard_pixel_count <= 3'd0;
+      state             <= FETCHER_GET_TILE;
+      dot_phase         <= DOT_PHASE_0;
+      tile_index        <= 8'h00;
+      tile_low_byte     <= 8'h00;
+      tile_high_byte    <= 8'h00;
+      fifo_bus.write_en <= 1'b0;
     end else if (bus.mode == PPU_MODE_2 && bus.dot_counter == MODE2_LEN) begin
       // Check if we are starting mode 3 this dot
 
       // We start off by fetching the tile at (SCX / 8)
       fetcher_x <= 5'(bus.regs.SCX >> 3);
-
-      // We discard the first SCX % 8 pixels fetched
-      discard_pixel_count <= bus.regs.SCX[2:0];
 
     end else if (bus.mode == PPU_MODE_3) begin
       // Only operate in MODE 3 (drawing pixels)
@@ -179,25 +163,10 @@ module Fetcher (
             DOT_PHASE_1: begin
               tile_high_byte <= bus.rdata;
               bus.read_req <= 1'b0;
-              state <= FETCHER_SLEEP;
+              state <= FETCHER_PUSH;
               dot_phase <= DOT_PHASE_0;
 
               `LOG_TRACE(("FETCHER_GET_HIGH PH1: tile_high_byte=%02h", bus.rdata))
-            end
-          endcase
-        end
-
-        FETCHER_SLEEP: begin
-          unique case (dot_phase)
-            DOT_PHASE_0: begin
-              dot_phase <= DOT_PHASE_1;
-              `LOG_TRACE(("FETCHER_SLEEP PH0"))
-            end
-
-            DOT_PHASE_1: begin
-              dot_phase <= DOT_PHASE_0;
-              state <= FETCHER_PUSH;
-              `LOG_TRACE(("FETCHER_SLEEP PH1 -> FETCHER_PUSH"))
             end
           endcase
         end
@@ -208,25 +177,26 @@ module Fetcher (
             // Push 8 pixels (MSB first unless hflip)
 
             pixel_t px;
-            px.color   = gb_color_t'({tile_high_byte[bits_to_push], tile_low_byte[bits_to_push]});
-            px.palette = 3'd0;
-            px.spr_idx = 6'd0;
-            px.bg_prio = 1'b0;
-            px.valid   = 1'b1;
 
-            fifo_bus.write_data <= px;
-            fifo_bus.write_en <= 1'b1;
-            push_i <= push_i + 1;
+            // Build all 8 pixels in parallel
+            for (int i = 0; i < 8; i++) begin
+              px.color   = gb_color_t'({tile_high_byte[7-i], tile_low_byte[7-i]});
+              px.palette = 3'd0;
+              px.spr_idx = 6'd0;
+              px.bg_prio = 1'b0;
+              px.valid   = 1'b1;
 
-            `LOG_TRACE(
-                ("FETCHER_PUSH: push_i=%0d bit=%0d color=%0d push_en=1 fifo_empty=1", push_i, bits_to_push, {
-                  tile_high_byte[bits_to_push], tile_low_byte[bits_to_push]}))
-
-            if (push_i == 3'd7) begin
-              // Finished 8 pixels; advance to next tile column
-              fetcher_x <= fetcher_x + 1;
-              state    <= FETCHER_GET_TILE;
+              fifo_bus.write_data[i] <= px;
             end
+
+            fifo_bus.write_en <= 1'b1;
+
+            // Advance to next tile
+            fetcher_x         <= fetcher_x + 1;
+            state             <= FETCHER_GET_TILE;
+
+            `LOG_TRACE(("FETCHER_PUSH: burst push tile_x=%0d fifo_empty=1", fetcher_x))
+
           end else begin
             // Can’t push yet; keep trying each dot
             fifo_bus.write_en <= 1'b0;

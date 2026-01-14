@@ -1,4 +1,5 @@
 import ppu_types_pkg::*;
+import ppu_util_pkg::*;
 
 interface Fetcher_if (
     input ppu_regs_t regs,
@@ -28,7 +29,7 @@ endinterface
 interface FIFO_if;
   // Producer (fetcher) writes
   logic write_en;
-  pixel_t write_data;
+  pixel_t write_data[FIFO_DEPTH];
   logic full;  // FIFO is full (can't accept writes)
 
   // Consumer (framebuffer) reads

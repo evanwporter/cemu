@@ -38,16 +38,14 @@ module PPU (
       .reset(reset),
       .bus(fetcher_bus),
       .fifo_bus(fifo_bus),
-      .dot_en(dot_en),
       .flush(1'b0)  // TODO: implement flush on window start
   );
 
   // FIFO
   FIFO fifo_inst (
-      .clk(clk),
+      .clk  (clk),
       .reset(reset),
-      .dot_en(dot_en),
-      .bus(fifo_bus)
+      .bus  (fifo_bus)
   );
 
   // Framebuffer
@@ -56,7 +54,8 @@ module PPU (
       .reset(reset),
       .dot_en(dot_en),
       .fifo_bus(fifo_bus),
-      .flush(1'b0)
+      .flush(1'b0),
+      .SCX(regs.SCX)
   );
 
 

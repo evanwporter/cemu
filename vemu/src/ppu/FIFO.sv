@@ -1,37 +1,33 @@
 import ppu_types_pkg::*;
+import ppu_util_pkg::*;
 
 module FIFO (
     input logic clk,
     input logic reset,
 
-    input logic dot_en,
-
     FIFO_if.FIFO_side bus
 );
-  localparam logic [3:0] DEPTH = 8;
+  pixel_t buffer[FIFO_DEPTH];
 
-  pixel_t buffer[DEPTH];
-
-  logic [2:0] write_ptr;
   logic [2:0] read_ptr;
 
   // ======================================================
   // Push (Write) Logic
   // ======================================================
-  // 1) Check: Is the FIFO full?
-  // 2) Write data at write_ptr
-  // 3) Increment write_ptr
-  // 4) Increase count
+  // 1) Check: Is the FIFO empty?
+  // 2) Write FIFO_DEPTH pixels into the buffer in one cycle
+  // 3) Set count to FIFO_DEPTH
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      write_ptr <= '0;
-    end else if (bus.write_en && !bus.full && dot_en) begin
-      buffer[write_ptr] <= bus.write_data;
-      write_ptr <= write_ptr + 1'b1;
+      // nothing to do
+    end else if (bus.write_en && bus.empty) begin
+      // Performs 8 parallel writes
+      for (logic [3:0] i = 0; i < FIFO_DEPTH; i++) begin
+        buffer[3'(i)] <= bus.write_data[3'(i)];
+      end
     end
   end
-
 
   // ======================================================
   // Pop (Read) Logic
@@ -60,18 +56,18 @@ module FIFO (
     if (reset) begin
       bus.count <= '0;
     end else begin
-      case ({
-        bus.write_en && !bus.full, bus.read_en && !bus.empty
-      })
-        2'b10:   bus.count <= bus.count + 1;  // Write only
-        2'b01:   bus.count <= bus.count - 1;  // Read only
-        default: bus.count <= bus.count;  // No change or simultaneous read/write
-      endcase
+      if (bus.write_en && bus.empty) begin
+        // Bulk write of 8 pixels
+        bus.count <= FIFO_DEPTH;
+      end else if (bus.read_en && !bus.empty) begin
+        // Single read
+        bus.count <= bus.count - 1;
+      end
     end
   end
 
 
   assign bus.empty = (bus.count == 0);
-  assign bus.full  = (bus.count == DEPTH);
+  assign bus.full  = (bus.count == FIFO_DEPTH);
 
 endmodule
