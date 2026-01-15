@@ -3,6 +3,7 @@
 #include "VGameboy.h"
 #include "VGameboy___024root.h"
 #include "types.hpp"
+#include "verilated.h"
 
 #include <SDL.h>
 
@@ -24,7 +25,17 @@ private:
     SDL_Texture* texture;
 
     const VlUnpacked<CData, 8192>& vram;
-    const VGameboy_ppu_regs_t__struct__0& regs;
+
+    struct {
+        const CData& LY;
+        const CData& LYC;
+        const CData& SCX;
+        const CData& SCY;
+        const CData& WX;
+        const CData& WY;
+        const CData& LCDC;
+    } regs;
+
     const VlUnpacked<CData, 23040>& buffer;
 
     u32 framebuffer[GB_WIDTH * GB_HEIGHT];
@@ -48,20 +59,26 @@ private:
 
     void draw_scanline(const u8 LY);
 
-    inline u8 LY() const {
-        return regs.__PVT__LY;
-    }
-
 public:
     GPU(VGameboy& top, bool enabled = true) :
         vram(top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM),
-        regs(top.rootp->Gameboy__DOT__ppu_inst__DOT__regs),
+        regs(top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY, top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LYC, top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCX, top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCY, top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__WX, top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__WY, top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LCDC),
         buffer(top.rootp->Gameboy__DOT__ppu_inst__DOT__framebuffer_inst__DOT__buffer),
+        enabled(enabled) { };
+
+    GPU(const VlUnpacked<CData, 8192>& vram, const CData& LY, const CData& LYC, const CData& SCX, const CData& SCY, const CData& WX, const CData& WY, const CData& LCDC, const VlUnpacked<CData, 23040>& buffer, bool enabled = true) :
+        vram(vram),
+        regs(LY, LYC, SCX, SCY, WX, WY, LCDC),
+        buffer(buffer),
         enabled(enabled) { };
 
     bool setup();
 
     bool update();
+
+    bool render_snapshot();
+
+    bool poll_events();
 
     void exit();
 };

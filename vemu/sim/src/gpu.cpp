@@ -8,9 +8,9 @@ void GPU::draw_scanline(const u8 LY) {
     if (LY >= GB_HEIGHT)
         return;
 
-    const u8 LCDC = regs.__PVT__LCDC;
-    const u8 SCX = regs.__PVT__SCX;
-    const u8 SCY = regs.__PVT__SCY;
+    const u8 LCDC = regs.LCDC;
+    const u8 SCX = regs.SCX;
+    const u8 SCY = regs.SCY;
 
     // BG disabled?
     if (!(LCDC & 0x01))
@@ -53,8 +53,8 @@ void GPU::draw_scanline(const u8 LY) {
         0xFF0F380F, // darkest
     };
 
-    const u8 WX = regs.__PVT__WX;
-    const u8 WY = regs.__PVT__WY;
+    const u8 WX = regs.WX;
+    const u8 WY = regs.WY;
 
     static u8 window_line = 0;
 
@@ -100,7 +100,7 @@ bool GPU::update() {
     if (!enabled)
         return true;
 
-    static u8 LY_prev = LY();
+    static u8 LY_prev = regs.LY;
     static SDL_Event e;
 
     while (SDL_PollEvent(&e)) {
@@ -108,11 +108,11 @@ bool GPU::update() {
             return false;
     }
 
-    if (LY_prev != LY()) {
+    if (LY_prev != regs.LY) {
         draw_scanline(LY_prev);
-        LY_prev = LY();
+        LY_prev = regs.LY;
 
-        if (LY() == 144) {
+        if (regs.LY == 144) {
             // The Gameboy has finished drawing the frame, so we update the screen
             for (int i = 0; i < GB_WIDTH * GB_HEIGHT; ++i) {
                 framebuffer[i] = gb_color(buffer[i]);
@@ -149,7 +149,7 @@ bool GPU::setup() {
     }
 
     window = SDL_CreateWindow(
-        "Game Boy",
+        "Verilog Game Boy",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         GB_WIDTH * SCALE,
@@ -159,7 +159,7 @@ bool GPU::setup() {
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, GB_WIDTH, GB_HEIGHT);
 
     dbg_window = SDL_CreateWindow(
-        "Verilog Game Boy",
+        "Verilog Game Boy (Debug)",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         GB_WIDTH * SCALE,
@@ -183,4 +183,38 @@ void GPU::exit() {
     SDL_DestroyRenderer(dbg_renderer);
     SDL_DestroyWindow(dbg_window);
     SDL_Quit();
+}
+
+bool GPU::render_snapshot() {
+    if (!enabled)
+        return true;
+
+    // 1) Show Verilog framebuffer (buffer[] is 0..3 indices)
+    for (int i = 0; i < GB_WIDTH * GB_HEIGHT; ++i)
+        framebuffer[i] = gb_color(buffer[i]);
+
+    SDL_UpdateTexture(texture, nullptr, framebuffer, GB_WIDTH * sizeof(u32));
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+    SDL_RenderPresent(renderer);
+
+    // 2) Show software reconstruction snapshot into dbg_framebuffer
+    for (int ly = 0; ly < GB_HEIGHT; ++ly)
+        draw_scanline((u8)ly);
+
+    SDL_UpdateTexture(dbg_texture, nullptr, dbg_framebuffer, GB_WIDTH * sizeof(u32));
+    SDL_RenderClear(dbg_renderer);
+    SDL_RenderCopy(dbg_renderer, dbg_texture, nullptr, nullptr);
+    SDL_RenderPresent(dbg_renderer);
+
+    return true;
+}
+
+bool GPU::poll_events() {
+    SDL_Event e;
+    while (SDL_PollEvent(&e)) {
+        if (e.type == SDL_QUIT)
+            return false;
+    }
+    return true;
 }

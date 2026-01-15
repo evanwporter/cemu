@@ -1,6 +1,7 @@
 set(VEMU_TESTS_CPP_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(cpu)
+add_subdirectory(ppu)
 add_subdirectory(blargg)
 add_subdirectory(mooneye)
 add_subdirectory(gbmicrotest)

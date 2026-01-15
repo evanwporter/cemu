@@ -1,3 +1,6 @@
+`ifndef PPU_FETCHER
+`define PPU_FETCHER 
+
 import ppu_types_pkg::*;
 import ppu_util_pkg::*;
 
@@ -209,3 +212,5 @@ module Fetcher (
     end
   end
 endmodule
+
+`endif  // PPU_FETCHER
