@@ -41,7 +41,7 @@ void GPU::draw_scanline(const u8 LY) {
         u8 hi = td[1];
 
         u8 color = ((hi >> tile_x) & 1) * 2 + ((lo >> tile_x) & 1);
-        framebuffer[LY * GB_WIDTH + x] = gb_color(color);
+        dbg_framebuffer[LY * GB_WIDTH + x] = gb_color(color);
     }
 
     // TODO: Window
@@ -89,7 +89,7 @@ void GPU::draw_scanline(const u8 LY) {
 
             const u8 color = ((hi >> tile_x) & 1) << 1 | ((lo >> tile_x) & 1);
 
-            framebuffer[LY * GB_WIDTH + x] = green[color];
+            dbg_framebuffer[LY * GB_WIDTH + x] = green[color];
         }
 
         window_line++;
@@ -114,6 +114,10 @@ bool GPU::update() {
 
         if (LY() == 144) {
             // The Gameboy has finished drawing the frame, so we update the screen
+            for (int i = 0; i < GB_WIDTH * GB_HEIGHT; ++i) {
+                framebuffer[i] = gb_color(buffer[i]);
+            }
+
             SDL_UpdateTexture(
                 texture,
                 nullptr,
@@ -121,6 +125,14 @@ bool GPU::update() {
                 GB_WIDTH * sizeof(u32));
             SDL_RenderCopy(renderer, texture, nullptr, nullptr);
             SDL_RenderPresent(renderer);
+
+            SDL_UpdateTexture(
+                dbg_texture,
+                nullptr,
+                dbg_framebuffer,
+                GB_WIDTH * sizeof(u32));
+            SDL_RenderCopy(dbg_renderer, dbg_texture, nullptr, nullptr);
+            SDL_RenderPresent(dbg_renderer);
         }
     }
 
@@ -137,16 +149,24 @@ bool GPU::setup() {
     }
 
     window = SDL_CreateWindow(
+        "Game Boy",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        GB_WIDTH * SCALE,
+        GB_HEIGHT * SCALE,
+        0);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, GB_WIDTH, GB_HEIGHT);
+
+    dbg_window = SDL_CreateWindow(
         "Verilog Game Boy",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         GB_WIDTH * SCALE,
         GB_HEIGHT * SCALE,
         0);
-
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, GB_WIDTH, GB_HEIGHT);
+    dbg_renderer = SDL_CreateRenderer(dbg_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    dbg_texture = SDL_CreateTexture(dbg_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, GB_WIDTH, GB_HEIGHT);
 
     return true;
 }
@@ -158,5 +178,9 @@ void GPU::exit() {
     SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+
+    SDL_DestroyTexture(dbg_texture);
+    SDL_DestroyRenderer(dbg_renderer);
+    SDL_DestroyWindow(dbg_window);
     SDL_Quit();
 }

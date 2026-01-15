@@ -15,14 +15,21 @@ private:
     static constexpr int GB_HEIGHT = 144;
     static constexpr int SCALE = 3;
 
+    SDL_Window* dbg_window;
+    SDL_Renderer* dbg_renderer;
+    SDL_Texture* dbg_texture;
+
     SDL_Window* window;
     SDL_Renderer* renderer;
     SDL_Texture* texture;
 
     const VlUnpacked<CData, 8192>& vram;
     const VGameboy_ppu_regs_t__struct__0& regs;
+    const VlUnpacked<CData, 23040>& buffer;
 
     u32 framebuffer[GB_WIDTH * GB_HEIGHT];
+
+    u32 dbg_framebuffer[GB_WIDTH * GB_HEIGHT];
 
     static inline u32 gb_color(u8 c) {
         switch (c & 0x3) {
@@ -49,6 +56,7 @@ public:
     GPU(VGameboy& top, bool enabled = true) :
         vram(top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM),
         regs(top.rootp->Gameboy__DOT__ppu_inst__DOT__regs),
+        buffer(top.rootp->Gameboy__DOT__ppu_inst__DOT__framebuffer_inst__DOT__buffer),
         enabled(enabled) { };
 
     bool setup();

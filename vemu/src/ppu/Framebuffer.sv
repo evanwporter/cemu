@@ -76,8 +76,7 @@ module Framebuffer (
               if (y_screen == GB_SCREEN_HEIGHT - 1) begin
                 y_screen   <= 8'd0;
                 frame_done <= 1'b1;
-                `LOG_INFO(
-                    ("[PPU] [FB] Frame complete! (%0d x %0d pixels)", GB_SCREEN_WIDTH, GB_SCREEN_HEIGHT))
+                `LOG_INFO(("[PPU] [FB] Frame complete!"))
               end else begin
                 y_screen <= y_screen + 1;
               end
