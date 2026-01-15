@@ -30,6 +30,7 @@ module PPU (
       .dot_counter(dot_counter),
       .mode(mode)
   );
+
   FIFO_if fifo_bus ();
 
   // Fetcher

@@ -27,27 +27,27 @@ module Fetcher (
   /// Increments by 1 every time 8 pixels are pushed to the FIFO.
   logic [4:0] fetcher_x;
 
-  /// Which tilemap to use (either 0x9800 or 0x9C00)
+  /// Which tilemap to use (either `0x9800` or `0x9C00`)
   wire [15:0] tilemap_base = bus.regs.LCDC[6] ? 16'h1C00 : 16'h1800;
 
-  /// The X coordinate of the pixel being fetched in the tilemap
-  /// Effectively: ((SCX / 8) + fetcher_x) % 32
+  /// The X coordinate of the pixel being fetched in the tilemap.
+  /// Effectively: `((SCX / 8) + fetcher_x) % 32`
   wire [4:0] tilemap_x = (bus.regs.SCX[7:3] + fetcher_x) & 5'd31;
 
-  /// The exact Y position (row) that we want to fetch from the tile
-  /// Effectively: (SCY + LY) % 256
-  wire [7:0] tilemax_y = (bus.regs.SCY + bus.regs.LY) & 8'd255;
+  /// The exact Y position (row) that we want to fetch from the tile.
+  /// Effectively: `(SCY + LY) % 256`
+  wire [7:0] tilemap_y = (bus.regs.SCY + bus.regs.LY) & 8'd255;
 
-  /// Compute the tilemap address (the address to the index of exact tile to fetch)
-  /// Effectively: tilemap_base + (tile_y * 32) + tile_x
-  wire [15:0] tilemap_addr = tilemap_base + {8'b0, tilemax_y} + {11'b0, tilemap_x};
+  /// Compute the tilemap address (the address to the index of exact tile to fetch).
+  /// Effectively: `tilemap_base + (tile_y * 32) + tile_x`
+  wire [15:0] tilemap_addr = tilemap_base + {8'b0, tilemap_y} + {11'b0, tilemap_x};
 
   /// The index of the tile to fetch from the tile data area. We get this from the tilemap.
   logic [7:0] tile_index;
 
   /// Which pixel row inside the tile.
-  /// Effectively: tilemax_y % 8
-  wire [2:0] tile_y = tilemax_y[2:0];
+  /// Effectively: `tilemap_y % 8`
+  wire [2:0] tile_y = tilemap_y[2:0];
 
   enum logic {
     DOT_PHASE_0,
@@ -70,7 +70,7 @@ module Fetcher (
   endfunction
 
 
-  // reset on flush/window start
+  // Reset on flush/window start
   always_ff @(posedge clk or posedge reset) begin
     if (reset || flush) begin
       state             <= FETCHER_GET_TILE;
