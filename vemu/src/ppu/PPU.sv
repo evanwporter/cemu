@@ -46,7 +46,8 @@ module PPU (
   FIFO fifo_inst (
       .clk  (clk),
       .reset(reset),
-      .bus  (fifo_bus)
+      .bus  (fifo_bus),
+      .flush(1'b0)
   );
 
   // Framebuffer

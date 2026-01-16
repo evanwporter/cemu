@@ -5,9 +5,11 @@ module FIFO (
     input logic clk,
     input logic reset,
 
-    FIFO_if.FIFO_side bus
+    FIFO_if.FIFO_side bus,
+
+    input logic flush
 );
-  pixel_t buffer[FIFO_DEPTH];
+  gb_color_t buffer[FIFO_DEPTH];
 
   logic [2:0] read_ptr;
 
@@ -19,15 +21,22 @@ module FIFO (
   // 3) Set count to FIFO_DEPTH
 
   always_ff @(posedge clk or posedge reset) begin
-    if (reset) begin
-      // nothing to do
+    if (reset || flush) begin
+      // Nothing to do
+      for (logic [3:0] i = 0; i < FIFO_DEPTH; i++) begin
+        buffer[3'(i)] <= gb_color_t'(0);
+      end
     end else if (bus.write_en && bus.empty) begin
       // Performs 8 parallel writes
       for (logic [3:0] i = 0; i < FIFO_DEPTH; i++) begin
         buffer[3'(i)] <= bus.write_data[3'(i)];
       end
+    end else if (bus.read_en && !bus.empty) begin
+      // $display("[PPU] [FIFO] Read pixel ptr=%0d color=%0h", read_ptr, bus.read_data);
     end
   end
+
+  assign bus.read_data = buffer;
 
   // ======================================================
   // Pop (Read) Logic
@@ -37,15 +46,15 @@ module FIFO (
   // 3) Increment read_ptr
   // 4) Decrease count
 
-  always_ff @(posedge clk or posedge reset) begin
-    if (reset) begin
-      read_ptr <= '0;
-    end else if (bus.read_en && !bus.empty) begin
-      read_ptr <= read_ptr + 1'b1;
-    end
-  end
+  // always_ff @(posedge clk or posedge reset) begin
+  //   if (reset) begin
+  //     read_ptr <= '0;
+  //   end else if (bus.read_en && !bus.empty) begin
+  //     read_ptr <= read_ptr + 1'b1;
+  //   end
+  // end
 
-  assign bus.read_data = buffer[read_ptr];
+  // assign bus.read_data = buffer[read_ptr];
 
 
   // ======================================================
@@ -53,7 +62,7 @@ module FIFO (
   // ======================================================
 
   always_ff @(posedge clk or posedge reset) begin
-    if (reset) begin
+    if (reset || flush) begin
       bus.count <= '0;
     end else begin
       if (bus.write_en && bus.empty) begin
@@ -61,7 +70,7 @@ module FIFO (
         bus.count <= FIFO_DEPTH;
       end else if (bus.read_en && !bus.empty) begin
         // Single read
-        bus.count <= bus.count - 1;
+        bus.count <= 0;
       end
     end
   end

@@ -42,8 +42,8 @@ module Fetcher (
   wire [7:0] tilemap_y = (bus.regs.SCY + bus.regs.LY) & 8'd255;
 
   /// Compute the tilemap address (the address to the index of exact tile to fetch).
-  /// Effectively: `tilemap_base + (tile_y * 32) + tile_x`
-  wire [15:0] tilemap_addr = tilemap_base + {8'b0, tilemap_y} + {11'b0, tilemap_x};
+  /// Effectively: `tilemap_base + ((tilemap_y / 8) * 32) + tile_x`
+  wire [15:0] tilemap_addr = tilemap_base + {6'b0, tilemap_y[7:3], 5'b0} + {11'b0, tilemap_x};
 
   /// The index of the tile to fetch from the tile data area. We get this from the tilemap.
   logic [7:0] tile_index;
@@ -82,14 +82,19 @@ module Fetcher (
       tile_low_byte     <= 8'h00;
       tile_high_byte    <= 8'h00;
       fifo_bus.write_en <= 1'b0;
+      fetcher_x         <= 0;
     end else if (bus.mode == PPU_MODE_2 && bus.dot_counter == MODE2_LEN) begin
       // Check if we are starting mode 3 this dot
 
       // We start off by fetching the tile at (SCX / 8)
-      fetcher_x <= 5'(bus.regs.SCX >> 3);
+      fetcher_x <= 0;  // 5'(bus.regs.SCX >> 3);
+
+      $display("Clear Fetcher X");
 
     end else if (bus.mode == PPU_MODE_3) begin
       // Only operate in MODE 3 (drawing pixels)
+
+      fetcher_x <= fetcher_x;
 
       // default outputs
       fifo_bus.write_en <= 1'b0;
@@ -179,17 +184,17 @@ module Fetcher (
           if (fifo_bus.empty) begin
             // Push 8 pixels (MSB first unless hflip)
 
-            pixel_t px;
+            // pixel_t px;
 
             // Build all 8 pixels in parallel
             for (int i = 0; i < 8; i++) begin
-              px.color   = gb_color_t'({tile_high_byte[7-i], tile_low_byte[7-i]});
-              px.palette = 3'd0;
-              px.spr_idx = 6'd0;
-              px.bg_prio = 1'b0;
-              px.valid   = 1'b1;
+              // px.color   = gb_color_t'({tile_high_byte[7-i], tile_low_byte[7-i]});
+              // px.palette = 3'd0;
+              // px.spr_idx = 6'd0;
+              // px.bg_prio = 1'b0;
+              // px.valid   = 1'b1;
 
-              fifo_bus.write_data[i] <= px;
+              fifo_bus.write_data[i] <= gb_color_t'({tile_high_byte[7-i], tile_low_byte[7-i]});
             end
 
             fifo_bus.write_en <= 1'b1;

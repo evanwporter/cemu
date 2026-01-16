@@ -1,6 +1,7 @@
 #include "gpu.hpp"
 
-#include "gbh.hpp"
+#include <SDL.h>
+
 #include "types.hpp"
 #include <iostream>
 
@@ -206,6 +207,12 @@ bool GPU::render_snapshot() {
     SDL_RenderClear(dbg_renderer);
     SDL_RenderCopy(dbg_renderer, dbg_texture, nullptr, nullptr);
     SDL_RenderPresent(dbg_renderer);
+
+    for (int i = 0; i < 23040; ++i) {
+        if (framebuffer[i] != dbg_framebuffer[i]) {
+            framebuffer[i] = 0xFFFF00FF; // magenta highlight
+        }
+    }
 
     return true;
 }

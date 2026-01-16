@@ -29,12 +29,12 @@ endinterface
 interface FIFO_if;
   // Producer (fetcher) writes
   logic write_en;
-  pixel_t write_data[FIFO_DEPTH];
+  gb_color_t write_data[FIFO_DEPTH];
   logic full;  // FIFO is full (can't accept writes)
 
   // Consumer (framebuffer) reads
   logic read_en;
-  pixel_t read_data;
+  gb_color_t read_data[FIFO_DEPTH];
   logic empty;  // FIFO is empty (can't be read)
 
   /// Number of pixels inside buffer

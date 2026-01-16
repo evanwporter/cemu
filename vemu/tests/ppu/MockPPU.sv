@@ -20,11 +20,16 @@ module MockPPU (
   // VRAM
   logic [7:0] VRAM[0:8191]  /* verilator public */;
 
+  logic fifo_reset;
+
+  logic flush;
+
   // Hardcode scroll
   initial begin
     regs.SCX  = 8'd0;
     regs.SCY  = 8'd0;
     regs.LCDC = 8'b1001_0001;  // LCD on, BG on, 0x8000 tiles, 0x9800 map
+    // regs.LY   = 8'd0;
 
     VRAM <= '{default: 8'h00};
 
@@ -44,13 +49,14 @@ module MockPPU (
       .reset(reset),
       .bus(fetcher_bus),
       .fifo_bus(fifo_bus),
-      .flush(1'b0)
+      .flush(flush)
   );
 
   FIFO fifo_inst (
       .clk  (clk),
-      .reset(reset),
-      .bus  (fifo_bus)
+      .reset(fifo_reset),
+      .bus  (fifo_bus),
+      .flush(flush)
   );
 
   Framebuffer fb_inst (
@@ -59,8 +65,21 @@ module MockPPU (
       .dot_en(1'b1),
       .fifo_bus(fifo_bus),
       .SCX(regs.SCX),
-      .flush(1'b0)
+      .flush(flush)
   );
+
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      regs.LY <= '0;
+      flush   <= 1'b0;
+    end else begin
+      flush <= 1'b0;
+      if (fb_inst.line_done) begin
+        regs.LY <= regs.LY + 1'b1;
+        flush   <= 1'b1;
+      end
+    end
+  end
 
   always_comb begin
     fetcher_bus.rdata = 8'hFF;

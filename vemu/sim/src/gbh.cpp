@@ -1,3 +1,5 @@
+#include "gbh.hpp"
+
 #include <SDL.h>
 
 #include <VGameboy.h>
@@ -12,14 +14,12 @@
 #include <iomanip>
 #include <iostream>
 
-#include "gbh.hpp"
-
 namespace fs = std::filesystem;
 
 bool GB::setup(const std::filesystem::path& rom_path) {
     top = std::make_unique<VGameboy>();
     debugger = std::make_unique<debug::Debugger>(*this, *top, options.enable_debugger);
-    gpu.emplace(*top, options.gui_enabled);
+    gpu.emplace(top->rootp->Gameboy__DOT__ppu_inst__DOT__VRAM, top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY, top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LYC, top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCX, top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCY, top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__WX, top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__WY, top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LCDC, top->rootp->Gameboy__DOT__ppu_inst__DOT__framebuffer_inst__DOT__buffer, options.gui_enabled);
     cpu.emplace(*top);
 
     if (!load_rom(rom_path)) {

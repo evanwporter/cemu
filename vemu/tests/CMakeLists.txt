@@ -7,6 +7,7 @@ add_subdirectory(mooneye)
 add_subdirectory(gbmicrotest)
 
 add_executable(test_vemu
+    ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/verilator_time.cpp
 )
 
@@ -23,10 +24,10 @@ target_link_libraries(test_vemu
         test_cpu
         test_blargg
         test_mooneye
+        test_ppu
         # test_gbmicrotest
         libvemu
         GTest::gtest
-        GTest::gtest_main
 )
 
 target_compile_definitions(test_vemu PRIVATE
