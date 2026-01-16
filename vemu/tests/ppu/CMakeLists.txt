@@ -21,19 +21,6 @@ target_include_directories(test_ppu
         ${VEMU_TESTS_CPP_DIR}
 )
 
-# add_library(test_ppu_l2)
-add_executable(test_ppu_l2)
-
-# target_sources(test_ppu_l2
-#     PUBLIC
-#         ${CMAKE_CURRENT_SOURCE_DIR}/test_ppu_l2.cpp
-# )
-
-target_include_directories(test_ppu_l2
-    PUBLIC
-        ${VEMU_TESTS_CPP_DIR}
-)
-
 get_target_property(VEMU_PACKAGES vemu_rtl INTERFACE_VEMU_PACKAGES)
 get_target_property(VEMU_INTERFACES vemu_rtl INTERFACE_VEMU_INTERFACES)
 
@@ -53,27 +40,4 @@ verilate(test_ppu
         -Wno-fatal
         -I${VEMU_SRC_DIR}
         -I${CMAKE_CURRENT_BINARY_DIR}/
-)
-
-target_compile_definitions(test_ppu_l2 PUBLIC
-    TEST_DIR="${CMAKE_SOURCE_DIR}/tests/"
-)
-
-target_link_libraries(test_ppu_l2 PUBLIC
-    SDL2::SDL2
-    test_ppu
-)
-
-target_sources(test_ppu_l2
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/test_ppu_l2.cpp
-        ${VEMU_TESTS_CPP_DIR}/util/util.cpp
-        ${VEMU_TESTS_CPP_DIR}/verilator_time.cpp
-        ${CMAKE_SOURCE_DIR}/vemu/sim/src/gpu.cpp
-)
-
-target_include_directories(test_ppu_l2
-    PUBLIC
-        ${VEMU_TESTS_CPP_DIR}
-        ${CMAKE_SOURCE_DIR}/vemu/sim/include
 )
