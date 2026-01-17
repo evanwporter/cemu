@@ -18,6 +18,8 @@ module PPU (
 
   ppu_mode_t mode;
 
+  logic flush;
+
   // ======================================================
   // Renderer Submodules
   // ======================================================
@@ -39,7 +41,7 @@ module PPU (
       .reset(reset),
       .bus(fetcher_bus),
       .fifo_bus(fifo_bus),
-      .flush(1'b0)  // TODO: implement flush on window start
+      .flush(flush)
   );
 
   // FIFO
@@ -47,7 +49,7 @@ module PPU (
       .clk  (clk),
       .reset(reset),
       .bus  (fifo_bus),
-      .flush(1'b0)
+      .flush(flush)
   );
 
   // Framebuffer
@@ -56,7 +58,7 @@ module PPU (
       .reset(reset),
       .dot_en(dot_en),
       .fifo_bus(fifo_bus),
-      .flush(1'b0),
+      .flush(flush),
       .SCX(regs.SCX)
   );
 
@@ -210,15 +212,49 @@ module PPU (
   // ======================================================
   // Update Mode
   // ======================================================
-  always_comb begin
-    if (regs.LY >= 8'd144) begin
-      mode = PPU_MODE_1;  // VBlank
-    end else if (dot_counter < MODE2_LEN) begin
-      mode = PPU_MODE_2;  // OAM Scan
-    end else if (dot_counter < MODE2_LEN + MODE3_LEN) begin
-      mode = PPU_MODE_3;  // Pixel Transfer
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      mode <= PPU_MODE_2;
     end else begin
-      mode = PPU_MODE_0;  // HBlank
+      flush <= 1'b0;
+
+      if (regs.LCDC[7] == 1'b0) begin
+        mode <= PPU_MODE_2;
+      end else begin
+        // VBlank
+        if (regs.LY >= 8'd144) begin
+          mode <= PPU_MODE_1;
+        end else begin
+          // Visible lines
+          unique case (mode)
+            // OAM Scan
+            PPU_MODE_2: begin
+              // On dot_counter 80, enter Pixel Transfer
+              if (dot_counter == MODE2_LEN - 1) mode <= PPU_MODE_3;
+            end
+
+            // Pixel Transfer
+            PPU_MODE_3: begin
+              if (framebuffer_inst.line_done) begin
+                mode  <= PPU_MODE_0;
+                flush <= 1'b1;
+              end
+            end
+
+            // HBlank
+            PPU_MODE_0: begin
+              if (dot_counter == DOTS_PER_LINE - 1) mode <= PPU_MODE_2;
+            end
+
+            // VBlank
+            PPU_MODE_1: begin
+              // Exit VBlank at start of new frame
+              if (regs.LY == LINES_PER_FRAME - 1 && dot_counter == DOTS_PER_LINE - 1)
+                mode <= PPU_MODE_2;
+            end
+          endcase
+        end
+      end
     end
   end
 
