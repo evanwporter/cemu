@@ -20,6 +20,9 @@ module PPU (
 
   logic flush;
 
+  logic [7:0] VRAM[VRAM_len];
+  logic [7:0] OAM[OAM_len];
+
   // ======================================================
   // Renderer Submodules
   // ======================================================
@@ -63,9 +66,6 @@ module PPU (
   );
 
 
-  logic [7:0] VRAM[VRAM_len];
-  logic [7:0] OAM[OAM_len];
-
   // ======================================================
   // Update STAT
   // ======================================================
@@ -102,12 +102,14 @@ module PPU (
     end
   end
 
+
   // ======================================================
   // Address Selections
   // ======================================================
   wire VRAM_selected = bus.addr inside {[VRAM_start : VRAM_end]};
   wire OAM_selected = bus.addr inside {[OAM_start : OAM_end]};
   wire PPU_regs_selected = bus.addr inside {[PPU_regs_start : PPU_regs_end]} & (bus.addr != DMA_OAM_addr);
+
 
   // ======================================================
   // Write
@@ -160,6 +162,7 @@ module PPU (
       end
     end
   end
+
 
   // ======================================================
   // Read
@@ -257,6 +260,7 @@ module PPU (
       end
     end
   end
+
 
   // ======================================================
   // Tick

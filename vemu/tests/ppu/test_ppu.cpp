@@ -6,21 +6,20 @@
 #include <filesystem>
 #include <gtest/gtest.h>
 
-#include "VMockPPU.h"
-#include "VMockPPU_MockPPU.h"
-#include "VMockPPU___024root.h"
-
 #include <verilated.h>
 
 #include "util/ppm.hpp"
 #include "util/test_config.hpp"
 #include "util/util.hpp"
 
+#include "Vppu_top.h"
+#include "Vppu_top___024root.h"
+
 using vram_t = VlUnpacked<CData, 8192>;
 
 namespace fs = std::filesystem;
 
-inline void tick(VMockPPU& top, VerilatedContext& ctx) {
+inline void tick(Vppu_top& top, VerilatedContext& ctx) {
     top.clk = 0;
     top.eval();
     ctx.timeInc(5);
@@ -30,17 +29,12 @@ inline void tick(VMockPPU& top, VerilatedContext& ctx) {
     ctx.timeInc(5);
 }
 
-inline void run_ppu_frame(VMockPPU& top, VerilatedContext& ctx) {
+inline void run_ppu_frame(Vppu_top& top, VerilatedContext& ctx) {
     constexpr int DOTS_PER_LINE = 172;
     constexpr int LINES_PER_FRAME = 154;
 
-    for (int line = 0; line < LINES_PER_FRAME; ++line) {
-        for (int dot = 0; dot < DOTS_PER_LINE; ++dot) {
-            tick(top, ctx);
-
-            if (top.MockPPU->__PVT__fb_inst__DOT__line_done)
-                break;
-        }
+    while (!top.rootp->ppu_top__DOT__ppu__DOT__framebuffer_inst__DOT__frame_done) {
+        tick(top, ctx);
     }
 }
 
@@ -59,7 +53,7 @@ TEST_P(PPUFrameTest, RendersCorrectFrame) {
     ctx.debug(0);
     ctx.time(0);
 
-    VMockPPU top(&ctx);
+    Vppu_top top(&ctx);
 
     top.reset = 1;
     for (int i = 0; i < 4; ++i)
@@ -67,7 +61,7 @@ TEST_P(PPUFrameTest, RendersCorrectFrame) {
 
     top.reset = 0;
 
-    vram_t& vram = top.MockPPU->VRAM;
+    vram_t& vram = top.rootp->ppu_top__DOT__ppu__DOT__VRAM;
     for (int i = 0; i < 8192; ++i)
         vram[i] = 0;
 
@@ -78,7 +72,7 @@ TEST_P(PPUFrameTest, RendersCorrectFrame) {
     uint32_t fb[FB_SIZE];
 
     for (int i = 0; i < FB_SIZE; ++i)
-        fb[i] = gb_color(top.MockPPU->__PVT__fb_inst__DOT__buffer[i]);
+        fb[i] = gb_color(top.rootp->ppu_top__DOT__ppu__DOT__framebuffer_inst__DOT__buffer[i]);
 
     const fs::path golden = std::filesystem::path(__FILE__).parent_path() / "golden" / (param.name + ".ppm");
 

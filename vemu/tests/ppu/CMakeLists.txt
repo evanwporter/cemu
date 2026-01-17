@@ -25,13 +25,13 @@ get_target_property(VEMU_PACKAGES vemu_rtl INTERFACE_VEMU_PACKAGES)
 get_target_property(VEMU_INTERFACES vemu_rtl INTERFACE_VEMU_INTERFACES)
 
 verilate(test_ppu
-    PREFIX VMockPPU
-    TOP_MODULE MockPPU
+    PREFIX Vppu_top
+    TOP_MODULE ppu_top
     SOURCES
         ${VEMU_PACKAGES}
         ${VEMU_INTERFACES}
 
-        ${CMAKE_CURRENT_SOURCE_DIR}/MockPPU.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/ppu_top.sv
 
     VERILATOR_ARGS
         --sv
