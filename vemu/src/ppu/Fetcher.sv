@@ -83,13 +83,11 @@ module Fetcher (
       tile_high_byte    <= 8'h00;
       fifo_bus.write_en <= 1'b0;
       fetcher_x         <= 0;
-    end else if (bus.mode == PPU_MODE_2 && bus.dot_counter == MODE2_LEN) begin
+    end else if (bus.mode == PPU_MODE_2 && bus.dot_counter == MODE2_LEN - 1) begin
       // Check if we are starting mode 3 this dot
 
       // We start off by fetching the tile at (SCX / 8)
-      fetcher_x <= 0;  // 5'(bus.regs.SCX >> 3);
-
-      $display("Clear Fetcher X");
+      fetcher_x <= 5'(bus.regs.SCX >> 3);
 
     end else if (bus.mode == PPU_MODE_3) begin
       // Only operate in MODE 3 (drawing pixels)

@@ -35,11 +35,7 @@ inline void run_ppu_frame(VMockPPU& top, VerilatedContext& ctx) {
     constexpr int LINES_PER_FRAME = 154;
 
     for (int line = 0; line < LINES_PER_FRAME; ++line) {
-        top.MockPPU->__PVT__fetcher_inst__DOT__fetcher_x = 0;
-        top.MockPPU->__PVT__dot_counter = 80;
-
         for (int dot = 0; dot < DOTS_PER_LINE; ++dot) {
-            top.MockPPU->__PVT__dot_counter++;
             tick(top, ctx);
 
             if (top.MockPPU->__PVT__fb_inst__DOT__line_done)
@@ -66,12 +62,10 @@ TEST_P(PPUFrameTest, RendersCorrectFrame) {
     VMockPPU top(&ctx);
 
     top.reset = 1;
-    top.MockPPU->__PVT__fifo_reset = 1;
     for (int i = 0; i < 4; ++i)
         tick(top, ctx);
 
     top.reset = 0;
-    top.MockPPU->__PVT__fifo_reset = 0;
 
     auto& vram = top.MockPPU->VRAM;
     param.init_vram(vram);
@@ -92,7 +86,7 @@ TEST_P(PPUFrameTest, RendersCorrectFrame) {
     }
 
     std::size_t w, h;
-    auto golden_pixels = read_ppm(golden, w, h);
+    const auto golden_pixels = read_ppm(golden, w, h);
 
     ASSERT_EQ(w, GB_WIDTH);
     ASSERT_EQ(h, GB_HEIGHT);

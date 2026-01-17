@@ -11,7 +11,8 @@ module FIFO (
 );
   gb_color_t buffer[FIFO_DEPTH];
 
-  logic [2:0] read_ptr;
+  // logic [2:0] read_ptr;
+  // logic [2:0] write_ptr;
 
   // ======================================================
   // Push (Write) Logic
@@ -31,12 +32,8 @@ module FIFO (
       for (logic [3:0] i = 0; i < FIFO_DEPTH; i++) begin
         buffer[3'(i)] <= bus.write_data[3'(i)];
       end
-    end else if (bus.read_en && !bus.empty) begin
-      // $display("[PPU] [FIFO] Read pixel ptr=%0d color=%0h", read_ptr, bus.read_data);
     end
   end
-
-  assign bus.read_data = buffer;
 
   // ======================================================
   // Pop (Read) Logic
@@ -46,15 +43,15 @@ module FIFO (
   // 3) Increment read_ptr
   // 4) Decrease count
 
-  // always_ff @(posedge clk or posedge reset) begin
-  //   if (reset) begin
-  //     read_ptr <= '0;
-  //   end else if (bus.read_en && !bus.empty) begin
-  //     read_ptr <= read_ptr + 1'b1;
-  //   end
-  // end
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset || flush) begin
+      // read_ptr <= '0;
+    end else if (bus.read_en && !bus.empty) begin
+      // read_ptr <= read_ptr + 1'b1;
+    end
+  end
 
-  // assign bus.read_data = buffer[read_ptr];
+  assign bus.read_data = buffer;
 
 
   // ======================================================

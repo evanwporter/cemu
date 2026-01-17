@@ -20,8 +20,6 @@ module MockPPU (
   // VRAM
   logic [7:0] VRAM[0:8191]  /* verilator public */;
 
-  logic fifo_reset;
-
   logic flush;
 
   // Hardcode scroll
@@ -29,7 +27,6 @@ module MockPPU (
     regs.SCX  = 8'd0;
     regs.SCY  = 8'd0;
     regs.LCDC = 8'b1001_0001;  // LCD on, BG on, 0x8000 tiles, 0x9800 map
-    // regs.LY   = 8'd0;
 
     VRAM <= '{default: 8'h00};
 
@@ -54,7 +51,7 @@ module MockPPU (
 
   FIFO fifo_inst (
       .clk  (clk),
-      .reset(fifo_reset),
+      .reset(reset),
       .bus  (fifo_bus),
       .flush(flush)
   );
@@ -87,8 +84,6 @@ module MockPPU (
     if (fetcher_bus.read_req) begin
       // VRAM reads for fetcher (not blocked in Mode 3)
       fetcher_bus.rdata = VRAM[13'(fetcher_bus.addr)];
-      `LOG_TRACE(
-          ("[PPU] VRAM FETCHER READ addr=%h -> %h (mode=%0d)", fetcher_bus.addr, fetcher_bus.rdata, mode))
     end
   end
 
