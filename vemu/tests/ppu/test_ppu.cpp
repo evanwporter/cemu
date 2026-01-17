@@ -170,7 +170,7 @@ INSTANTIATE_TEST_SUITE_P(
     PPUTests,
     PPUFrameTest,
     ::testing::Values(
-        // bg_checkerboard_case,
+        // bg_checkerboard_case, // for some reason the bg_checkerboard_case is failing on github actions
         bg_color_stripes_case,
         bg_multi_tile_map_case),
     [](const ::testing::TestParamInfo<PPUFrameTestCase>& info) {
