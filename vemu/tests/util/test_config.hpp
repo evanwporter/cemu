@@ -1,4 +1,3 @@
-// test_config.hpp
 #pragma once
 
 struct TestConfig {

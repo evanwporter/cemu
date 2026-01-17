@@ -2,21 +2,23 @@
 //
 // You can display the generated PPM files using the util/display_ppm tool.
 
+#define SDL_MAIN_HANDLED
+
 #include <cstdint>
 #include <filesystem>
 #include <gtest/gtest.h>
 
 #include <verilated.h>
 
+#include "digits.hpp"
+#include "gpu.hpp"
+#include "types.hpp"
 #include "util/ppm.hpp"
 #include "util/test_config.hpp"
 #include "util/util.hpp"
 
 #include "Vppu_top.h"
 #include "Vppu_top___024root.h"
-
-using vram_t = VlUnpacked<CData, 8192>;
-using ppu_regs_t = Vppu_top_ppu_regs_t__struct__0;
 
 namespace fs = std::filesystem;
 
@@ -79,6 +81,27 @@ TEST_P(PPUFrameTest, RendersCorrectFrame) {
 
     for (int i = 0; i < FB_SIZE; ++i)
         fb[i] = gb_color(top.rootp->ppu_top__DOT__ppu__DOT__framebuffer_inst__DOT__buffer[i]);
+
+    GPU gpu(
+        vram,
+        regs.__PVT__LY,
+        regs.__PVT__LYC,
+        regs.__PVT__SCX,
+        regs.__PVT__SCY,
+        regs.__PVT__WX,
+        regs.__PVT__WY,
+        regs.__PVT__LCDC,
+        top.rootp->ppu_top__DOT__ppu__DOT__framebuffer_inst__DOT__buffer,
+        true);
+
+    // gpu.setup();
+
+    // gpu.render_snapshot();
+
+    // while (gpu.poll_events())
+    //     ;
+
+    // gpu.exit();
 
     const fs::path golden = std::filesystem::path(__FILE__).parent_path() / "golden" / (param.name + ".ppm");
 
@@ -198,8 +221,8 @@ PPUFrameTestCase bg_scrolled_tile_boundary_case {
                     tile = 1 + (tx & 1); // X axis variation
                 else if (tx == 0)
                     tile = 2 + (ty & 1); // Y axis variation
-
-                tile = 3 + ((tx + ty) & 1); // interior pattern
+                else
+                    tile = 3 + ((tx + ty) & 1); // interior pattern
                 vram[0x1800 + ty * 32 + tx] = tile;
             }
         }
@@ -210,6 +233,45 @@ PPUFrameTestCase bg_scrolled_tile_boundary_case {
     },
 };
 
+PPUFrameTestCase bg_bands_case {
+    "bg_bands",
+    [](vram_t& vram) {
+        constexpr int T = 0x0000;
+
+        for (int i = 0; i < 16; ++i) {
+            for (int r = 0; r < 8; ++r) {
+                vram[i * 16 + r * 2 + 0] = (i & 1) ? 0xFF : 0x00;
+                vram[i * 16 + r * 2 + 1] = 0x00;
+            }
+        }
+
+        for (int ty = 0; ty < 32; ++ty) {
+            for (int tx = 0; tx < 32; ++tx) {
+                uint8_t tile = tx % 16;
+                vram[0x1800 + ty * 32 + tx] = tile;
+            }
+        }
+    },
+};
+
+PPUFrameTestCase bg_numbers_case {
+    "bg_numbers",
+    [](vram_t& vram) {
+        constexpr int T = 0x0000;
+
+        for (int i = 0; i < 16; ++i) {
+            write_numbered_tile(vram, i, i);
+        }
+
+        for (int ty = 0; ty < 32; ++ty) {
+            for (int tx = 0; tx < 32; ++tx) {
+                uint8_t tile = tx % 16;
+                vram[0x1800 + ty * 32 + tx] = tile;
+            }
+        }
+    },
+};
+
 INSTANTIATE_TEST_SUITE_P(
     PPUTests,
     PPUFrameTest,
@@ -217,7 +279,9 @@ INSTANTIATE_TEST_SUITE_P(
         bg_checkerboard_case, // for some reason the bg_checkerboard_case is failing on github actions
         bg_color_stripes_case,
         bg_multi_tile_map_case,
-        bg_scrolled_tile_boundary_case),
+        bg_scrolled_tile_boundary_case,
+        bg_numbers_case,
+        bg_bands_case),
     [](const ::testing::TestParamInfo<PPUFrameTestCase>& info) {
         return info.param.name;
     });

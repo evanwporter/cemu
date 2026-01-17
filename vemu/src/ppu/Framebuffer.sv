@@ -60,7 +60,7 @@ module Framebuffer (
         line_done  <= 1'b0;
 
         // Only draw visible area (160x144) when FIFO has pixels
-        if (!fifo_bus.empty) begin
+        if (!fifo_bus.empty && !fifo_bus.read_en) begin
           fifo_bus.read_en <= 1'b1;
 
           // Store pixel in framebuffer
