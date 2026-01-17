@@ -190,29 +190,27 @@ bool GPU::render_snapshot() {
     if (!enabled)
         return true;
 
-    // 1) Show Verilog framebuffer (buffer[] is 0..3 indices)
     for (int i = 0; i < GB_WIDTH * GB_HEIGHT; ++i)
         framebuffer[i] = gb_color(buffer[i]);
+
+    for (int ly = 0; ly < GB_HEIGHT; ++ly)
+        draw_scanline((u8)ly);
+
+    // for (int i = 0; i < 23040; ++i) {
+    //     if (framebuffer[i] != dbg_framebuffer[i]) {
+    //         framebuffer[i] = 0xFFFF00FF;
+    //     }
+    // }
 
     SDL_UpdateTexture(texture, nullptr, framebuffer, GB_WIDTH * sizeof(u32));
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, nullptr, nullptr);
     SDL_RenderPresent(renderer);
 
-    // 2) Show software reconstruction snapshot into dbg_framebuffer
-    for (int ly = 0; ly < GB_HEIGHT; ++ly)
-        draw_scanline((u8)ly);
-
     SDL_UpdateTexture(dbg_texture, nullptr, dbg_framebuffer, GB_WIDTH * sizeof(u32));
     SDL_RenderClear(dbg_renderer);
     SDL_RenderCopy(dbg_renderer, dbg_texture, nullptr, nullptr);
     SDL_RenderPresent(dbg_renderer);
-
-    for (int i = 0; i < 23040; ++i) {
-        if (framebuffer[i] != dbg_framebuffer[i]) {
-            framebuffer[i] = 0xFFFF00FF; // magenta highlight
-        }
-    }
 
     return true;
 }
@@ -220,8 +218,15 @@ bool GPU::render_snapshot() {
 bool GPU::poll_events() {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
-        if (e.type == SDL_QUIT)
+        switch (e.type) {
+        case SDL_QUIT:
             return false;
+
+        case SDL_WINDOWEVENT:
+            if (e.window.event == SDL_WINDOWEVENT_CLOSE)
+                return false;
+            break;
+        }
     }
     return true;
 }

@@ -82,26 +82,28 @@ TEST_P(PPUFrameTest, RendersCorrectFrame) {
     for (int i = 0; i < FB_SIZE; ++i)
         fb[i] = gb_color(top.rootp->ppu_top__DOT__ppu__DOT__framebuffer_inst__DOT__buffer[i]);
 
-    GPU gpu(
-        vram,
-        regs.__PVT__LY,
-        regs.__PVT__LYC,
-        regs.__PVT__SCX,
-        regs.__PVT__SCY,
-        regs.__PVT__WX,
-        regs.__PVT__WY,
-        regs.__PVT__LCDC,
-        top.rootp->ppu_top__DOT__ppu__DOT__framebuffer_inst__DOT__buffer,
-        true);
+    if (test_config().gui) {
+        GPU gpu(
+            vram,
+            regs.__PVT__LY,
+            regs.__PVT__LYC,
+            regs.__PVT__SCX,
+            regs.__PVT__SCY,
+            regs.__PVT__WX,
+            regs.__PVT__WY,
+            regs.__PVT__LCDC,
+            top.rootp->ppu_top__DOT__ppu__DOT__framebuffer_inst__DOT__buffer,
+            true);
 
-    // gpu.setup();
+        gpu.setup();
 
-    // gpu.render_snapshot();
+        gpu.render_snapshot();
 
-    // while (gpu.poll_events())
-    //     ;
+        while (gpu.poll_events())
+            ;
 
-    // gpu.exit();
+        gpu.exit();
+    }
 
     const fs::path golden = std::filesystem::path(__FILE__).parent_path() / "golden" / (param.name + ".ppm");
 
