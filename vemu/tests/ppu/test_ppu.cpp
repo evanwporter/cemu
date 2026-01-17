@@ -1,4 +1,7 @@
-// test_ppu_background.cpp
+// ./build/debug/vemu/tests/test_vemu.exe --gtest_filter=PPU* --update
+//
+// You can display the generated PPM files using the util/display_ppm tool.
+
 #include <cstdint>
 #include <filesystem>
 #include <gtest/gtest.h>
@@ -10,8 +13,10 @@
 #include <verilated.h>
 
 #include "util/ppm.hpp"
-#include "util/test_config.hpp" // --update flag
+#include "util/test_config.hpp"
 #include "util/util.hpp"
+
+using vram_t = VlUnpacked<CData, 8192>;
 
 namespace fs = std::filesystem;
 
@@ -43,7 +48,17 @@ inline void run_ppu_frame(VMockPPU& top, VerilatedContext& ctx) {
     }
 }
 
-TEST(PPU, BackgroundDisplay) {
+struct PPUFrameTestCase {
+    std::string name;
+    std::function<void(vram_t& vram)> init_vram;
+};
+
+class PPUFrameTest
+    : public ::testing::TestWithParam<PPUFrameTestCase> { };
+
+TEST_P(PPUFrameTest, RendersCorrectFrame) {
+    const auto& param = GetParam();
+
     VerilatedContext ctx;
     ctx.debug(0);
     ctx.time(0);
@@ -59,13 +74,7 @@ TEST(PPU, BackgroundDisplay) {
     top.MockPPU->__PVT__fifo_reset = 0;
 
     auto& vram = top.MockPPU->VRAM;
-
-    // Checkered pattern
-    constexpr int tile0 = 0x0000;
-    for (int row = 0; row < 8; ++row) {
-        vram[tile0 + row * 2 + 0] = (row & 1) ? 0b01010101 : 0b10101010;
-        vram[tile0 + row * 2 + 1] = 0x00;
-    }
+    param.init_vram(vram);
 
     run_ppu_frame(top, ctx);
 
@@ -74,7 +83,7 @@ TEST(PPU, BackgroundDisplay) {
     for (int i = 0; i < FB_SIZE; ++i)
         fb[i] = gb_color(top.MockPPU->__PVT__fb_inst__DOT__buffer[i]);
 
-    const fs::path golden = std::filesystem::path(__FILE__).parent_path() / "golden/bg_display.ppm";
+    const fs::path golden = std::filesystem::path(__FILE__).parent_path() / "golden" / (param.name + ".ppm");
 
     if (test_config().update) {
         fs::create_directories(golden.parent_path());
@@ -93,3 +102,80 @@ TEST(PPU, BackgroundDisplay) {
             << "Pixel mismatch at index " << i;
     }
 }
+
+PPUFrameTestCase bg_checkerboard_case {
+    "bg_checkerboard",
+    [](vram_t& vram) {
+        constexpr int tile0 = 0x0000;
+        for (int row = 0; row < 8; ++row) {
+            vram[tile0 + row * 2 + 0] = (row & 1) ? 0b01010101 : 0b10101010;
+            vram[tile0 + row * 2 + 1] = 0x00;
+        }
+    },
+};
+
+PPUFrameTestCase bg_color_stripes_case {
+    "bg_color_stripes",
+    [](vram_t& vram) {
+        constexpr int tile0 = 0x0000;
+        for (int row = 0; row < 8; ++row) {
+            vram[tile0 + row * 2 + 0] = 0x55; // LSBs
+            vram[tile0 + row * 2 + 1] = 0x33; // MSBs
+        }
+    }
+};
+
+PPUFrameTestCase bg_multi_tile_map_case {
+    "bg_multi_tile_map",
+    [](vram_t& vram) {
+        constexpr int TILE_BASE = 0x0000;
+        constexpr int MAP_BASE = 0x1800;
+
+        // Tile 0: solid color 0
+        for (int row = 0; row < 8; ++row) {
+            vram[TILE_BASE + 0 * 16 + row * 2 + 0] = 0x00;
+            vram[TILE_BASE + 0 * 16 + row * 2 + 1] = 0x00;
+        }
+
+        // Tile 1: vertical stripes (0,1,2,3)
+        for (int row = 0; row < 8; ++row) {
+            vram[TILE_BASE + 1 * 16 + row * 2 + 0] = 0x55; // 01010101
+            vram[TILE_BASE + 1 * 16 + row * 2 + 1] = 0x33; // 00110011
+        }
+
+        // Tile 2: horizontal stripes
+        for (int row = 0; row < 8; ++row) {
+            const bool even = (row & 1) == 0;
+            vram[TILE_BASE + 2 * 16 + row * 2 + 0] = even ? 0xFF : 0x00;
+            vram[TILE_BASE + 2 * 16 + row * 2 + 1] = even ? 0x00 : 0xFF;
+        }
+
+        // Tile 3: checkerboard
+        for (int row = 0; row < 8; ++row) {
+            vram[TILE_BASE + 3 * 16 + row * 2 + 0] = (row & 1) ? 0b01010101 : 0b10101010;
+            vram[TILE_BASE + 3 * 16 + row * 2 + 1] = 0x00;
+        }
+
+        // Fill BG tile map (32x32)
+        // Pattern:
+        // 0 1 2 3 0 1 2 3 ...
+        // 1 2 3 0 1 2 3 0 ...
+        for (int y = 0; y < 32; ++y) {
+            for (int x = 0; x < 32; ++x) {
+                uint8_t tile = (x + y) % 4;
+                vram[MAP_BASE + y * 32 + x] = tile;
+            }
+        }
+    }
+};
+
+INSTANTIATE_TEST_SUITE_P(
+    PPUTests,
+    PPUFrameTest,
+    ::testing::Values(
+        bg_checkerboard_case,
+        bg_color_stripes_case,
+        bg_multi_tile_map_case),
+    [](const ::testing::TestParamInfo<PPUFrameTestCase>& info) {
+        return info.param.name;
+    });

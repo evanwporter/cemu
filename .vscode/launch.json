@@ -40,7 +40,9 @@
       "type": "cppvsdbg",
       "request": "launch",
       "program": "${workspaceFolder}\\build\\debug\\vemu\\tests\\util\\display_ppm.exe",
-      "args": ["${workspaceFolder}\\vemu\\tests\\ppu\\golden\\bg_display.ppm"],
+      "args": [
+        "${workspaceFolder}\\vemu\\tests\\ppu\\golden\\bg_multi_tile_map.ppm"
+      ],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],
