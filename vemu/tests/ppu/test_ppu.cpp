@@ -16,6 +16,7 @@
 #include "Vppu_top___024root.h"
 
 using vram_t = VlUnpacked<CData, 8192>;
+using ppu_regs_t = Vppu_top_ppu_regs_t__struct__0;
 
 namespace fs = std::filesystem;
 
@@ -41,6 +42,8 @@ inline void run_ppu_frame(Vppu_top& top, VerilatedContext& ctx) {
 struct PPUFrameTestCase {
     std::string name;
     std::function<void(vram_t& vram)> init_vram;
+    std::function<void(ppu_regs_t& ppu_regs)> init_regs =
+        [](ppu_regs_t& regs) { };
 };
 
 class PPUFrameTest
@@ -66,6 +69,9 @@ TEST_P(PPUFrameTest, RendersCorrectFrame) {
         vram[i] = 0;
 
     param.init_vram(vram);
+
+    ppu_regs_t& regs = top.rootp->ppu_top__DOT__ppu__DOT__regs;
+    param.init_regs(regs);
 
     run_ppu_frame(top, ctx);
 
@@ -117,8 +123,8 @@ PPUFrameTestCase bg_color_stripes_case {
 };
 
 PPUFrameTestCase bg_multi_tile_map_case {
-    "bg_multi_tile_map",
-    [](vram_t& vram) {
+    .name = "bg_multi_tile_map",
+    .init_vram = [](vram_t& vram) {
         constexpr int TILE_BASE = 0x0000;
         constexpr int MAP_BASE = 0x1800;
 
@@ -145,7 +151,7 @@ PPUFrameTestCase bg_multi_tile_map_case {
         for (int row = 0; row < 8; ++row) {
             vram[TILE_BASE + 3 * 16 + row * 2 + 0] = (row & 1) ? 0b01010101 : 0b10101010;
             vram[TILE_BASE + 3 * 16 + row * 2 + 1] = 0x00;
-        }
+        } 
 
         // Fill BG tile map (32x32)
         // Pattern:
@@ -156,17 +162,62 @@ PPUFrameTestCase bg_multi_tile_map_case {
                 uint8_t tile = (x + y) % 4;
                 vram[MAP_BASE + y * 32 + x] = tile;
             }
+        } },
+};
+
+PPUFrameTestCase bg_scrolled_tile_boundary_case {
+    "bg_scrolled_tile_boundary",
+    [](vram_t& vram) {
+        constexpr int T = 0x0000;
+
+        auto write = [&](int tile, int row, uint8_t lsb, uint8_t msb) {
+            vram[T + tile * 16 + row * 2 + 0] = lsb;
+            vram[T + tile * 16 + row * 2 + 1] = msb;
+        };
+
+        for (int r = 0; r < 8; ++r) {
+            write(0, r, 0x00, 0x00); // solid 0
+            write(1, r, 0xAA, 0x00); // vertical stripes
+            write(2, r, (r & 1) ? 0xFF : 0x00, 0x00); // horizontal stripes
+            write(3, r, (r & 1) ? 0xAA : 0x55, 0x00); // checker
+            write(4, r, 1 << r, 0x00); // diagonal /
+            write(5, r, 0x80 >> r, 0x00); // diagonal
+            write(6, r, (r == 3) ? 0xFF : 0x10, 0x00); // cross
+            write(7, r, (r == 3) ? 0x10 : 0x00, 0x00); // dot
         }
-    }
+
+        for (int ty = 0; ty < 32; ++ty) {
+            for (int tx = 0; tx < 32; ++tx) {
+                uint8_t tile = 0;
+                if (tx == 0 && ty == 0)
+                    tile = 6; // origin cross
+                else if (tx == 1 && ty == 0)
+                    tile = 7; // origin dot
+
+                else if (ty == 0)
+                    tile = 1 + (tx & 1); // X axis variation
+                else if (tx == 0)
+                    tile = 2 + (ty & 1); // Y axis variation
+
+                tile = 3 + ((tx + ty) & 1); // interior pattern
+                vram[0x1800 + ty * 32 + tx] = tile;
+            }
+        }
+    },
+    [](ppu_regs_t& regs) {
+        regs.__PVT__SCX = 5; // half-tile X shift
+        regs.__PVT__SCY = 6; // crosses tile boundary vertically
+    },
 };
 
 INSTANTIATE_TEST_SUITE_P(
     PPUTests,
     PPUFrameTest,
     ::testing::Values(
-        // bg_checkerboard_case, // for some reason the bg_checkerboard_case is failing on github actions
+        bg_checkerboard_case, // for some reason the bg_checkerboard_case is failing on github actions
         bg_color_stripes_case,
-        bg_multi_tile_map_case),
+        bg_multi_tile_map_case,
+        bg_scrolled_tile_boundary_case),
     [](const ::testing::TestParamInfo<PPUFrameTestCase>& info) {
         return info.param.name;
     });
