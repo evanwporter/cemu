@@ -11,8 +11,7 @@ module FIFO (
 );
   gb_color_t buffer[FIFO_DEPTH];
 
-  // logic [2:0] read_ptr;
-  // logic [2:0] write_ptr;
+  logic [2:0] read_ptr;
 
   // ======================================================
   // Push (Write) Logic
@@ -32,6 +31,9 @@ module FIFO (
       for (logic [3:0] i = 0; i < FIFO_DEPTH; i++) begin
         buffer[3'(i)] <= bus.write_data[3'(i)];
       end
+      if (read_ptr != 3'd0) begin
+        $fatal(1, "FIFO: Write occurred while read_ptr != 0 (read_ptr=%0d)", read_ptr);
+      end
     end
   end
 
@@ -45,13 +47,13 @@ module FIFO (
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset || flush) begin
-      // read_ptr <= '0;
+      read_ptr <= 3'd0;
     end else if (bus.read_en && !bus.empty) begin
-      // read_ptr <= read_ptr + 1'b1;
+      read_ptr <= read_ptr + 1'b1;
     end
   end
 
-  assign bus.read_data = buffer;
+  assign bus.read_data = buffer[read_ptr];
 
 
   // ======================================================
@@ -67,7 +69,7 @@ module FIFO (
         bus.count <= FIFO_DEPTH;
       end else if (bus.read_en && !bus.empty) begin
         // Single read
-        bus.count <= 0;
+        bus.count <= bus.count - 1'b1;
       end
     end
   end

@@ -233,15 +233,15 @@ module PPU (
             // OAM Scan
             PPU_MODE_2: begin
               // On dot_counter 80, enter Pixel Transfer
-              if (dot_counter == MODE2_LEN - 1) mode <= PPU_MODE_3;
+              if (dot_counter == MODE2_LEN - 1) begin
+                mode  <= PPU_MODE_3;
+                flush <= 1'b1;
+              end
             end
 
             // Pixel Transfer
             PPU_MODE_3: begin
-              if (framebuffer_inst.line_done) begin
-                mode  <= PPU_MODE_0;
-                flush <= 1'b1;
-              end
+              if (framebuffer_inst.line_done) mode <= PPU_MODE_0;
             end
 
             // HBlank

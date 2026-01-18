@@ -34,7 +34,7 @@ interface FIFO_if;
 
   // Consumer (framebuffer) reads
   logic read_en;
-  gb_color_t read_data[FIFO_DEPTH];
+  gb_color_t read_data;
   logic empty;  // FIFO is empty (can't be read)
 
   /// Number of pixels inside buffer
