@@ -1,0 +1,3 @@
+`verilator_config
+
+public_flat_rd -module "Framebuffer" -var "buffer"

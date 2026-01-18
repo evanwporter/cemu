@@ -36,7 +36,7 @@ inline void run_ppu_frame(Vppu_top& top, VerilatedContext& ctx) {
     constexpr int DOTS_PER_LINE = 172;
     constexpr int LINES_PER_FRAME = 154;
 
-    while (!top.rootp->ppu_top__DOT__ppu__DOT__framebuffer_inst__DOT__frame_done) {
+    while (!top.rootp->ppu_top__DOT__ppu__DOT__frame_done) {
         tick(top, ctx);
     }
 }
@@ -230,8 +230,8 @@ PPUFrameTestCase bg_scrolled_tile_boundary_case {
         }
     },
     [](ppu_regs_t& regs) {
-        regs.__PVT__SCX = 5; // half-tile X shift
-        regs.__PVT__SCY = 6; // crosses tile boundary vertically
+        regs.__PVT__SCX = 19;
+        regs.__PVT__SCY = 6;
     },
 };
 

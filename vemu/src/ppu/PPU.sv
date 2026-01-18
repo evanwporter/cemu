@@ -27,8 +27,12 @@ module PPU (
   // Renderer Submodules
   // ======================================================
 
+  // TODO: better name
   logic dot_en;
   assign dot_en = (mode == PPU_MODE_3);
+
+  logic line_done;
+  logic frame_done;
 
   Fetcher_if fetcher_bus (
       .regs(regs),
@@ -62,7 +66,9 @@ module PPU (
       .dot_en(dot_en),
       .fifo_bus(fifo_bus),
       .flush(flush),
-      .SCX(regs.SCX)
+      .SCX(regs.SCX),
+      .line_done(line_done),
+      .frame_done(frame_done)
   );
 
 

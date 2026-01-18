@@ -14,9 +14,11 @@ module Framebuffer (
     input logic [7:0] SCX,
 
     // control
-    input logic flush
+    input logic flush,
+
     // status
-    // TODO: frame_done signal
+    output logic line_done,
+    output logic frame_done
 );
 
   localparam int NUM_PIXELS = GB_SCREEN_WIDTH * GB_SCREEN_HEIGHT;
@@ -28,36 +30,36 @@ module Framebuffer (
 
   gb_color_t buffer[NUM_PIXELS];
 
-  logic frame_done;
-
   /// Number of pixels to discard at start of each scanline
   logic [2:0] discard_count;
 
-  logic line_done;
+  // TODO: better name for pop
+  wire pop = dot_en && !fifo_bus.empty;
+
+  assign fifo_bus.read_en = pop;
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset || flush) begin
       x_screen <= 8'd0;
       // y_screen <= 8'd0;
       // frame_done <= 1'b0;
-      discard_count <= 0;  // SCX[2:0];
-
-      fifo_bus.read_en <= 1'b0;
+      discard_count <= SCX[2:0];
 
       line_done <= 1'b0;
 
       // $display("[PPU] [FB] Framebuffer reset (flush=%0b)", flush);
     end else begin
-      fifo_bus.read_en <= 1'b0;
 
       frame_done <= 1'b0;
-      line_done <= 1'b0;
+      line_done  <= 1'b0;
 
-      if (dot_en) begin
+      // Only draw visible area (160x144) when FIFO has pixels
+      if (pop) begin
 
-        // Only draw visible area (160x144) when FIFO has pixels
-        if (!fifo_bus.empty && !fifo_bus.read_en) begin
-          fifo_bus.read_en   <= 1'b1;
+        if (discard_count != 3'd0) begin
+          // Discard pixel
+          discard_count <= discard_count - 1'b1;
+        end else begin
 
           // Store pixel in framebuffer
           // The read_data is always the top pixel in the FIFO
@@ -84,7 +86,6 @@ module Framebuffer (
             // Next pixel
             x_screen <= x_screen + 8'd1;
           end
-
         end
       end
     end

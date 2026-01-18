@@ -31,6 +31,7 @@ verilate(test_ppu
     PREFIX Vppu_top
     TOP_MODULE ppu_top
     SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/test_ppu.vlt
         ${VEMU_PACKAGES}
         ${VEMU_INTERFACES}
 
@@ -42,5 +43,5 @@ verilate(test_ppu
         -Wall
         -Wno-fatal
         -I${VEMU_SRC_DIR}
-        -I${CMAKE_CURRENT_BINARY_DIR}/
+        -I${CMAKE_CURRENT_BINARY_DIR}
 )
