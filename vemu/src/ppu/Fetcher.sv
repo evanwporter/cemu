@@ -31,7 +31,7 @@ module Fetcher (
   logic [4:0] fetcher_x;
 
   /// Which tilemap to use (either `0x9800` or `0x9C00`)
-  wire [15:0] tilemap_base = bus.regs.LCDC[6] ? 16'h1C00 : 16'h1800;
+  wire [15:0] tilemap_base = bus.regs.LCDC[3] ? 16'h9C00 : 16'h9800;
 
   /// The X coordinate of the pixel being fetched in the tilemap.
   /// Effectively: `((SCX / 8) + fetcher_x) % 32`
@@ -201,14 +201,16 @@ module Fetcher (
             fetcher_x         <= fetcher_x + 1;
             state             <= FETCHER_GET_TILE;
 
-            `LOG_TRACE(("FETCHER_PUSH: burst push tile_x=%0d fifo_empty=1", fetcher_x))
+            // $display("FETCHER_PUSH: push fetcher_x=%0d, tile_index=%0d tilemap_addr=%h", fetcher_x,
+            //          tile_index, tilemap_addr);
+            // $fflush();
 
           end else begin
             // Can’t push yet; keep trying each dot
             fifo_bus.write_en <= 1'b0;
 
-            `LOG_TRACE(
-                ("FETCHER_PUSH: finished tile, fetcher_x->%0d, state->FETCHER_GET_TILE", fetcher_x + 1))
+            // $display("FETCHER_PUSH: finished tile, fetcher_x->%0d, state->FETCHER_GET_TILE",
+            //          fetcher_x + 1);
           end
         end
       endcase

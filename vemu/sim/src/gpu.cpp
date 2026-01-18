@@ -111,6 +111,21 @@ bool GPU::update() {
 
     if (LY_prev != regs.LY) {
         draw_scanline(LY_prev);
+
+        const int offset = LY_prev * GB_WIDTH;
+        for (int x = 0; x < GB_WIDTH; ++x) {
+            if (LY_prev >= GB_HEIGHT)
+                continue;
+
+            u32 expected = gb_color(buffer[offset + x]);
+            u32 actual = dbg_framebuffer[offset + x];
+
+            if (expected != actual) {
+                // Mark mismatch visually (magenta)
+                dbg_framebuffer[offset + x] = 0xFFFF00FF;
+            }
+        }
+
         LY_prev = regs.LY;
 
         if (regs.LY == 144) {

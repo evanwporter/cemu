@@ -179,9 +179,9 @@ module PPU (
 
     if (fetcher_bus.read_req) begin
       // VRAM reads for fetcher (not blocked in Mode 3)
-      fetcher_bus.rdata = VRAM[13'(fetcher_bus.addr)];
-      `LOG_TRACE(
-          ("[PPU] VRAM FETCHER READ addr=%h -> %h (mode=%0d)", fetcher_bus.addr, fetcher_bus.rdata, mode))
+      fetcher_bus.rdata = VRAM[13'(fetcher_bus.addr-VRAM_start)];
+      // $display("[PPU] VRAM FETCHER READ addr=%h -> %h (mode=%0d)", fetcher_bus.addr,
+      //          fetcher_bus.rdata, mode);
     end
 
     if (bus.read_en) begin
@@ -227,45 +227,48 @@ module PPU (
     end else begin
       flush <= 1'b0;
 
-      if (regs.LCDC[7] == 1'b0) begin
+      if (!regs.LCDC[7]) begin
         mode <= PPU_MODE_2;
       end else begin
-        // VBlank
-        if (regs.LY >= 8'd144) begin
-          mode <= PPU_MODE_1;
-        end else begin
-          // Visible lines
-          unique case (mode)
-            // OAM Scan
-            PPU_MODE_2: begin
-              // On dot_counter 80, enter Pixel Transfer
-              if (dot_counter == MODE2_LEN - 1) begin
-                mode  <= PPU_MODE_3;
-                flush <= 1'b1;
-              end
+        // Visible lines
+        unique case (mode)
+          // OAM Scan
+          PPU_MODE_2: begin
+            // On dot_counter 80, enter Pixel Transfer
+            if (dot_counter == MODE2_LEN - 1) begin
+              mode  <= PPU_MODE_3;
+              flush <= 1'b1;
+              // $display("[PPU] Entering MODE 3 at LY=%0d", regs.LY);
             end
+          end
 
-            // Pixel Transfer
-            PPU_MODE_3: begin
-              if (line_done) mode <= PPU_MODE_0;
+          // Pixel Transfer
+          PPU_MODE_3: begin
+            if (line_done) begin
+              mode <= PPU_MODE_0;
+              // $display("[PPU] Entering MODE 0 at LY=%0d", regs.LY);
             end
+          end
 
-            // HBlank
-            PPU_MODE_0: begin
-              if (dot_counter == DOTS_PER_LINE - 1) mode <= PPU_MODE_2;
+          // HBlank
+          PPU_MODE_0: begin
+            if (dot_counter == DOTS_PER_LINE - 1) begin
+              if (regs.LY == GB_SCREEN_HEIGHT - 1)
+                mode <= PPU_MODE_1;  // enter VBlank after line 143
+              else mode <= PPU_MODE_2;
             end
+          end
 
-            // VBlank
-            PPU_MODE_1: begin
-              // Exit VBlank at start of new frame
-              if (regs.LY == LINES_PER_FRAME - 1 && dot_counter == DOTS_PER_LINE - 1)
-                mode <= PPU_MODE_2;
-            end
-          endcase
-        end
+          // VBlank
+          PPU_MODE_1: begin
+            if (regs.LY == LINES_PER_FRAME - 1 && dot_counter == DOTS_PER_LINE - 1)
+              mode <= PPU_MODE_2;  // start next frame
+          end
+        endcase
       end
     end
   end
+
 
 
   // ======================================================

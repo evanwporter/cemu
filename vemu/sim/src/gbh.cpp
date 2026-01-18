@@ -298,6 +298,41 @@ void GB::dump_gd_trace(std::ostream& os) {
     os.flush();
 }
 
+void dump_vram(const VGameboy& top, const std::filesystem::path& path) {
+    std::ofstream out(path, std::ios::binary);
+    if (!out)
+        throw std::runtime_error("Failed to open VRAM dump file");
+
+    const auto& vram = top.rootp->Gameboy__DOT__ppu_inst__DOT__VRAM;
+
+    for (int i = 0; i < 8192; ++i) {
+        uint8_t byte = static_cast<uint8_t>(vram[i]);
+        out.write(reinterpret_cast<const char*>(&byte), 1);
+    }
+}
+
+void dump_ppu_regs(const VGameboy& top, const std::filesystem::path& path) {
+    std::ofstream out(path);
+    if (!out)
+        throw std::runtime_error("Failed to open regs dump file");
+
+    const auto& r = top.rootp->Gameboy__DOT__ppu_inst__DOT__regs;
+
+    out << std::hex << std::setfill('0');
+
+    out << "LCDC: 0x" << std::setw(2) << int(r.__PVT__LCDC) << "\n";
+    out << "STAT: 0x" << std::setw(2) << int(r.__PVT__STAT) << "\n";
+    out << "SCY : 0x" << std::setw(2) << int(r.__PVT__SCY) << "\n";
+    out << "SCX : 0x" << std::setw(2) << int(r.__PVT__SCX) << "\n";
+    out << "LY  : 0x" << std::setw(2) << int(r.__PVT__LY) << "\n";
+    out << "LYC : 0x" << std::setw(2) << int(r.__PVT__LYC) << "\n";
+    out << "BGP : 0x" << std::setw(2) << int(r.__PVT__BGP) << "\n";
+    out << "OBP0: 0x" << std::setw(2) << int(r.__PVT__OBP0) << "\n";
+    out << "OBP1: 0x" << std::setw(2) << int(r.__PVT__OBP1) << "\n";
+    out << "WY  : 0x" << std::setw(2) << int(r.__PVT__WY) << "\n";
+    out << "WX  : 0x" << std::setw(2) << int(r.__PVT__WX) << "\n";
+}
+
 bool GB::tick() {
     top->clk = 0;
     top->eval();
@@ -308,6 +343,26 @@ bool GB::tick() {
     ctx.timeInc(5);
 
     cycles++;
+
+    bool print = false;
+
+    if (print) {
+        const auto outdir = std::filesystem::path(__FILE__).parent_path() / "artifacts";
+        std::filesystem::create_directories(outdir);
+
+        dump_vram(*top, outdir / "vram.bin");
+        dump_ppu_regs(*top, outdir / "ppu_regs.txt");
+    }
+
+    const int mode = top->rootp->Gameboy__DOT__ppu_inst__DOT__mode;
+
+    if (mode != 1) {
+        ///
+        print = true;
+    }
+
+    if (top->rootp->Gameboy__DOT__ppu_inst__DOT__dot_counter == 450 && top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY == 153)
+        print = true;
 
     if (!gpu->update()) {
         return false;
@@ -320,9 +375,9 @@ bool GB::step() {
     while (began_instruction()) {
         if (!tick())
             return false;
-        debugger->on_tick();
+        // debugger->on_tick();
     }
-    debugger->on_step();
+    // debugger->on_step();
     handle_serial_output();
     return true;
 }
@@ -333,7 +388,7 @@ bool GB::run() {
 
     bool quit = false;
     while (!quit) {
-        const auto cmd = options.enable_debugger
+        const auto cmd = false // options.enable_debugger
             ? debugger->poll_command()
             : DebugCommand::Run;
 
