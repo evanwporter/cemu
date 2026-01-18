@@ -6,7 +6,6 @@
 
 #include <cstdint>
 #include <filesystem>
-#include <fstream>
 
 #include <gtest/gtest.h>
 
@@ -46,14 +45,6 @@ inline void run_ppu_frame(Vppu_top& top, VerilatedContext& ctx) {
     while (!top.rootp->ppu_top__DOT__ppu__DOT__frame_done) {
         tick(top, ctx);
     }
-}
-
-inline void load_vram_bin(vram_t& vram, const fs::path& path) {
-    std::ifstream in(path, std::ios::binary);
-    ASSERT_TRUE(in.is_open()) << "Failed to open " << path;
-
-    in.read(reinterpret_cast<char*>(&vram[0]), 8192);
-    ASSERT_EQ(in.gcount(), 8192) << "VRAM dump size mismatch";
 }
 
 struct PPUFrameTestCase {
@@ -384,40 +375,20 @@ PPUFrameTestCase bg_scroll_wrap_case {
     },
 };
 
-PPUFrameTestCase bg_vram_replay_case {
-    "bg_vram_replay",
-    [](vram_t& vram) {
-        const fs::path dump = fs::path(__FILE__).parent_path() / "data" / "vram.bin";
-
-        load_vram_bin(vram, dump);
-    },
-    [](ppu_regs_t& regs) {
-        // These MUST match the dump conditions
-        regs.__PVT__LCDC = 0x91;
-
-        // regs.__PVT__SCX = 0x36;
-        regs.__PVT__SCX = 0x98;
-        regs.__PVT__SCY = 0;
-        regs.__PVT__WX = 0;
-        regs.__PVT__WY = 0;
-    },
-};
-
 INSTANTIATE_TEST_SUITE_P(
     PPUTests,
     PPUFrameTest,
     ::testing::Values(
-        // bg_checkerboard_case, // for some reason the bg_checkerboard_case is failing on github actions
-        // bg_color_stripes_case,
-        // bg_multi_tile_map_case,
-        // bg_scrolled_tile_boundary_case,
+        bg_checkerboard_case, // for some reason the bg_checkerboard_case is failing on github actions
+        bg_color_stripes_case,
+        bg_multi_tile_map_case,
+        bg_scrolled_tile_boundary_case,
         bg_numbers_case,
-        // bg_bands_case,
-        // bg_tile_map_9c00_case,
-        // bg_signed_tile_data_case,
-        // bg_tile_index_wrap_case,
-        // bg_scroll_wrap_case,
-        bg_vram_replay_case),
+        bg_bands_case,
+        bg_tile_map_9c00_case,
+        bg_signed_tile_data_case,
+        bg_tile_index_wrap_case,
+        bg_scroll_wrap_case),
     [](const ::testing::TestParamInfo<PPUFrameTestCase>& info) {
         return info.param.name;
     });
