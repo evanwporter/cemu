@@ -13,11 +13,13 @@ module Framebuffer (
 
     input logic [7:0] SCX,
 
-    // control
+    /// Flush the framebuffer
     input logic flush,
 
-    // status
+    /// Signals when a line is done being drawn
     output logic line_done,
+
+    /// Signals when a full frame is done being drawn
     output logic frame_done
 );
 
@@ -31,18 +33,26 @@ module Framebuffer (
   gb_color_t buffer[NUM_PIXELS];
 
   /// Number of pixels to discard at start of each scanline
+  /// Typically: `SCX % 8`
   logic [2:0] discard_count;
 
-  // TODO: better name for pop
-  wire pop = pixel_transfer_en && !fifo_bus.empty;
+  /// Should we consume a pixel from the FIFO this cycle?
+  wire pixel_consume = pixel_transfer_en && !fifo_bus.empty;
 
-  assign fifo_bus.read_en = pop;
+  assign fifo_bus.read_en = pixel_consume;
 
   always_ff @(posedge clk or posedge reset) begin
-    if (reset || flush) begin
+    if (reset) begin
       x_screen <= 8'd0;
-      // y_screen <= 8'd0;
-      // frame_done <= 1'b0;
+      y_screen <= 8'd0;
+      frame_done <= 1'b0;
+      discard_count <= 3'd0;
+      line_done <= 1'b0;
+
+    end else if (flush) begin
+      x_screen <= 8'd0;
+
+      /// Effectively: `SCX % 8`
       discard_count <= SCX[2:0];
 
       line_done <= 1'b0;
@@ -54,7 +64,7 @@ module Framebuffer (
       line_done  <= 1'b0;
 
       // Only draw visible area (160x144) when FIFO has pixels
-      if (pop) begin
+      if (pixel_consume) begin
 
         if (discard_count != 3'd0) begin
           // Discard pixel
@@ -67,9 +77,8 @@ module Framebuffer (
 
           if (x_screen == (GB_SCREEN_WIDTH - 8'd1)) begin
             // End of scanline
-            x_screen <= 8'd0;
-            y_screen <= y_screen + 8'd1;
-            discard_count <= SCX[2:0];
+            x_screen  <= 8'd0;
+            y_screen  <= y_screen + 8'd1;
 
             line_done <= 1'b1;
 

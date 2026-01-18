@@ -45,8 +45,6 @@ void GPU::draw_scanline(const u8 LY) {
         dbg_framebuffer[LY * GB_WIDTH + x] = gb_color(color);
     }
 
-    // TODO: Window
-
     static constexpr u32 green[4] = {
         0xFF9BBC0F, // lightest
         0xFF8BAC0F, // light

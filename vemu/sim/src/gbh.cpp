@@ -354,16 +354,6 @@ bool GB::tick() {
         dump_ppu_regs(*top, outdir / "ppu_regs.txt");
     }
 
-    const int mode = top->rootp->Gameboy__DOT__ppu_inst__DOT__mode;
-
-    if (mode != 1) {
-        ///
-        print = true;
-    }
-
-    if (top->rootp->Gameboy__DOT__ppu_inst__DOT__dot_counter == 450 && top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY == 153)
-        print = true;
-
     if (!gpu->update()) {
         return false;
     }
