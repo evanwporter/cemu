@@ -63,7 +63,7 @@ module Framebuffer (
 
           // Store pixel in framebuffer
           // The read_data is always the top pixel in the FIFO
-          buffer[write_addr] <= fifo_bus.read_data;
+          buffer[write_addr] <= fifo_bus.read_data.color;
 
           if (x_screen == (GB_SCREEN_WIDTH - 8'd1)) begin
             // End of scanline

@@ -247,7 +247,7 @@ module PPU (
 
             // Pixel Transfer
             PPU_MODE_3: begin
-              if (framebuffer_inst.line_done) mode <= PPU_MODE_0;
+              if (line_done) mode <= PPU_MODE_0;
             end
 
             // HBlank

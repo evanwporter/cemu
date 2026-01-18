@@ -182,17 +182,17 @@ module Fetcher (
           if (fifo_bus.empty) begin
             // Push 8 pixels (MSB first unless hflip)
 
-            // pixel_t px;
+            pixel_t px;
 
             // Build all 8 pixels in parallel
             for (int i = 0; i < 8; i++) begin
-              // px.color   = gb_color_t'({tile_high_byte[7-i], tile_low_byte[7-i]});
-              // px.palette = 3'd0;
-              // px.spr_idx = 6'd0;
-              // px.bg_prio = 1'b0;
-              // px.valid   = 1'b1;
+              px.color   = gb_color_t'({tile_high_byte[7-i], tile_low_byte[7-i]});
+              px.palette = 3'd0;
+              px.spr_idx = 6'd0;
+              px.bg_prio = 1'b0;
+              px.valid   = 1'b1;
 
-              fifo_bus.write_data[i] <= gb_color_t'({tile_high_byte[7-i], tile_low_byte[7-i]});
+              fifo_bus.write_data[i] <= px;
             end
 
             fifo_bus.write_en <= 1'b1;

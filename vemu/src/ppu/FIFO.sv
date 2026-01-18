@@ -9,7 +9,7 @@ module FIFO (
 
     input logic flush
 );
-  gb_color_t buffer[FIFO_DEPTH];
+  pixel_t buffer[FIFO_DEPTH];
 
   logic [2:0] read_ptr;
 
@@ -24,7 +24,7 @@ module FIFO (
     if (reset || flush) begin
       // Nothing to do
       for (logic [3:0] i = 0; i < FIFO_DEPTH; i++) begin
-        buffer[3'(i)] <= gb_color_t'(0);
+        buffer[3'(i)] <= pixel_t'(0);
       end
     end else if (bus.write_en && bus.empty) begin
       // Performs 8 parallel writes
