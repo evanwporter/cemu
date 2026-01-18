@@ -6,7 +6,7 @@ import ppu_util_pkg::*;
 module Framebuffer (
     input logic clk,
     input logic reset,
-    input logic dot_en, // PPU mode 3 active
+    input logic pixel_transfer_en, // PPU mode 3 active
 
     // FIFO interface
     FIFO_if.Framebuffer_side fifo_bus,
@@ -34,7 +34,7 @@ module Framebuffer (
   logic [2:0] discard_count;
 
   // TODO: better name for pop
-  wire pop = dot_en && !fifo_bus.empty;
+  wire pop = pixel_transfer_en && !fifo_bus.empty;
 
   assign fifo_bus.read_en = pop;
 

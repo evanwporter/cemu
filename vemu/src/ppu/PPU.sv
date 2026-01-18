@@ -28,8 +28,8 @@ module PPU (
   // ======================================================
 
   // TODO: better name
-  logic dot_en;
-  assign dot_en = (mode == PPU_MODE_3);
+  logic pixel_transfer_en;
+  assign pixel_transfer_en = (mode == PPU_MODE_3);
 
   logic line_done;
   logic frame_done;
@@ -63,7 +63,7 @@ module PPU (
   Framebuffer framebuffer_inst (
       .clk(clk),
       .reset(reset),
-      .dot_en(dot_en),
+      .pixel_transfer_en(pixel_transfer_en),
       .fifo_bus(fifo_bus),
       .flush(flush),
       .SCX(regs.SCX),
