@@ -6,6 +6,9 @@
 #include <iostream>
 
 void GPU::draw_scanline(const u8 LY) {
+    if (!enabled)
+        return;
+
     if (LY >= GB_HEIGHT)
         return;
 
@@ -229,6 +232,9 @@ bool GPU::render_snapshot() {
 }
 
 bool GPU::poll_events() {
+    if (!enabled)
+        return false;
+
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
         switch (e.type) {
