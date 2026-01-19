@@ -30,6 +30,7 @@ module Framebuffer (
 
   wire [14:0] write_addr = 15'((y_screen * GB_SCREEN_WIDTH) + x_screen);
 
+  (* maybe_unused *)
   gb_color_t buffer[NUM_PIXELS];
 
   /// Number of pixels to discard at start of each scanline
