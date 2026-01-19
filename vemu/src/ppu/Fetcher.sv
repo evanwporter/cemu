@@ -26,9 +26,6 @@ module Fetcher (
   fetcher_state_t state;
 
 
-  /// Is the window currently being drawn.
-  logic window_active;
-
   /// Current window line.
   /// Increments each time a new line is drawn while window is active.
   /// This overrides the normal tilemap Y coordinate.
@@ -37,10 +34,30 @@ module Fetcher (
   /// Is the window currently enabled.
   wire window_enable = bus.regs.LCDC[5];
 
+  /// Signed X coordinate where window starts (WX - 7).
+  /// Intermidiate value for computing window visibility and tile column.
+  wire signed [8:0] s_window_x_start = $signed({1'b0, bus.regs.WX}) - 9'sd7;
+
+  /// Exact X coordinate where window starts (assuming it is visible).
+  /// Effectively: max(0, `WX - 7`)
+  wire [7:0] window_x_start = (s_window_x_start < 0) ? 8'd0 : s_window_x_start[7:0];
+
+  /// Tile column index (0–31) where the window starts.
+  /// Effectively: `ceil(window_x_start / 8)`
+  wire [4:0] window_start_tile = 5'(((window_x_start + 8'd7) >> 3));
+
+  /// Is the window visible on the current scanline.
+  wire window_visible = window_enable && (bus.regs.LY >= bus.regs.WY) && (s_window_x_start < $signed(
+      9'(GB_SCREEN_WIDTH)
+  ));
+
   /// Tile column index (0–31) of the tile currently being
   /// fetched from the 32x32 background/window map.
   /// Increments by 1 every time 8 pixels are pushed to the FIFO.
   logic [4:0] fetcher_x;
+
+  /// Is the window currently being drawn.
+  wire window_active = window_visible && ((fetcher_x << 3) >= window_x_start);
 
   /// Which tilemap to use for the background (either `0x9800` or `0x9C00`).
   wire [15:0] bg_tilemap_base = bus.regs.LCDC[3] ? 16'h9C00 : 16'h9800;
@@ -53,11 +70,11 @@ module Fetcher (
 
   /// The X coordinate of the pixel being fetched in the tilemap.
   /// Effectively: `((SCX / 8) + fetcher_x) % 32`
-  wire [4:0] tilemap_x = (bus.regs.SCX[7:3] + fetcher_x) & 5'd31;
+  wire [4:0] tilemap_x = window_active ? (fetcher_x - window_start_tile) : ((bus.regs.SCX[7:3] + fetcher_x) & 5'd31);
 
   /// The exact Y position (row) that we want to fetch from the tile.
   /// Effectively: `(SCY + LY) % 256`
-  wire [7:0] tilemap_y = (bus.regs.SCY + bus.regs.LY) & 8'd255;
+  wire [7:0] tilemap_y = window_active ? window_line : (bus.regs.SCY + bus.regs.LY) & 8'd255;
 
   /// Compute the tilemap address (the address to the index of exact tile to fetch).
   /// Effectively: `tilemap_base + ((tilemap_y / 8) * 32) + tile_x`
@@ -69,6 +86,8 @@ module Fetcher (
   /// Which pixel row inside the tile.
   /// Effectively: `tilemap_y % 8`
   wire [2:0] tile_y = tilemap_y[2:0];
+
+  logic window_drew_this_line;
 
   enum logic {
     DOT_PHASE_0,
@@ -101,33 +120,36 @@ module Fetcher (
       tile_high_byte    <= 8'h00;
       fifo_bus.write_en <= 1'b0;
       fetcher_x         <= 0;
-      window_active     <= 1'b0;
       window_line       <= 8'd0;
 
     end else if (flush) begin
+      // Flush goes high right at the start of MODE 3.
       state             <= FETCHER_GET_TILE;
       dot_phase         <= DOT_PHASE_0;
       tile_index        <= 8'h00;
       tile_low_byte     <= 8'h00;
       tile_high_byte    <= 8'h00;
       fifo_bus.write_en <= 1'b0;
-      fetcher_x         <= 0;
-      window_active     <= 1'b0;
+      fetcher_x         <= 5'd0;
 
     end else if (bus.regs.LY == 8'd0 && bus.mode == PPU_MODE_2 && bus.dot_counter == 0) begin
+      // Start of new frame
       window_line <= 8'd0;
 
     end else if (bus.mode == PPU_MODE_2 && bus.dot_counter == MODE2_LEN - 1) begin
       // Check if we are starting mode 3 next dot
 
+      if (window_active) begin
+        window_drew_this_line <= 1'b1;
+      end
+
       // We start off by fetching the tile at (SCX / 8)
-      fetcher_x <= 5'(bus.regs.SCX >> 3);
+      fetcher_x <= '0;  //5'(bus.regs.SCX >> 3);
 
-      window_active <= 1'b0;
-
-    end else if (bus.mode == PPU_MODE_0 && window_active) begin
-      // Increment window line at end of scanline if window is active
+    end else if (bus.mode == PPU_MODE_0 && window_drew_this_line) begin
+      // We've reached the end of the line.
       window_line <= window_line + 1;
+      window_drew_this_line <= 1'b0;
 
     end else if (bus.mode == PPU_MODE_3) begin
       // Only operate in MODE 3 (drawing pixels)

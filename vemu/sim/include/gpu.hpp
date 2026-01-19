@@ -55,9 +55,9 @@ private:
         }
     }
 
+public:
     void draw_scanline(const u8 LY);
 
-public:
     GPU(const VlUnpacked<CData, 8192>& vram, const CData& LY, const CData& LYC, const CData& SCX, const CData& SCY, const CData& WX, const CData& WY, const CData& LCDC, const VlUnpacked<CData, 23040>& buffer, bool enabled = true) :
         vram(vram),
         regs(LY, LYC, SCX, SCY, WX, WY, LCDC),

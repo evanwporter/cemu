@@ -14,4 +14,6 @@ The FPGA emulator currently:
 
 Note: The rendering is done in C++ by reading the VRAM every tick and constructing a framebuffer and I have not done the sprites yet. A fully HDL PPU is coming soon. Also the green tinted colors, represents the window being drawn. Also the gif is sped up 8 times.
 
+EDIT: A fully HDL PPU is here (minus object). I just haven't gotten around to recording a new video.
+
 So progress.

@@ -206,8 +206,8 @@ bool GPU::render_snapshot() {
     for (int i = 0; i < GB_WIDTH * GB_HEIGHT; ++i)
         framebuffer[i] = gb_color(buffer[i]);
 
-    for (int ly = 0; ly < GB_HEIGHT; ++ly)
-        draw_scanline((u8)ly);
+    // for (int ly = 0; ly < GB_HEIGHT; ++ly)
+    //     draw_scanline((u8)ly);
 
     // for (int i = 0; i < 23040; ++i) {
     //     if (framebuffer[i] != dbg_framebuffer[i]) {

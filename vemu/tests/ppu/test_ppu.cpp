@@ -23,10 +23,12 @@
 
 namespace fs = std::filesystem;
 
-constexpr uint8_t LCDC_BG_ON = 0x01;
-constexpr uint8_t LCDC_BG_TILE_MAP_9C00 = 0x08;
-constexpr uint8_t LCDC_TILE_DATA_8000 = 0x10;
-constexpr uint8_t LCDC_LCD_ON = 0x80;
+constexpr uint8_t LCDC_BG_ON = 0b00000001;
+constexpr uint8_t LCDC_BG_TILE_MAP_9C00 = 0b00001000;
+constexpr uint8_t LCDC_TILE_DATA_8000 = 0b00010000;
+constexpr uint8_t LCDC_LCD_ON = 0b10000000;
+constexpr uint8_t LCDC_WINDOW_ENABLE = 0b00100000;
+constexpr uint8_t LCDC_WINDOW_TILE_MAP_9C00 = 0b01000000;
 
 inline void tick(Vppu_top& top, VerilatedContext& ctx) {
     top.clk = 0;
@@ -38,12 +40,25 @@ inline void tick(Vppu_top& top, VerilatedContext& ctx) {
     ctx.timeInc(5);
 }
 
-inline void run_ppu_frame(Vppu_top& top, VerilatedContext& ctx) {
-    constexpr int DOTS_PER_LINE = 172;
-    constexpr int LINES_PER_FRAME = 154;
+inline void run_ppu_frame(
+    Vppu_top& top,
+    VerilatedContext& ctx,
+    const std::function<void(ppu_regs_t&, uint8_t)>& on_scanline,
+    GPU& gpu) {
+    uint8_t last_ly = 0xFF;
 
     while (!top.rootp->ppu_top__DOT__ppu__DOT__frame_done) {
         tick(top, ctx);
+
+        auto& regs = top.rootp->ppu_top__DOT__ppu__DOT__regs;
+        uint8_t ly = regs.__PVT__LY;
+
+        if (ly != last_ly) {
+            on_scanline(regs, ly);
+
+            gpu.draw_scanline(ly);
+            last_ly = ly;
+        }
     }
 }
 
@@ -52,6 +67,8 @@ struct PPUFrameTestCase {
     std::function<void(vram_t& vram)> init_vram;
     std::function<void(ppu_regs_t& ppu_regs)> init_regs =
         [](ppu_regs_t& regs) { };
+    std::function<void(ppu_regs_t& regs, uint8_t ly)> on_scanline =
+        [](ppu_regs_t&, uint8_t) { };
 };
 
 class PPUFrameTest
@@ -81,35 +98,33 @@ TEST_P(PPUFrameTest, RendersCorrectFrame) {
     ppu_regs_t& regs = top.rootp->ppu_top__DOT__ppu__DOT__regs;
     param.init_regs(regs);
 
-    run_ppu_frame(top, ctx);
+    GPU gpu(
+        vram,
+        regs.__PVT__LY,
+        regs.__PVT__LYC,
+        regs.__PVT__SCX,
+        regs.__PVT__SCY,
+        regs.__PVT__WX,
+        regs.__PVT__WY,
+        regs.__PVT__LCDC,
+        top.rootp->ppu_top__DOT__ppu__DOT__framebuffer_inst__DOT__buffer,
+        test_config().gui);
+
+    gpu.setup();
+
+    run_ppu_frame(top, ctx, param.on_scanline, gpu);
 
     uint32_t fb[FB_SIZE];
 
     for (int i = 0; i < FB_SIZE; ++i)
         fb[i] = gb_color(top.rootp->ppu_top__DOT__ppu__DOT__framebuffer_inst__DOT__buffer[i]);
 
-    if (test_config().gui) {
-        GPU gpu(
-            vram,
-            regs.__PVT__LY,
-            regs.__PVT__LYC,
-            regs.__PVT__SCX,
-            regs.__PVT__SCY,
-            regs.__PVT__WX,
-            regs.__PVT__WY,
-            regs.__PVT__LCDC,
-            top.rootp->ppu_top__DOT__ppu__DOT__framebuffer_inst__DOT__buffer,
-            true);
+    gpu.render_snapshot();
 
-        gpu.setup();
+    while (gpu.poll_events())
+        ;
 
-        gpu.render_snapshot();
-
-        while (gpu.poll_events())
-            ;
-
-        gpu.exit();
-    }
+    gpu.exit();
 
     const fs::path golden = std::filesystem::path(__FILE__).parent_path() / "golden" / (param.name + ".ppm");
 
@@ -156,44 +171,44 @@ PPUFrameTestCase bg_color_stripes_case {
 PPUFrameTestCase bg_multi_tile_map_case {
     .name = "bg_multi_tile_map",
     .init_vram = [](vram_t& vram) {
-        constexpr int TILE_BASE = 0x0000;
-        constexpr int MAP_BASE = 0x1800;
+    constexpr int TILE_BASE = 0x0000;
+    constexpr int MAP_BASE = 0x1800;
 
-        // Tile 0: solid color 0
-        for (int row = 0; row < 8; ++row) {
-            vram[TILE_BASE + 0 * 16 + row * 2 + 0] = 0x00;
-            vram[TILE_BASE + 0 * 16 + row * 2 + 1] = 0x00;
+    // Tile 0: solid color 0
+    for (int row = 0; row < 8; ++row) {
+        vram[TILE_BASE + 0 * 16 + row * 2 + 0] = 0x00;
+        vram[TILE_BASE + 0 * 16 + row * 2 + 1] = 0x00;
+    }
+
+    // Tile 1: vertical stripes (0,1,2,3)
+    for (int row = 0; row < 8; ++row) {
+        vram[TILE_BASE + 1 * 16 + row * 2 + 0] = 0x55; // 01010101
+        vram[TILE_BASE + 1 * 16 + row * 2 + 1] = 0x33; // 00110011
+    }
+
+    // Tile 2: horizontal stripes
+    for (int row = 0; row < 8; ++row) {
+        const bool even = (row & 1) == 0;
+        vram[TILE_BASE + 2 * 16 + row * 2 + 0] = even ? 0xFF : 0x00;
+        vram[TILE_BASE + 2 * 16 + row * 2 + 1] = even ? 0x00 : 0xFF;
+    }
+
+    // Tile 3: checkerboard
+    for (int row = 0; row < 8; ++row) {
+        vram[TILE_BASE + 3 * 16 + row * 2 + 0] = (row & 1) ? 0b01010101 : 0b10101010;
+        vram[TILE_BASE + 3 * 16 + row * 2 + 1] = 0x00;
+    }
+
+    // Fill BG tile map (32x32)
+    // Pattern:
+    // 0 1 2 3 0 1 2 3 ...
+    // 1 2 3 0 1 2 3 0 ...
+    for (int y = 0; y < 32; ++y) {
+        for (int x = 0; x < 32; ++x) {
+            uint8_t tile = (x + y) % 4;
+            vram[MAP_BASE + y * 32 + x] = tile;
         }
-
-        // Tile 1: vertical stripes (0,1,2,3)
-        for (int row = 0; row < 8; ++row) {
-            vram[TILE_BASE + 1 * 16 + row * 2 + 0] = 0x55; // 01010101
-            vram[TILE_BASE + 1 * 16 + row * 2 + 1] = 0x33; // 00110011
-        }
-
-        // Tile 2: horizontal stripes
-        for (int row = 0; row < 8; ++row) {
-            const bool even = (row & 1) == 0;
-            vram[TILE_BASE + 2 * 16 + row * 2 + 0] = even ? 0xFF : 0x00;
-            vram[TILE_BASE + 2 * 16 + row * 2 + 1] = even ? 0x00 : 0xFF;
-        }
-
-        // Tile 3: checkerboard
-        for (int row = 0; row < 8; ++row) {
-            vram[TILE_BASE + 3 * 16 + row * 2 + 0] = (row & 1) ? 0b01010101 : 0b10101010;
-            vram[TILE_BASE + 3 * 16 + row * 2 + 1] = 0x00;
-        } 
-
-        // Fill BG tile map (32x32)
-        // Pattern:
-        // 0 1 2 3 0 1 2 3 ...
-        // 1 2 3 0 1 2 3 0 ...
-        for (int y = 0; y < 32; ++y) {
-            for (int x = 0; x < 32; ++x) {
-                uint8_t tile = (x + y) % 4;
-                vram[MAP_BASE + y * 32 + x] = tile;
-            }
-        } },
+    } },
 };
 
 PPUFrameTestCase bg_scrolled_tile_boundary_case {
@@ -375,6 +390,179 @@ PPUFrameTestCase bg_scroll_wrap_case {
     },
 };
 
+PPUFrameTestCase window_basic_case {
+    "window_basic",
+    [](vram_t& vram) {
+        constexpr int T = 0x0000;
+        constexpr int BG_MAP = 0x1800;
+        constexpr int WIN_MAP = 0x1800;
+
+        // Numbered tiles 0–15
+        for (int i = 0; i < 16; ++i)
+            write_numbered_tile(vram, i, i);
+
+        // Fill BG with tile 0 (should be hidden)
+        for (int y = 0; y < 32; ++y)
+            for (int x = 0; x < 32; ++x)
+                vram[BG_MAP + y * 32 + x] = 0;
+
+        // Fill window with increasing numbers
+        for (int y = 0; y < 32; ++y)
+            for (int x = 0; x < 32; ++x)
+                vram[WIN_MAP + y * 32 + x] = (x + y) & 0xF;
+    },
+    [](ppu_regs_t& regs) {
+        regs.__PVT__WX = 7;
+        regs.__PVT__WY = 0;
+        regs.__PVT__LCDC = LCDC_LCD_ON | LCDC_BG_ON | LCDC_TILE_DATA_8000 | (1 << 5);
+    },
+};
+
+PPUFrameTestCase window_on_then_off_case {
+    "window_on_then_off",
+    [](vram_t& vram) {
+        constexpr int TILE_BASE = 0x0000;
+        constexpr int BG_MAP = 0x1800;
+        constexpr int WIN_MAP = 0x1C00;
+
+        // Tile 0: solid background
+        for (int r = 0; r < 8; ++r) {
+            vram[TILE_BASE + 0 * 16 + r * 2 + 0] = 0x00;
+            vram[TILE_BASE + 0 * 16 + r * 2 + 1] = 0x00;
+        }
+
+        // Tiles 1–16: numbered window tiles
+        for (int i = 1; i <= 16; ++i) {
+            write_numbered_tile(vram, i, i & 0xF);
+        }
+
+        // BG map: tile 0 everywhere
+        for (int y = 0; y < 32; ++y)
+            for (int x = 0; x < 32; ++x)
+                vram[BG_MAP + y * 32 + x] = 0;
+
+        // Window map: numbered pattern
+        for (int y = 0; y < 32; ++y)
+            for (int x = 0; x < 32; ++x)
+                vram[WIN_MAP + y * 32 + x] = 1 + ((x + y) & 0xF);
+    },
+    [](ppu_regs_t& regs) {
+        regs.__PVT__SCX = 0;
+        regs.__PVT__SCY = 0;
+        regs.__PVT__WX = 7; // window starts at x = 0
+        regs.__PVT__WY = 32; // window becomes visible at LY = 32
+
+        regs.__PVT__LCDC = LCDC_LCD_ON | LCDC_BG_ON | LCDC_TILE_DATA_8000 | (1 << 6); // window tile map = 9C00
+        // NOTE: window enable bit intentionally OFF at start
+    },
+    [](ppu_regs_t& regs, uint8_t ly) {
+        // Turn window ON at LY = 32
+        if (ly == 32) {
+            regs.__PVT__LCDC |= (1 << 5);
+        }
+
+        // Turn window OFF again at LY = 64
+        if (ly == 64) {
+            regs.__PVT__LCDC &= ~(1 << 5);
+        }
+    }
+};
+
+PPUFrameTestCase window_hide_show_signed_tiles_case {
+    "window_hide_show_signed_tiles",
+    [](vram_t& vram) {
+        constexpr int TILE_8000 = 0x0000;
+        constexpr int TILE_8800 = 0x1000; // signed region (0x9000 base)
+        constexpr int BG_MAP = 0x1800;
+        constexpr int WIN_MAP = 0x1C00;
+
+        // --------------------------------------------------
+        // Background: checkerboard tile (tile 0)
+        // --------------------------------------------------
+        for (int r = 0; r < 8; ++r) {
+            vram[TILE_8000 + 0 * 16 + r * 2 + 0] = (r & 1) ? 0b01010101 : 0b10101010;
+            vram[TILE_8000 + 0 * 16 + r * 2 + 1] = 0x00;
+        }
+
+        // Fill BG map with checkerboard tile
+        for (int y = 0; y < 32; ++y)
+            for (int x = 0; x < 32; ++x)
+                vram[BG_MAP + y * 32 + x] = 0;
+
+        // --------------------------------------------------
+        // Window tiles (numbers)
+        // Top half: unsigned tile indices (8000 region)
+        // --------------------------------------------------
+        for (int i = 1; i <= 8; ++i) {
+            write_numbered_tile(vram, i, i);
+        }
+
+        // --------------------------------------------------
+        // Bottom half: signed tile indices (8800 region)
+        // Use tile indices A1, A2, A3...
+        // --------------------------------------------------
+        for (int i = 0; i < 8; ++i) {
+            const int tile_index = 0xA1 + i; // signed negative
+            const int tile_addr = TILE_8800 + (int8_t)tile_index * 16;
+
+            write_numbered_tile(vram, tile_addr / 16, i);
+        }
+
+        // --------------------------------------------------
+        // Window tile map:
+        // Top 4 rows → unsigned tiles
+        // Bottom 4 rows → signed tiles
+        // --------------------------------------------------
+        for (int y = 0; y < 32; ++y) {
+            for (int x = 0; x < 32; ++x) {
+                if (y < 4)
+                    vram[WIN_MAP + y * 32 + x] = 1 + (x & 7);
+                else
+                    vram[WIN_MAP + y * 32 + x] = 0xA1 + (x & 7);
+            }
+        }
+    },
+    [](ppu_regs_t& regs) {
+        regs.__PVT__SCX = 0;
+        regs.__PVT__SCY = 0;
+
+        regs.__PVT__WX = 96; // Window appears on right side
+        regs.__PVT__WY = 16; // Window starts at LY=16
+
+        regs.__PVT__LCDC = LCDC_LCD_ON | LCDC_BG_ON | LCDC_WINDOW_ENABLE | LCDC_WINDOW_TILE_MAP_9C00;
+        // NOTE: LCDC.4 (tile data select) will be toggled mid-frame
+    },
+    [](ppu_regs_t& regs, uint8_t ly) {
+        // ------------------------------------------
+        // Top half uses unsigned tile data ($8000)
+        // ------------------------------------------
+        if (ly == 0) {
+            regs.__PVT__LCDC |= (1 << 4);
+        }
+
+        // ------------------------------------------
+        // Switch to signed tile data ($8800)
+        // ------------------------------------------
+        if (ly == 64) {
+            regs.__PVT__LCDC &= ~(1 << 4);
+        }
+
+        // ------------------------------------------
+        // Hide window by pushing WX off-screen
+        // ------------------------------------------
+        if (ly == 80) {
+            regs.__PVT__WX = 200; // off-screen
+        }
+
+        // ------------------------------------------
+        // Re-show window near bottom
+        // ------------------------------------------
+        if (ly == 104) {
+            regs.__PVT__WX = 96;
+        }
+    }
+};
+
 INSTANTIATE_TEST_SUITE_P(
     PPUTests,
     PPUFrameTest,
@@ -388,7 +576,10 @@ INSTANTIATE_TEST_SUITE_P(
         bg_tile_map_9c00_case,
         bg_signed_tile_data_case,
         bg_tile_index_wrap_case,
-        bg_scroll_wrap_case),
+        bg_scroll_wrap_case,
+        window_basic_case,
+        window_on_then_off_case,
+        window_hide_show_signed_tiles_case),
     [](const ::testing::TestParamInfo<PPUFrameTestCase>& info) {
         return info.param.name;
     });

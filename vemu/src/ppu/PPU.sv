@@ -32,6 +32,8 @@ module PPU (
   assign pixel_transfer_en = (mode == PPU_MODE_3);
 
   logic line_done;
+
+  (* maybe_unused *)
   logic frame_done;
 
   Fetcher_if fetcher_bus (
