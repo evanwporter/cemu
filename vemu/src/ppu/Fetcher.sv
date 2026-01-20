@@ -12,6 +12,9 @@ module Fetcher (
 
     Fetcher_if.Fetcher_side bus,
     FIFO_if.Fetcher_side fifo_bus,
+    RenderingControl_if.Fetcher_side control_bus,
+
+    input object_t sprite_buf[10],
 
     // control
     input logic flush  // clear internal state (e.g., on window start)
@@ -139,7 +142,7 @@ module Fetcher (
     end else if (bus.mode == PPU_MODE_2 && bus.dot_counter == MODE2_LEN - 1) begin
       // Check if we are starting mode 3 next dot
 
-      if (window_active) begin
+      if (window_visible) begin
         window_drew_this_line <= 1'b1;
       end
 

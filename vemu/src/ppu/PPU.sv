@@ -36,7 +36,15 @@ module PPU (
   (* maybe_unused *)
   logic frame_done;
 
+  object_t sprites_found[10];
+
   Fetcher_if fetcher_bus (
+      .regs(regs),
+      .dot_counter(dot_counter),
+      .mode(mode)
+  );
+
+  Fetcher_if obj_fetcher_bus (
       .regs(regs),
       .dot_counter(dot_counter),
       .mode(mode)
@@ -44,13 +52,17 @@ module PPU (
 
   FIFO_if fifo_bus ();
 
+  RenderingControl_if rendering_control_bus ();
+
   // Fetcher
   Fetcher fetcher_inst (
       .clk(clk),
       .reset(reset),
       .bus(fetcher_bus),
       .fifo_bus(fifo_bus),
-      .flush(flush)
+      .control_bus(rendering_control_bus),
+      .flush(flush),
+      .sprite_buf(sprites_found)
   );
 
   // FIFO
@@ -67,6 +79,7 @@ module PPU (
       .reset(reset),
       .pixel_transfer_en(pixel_transfer_en),
       .fifo_bus(fifo_bus),
+      .fetcher_bus(rendering_control_bus),
       .flush(flush),
       .SCX(regs.SCX),
       .line_done(line_done),
@@ -309,6 +322,61 @@ module PPU (
           // If we haven't reached end of line, then advance dot
           dot_counter <= dot_counter + 1'b1;
         end
+      end
+    end
+  end
+
+
+  // ======================================================
+  // OAM Scan
+  // ======================================================
+
+  /// OAM Scan: current sprite being scanned (0-39)
+  /// Each sprite takes 2 dots to scan
+  /// Effectively: `dot_counter / 2`
+  wire  [6:0] sprite_idx = dot_counter[7:1] * 4;
+
+  logic [3:0] sprites_found_count;
+
+  typedef enum logic {
+    T1,
+    T2
+  } scan_state_t;
+
+  scan_state_t scan_state;
+
+  assign scan_state = (dot_counter[0]) ? T2 : T1;
+
+  wire [4:0] sprite_height = regs.LCDC[2] ? 5'd16 : 5'd8;
+
+  object_t current_sprite;
+  always_comb begin
+    current_sprite.y_pos = OAM[sprite_idx+0];
+    current_sprite.x_pos = OAM[sprite_idx+1];
+    current_sprite.tile_idx = OAM[sprite_idx+2];
+    current_sprite.attr = OAM[sprite_idx+3];
+  end
+
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      sprites_found <= '{default: 0};
+      sprites_found_count <= 4'd0;
+    end else begin
+      if (mode == PPU_MODE_2) begin
+        unique case (scan_state)
+          T1: begin
+            if ((sprites_found_count < 10) &&
+                (regs.LY + 16 >= current_sprite.y_pos) &&
+                (regs.LY + 16 <  current_sprite.y_pos + 8'(sprite_height))) begin
+              sprites_found[sprites_found_count] <= {1'b1, sprite_idx[6:1]};
+              sprites_found_count <= sprites_found_count + 1'b1;
+            end
+          end
+
+          T2: begin
+            //
+          end
+        endcase
       end
     end
   end

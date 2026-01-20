@@ -11,6 +11,8 @@ module Framebuffer (
     // FIFO interface
     FIFO_if.Framebuffer_side fifo_bus,
 
+    RenderingControl_if.Framebuffer_side fetcher_bus,
+
     input logic [7:0] SCX,
 
     /// Flush the framebuffer
@@ -27,6 +29,8 @@ module Framebuffer (
 
   logic [7:0] x_screen;
   logic [7:0] y_screen;
+
+  assign fetcher_bus.pixel_x = x_screen;
 
   wire [14:0] write_addr = 15'((y_screen * GB_SCREEN_WIDTH) + x_screen);
 

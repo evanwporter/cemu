@@ -47,3 +47,13 @@ interface FIFO_if;
   modport Framebuffer_side(output read_en, input read_data, empty);
 
 endinterface
+
+interface RenderingControl_if;
+  logic stall;
+
+  logic [7:0] pixel_x;
+
+  modport OBJ_Fetcher_side(output stall, input pixel_x);
+  modport Fetcher_side(input stall, input pixel_x);
+  modport Framebuffer_side(input stall, output pixel_x);
+endinterface

@@ -88,6 +88,27 @@ typedef struct `PACK_PX {
   logic       valid;    // for FIFO empty slots
 } pixel_t;
 
+pixel_t OBJ_TRANSPARENT = '{
+  color   : GB_COLOR_WHITE,
+  palette : 3'd0,
+  spr_idx : 6'd63,
+  bg_prio : 1'b0,
+  valid   : 1'b0
+};
+
+typedef struct packed {
+  logic valid;
+  logic [7:0] y_pos;
+  logic [7:0] x_pos;
+  logic [7:0] tile_idx;
+  logic [7:0] attr;
+} object_t;
+
+typedef struct packed {
+  logic valid;
+  logic [5:0] oam_idx;
+} object_buffer_entry_t;
+
 endpackage : ppu_types_pkg
 
 `endif  // PPU_TYPES_SVH
