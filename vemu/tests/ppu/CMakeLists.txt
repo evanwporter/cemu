@@ -6,6 +6,9 @@ add_library(test_ppu)
 target_sources(test_ppu
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/test_ppu.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test_oam_scan.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test_sprites.cpp
+    PRIVATE
         ${VEMU_SRC_DIR}/../sim/src/gpu.cpp
 )
 

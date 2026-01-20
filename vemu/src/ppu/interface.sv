@@ -40,7 +40,7 @@ interface FIFO_if;
   /// Number of pixels inside buffer
   logic [3:0] count;
 
-  modport Fetcher_side(output write_en, write_data, input full, empty);
+  modport Fetcher_side(output write_en, write_data, input full, empty, count);
 
   modport FIFO_side(input write_en, write_data, read_en, output read_data, full, empty, count);
 
@@ -53,7 +53,7 @@ interface RenderingControl_if;
 
   logic [7:0] pixel_x;
 
-  modport OBJ_Fetcher_side(output stall, input pixel_x);
+  modport Obj_Fetcher_side(output stall, input pixel_x);
   modport Fetcher_side(input stall, input pixel_x);
   modport Framebuffer_side(input stall, output pixel_x);
 endinterface

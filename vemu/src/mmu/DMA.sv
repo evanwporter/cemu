@@ -65,7 +65,6 @@ module DMA (
   // ======================================================
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      dma_index <= 8'd0;
     end else if (dma_active) begin
       unique case (t_phase)
         T1: begin

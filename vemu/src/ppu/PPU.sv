@@ -52,6 +52,8 @@ module PPU (
 
   FIFO_if fifo_bus ();
 
+  FIFO_if obj_fifo_bus ();
+
   RenderingControl_if rendering_control_bus ();
 
   // Fetcher
@@ -65,11 +67,28 @@ module PPU (
       .sprite_buf(sprites_found)
   );
 
+  Obj_Fetcher obj_fetcher_inst (
+      .clk        (clk),
+      .reset      (reset),
+      .bus        (obj_fetcher_bus),
+      .control_bus(rendering_control_bus),
+      .fifo_bus   (obj_fifo_bus),
+      .sprite_buf (sprites_found)
+  );
+
   // FIFO
   FIFO fifo_inst (
       .clk  (clk),
       .reset(reset),
       .bus  (fifo_bus),
+      .flush(flush)
+  );
+
+  // FIFO for objects
+  Obj_FIFO obj_fifo_inst (
+      .clk  (clk),
+      .reset(reset),
+      .bus  (obj_fifo_bus),
       .flush(flush)
   );
 
@@ -79,7 +98,8 @@ module PPU (
       .reset(reset),
       .pixel_transfer_en(pixel_transfer_en),
       .fifo_bus(fifo_bus),
-      .fetcher_bus(rendering_control_bus),
+      .obj_fifo_bus(obj_fifo_bus),
+      .control_bus(rendering_control_bus),
       .flush(flush),
       .SCX(regs.SCX),
       .line_done(line_done),
@@ -191,6 +211,14 @@ module PPU (
   always_comb begin
     bus.rdata = 8'hFF;  // open bus unless selected & allowed
     fetcher_bus.rdata = 8'hFF;
+    obj_fetcher_bus.rdata = 8'hFF;
+
+    if (obj_fetcher_bus.read_req) begin
+      // VRAM reads for obj fetcher (not blocked in Mode 3)
+      obj_fetcher_bus.rdata = VRAM[13'(obj_fetcher_bus.addr-VRAM_start)];
+      $display("[PPU] VRAM OBJ FETCHER READ addr=%h -> %h (mode=%0d)", obj_fetcher_bus.addr,
+               obj_fetcher_bus.rdata, mode);
+    end
 
     if (fetcher_bus.read_req) begin
       // VRAM reads for fetcher (not blocked in Mode 3)
@@ -331,19 +359,21 @@ module PPU (
   // OAM Scan
   // ======================================================
 
-  /// OAM Scan: current sprite being scanned (0-39)
+  /// Current sprite being scanned (0-39)
   /// Each sprite takes 2 dots to scan
   /// Effectively: `dot_counter / 2`
-  wire  [6:0] sprite_idx = dot_counter[7:1] * 4;
+  wire [5:0] sprite_num = dot_counter[6:1];
+
+  /// Current sprite index in OAM (0-159)
+  /// Effectively: `sprite_num * 4`
+  wire [7:0] sprite_idx = 8'(sprite_num) << 2;
 
   logic [3:0] sprites_found_count;
 
-  typedef enum logic {
+  enum logic {
     T1,
     T2
-  } scan_state_t;
-
-  scan_state_t scan_state;
+  } scan_state;
 
   assign scan_state = (dot_counter[0]) ? T2 : T1;
 
@@ -355,21 +385,40 @@ module PPU (
     current_sprite.x_pos = OAM[sprite_idx+1];
     current_sprite.tile_idx = OAM[sprite_idx+2];
     current_sprite.attr = OAM[sprite_idx+3];
+    current_sprite.valid = 1'b1;
   end
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      sprites_found <= '{default: 0};
+      for (int i = 0; i < 10; i++) begin
+        sprites_found[i].y_pos    <= 8'd0;
+        sprites_found[i].x_pos    <= 8'd0;
+        sprites_found[i].tile_idx <= 8'd0;
+        sprites_found[i].attr     <= 8'd0;
+        sprites_found[i].valid    <= 1'b0;
+      end
       sprites_found_count <= 4'd0;
     end else begin
+      if (dot_counter == 9'd0) begin
+        sprites_found_count <= 4'd0;
+        for (int i = 0; i < 10; i++) begin
+          sprites_found[i].valid <= 1'b0;
+        end
+      end
+
       if (mode == PPU_MODE_2) begin
         unique case (scan_state)
           T1: begin
             if ((sprites_found_count < 10) &&
                 (regs.LY + 16 >= current_sprite.y_pos) &&
                 (regs.LY + 16 <  current_sprite.y_pos + 8'(sprite_height))) begin
-              sprites_found[sprites_found_count] <= {1'b1, sprite_idx[6:1]};
+              sprites_found[sprites_found_count] <= current_sprite;
               sprites_found_count <= sprites_found_count + 1'b1;
+              // $display("[%0d] DC=%0d OAM idx=%0d -> write sprite[%0d] x=%0d y=%0d", sprite_num,
+              //          dot_counter, sprite_idx, sprites_found_count, current_sprite.x_pos,
+              //          current_sprite.y_pos);
+            end else begin
+              // $display("[%0d] DC=%0d OAM idx=%0d -> skip", sprite_num, dot_counter, sprite_idx);
             end
           end
 

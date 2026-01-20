@@ -1,6 +1,8 @@
 `include "ppu/Fetcher.sv"
 `include "ppu/FIFO.sv"
 `include "ppu/Framebuffer.sv"
+`include "ppu/Obj_Fetcher.sv"
+`include "ppu/Obj_FIFO.sv"
 `include "ppu/PPU.sv"
 
 import ppu_types_pkg::*;

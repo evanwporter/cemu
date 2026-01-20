@@ -40,7 +40,7 @@ inline void tick(Vppu_top& top, VerilatedContext& ctx) {
     ctx.timeInc(5);
 }
 
-inline void run_ppu_frame(
+inline static void run_ppu_frame(
     Vppu_top& top,
     VerilatedContext& ctx,
     const std::function<void(ppu_regs_t&, uint8_t)>& on_scanline,

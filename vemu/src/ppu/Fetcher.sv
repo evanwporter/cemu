@@ -154,7 +154,7 @@ module Fetcher (
       window_line <= window_line + 1;
       window_drew_this_line <= 1'b0;
 
-    end else if (bus.mode == PPU_MODE_3) begin
+    end else if (bus.mode == PPU_MODE_3 && !control_bus.stall) begin
       // Only operate in MODE 3 (drawing pixels)
 
       fetcher_x <= fetcher_x;

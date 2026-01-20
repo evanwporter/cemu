@@ -96,7 +96,7 @@ pixel_t OBJ_TRANSPARENT = '{
   valid   : 1'b0
 };
 
-typedef struct packed {
+typedef struct {
   logic valid;
   logic [7:0] y_pos;
   logic [7:0] x_pos;

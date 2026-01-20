@@ -10,8 +10,9 @@ module Framebuffer (
 
     // FIFO interface
     FIFO_if.Framebuffer_side fifo_bus,
+    FIFO_if.Framebuffer_side obj_fifo_bus,
 
-    RenderingControl_if.Framebuffer_side fetcher_bus,
+    RenderingControl_if.Framebuffer_side control_bus,
 
     input logic [7:0] SCX,
 
@@ -30,7 +31,7 @@ module Framebuffer (
   logic [7:0] x_screen;
   logic [7:0] y_screen;
 
-  assign fetcher_bus.pixel_x = x_screen;
+  assign control_bus.pixel_x = x_screen;
 
   wire [14:0] write_addr = 15'((y_screen * GB_SCREEN_WIDTH) + x_screen);
 
@@ -42,9 +43,11 @@ module Framebuffer (
   logic [2:0] discard_count;
 
   /// Should we consume a pixel from the FIFO this cycle?
-  wire pixel_consume = pixel_transfer_en && !fifo_bus.empty;
+  wire pixel_consume = pixel_transfer_en && !fifo_bus.empty && !control_bus.stall;
 
   assign fifo_bus.read_en = pixel_consume;
+
+  assign obj_fifo_bus.read_en = pixel_consume && !obj_fifo_bus.empty;
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
@@ -78,7 +81,9 @@ module Framebuffer (
 
           // Store pixel in framebuffer
           // The read_data is always the top pixel in the FIFO
-          buffer[write_addr] <= fifo_bus.read_data.color;
+          buffer[write_addr] <= !obj_fifo_bus.empty 
+            ? obj_fifo_bus.read_data.color 
+            : fifo_bus.read_data.color;
 
           if (x_screen == (GB_SCREEN_WIDTH - 8'd1)) begin
             // End of scanline
