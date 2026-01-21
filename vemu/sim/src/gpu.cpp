@@ -143,13 +143,13 @@ bool GPU::update() {
             SDL_RenderCopy(renderer, texture, nullptr, nullptr);
             SDL_RenderPresent(renderer);
 
-            SDL_UpdateTexture(
-                dbg_texture,
-                nullptr,
-                dbg_framebuffer,
-                GB_WIDTH * sizeof(u32));
-            SDL_RenderCopy(dbg_renderer, dbg_texture, nullptr, nullptr);
-            SDL_RenderPresent(dbg_renderer);
+            // SDL_UpdateTexture(
+            //     dbg_texture,
+            //     nullptr,
+            //     dbg_framebuffer,
+            //     GB_WIDTH * sizeof(u32));
+            // SDL_RenderCopy(dbg_renderer, dbg_texture, nullptr, nullptr);
+            // SDL_RenderPresent(dbg_renderer);
         }
     }
 
@@ -175,15 +175,15 @@ bool GPU::setup() {
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, GB_WIDTH, GB_HEIGHT);
 
-    dbg_window = SDL_CreateWindow(
-        "Verilog Game Boy (Debug)",
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        GB_WIDTH * SCALE,
-        GB_HEIGHT * SCALE,
-        0);
-    dbg_renderer = SDL_CreateRenderer(dbg_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    dbg_texture = SDL_CreateTexture(dbg_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, GB_WIDTH, GB_HEIGHT);
+    // dbg_window = SDL_CreateWindow(
+    //     "Verilog Game Boy (Debug)",
+    //     SDL_WINDOWPOS_CENTERED,
+    //     SDL_WINDOWPOS_CENTERED,
+    //     GB_WIDTH * SCALE,
+    //     GB_HEIGHT * SCALE,
+    //     0);
+    // dbg_renderer = SDL_CreateRenderer(dbg_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    // dbg_texture = SDL_CreateTexture(dbg_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, GB_WIDTH, GB_HEIGHT);
 
     return true;
 }
@@ -196,9 +196,9 @@ void GPU::exit() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
-    SDL_DestroyTexture(dbg_texture);
-    SDL_DestroyRenderer(dbg_renderer);
-    SDL_DestroyWindow(dbg_window);
+    // SDL_DestroyTexture(dbg_texture);
+    // SDL_DestroyRenderer(dbg_renderer);
+    // SDL_DestroyWindow(dbg_window);
     SDL_Quit();
 }
 
@@ -223,10 +223,10 @@ bool GPU::render_snapshot() {
     SDL_RenderCopy(renderer, texture, nullptr, nullptr);
     SDL_RenderPresent(renderer);
 
-    SDL_UpdateTexture(dbg_texture, nullptr, dbg_framebuffer, GB_WIDTH * sizeof(u32));
-    SDL_RenderClear(dbg_renderer);
-    SDL_RenderCopy(dbg_renderer, dbg_texture, nullptr, nullptr);
-    SDL_RenderPresent(dbg_renderer);
+    // SDL_UpdateTexture(dbg_texture, nullptr, dbg_framebuffer, GB_WIDTH * sizeof(u32));
+    // SDL_RenderClear(dbg_renderer);
+    // SDL_RenderCopy(dbg_renderer, dbg_texture, nullptr, nullptr);
+    // SDL_RenderPresent(dbg_renderer);
 
     return true;
 }

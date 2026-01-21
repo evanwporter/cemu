@@ -38,6 +38,7 @@ interface FIFO_if;
   logic empty;  // FIFO is empty (can't be read)
 
   /// Number of pixels inside buffer
+  /// TODO: I don't think this needs to be part of the interface
   logic [3:0] count;
 
   modport Fetcher_side(output write_en, write_data, input full, empty, count);
