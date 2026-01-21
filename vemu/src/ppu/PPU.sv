@@ -100,7 +100,7 @@ module PPU (
       .obj_fifo_bus(obj_fifo_bus),
       .control_bus(rendering_control_bus),
       .flush(flush),
-      .SCX(regs.SCX),
+      .regs(regs),
       .line_done(line_done),
       .frame_done(frame_done)
   );
@@ -215,8 +215,8 @@ module PPU (
     if (obj_fetcher_bus.read_req) begin
       // VRAM reads for obj fetcher (not blocked in Mode 3)
       obj_fetcher_bus.rdata = VRAM[13'(obj_fetcher_bus.addr-VRAM_start)];
-      $display("[PPU] VRAM OBJ FETCHER READ addr=%h -> %h (mode=%0d)", obj_fetcher_bus.addr,
-               obj_fetcher_bus.rdata, mode);
+      // $display("[PPU] VRAM OBJ FETCHER READ addr=%h -> %h (mode=%0d)", obj_fetcher_bus.addr,
+      //          obj_fetcher_bus.rdata, mode);
     end
 
     if (fetcher_bus.read_req) begin
@@ -384,6 +384,7 @@ module PPU (
     current_sprite.x_pos = OAM[sprite_idx+1];
     current_sprite.tile_idx = OAM[sprite_idx+2];
     current_sprite.attr = OAM[sprite_idx+3];
+    current_sprite.oam_idx = sprite_num;
     current_sprite.valid = 1'b1;
   end
 

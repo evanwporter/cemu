@@ -14,7 +14,7 @@ module Framebuffer (
 
     RenderingControl_if.Framebuffer_side control_bus,
 
-    input logic [7:0] SCX,
+    input ppu_regs_t regs,
 
     /// Flush the framebuffer
     input logic flush,
@@ -61,7 +61,7 @@ module Framebuffer (
       x_screen <= 8'd0;
 
       /// Effectively: `SCX % 8`
-      discard_count <= SCX[2:0];
+      discard_count <= regs.SCX[2:0];
 
       line_done <= 1'b0;
 

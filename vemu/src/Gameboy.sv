@@ -15,9 +15,6 @@ module Gameboy (
     $display("Logging to simulation.log, log fd: %0d", __log_fd);
   end
 
-  logic [15:0] addr_bus;
-  logic write_en_bus;
-
   /// Current t-cycle within machine cycle
   gameboy_types_pkg::t_phase_t t_phase;
 

@@ -400,8 +400,8 @@ PPUFrameTestCase sprite_11_on_line {
         init_checkerboard_bg(vram, 0);
 
         // Sprite tiles: numbers 0–10
-    for (int i = 0; i < 11; ++i)
-        write_numbered_tile(vram, 1 + i, i); },
+        for (int i = 0; i < 11; ++i)
+            write_numbered_tile(vram, 1 + i, i); },
 
     .init_oam = [](oam_t& oam) {
         constexpr int Y = 48; // all sprites on same scanline
@@ -413,7 +413,7 @@ PPUFrameTestCase sprite_11_on_line {
                 i,
                 X_START + i * 8, // non-overlapping
                 Y,
-                1 + i            // tile index
+                1 + i // tile index
             );
         } },
 

@@ -171,9 +171,9 @@ module ObjFetcher (
                   bit_index  = xflip ? 3'(i) : 3'(7 - i);
 
                   px.color   = gb_color_t'({tile_high_byte[bit_index], tile_low_byte[bit_index]});
-                  px.palette = 3'd0;
-                  px.spr_idx = 6'd0;
-                  px.bg_prio = 1'b0;
+                  px.palette = current_sprite.attr[0] ? 3'd1 : 3'd0;
+                  px.spr_idx = 6'd0;  //current_sprite.oam_idx;
+                  px.bg_prio = current_sprite.attr[7];
                   px.valid   = 1'b1;
 
                   fifo_bus.write_data[3'(i)] <= px;
