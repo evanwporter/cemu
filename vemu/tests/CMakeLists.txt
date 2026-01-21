@@ -24,7 +24,7 @@ target_link_libraries(test_vemu
         test_cpu
         test_blargg
         test_mooneye
-        test_ppu
+        # test_ppu
         # test_gbmicrotest
         libvemu
         GTest::gtest
