@@ -238,6 +238,19 @@ inline void write_signed_numbered_tile(
     write_numbered_tile(vram, addr / 16, value);
 }
 
+inline void init_checkerboard_bg(vram_t& vram, int tile = 0) {
+    // Checkerboard tile
+    for (int r = 0; r < 8; ++r) {
+        vram[tile * 16 + r * 2 + 0] = (r & 1) ? 0xAA : 0x55;
+        vram[tile * 16 + r * 2 + 1] = 0x00;
+    }
+
+    // Fill BG map with checkerboard tile
+    fill_tile_map(vram, 0x1800, [tile](int, int) {
+        return tile;
+    });
+}
+
 PPUFrameTestCase window_basic {
     "window_basic",
     [](vram_t& vram) {
@@ -284,13 +297,7 @@ PPUFrameTestCase window_on_then_off {
 PPUFrameTestCase window_hide_show_signed_tiles {
     "window_hide_show_signed_tiles",
     [](vram_t& vram) {
-        // BG checkerboard
-        for (int r = 0; r < 8; ++r) {
-            vram[r * 2 + 0] = (r & 1) ? 0x55 : 0xAA;
-            vram[r * 2 + 1] = 0x00;
-        }
-
-        fill_tile_map(vram, 0x1800, [](int, int) { return 0; });
+        init_checkerboard_bg(vram);
 
         // Unsigned window tiles
         write_numbered_tiles(vram, 1, 8);
@@ -371,6 +378,78 @@ PPUFrameTestCase sprite_basic {
     }
 };
 
+inline void place_sprite(
+    oam_t& oam,
+    int sprite_idx,
+    int x,
+    int y,
+    uint8_t tile,
+    uint8_t flags = 0) {
+    const int base = sprite_idx * 4;
+    oam[base + 0] = y + 16; // OAM stores Y+16
+    oam[base + 1] = x + 8; // OAM stores X+8
+    oam[base + 2] = tile;
+    oam[base + 3] = flags;
+}
+
+PPUFrameTestCase sprite_11_on_line {
+    .name = "sprite_11_on_line",
+
+    .init_vram = [](vram_t& vram) {
+        // Background checkerboard
+        init_checkerboard_bg(vram, 0);
+
+        // Sprite tiles: numbers 0–10
+    for (int i = 0; i < 11; ++i)
+        write_numbered_tile(vram, 1 + i, i); },
+
+    .init_oam = [](oam_t& oam) {
+        constexpr int Y = 48; // all sprites on same scanline
+        constexpr int X_START = 8;
+
+        for (int i = 0; i < 11; ++i) {
+            place_sprite(
+                oam,
+                i,
+                X_START + i * 8, // non-overlapping
+                Y,
+                1 + i            // tile index
+            );
+        } },
+
+    .init_regs = [](ppu_regs_t& regs) { regs.__PVT__LCDC = LCDC_LCD_ON | LCDC_BG_ON | 0x02 | // OBJ enable
+                                            0x00 | // OBJ 8x8
+                                            LCDC_TILE_DATA_8000; }
+};
+
+PPUFrameTestCase sprite_flip_xy {
+    .name = "sprite_flip_xy",
+
+    .init_vram = [](vram_t& vram) {
+        init_checkerboard_bg(vram, 0);
+
+        write_numbered_tile(vram, 1, 5); },
+
+    .init_oam = [](oam_t& oam) {
+        constexpr int Y = 64;
+
+        // Normal
+        place_sprite(oam, 0, 24, Y, 1, 0x00);
+
+        // X flip
+        place_sprite(oam, 1, 40, Y, 1, 0x20);
+
+        // Y flip
+        place_sprite(oam, 2, 56, Y, 1, 0x40);
+
+        // X + Y flip
+        place_sprite(oam, 3, 72, Y, 1, 0x60); },
+
+    .init_regs = [](ppu_regs_t& regs) { regs.__PVT__LCDC = LCDC_LCD_ON | LCDC_BG_ON | 0x02 | // OBJ enable
+                                            0x00 | // OBJ 8x8
+                                            LCDC_TILE_DATA_8000; }
+};
+
 INSTANTIATE_TEST_SUITE_P(
     PPUTests,
     PPUFrameTest,
@@ -382,7 +461,9 @@ INSTANTIATE_TEST_SUITE_P(
         window_basic,
         window_on_then_off,
         window_hide_show_signed_tiles,
-        sprite_basic),
+        sprite_basic,
+        sprite_11_on_line,
+        sprite_flip_xy),
     [](const ::testing::TestParamInfo<PPUFrameTestCase>& info) {
         return info.param.name;
     });
