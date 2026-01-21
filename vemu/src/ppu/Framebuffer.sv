@@ -81,7 +81,7 @@ module Framebuffer (
 
           // Store pixel in framebuffer
           // The read_data is always the top pixel in the FIFO
-          if (!obj_fifo_bus.empty && obj_fifo_bus.read_data.color == GB_COLOR_TRANSPARENT) begin
+          if (!obj_fifo_bus.empty && obj_fifo_bus.read_data.color != GB_COLOR_TRANSPARENT) begin
             // If the OBJ queue has a pixel and its not transparent we use it
             buffer[write_addr] <= obj_fifo_bus.read_data.color;
           end else buffer[write_addr] <= fifo_bus.read_data.color;
