@@ -49,6 +49,16 @@ module Framebuffer (
 
   assign obj_fifo_bus.read_en = pixel_consume && !obj_fifo_bus.empty;
 
+  // Helper function to map 2-bit color + 8-bit palette to a 2-bit shade
+  function automatic gb_color_t map_palette(logic [1:0] color_idx, logic [7:0] palette);
+    unique case (color_idx)
+      2'd0: return gb_color_t'(palette[1:0]);
+      2'd1: return gb_color_t'(palette[3:2]);
+      2'd2: return gb_color_t'(palette[5:4]);
+      2'd3: return gb_color_t'(palette[7:6]);
+    endcase
+  endfunction
+
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       x_screen <= 8'd0;
@@ -81,7 +91,10 @@ module Framebuffer (
 
           // Store pixel in framebuffer
           // The read_data is always the top pixel in the FIFO
-          if (!obj_fifo_bus.empty && obj_fifo_bus.read_data.color != GB_COLOR_TRANSPARENT) begin
+          if ((!obj_fifo_bus.empty) && 
+             (obj_fifo_bus.read_data.color != GB_COLOR_TRANSPARENT) &&
+             ((obj_fifo_bus.read_data.bg_prio == 1'b0) ||
+              (fifo_bus.read_data.color == GB_COLOR_TRANSPARENT))) begin
             // If the OBJ queue has a pixel and its not transparent we use it
             buffer[write_addr] <= obj_fifo_bus.read_data.color;
           end else buffer[write_addr] <= fifo_bus.read_data.color;

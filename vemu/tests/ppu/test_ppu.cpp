@@ -65,6 +65,12 @@ inline static void run_ppu_frame(
 
 void dont_init_oam(oam_t& oam) { };
 
+inline void set_default_dmg_palettes(ppu_regs_t& regs) {
+    regs.__PVT__BGP = 0xE4;
+    regs.__PVT__OBP0 = 0xE4;
+    regs.__PVT__OBP1 = 0xE4;
+}
+
 struct PPUFrameTestCase {
     std::string name;
     std::function<void(vram_t& vram)> init_vram;
@@ -107,6 +113,7 @@ TEST_P(PPUFrameTest, RendersCorrectFrame) {
     param.init_oam(oam);
 
     ppu_regs_t& regs = top.rootp->ppu_top__DOT__ppu__DOT__regs;
+    set_default_dmg_palettes(regs);
     param.init_regs(regs);
 
     GPU gpu(
@@ -411,7 +418,7 @@ PPUFrameTestCase sprite_11_on_line {
             place_sprite(
                 oam,
                 i,
-                X_START + i * 8, // non-overlapping
+                X_START + i * 10, // non-overlapping
                 Y,
                 1 + i // tile index
             );
@@ -450,6 +457,30 @@ PPUFrameTestCase sprite_flip_xy {
                                             LCDC_TILE_DATA_8000; }
 };
 
+PPUFrameTestCase sprite_8x16_stack_01 {
+    .name = "sprite_8x16_stack_01",
+
+    .init_vram = [](vram_t& vram) {
+        init_checkerboard_bg(vram, 0);
+        write_numbered_tile(vram, 1, 0);
+        write_numbered_tile(vram, 2, 1);
+        fill_tile_map(vram, 0x1800, [](int, int) { return 0; }); },
+
+    .init_oam = [](oam_t& oam) { place_sprite(
+                                     oam,
+                                     0,
+                                     40,
+                                     40,
+                                     1); },
+
+    .init_regs = [](ppu_regs_t& regs) {
+        regs.__PVT__SCX = 0;
+        regs.__PVT__SCY = 0;
+
+        regs.__PVT__LCDC = LCDC_LCD_ON | LCDC_BG_ON | 0x02 | 
+            0x04 | LCDC_TILE_DATA_8000; }
+};
+
 INSTANTIATE_TEST_SUITE_P(
     PPUTests,
     PPUFrameTest,
@@ -463,7 +494,8 @@ INSTANTIATE_TEST_SUITE_P(
         window_hide_show_signed_tiles,
         sprite_basic,
         sprite_11_on_line,
-        sprite_flip_xy),
+        sprite_flip_xy,
+        sprite_8x16_stack_01),
     [](const ::testing::TestParamInfo<PPUFrameTestCase>& info) {
         return info.param.name;
     });

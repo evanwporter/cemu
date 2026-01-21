@@ -399,7 +399,7 @@ module PPU (
       end
       sprites_found_count <= 4'd0;
     end else begin
-      if (dot_counter == 9'd0) begin
+      if (dot_counter == 9'd455) begin
         sprites_found_count <= 4'd0;
         for (int i = 0; i < 10; i++) begin
           sprites_found[i].valid <= 1'b0;
