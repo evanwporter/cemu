@@ -563,23 +563,24 @@ PPUFrameTestCase window_hide_show_signed_tiles_case {
     }
 };
 
-// INSTANTIATE_TEST_SUITE_P(
-//     PPUTests,
-//     PPUFrameTest,
-//     ::testing::Values(
-//         bg_checkerboard_case, // for some reason the bg_checkerboard_case is failing on github actions
-//         bg_color_stripes_case,
-//         bg_multi_tile_map_case,
-//         bg_scrolled_tile_boundary_case,
-//         bg_numbers_case,
-//         bg_bands_case,
-//         bg_tile_map_9c00_case,
-//         bg_signed_tile_data_case,
-//         bg_tile_index_wrap_case,
-//         bg_scroll_wrap_case,
-//         window_basic_case,
-//         window_on_then_off_case,
-//         window_hide_show_signed_tiles_case),
-//     [](const ::testing::TestParamInfo<PPUFrameTestCase>& info) {
-//     return info.param.name;
-//     });
+INSTANTIATE_TEST_SUITE_P(
+    PPUTests,
+    PPUFrameTest,
+    ::testing::Values(
+        // bg_checkerboard_case, // for some reason the bg_checkerboard_case is failing on github actions
+        // bg_color_stripes_case,
+        // bg_multi_tile_map_case,
+        // bg_scrolled_tile_boundary_case,
+        // bg_numbers_case,
+        // bg_bands_case,
+        // bg_tile_map_9c00_case,
+        // bg_signed_tile_data_case,
+        // bg_tile_index_wrap_case,
+        // bg_scroll_wrap_case,
+        // window_basic_case,
+        // window_on_then_off_case,
+        // window_hide_show_signed_tiles_case
+        ),
+    [](const ::testing::TestParamInfo<PPUFrameTestCase>& info) {
+        return info.param.name;
+    });
