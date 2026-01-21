@@ -3,6 +3,7 @@
 
 import ppu_types_pkg::*;
 import ppu_util_pkg::*;
+import ppu_fetcher_types_pkg::*;
 
 `include "util/logger.svh"
 
@@ -14,20 +15,18 @@ module Fetcher (
     FIFO_if.Fetcher_side fifo_bus,
     RenderingControl_if.Fetcher_side control_bus,
 
-    input object_t sprite_buf[10],
-
     // control
     input logic flush  // clear internal state (e.g., on window start)
 );
-  typedef enum logic [2:0] {
+
+  enum logic [2:0] {
     FETCHER_GET_TILE,
     FETCHER_GET_LOW,
     FETCHER_GET_HIGH,
     FETCHER_PUSH
-  } fetcher_state_t;
+  } state;
 
-  fetcher_state_t state;
-
+  dot_phase_t dot_phase;
 
   /// Current window line.
   /// Increments each time a new line is drawn while window is active.
@@ -91,11 +90,6 @@ module Fetcher (
   wire [2:0] tile_y = tilemap_y[2:0];
 
   logic window_drew_this_line;
-
-  enum logic {
-    DOT_PHASE_0,
-    DOT_PHASE_1
-  } dot_phase;
 
   /// Low and high bytes of tile data.
   /// Together they correspond to one row of 8 pixels

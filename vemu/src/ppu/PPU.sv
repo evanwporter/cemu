@@ -63,8 +63,7 @@ module PPU (
       .bus(fetcher_bus),
       .fifo_bus(fifo_bus),
       .control_bus(rendering_control_bus),
-      .flush(flush),
-      .sprite_buf(sprites_found)
+      .flush(flush)
   );
 
   ObjFetcher obj_fetcher_inst (

@@ -1,5 +1,5 @@
 {
   "indexGlobs": ["./vemu/src/.../*.sv*"],
   "flags": "-f ./build/debug/vemu/src/vemu.f",
-  "buildPattern": "-f ./build/debug/vemu/src/vemu.f"
+  "build": "./build/debug/vemu/src/vemu.f"
 }

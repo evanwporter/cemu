@@ -1,5 +1,6 @@
 import ppu_types_pkg::*;
 import ppu_util_pkg::*;
+import ppu_fetcher_types_pkg::*;
 
 module ObjFetcher (
     input logic clk,
@@ -24,10 +25,7 @@ module ObjFetcher (
     FETCHER_PUSH
   } state;
 
-  enum logic {
-    DOT_PHASE_0,
-    DOT_PHASE_1
-  } dot_phase;
+  dot_phase_t dot_phase;
 
   // Next pixel being evaluated
   wire [7:0] next_pixel_x = control_bus.pixel_x + 8'd1;
