@@ -19,7 +19,7 @@ module Input (
   // ======================================================
   always_ff @(posedge clk or posedge reset) begin
     if (reset) JOYPAD_reg <= 8'b11000000;
-    else if (bus.write_en && joypad_selected) JOYPAD_reg <= bus.wdata | 8'b11000000;
+    else if (bus.write_en && joypad_selected) JOYPAD_reg <= 8'hCF;  // bus.wdata | 8'b11000000;
   end
 
   // ======================================================
