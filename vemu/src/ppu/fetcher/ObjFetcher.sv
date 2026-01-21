@@ -1,7 +1,7 @@
 import ppu_types_pkg::*;
 import ppu_util_pkg::*;
 
-module Obj_Fetcher (
+module ObjFetcher (
     input logic clk,
     input logic reset,
 

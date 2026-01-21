@@ -1,3 +1,6 @@
+add_subdirectory(fetcher)
+add_subdirectory(fifo)
+
 vemu_add_rtl(
     PACKAGES 
         ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
@@ -5,10 +8,6 @@ vemu_add_rtl(
     INTERFACES
         ${CMAKE_CURRENT_SOURCE_DIR}/interface.sv
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/Fetcher.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/PPU.sv
-        ${CMAKE_CURRENT_SOURCE_DIR}/FIFO.sv
-        ${CMAKE_CURRENT_SOURCE_DIR}/Obj_Fetcher.sv
-        ${CMAKE_CURRENT_SOURCE_DIR}/Obj_FIFO.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/Framebuffer.sv
 )

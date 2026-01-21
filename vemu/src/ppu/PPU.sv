@@ -67,7 +67,7 @@ module PPU (
       .sprite_buf(sprites_found)
   );
 
-  Obj_Fetcher obj_fetcher_inst (
+  ObjFetcher obj_fetcher_inst (
       .clk        (clk),
       .reset      (reset),
       .bus        (obj_fetcher_bus),
