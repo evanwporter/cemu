@@ -244,11 +244,11 @@ module Fetcher (
 
             // Build all 8 pixels in parallel
             for (int i = 0; i < 8; i++) begin
-              px.color   = gb_color_t'({tile_high_byte[7-i], tile_low_byte[7-i]});
-              px.palette = 3'd0;
+              px.color = color_id_t'({tile_high_byte[7-i], tile_low_byte[7-i]});
+              px.dmg_palette = 1'd0;
               px.spr_idx = 6'd0;
               px.bg_prio = 1'b0;
-              px.valid   = 1'b1;
+              px.valid = 1'b1;
 
               fifo_bus.write_data[i] <= px;
             end

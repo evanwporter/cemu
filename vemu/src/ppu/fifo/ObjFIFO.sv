@@ -38,7 +38,6 @@ module Obj_FIFO (
         end
 
       end else begin
-        // Bus is not empty -- have to do priority merging
         for (logic [3:0] i = 0; i < FIFO_DEPTH; i++) begin
           pixel_t incoming;
           incoming = bus.write_data[3'(i)];

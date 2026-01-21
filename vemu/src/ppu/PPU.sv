@@ -195,6 +195,8 @@ module PPU (
           16'hFF45: regs.LYC <= bus.wdata;
           // DMA transfer handled elsewhere
           16'hFF47: regs.BGP <= bus.wdata;
+          16'hFF48: regs.OBP0 <= bus.wdata;
+          16'hFF49: regs.OBP1 <= bus.wdata;
           16'hFF4A: regs.WY <= bus.wdata;
           16'hFF4B: regs.WX <= bus.wdata;
           default:  ;
@@ -251,6 +253,8 @@ module PPU (
           16'hFF45: bus.rdata = regs.LYC;
           // 16'hFF46: bus.rdata = regs.DMA;
           16'hFF47: bus.rdata = regs.BGP;
+          16'hFF48: bus.rdata = regs.OBP0;
+          16'hFF49: bus.rdata = regs.OBP1;
           16'hFF4A: bus.rdata = regs.WY;
           16'hFF4B: bus.rdata = regs.WX;
           default:  bus.rdata = 8'hFF;

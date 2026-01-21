@@ -62,13 +62,43 @@ module ObjFetcher (
   wire yflip = current_sprite.attr[6];
 
   always_comb begin
-    logic [3:0] raw_row;
-    raw_row = 4'(bus.regs.LY + 8'd16 - current_sprite.y_pos);
+    logic [7:0] y_tmp;
+    logic [4:0] y_in_sprite;
+    logic [7:0] base_tile;
+    logic       tile_half;
+    logic [2:0] row_in_tile;
 
-    sprite_row = yflip ? (4'd7 - raw_row) : raw_row;
+    y_tmp = (bus.regs.LY + 8'd16) - current_sprite.y_pos;
+    y_in_sprite = y_tmp[4:0];  // 0..15
 
-    tilemap_addr = 16'h8000 + {4'd0, current_sprite.tile_idx, 4'b0000} + {11'd0, sprite_row, 1'b0};
+    if (current_sprite.attr[6]) begin  // YFLIP
+      if (bus.regs.LCDC[2]) begin
+        // 8x16 sprite
+        y_in_sprite = 5'd15 - y_in_sprite;
+      end else begin
+        // 8x8 sprite
+        y_in_sprite = 5'd7 - y_in_sprite;
+      end
+    end
+
+    if (bus.regs.LCDC[2]) begin
+      // -------- 8x16 sprite --------
+      base_tile   = current_sprite.tile_idx & 8'hFE;  // force even
+      tile_half   = y_in_sprite[3];  // 0=top, 1=bottom
+      row_in_tile = y_in_sprite[2:0];
+    end else begin
+      // -------- 8x8 sprite --------
+      base_tile   = current_sprite.tile_idx;
+      tile_half   = 1'b0;
+      row_in_tile = y_in_sprite[2:0];
+    end
+
+    tilemap_addr = 16'h8000 + {4'd0, base_tile, 4'b0000}
+    + (tile_half ? 16'd16 : 16'd0)  
+    + {12'd0, row_in_tile, 1'b0};  // row * 2
   end
+
+
 
   logic [7:0] tile_low_byte, tile_high_byte;
 
@@ -168,13 +198,13 @@ module ObjFetcher (
                 // Build all 8 pixels in parallel
                 for (logic [3:0] i = 0; i < 8; i++) begin
                   logic [2:0] bit_index;
-                  bit_index  = xflip ? 3'(i) : 3'(7 - i);
+                  bit_index = xflip ? 3'(i) : 3'(7 - i);
 
-                  px.color   = gb_color_t'({tile_high_byte[bit_index], tile_low_byte[bit_index]});
-                  px.palette = current_sprite.attr[0] ? 3'd1 : 3'd0;
+                  px.color = color_id_t'({tile_high_byte[bit_index], tile_low_byte[bit_index]});
+                  px.dmg_palette = current_sprite.attr[4];
                   px.spr_idx = 6'd0;  //current_sprite.oam_idx;
                   px.bg_prio = current_sprite.attr[7];
-                  px.valid   = 1'b1;
+                  px.valid = 1'b1;
 
                   fifo_bus.write_data[3'(i)] <= px;
                 end

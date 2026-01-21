@@ -36,7 +36,7 @@ module Framebuffer (
   wire [14:0] write_addr = 15'((y_screen * GB_SCREEN_WIDTH) + x_screen);
 
   (* maybe_unused *)
-  gb_color_t buffer[NUM_PIXELS];
+  color_t buffer[NUM_PIXELS];
 
   /// Number of pixels to discard at start of each scanline
   /// Typically: `SCX % 8`
@@ -50,14 +50,22 @@ module Framebuffer (
   assign obj_fifo_bus.read_en = pixel_consume && !obj_fifo_bus.empty;
 
   // Helper function to map 2-bit color + 8-bit palette to a 2-bit shade
-  function automatic gb_color_t map_palette(logic [1:0] color_idx, logic [7:0] palette);
+  function automatic color_t map_palette(logic [1:0] color_idx, logic [7:0] palette);
     unique case (color_idx)
-      2'd0: return gb_color_t'(palette[1:0]);
-      2'd1: return gb_color_t'(palette[3:2]);
-      2'd2: return gb_color_t'(palette[5:4]);
-      2'd3: return gb_color_t'(palette[7:6]);
+      2'd0: return color_t'(palette[1:0]);
+      2'd1: return color_t'(palette[3:2]);
+      2'd2: return color_t'(palette[5:4]);
+      2'd3: return color_t'(palette[7:6]);
     endcase
   endfunction
+
+  color_t bg_pixel;
+  color_t obj_pixel;
+
+  assign obj_pixel = map_palette(
+      obj_fifo_bus.read_data.color, obj_fifo_bus.read_data.dmg_palette ? regs.OBP1 : regs.OBP0
+  );
+  assign bg_pixel = map_palette(fifo_bus.read_data.color, regs.BGP);
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
@@ -89,15 +97,29 @@ module Framebuffer (
           discard_count <= discard_count - 1'b1;
         end else begin
 
+          if (!obj_fifo_bus.empty &&
+            obj_fifo_bus.read_data.color != 2'd0 &&
+            (obj_fifo_bus.read_data.bg_prio == 1'b0 ||
+            fifo_bus.read_data.color == 2'd0)) begin
+
+            $display(
+                "[FB][DROP OBJ] (%0d,%0d) obj_color=%0d bg_color=%0d bg_prio=%0b obj_pal=%0b fifo_empty=%0b",
+                x_screen, y_screen, obj_fifo_bus.read_data.color, fifo_bus.read_data.color,
+                obj_fifo_bus.read_data.bg_prio, obj_fifo_bus.read_data.dmg_palette, fifo_bus.empty);
+          end
+
           // Store pixel in framebuffer
           // The read_data is always the top pixel in the FIFO
-          if ((!obj_fifo_bus.empty) && 
-             (obj_fifo_bus.read_data.color != GB_COLOR_TRANSPARENT) &&
-             ((obj_fifo_bus.read_data.bg_prio == 1'b0) ||
-              (fifo_bus.read_data.color == GB_COLOR_TRANSPARENT))) begin
+          if (!obj_fifo_bus.empty &&
+            obj_fifo_bus.read_data.color != 2'd0 &&
+            (obj_fifo_bus.read_data.bg_prio == 1'b0 ||
+            fifo_bus.read_data.color == 2'd0)) begin
             // If the OBJ queue has a pixel and its not transparent we use it
-            buffer[write_addr] <= obj_fifo_bus.read_data.color;
-          end else buffer[write_addr] <= fifo_bus.read_data.color;
+            buffer[write_addr] <= obj_pixel;
+          end else begin
+            // Background/Window uses BGP
+            buffer[write_addr] <= bg_pixel;
+          end
 
           if (x_screen == (GB_SCREEN_WIDTH - 8'd1)) begin
             // End of scanline

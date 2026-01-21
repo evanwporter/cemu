@@ -72,7 +72,7 @@ typedef struct `PACK_REG {
 
 } ppu_regs_t;
 
-typedef enum logic [2:0] {
+typedef enum logic [1:0] {
   COLOR_ID_0,
   COLOR_ID_1,
   COLOR_ID_2,
@@ -84,24 +84,17 @@ typedef enum logic [1:0] {
   GB_COLOR_LIGHT_GRAY,
   GB_COLOR_DARK_GRAY,
   GB_COLOR_BLACK
-} gb_color_t;
+} color_t;
 
 /// A pixel in FIFO (BG or OBJ)
 typedef struct `PACK_PX {
-  gb_color_t  color;
-  logic [2:0] palette;  // CGB: 0..7 ; DMG: only for OBJ select (0/1)
+  color_id_t  color;
+  // logic [2:0] cgb_palette;  // CGB: 0..7
+  logic dmg_palette; // DMG: 0 = OBP0, 1 = OBP1
   logic [5:0] spr_idx;  // OBJ priority (OAM index).
   logic       bg_prio;  // OBJ-to-BG priority bit (1 = BG over OBJ).
   logic       valid;    // for FIFO empty slots
 } pixel_t;
-
-pixel_t OBJ_TRANSPARENT = '{
-  color   : GB_COLOR_TRANSPARENT,
-  palette : 3'd0,
-  spr_idx : 6'd63,
-  bg_prio : 1'b0,
-  valid   : 1'b0
-};
 
 typedef struct {
   logic valid;
