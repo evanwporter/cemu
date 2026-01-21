@@ -12,7 +12,6 @@ module Obj_Fetcher (
     FIFO_if.Fetcher_side fifo_bus,
 
     input object_t sprite_buf[10]
-
 );
 
   logic [9:0] sprite_hit;
@@ -36,7 +35,6 @@ module Obj_Fetcher (
   always_comb begin
     for (int i = 0; i < 10; i++) begin
       sprite_hit[i] =
-      // sprite_buf[i].valid &&
       sprite_valid[i] &&
       (next_pixel_x >= sprite_buf[i].x_pos - 8) &&
       (next_pixel_x <  sprite_buf[i].x_pos);
@@ -62,8 +60,14 @@ module Obj_Fetcher (
   logic [3:0] sprite_row;
   logic [15:0] tilemap_addr;
 
+  wire xflip = current_sprite.attr[5];
+  wire yflip = current_sprite.attr[6];
+
   always_comb begin
-    sprite_row   = 4'(bus.regs.LY + 8'd16 - current_sprite.y_pos);
+    logic [3:0] raw_row;
+    raw_row = 4'(bus.regs.LY + 8'd16 - current_sprite.y_pos);
+
+    sprite_row = yflip ? (4'd7 - raw_row) : raw_row;
 
     tilemap_addr = 16'h8000 + {4'd0, current_sprite.tile_idx, 4'b0000} + {11'd0, sprite_row, 1'b0};
   end
@@ -99,9 +103,9 @@ module Obj_Fetcher (
               state <= FETCHER_GET_LOW;
               dot_phase <= DOT_PHASE_0;
 
-              $display("[OBJ] HIT idx=%0d x=%0d y=%0d tile=%0d LY=%0d next_x=%0d", first_sprite_idx,
-                       sprite_buf[first_sprite_idx].x_pos, sprite_buf[first_sprite_idx].y_pos,
-                       sprite_buf[first_sprite_idx].tile_idx, bus.regs.LY, next_pixel_x);
+              // $display("[OBJ] HIT idx=%0d x=%0d y=%0d tile=%0d LY=%0d next_x=%0d", first_sprite_idx,
+              //          sprite_buf[first_sprite_idx].x_pos, sprite_buf[first_sprite_idx].y_pos,
+              //          sprite_buf[first_sprite_idx].tile_idx, bus.regs.LY, next_pixel_x);
             end
           end
 
@@ -113,8 +117,8 @@ module Obj_Fetcher (
 
                 dot_phase <= DOT_PHASE_1;
 
-                $display("[OBJ] READ LOW addr=%04x tile=%0d row=%0d", tilemap_addr,
-                         current_sprite.tile_idx, sprite_row);
+                // $display("[OBJ] READ LOW addr=%04x tile=%0d row=%0d", tilemap_addr,
+                //          current_sprite.tile_idx, sprite_row);
               end
 
               DOT_PHASE_1: begin
@@ -125,7 +129,7 @@ module Obj_Fetcher (
                 state <= FETCHER_GET_HIGH;
                 dot_phase <= DOT_PHASE_0;
 
-                $display("[OBJ] LOW BYTE rdata=%02x from addr=%04x", bus.rdata, bus.addr);
+                // $display("[OBJ] LOW BYTE rdata=%02x from addr=%04x", bus.rdata, bus.addr);
               end
             endcase
           end
@@ -138,8 +142,8 @@ module Obj_Fetcher (
 
                 dot_phase <= DOT_PHASE_1;
 
-                $display("[OBJ] READ HIGH addr=%04x tile=%0d row=%0d", tilemap_addr + 16'd1,
-                         current_sprite.tile_idx, sprite_row);
+                // $display("[OBJ] READ HIGH addr=%04x tile=%0d row=%0d", tilemap_addr + 16'd1,
+                //          current_sprite.tile_idx, sprite_row);
               end
 
               DOT_PHASE_1: begin
@@ -150,7 +154,7 @@ module Obj_Fetcher (
                 state <= FETCHER_PUSH;
                 dot_phase <= DOT_PHASE_0;
 
-                $display("[OBJ] HIGH BYTE rdata=%02x from addr=%04x", bus.rdata, bus.addr);
+                // $display("[OBJ] HIGH BYTE rdata=%02x from addr=%04x", bus.rdata, bus.addr);
 
               end
             endcase
@@ -164,14 +168,17 @@ module Obj_Fetcher (
                 pixel_t px;
 
                 // Build all 8 pixels in parallel
-                for (int i = 0; i < 8; i++) begin
-                  px.color   = gb_color_t'({tile_high_byte[7-i], tile_low_byte[7-i]});
+                for (logic [3:0] i = 0; i < 8; i++) begin
+                  logic [2:0] bit_index;
+                  bit_index  = xflip ? 3'(i) : 3'(7 - i);
+
+                  px.color   = gb_color_t'({tile_high_byte[bit_index], tile_low_byte[bit_index]});
                   px.palette = 3'd0;
                   px.spr_idx = 6'd0;
                   px.bg_prio = 1'b0;
                   px.valid   = 1'b1;
 
-                  fifo_bus.write_data[i] <= px;
+                  fifo_bus.write_data[3'(i)] <= px;
                 end
 
                 fifo_bus.write_en <= 1'b1;

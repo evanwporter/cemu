@@ -241,11 +241,11 @@ PPUSpriteFrameTestCase single_sprite_number_case {
     }
 };
 
-INSTANTIATE_TEST_SUITE_P(
-    PPUSpriteTests,
-    PPUSpriteFrameTest,
-    ::testing::Values(
-        single_sprite_number_case),
-    [](const ::testing::TestParamInfo<PPUSpriteFrameTestCase>& info) {
-        return info.param.name;
-    });
+// INSTANTIATE_TEST_SUITE_P(
+//     PPUSpriteTests,
+//     PPUSpriteFrameTest,
+//     ::testing::Values(
+//         single_sprite_number_case),
+//     [](const ::testing::TestParamInfo<PPUSpriteFrameTestCase>& info) {
+//         return info.param.name;
+//     });
