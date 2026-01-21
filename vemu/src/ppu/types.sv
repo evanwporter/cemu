@@ -73,7 +73,7 @@ typedef struct `PACK_REG {
 } ppu_regs_t;
 
 typedef enum logic [1:0] {
-  GB_COLOR_WHITE,
+  GB_COLOR_TRANSPARENT,
   GB_COLOR_LIGHT_GRAY,
   GB_COLOR_DARK_GRAY,
   GB_COLOR_BLACK
@@ -89,7 +89,7 @@ typedef struct `PACK_PX {
 } pixel_t;
 
 pixel_t OBJ_TRANSPARENT = '{
-  color   : GB_COLOR_WHITE,
+  color   : GB_COLOR_TRANSPARENT,
   palette : 3'd0,
   spr_idx : 6'd63,
   bg_prio : 1'b0,

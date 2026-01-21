@@ -68,7 +68,7 @@ module Obj_Fetcher (
     tilemap_addr = 16'h8000 + {4'd0, current_sprite.tile_idx, 4'b0000} + {11'd0, sprite_row, 1'b0};
   end
 
-  logic [7:0] tile_low, tile_high;
+  logic [7:0] tile_low_byte, tile_high_byte;
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
@@ -119,7 +119,7 @@ module Obj_Fetcher (
 
               DOT_PHASE_1: begin
                 // Fetch low byte of sprite data
-                tile_low <= bus.rdata;
+                tile_low_byte <= bus.rdata;
                 bus.read_req <= 1'b0;
 
                 state <= FETCHER_GET_HIGH;
@@ -144,7 +144,7 @@ module Obj_Fetcher (
 
               DOT_PHASE_1: begin
                 // Fetch high byte of sprite data
-                tile_high <= bus.rdata;
+                tile_high_byte <= bus.rdata;
                 bus.read_req <= 1'b0;
 
                 state <= FETCHER_PUSH;
@@ -165,7 +165,7 @@ module Obj_Fetcher (
 
                 // Build all 8 pixels in parallel
                 for (int i = 0; i < 8; i++) begin
-                  px.color   = gb_color_t'({tile_high[7-i], tile_low[7-i]});
+                  px.color   = gb_color_t'({tile_high_byte[7-i], tile_low_byte[7-i]});
                   px.palette = 3'd0;
                   px.spr_idx = 6'd0;
                   px.bg_prio = 1'b0;

@@ -27,6 +27,7 @@ module Obj_FIFO (
       end
 
     end else if (bus.write_en) begin
+      // Bus is empty? Great -- just write everything
       if (bus.empty) begin
         for (logic [3:0] i = 0; i < FIFO_DEPTH; i++) begin
           buffer[3'(i)] <= bus.write_data[3'(i)];
@@ -37,20 +38,17 @@ module Obj_FIFO (
         end
 
       end else begin
+        // Bus is not empty -- have to do priority merging
         for (logic [3:0] i = 0; i < FIFO_DEPTH; i++) begin
           pixel_t incoming;
           incoming = bus.write_data[3'(i)];
 
-          // Default: keep existing pixel
           buffer[3'(i)] <= buffer[3'(i)];
 
-          // Only consider valid incoming pixels
           if (incoming.valid) begin
-            // If buffer pixel invalid → overwrite
             if (!buffer[3'(i)].valid) begin
               buffer[3'(i)] <= incoming;
 
-              // If both valid → priority compare (lower spr_idx wins)
             end else if (incoming.spr_idx < buffer[3'(i)].spr_idx) begin
               buffer[3'(i)] <= incoming;
             end

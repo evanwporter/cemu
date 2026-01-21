@@ -112,7 +112,6 @@ module Fetcher (
     end
   endfunction
 
-
   // Reset on flush/window start
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
