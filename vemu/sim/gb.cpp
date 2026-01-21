@@ -115,6 +115,26 @@ bool GameboyHarness::run(const fs::path& rom_path, InstructionCallback on_instru
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
         texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, GB_WIDTH, GB_HEIGHT);
+
+        obj_window = SDL_CreateWindow(
+            "OBJ Debug View",
+            SDL_WINDOWPOS_CENTERED + 50,
+            SDL_WINDOWPOS_CENTERED + 50,
+            GB_WIDTH * SCALE,
+            GB_HEIGHT * SCALE,
+            0);
+
+        obj_renderer = SDL_CreateRenderer(
+            obj_window,
+            -1,
+            SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+        obj_texture = SDL_CreateTexture(
+            obj_renderer,
+            SDL_PIXELFORMAT_ARGB8888,
+            SDL_TEXTUREACCESS_STREAMING,
+            GB_WIDTH,
+            GB_HEIGHT);
     }
 
     top.reset = 1;
@@ -176,7 +196,7 @@ bool GameboyHarness::run(const fs::path& rom_path, InstructionCallback on_instru
             if (top.rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY == 144) {
                 if (LYs == 100) {
                     // draw_from_vram(top);
-                    // draw_sprites(top);
+                    draw_sprites(top);
                     present_frame();
                     LYs = 0;
                 } else {
@@ -486,6 +506,14 @@ void GameboyHarness::present_frame() {
         GB_WIDTH * sizeof(u32));
     SDL_RenderCopy(renderer, texture, nullptr, nullptr);
     SDL_RenderPresent(renderer);
+
+    SDL_UpdateTexture(
+        obj_texture,
+        nullptr,
+        obj_framebuffer,
+        GB_WIDTH * sizeof(u32));
+    SDL_RenderCopy(obj_renderer, obj_texture, nullptr, nullptr);
+    SDL_RenderPresent(obj_renderer);
 }
 
 void GameboyHarness::draw_scanline(VGameboy& top, int ly) {
@@ -679,6 +707,8 @@ void GameboyHarness::draw_sprites(VGameboy& top) {
                 // Apply palette
                 u8 shade = (palette >> (color * 2)) & 0x03;
                 framebuffer[sy * GB_WIDTH + sx] = gb_color(shade);
+
+                obj_framebuffer[sy * GB_WIDTH + sx] = gb_color(shade);
             }
         }
     }

@@ -22,6 +22,8 @@
 #include "Vppu_top.h"
 #include "Vppu_top___024root.h"
 
+#include <fstream>
+
 namespace fs = std::filesystem;
 
 constexpr uint8_t LCDC_BG_ON = 0b00000001;
@@ -481,6 +483,99 @@ PPUFrameTestCase sprite_8x16_stack_01 {
             0x04 | LCDC_TILE_DATA_8000; }
 };
 
+PPUFrameTestCase sprite_left_edge_with_scx_discard {
+    .name = "sprite_left_edge_with_scx_discard",
+
+    .init_vram = [](vram_t& vram) {
+        // BG: solid color 0 so sprite is obvious
+        init_checkerboard_bg(vram, 0);
+        fill_tile_map(vram, 0x1800, [](int, int){ return 0; });
+
+        // Sprite tile 1: solid color 3 (non-transparent)
+        write_solid_tile(vram, 1, 3); },
+
+    .init_oam = [](oam_t& oam) {
+        // Sprite at screen x = 0, y = 40
+        // place_sprite takes screen coords
+        place_sprite(oam, 0, 0, 40, 1, 0x00); },
+
+    .init_regs = [](ppu_regs_t& regs) {
+        regs.__PVT__SCX = 5;   // discard_count = 5
+        regs.__PVT__SCY = 0;
+
+        regs.__PVT__LCDC = LCDC_LCD_ON | LCDC_BG_ON | 0x02 | 0x00 | LCDC_TILE_DATA_8000; }
+};
+
+PPUFrameTestCase dmg_acid2_left_eye {
+    .name = "dmg_acid2_left_eye",
+
+    .init_vram = [](vram_t& vram) {
+        // BG tile 0: solid color 1 (non-zero!)
+        write_solid_tile(vram, 0, 1);
+
+        // Fill BG map with tile 0
+        fill_tile_map(vram, 0x1800, [](int, int) { return 0; });
+
+        // OBJ tile: solid color 3
+        write_solid_tile(vram, 1, 3); },
+
+    .init_oam = [](oam_t& oam) {
+        // Left eye sprite at X=56, Y=40
+        // priority bit set (bit 7)
+        place_sprite(oam, 0, 56, 40, 1, 0x80); },
+
+    .init_regs = [](ppu_regs_t& regs) {
+        regs.__PVT__SCX = 0;
+        regs.__PVT__SCY = 32;
+
+        regs.__PVT__WX = 88;   // window off to the right
+        regs.__PVT__WY = 40;
+
+        regs.__PVT__LCDC =
+            LCDC_LCD_ON |
+            LCDC_BG_ON |
+            0x02 |              // OBJ enable
+            LCDC_TILE_DATA_8000 |
+            LCDC_WINDOW_ENABLE; }
+};
+
+template <typename T>
+inline void load_binary_file(
+    const std::filesystem::path& path,
+    T dst,
+    std::size_t expected_size) {
+    ASSERT_TRUE(std::filesystem::exists(path))
+        << "File not found: " << path;
+
+    std::ifstream f(path, std::ios::binary);
+    ASSERT_TRUE(f.good()) << "Failed to open " << path;
+
+    // Read into the buffer using indexing (works for VlUnpacked and std::array)
+    std::vector<uint8_t> tmp(expected_size);
+    f.read(reinterpret_cast<char*>(tmp.data()), expected_size);
+    ASSERT_EQ(static_cast<std::size_t>(f.gcount()), expected_size)
+        << "File size mismatch for " << path;
+
+    for (std::size_t i = 0; i < expected_size; ++i)
+        dst[i] = tmp[i];
+}
+
+auto init_vram_from_file = [](const std::string& filename) {
+    return [filename](vram_t& vram) {
+        const auto path = std::filesystem::path(__FILE__).parent_path() / "artifacts" / filename;
+
+        load_binary_file(path, vram, 0x2000);
+    };
+};
+
+auto init_oam_from_file = [](const std::string& filename) {
+    return [filename](oam_t& oam) {
+        const auto path = std::filesystem::path(__FILE__).parent_path() / "artifacts" / filename;
+
+        load_binary_file(path, oam, 0xA0);
+    };
+};
+
 INSTANTIATE_TEST_SUITE_P(
     PPUTests,
     PPUFrameTest,
@@ -495,7 +590,8 @@ INSTANTIATE_TEST_SUITE_P(
         sprite_basic,
         sprite_11_on_line,
         sprite_flip_xy,
-        sprite_8x16_stack_01),
+        sprite_8x16_stack_01,
+        sprite_left_edge_with_scx_discard),
     [](const ::testing::TestParamInfo<PPUFrameTestCase>& info) {
         return info.param.name;
     });

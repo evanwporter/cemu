@@ -38,6 +38,9 @@ module Framebuffer (
   (* maybe_unused *)
   color_t buffer[NUM_PIXELS];
 
+  (* maybe_unused *)
+  color_t obj_buffer[NUM_PIXELS];
+
   /// Number of pixels to discard at start of each scanline
   /// Typically: `SCX % 8`
   logic [2:0] discard_count;
@@ -59,13 +62,19 @@ module Framebuffer (
     endcase
   endfunction
 
+  color_id_t bg_color_id;
+  assign bg_color_id = regs.LCDC[0] ? fifo_bus.read_data.color : COLOR_ID_0;
+
+  color_id_t obj_color_id;
+  assign obj_color_id = regs.LCDC[1] ? obj_fifo_bus.read_data.color : COLOR_ID_0;
+
   color_t bg_pixel;
   color_t obj_pixel;
 
   assign obj_pixel = map_palette(
-      obj_fifo_bus.read_data.color, obj_fifo_bus.read_data.dmg_palette ? regs.OBP1 : regs.OBP0
+      obj_color_id, obj_fifo_bus.read_data.dmg_palette ? regs.OBP1 : regs.OBP0
   );
-  assign bg_pixel = map_palette(fifo_bus.read_data.color, regs.BGP);
+  assign bg_pixel = map_palette(bg_color_id, regs.BGP);
 
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
@@ -83,7 +92,6 @@ module Framebuffer (
 
       line_done <= 1'b0;
 
-      // $display("[PPU] [FB] Framebuffer reset (flush=%0b)", flush);
     end else begin
 
       frame_done <= 1'b0;
@@ -97,23 +105,12 @@ module Framebuffer (
           discard_count <= discard_count - 1'b1;
         end else begin
 
-          if (!obj_fifo_bus.empty &&
-            obj_fifo_bus.read_data.color != 2'd0 &&
-            (obj_fifo_bus.read_data.bg_prio == 1'b0 ||
-            fifo_bus.read_data.color == 2'd0)) begin
-
-            $display(
-                "[FB][DROP OBJ] (%0d,%0d) obj_color=%0d bg_color=%0d bg_prio=%0b obj_pal=%0b fifo_empty=%0b",
-                x_screen, y_screen, obj_fifo_bus.read_data.color, fifo_bus.read_data.color,
-                obj_fifo_bus.read_data.bg_prio, obj_fifo_bus.read_data.dmg_palette, fifo_bus.empty);
-          end
-
           // Store pixel in framebuffer
           // The read_data is always the top pixel in the FIFO
-          if (!obj_fifo_bus.empty &&
-            obj_fifo_bus.read_data.color != 2'd0 &&
-            (obj_fifo_bus.read_data.bg_prio == 1'b0 ||
-            fifo_bus.read_data.color == 2'd0)) begin
+          if (!obj_fifo_bus.empty  &&
+              obj_color_id != 2'd0 &&
+              (obj_fifo_bus.read_data.bg_prio == 1'b0 ||
+               bg_color_id == 2'd0)) begin
             // If the OBJ queue has a pixel and its not transparent we use it
             buffer[write_addr] <= obj_pixel;
           end else begin

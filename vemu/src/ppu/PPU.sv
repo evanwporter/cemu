@@ -418,9 +418,11 @@ module PPU (
                 (regs.LY + 16 <  current_sprite.y_pos + 8'(sprite_height))) begin
               sprites_found[sprites_found_count] <= current_sprite;
               sprites_found_count <= sprites_found_count + 1'b1;
-              // $display("[%0d] DC=%0d OAM idx=%0d -> write sprite[%0d] x=%0d y=%0d", sprite_num,
-              //          dot_counter, sprite_idx, sprites_found_count, current_sprite.x_pos,
-              //          current_sprite.y_pos);
+              if (current_sprite.y_pos == 8'd56) begin
+                // $display("[%0d] DC=%0d OAM idx=%0d -> write sprite[%0d] x=%0d y=%0d", sprite_num,
+                //          dot_counter, sprite_idx, sprites_found_count, current_sprite.x_pos,
+                //          current_sprite.y_pos);
+              end
             end else begin
               // $display("[%0d] DC=%0d OAM idx=%0d -> skip", sprite_num, dot_counter, sprite_idx);
             end

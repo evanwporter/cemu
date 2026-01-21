@@ -249,6 +249,7 @@ module Fetcher (
               px.spr_idx = 6'd0;
               px.bg_prio = 1'b0;
               px.valid = 1'b1;
+              px.x_pos = 8'd0;
 
               fifo_bus.write_data[i] <= px;
             end

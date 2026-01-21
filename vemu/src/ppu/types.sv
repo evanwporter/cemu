@@ -92,6 +92,7 @@ typedef struct `PACK_PX {
   // logic [2:0] cgb_palette;  // CGB: 0..7
   logic dmg_palette; // DMG: 0 = OBP0, 1 = OBP1
   logic [5:0] spr_idx;  // OBJ priority (OAM index).
+  logic [7:0] x_pos;
   logic       bg_prio;  // OBJ-to-BG priority bit (1 = BG over OBJ).
   logic       valid;    // for FIFO empty slots
 } pixel_t;

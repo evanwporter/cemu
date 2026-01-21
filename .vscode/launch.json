@@ -28,7 +28,7 @@
         // "${workspaceFolder}/tests/gb-test-roms/cpu_instrs/individual/01-special.gb",
         "${workspaceFolder}/tests/dmg-acid2.gb",
         // "${workspaceFolder}/tests/mooneye-test-suite/acceptance/oam_dma/basic.gb",
-        // "--skip-boot-rom",
+        "--skip-boot-rom",
         "--gui"
         // "--trace"
       ],

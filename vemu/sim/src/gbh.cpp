@@ -19,7 +19,17 @@ namespace fs = std::filesystem;
 bool GB::setup(const std::filesystem::path& rom_path) {
     top = std::make_unique<VGameboy>();
     debugger = std::make_unique<debug::Debugger>(*this, *top, options.enable_debugger);
-    gpu.emplace(top->rootp->Gameboy__DOT__ppu_inst__DOT__VRAM, top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY, top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LYC, top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCX, top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCY, top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__WX, top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__WY, top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LCDC, top->rootp->Gameboy__DOT__ppu_inst__DOT__framebuffer_inst__DOT__buffer, options.gui_enabled);
+    gpu.emplace(
+        top->rootp->Gameboy__DOT__ppu_inst__DOT__VRAM,
+        top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LY,
+        top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LYC,
+        top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCX,
+        top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__SCY,
+        top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__WX,
+        top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__WY,
+        top->rootp->Gameboy__DOT__ppu_inst__DOT__regs.__PVT__LCDC,
+        top->rootp->Gameboy__DOT__ppu_inst__DOT__framebuffer_inst__DOT__buffer,
+        options.gui_enabled);
     cpu.emplace(*top);
 
     if (!load_rom(rom_path)) {
@@ -207,7 +217,7 @@ bool GB::load_rom(const fs::path& filename) {
 
 void GB::set_initial_state() {
     auto& regs = top->rootp->Gameboy__DOT__cpu_inst__DOT__regs;
-
+    auto& ppu_regs = top->rootp->Gameboy__DOT__ppu_inst__DOT__regs;
     regs.__PVT__sph = 0xFF;
     regs.__PVT__spl = 0xFE;
 
@@ -225,6 +235,18 @@ void GB::set_initial_state() {
         regs.__PVT__pcl = 0x00;
 
         regs.__PVT__IR = 0x00;
+
+        ppu_regs.__PVT__LCDC = 0x91;
+        ppu_regs.__PVT__STAT = 0x81;
+        ppu_regs.__PVT__SCX = 0x00;
+        ppu_regs.__PVT__SCY = 0x00;
+        ppu_regs.__PVT__WX = 0x00;
+        ppu_regs.__PVT__WY = 0x00;
+        ppu_regs.__PVT__LY = 0xFF;
+        ppu_regs.__PVT__LYC = 0x00;
+        ppu_regs.__PVT__BGP = 0xFC;
+
+        top->rootp->Gameboy__DOT__cart_inst__DOT__boot_rom_switch = 1;
     }
 }
 
@@ -311,6 +333,19 @@ void dump_vram(const VGameboy& top, const std::filesystem::path& path) {
     }
 }
 
+void dump_oam(const VGameboy& top, const std::filesystem::path& path) {
+    std::ofstream out(path, std::ios::binary);
+    if (!out)
+        throw std::runtime_error("Failed to open OAM dump file");
+
+    const auto& oam = top.rootp->Gameboy__DOT__ppu_inst__DOT__OAM;
+
+    for (int i = 0; i < 160; ++i) {
+        uint8_t byte = static_cast<uint8_t>(oam[i]);
+        out.write(reinterpret_cast<const char*>(&byte), 1);
+    }
+}
+
 void dump_ppu_regs(const VGameboy& top, const std::filesystem::path& path) {
     std::ofstream out(path);
     if (!out)
@@ -351,6 +386,7 @@ bool GB::tick() {
         std::filesystem::create_directories(outdir);
 
         dump_vram(*top, outdir / "vram.bin");
+        dump_oam(*top, outdir / "oam.bin");
         dump_ppu_regs(*top, outdir / "ppu_regs.txt");
     }
 

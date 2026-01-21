@@ -98,8 +98,6 @@ module ObjFetcher (
     + {12'd0, row_in_tile, 1'b0};  // row * 2
   end
 
-
-
   logic [7:0] tile_low_byte, tile_high_byte;
 
   always_ff @(posedge clk or posedge reset) begin
@@ -130,10 +128,6 @@ module ObjFetcher (
 
               state <= FETCHER_GET_LOW;
               dot_phase <= DOT_PHASE_0;
-
-              // $display("[OBJ] HIT idx=%0d x=%0d y=%0d tile=%0d LY=%0d next_x=%0d", first_sprite_idx,
-              //          sprite_buf[first_sprite_idx].x_pos, sprite_buf[first_sprite_idx].y_pos,
-              //          sprite_buf[first_sprite_idx].tile_idx, bus.regs.LY, next_pixel_x);
             end
           end
 
@@ -202,9 +196,10 @@ module ObjFetcher (
 
                   px.color = color_id_t'({tile_high_byte[bit_index], tile_low_byte[bit_index]});
                   px.dmg_palette = current_sprite.attr[4];
-                  px.spr_idx = 6'd0;  //current_sprite.oam_idx;
+                  px.spr_idx = current_sprite.oam_idx;
                   px.bg_prio = current_sprite.attr[7];
                   px.valid = 1'b1;
+                  px.x_pos = current_sprite.x_pos;
 
                   fifo_bus.write_data[3'(i)] <= px;
                 end

@@ -93,6 +93,12 @@ private:
 
     u32 framebuffer[GB_WIDTH * GB_HEIGHT];
 
+    SDL_Window* obj_window = nullptr;
+    SDL_Renderer* obj_renderer = nullptr;
+    SDL_Texture* obj_texture = nullptr;
+
+    u32 obj_framebuffer[GB_WIDTH * GB_HEIGHT];
+
     static inline u32 gb_color(u8 c) {
         switch (c & 0x3) {
         case 0:

@@ -12,8 +12,6 @@
 
 #include <argparse/argparse.hpp>
 
-#include "gb.hpp"
-
 namespace fs = std::filesystem;
 
 vluint64_t main_time = 0;
