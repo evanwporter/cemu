@@ -16,3 +16,6 @@
 [submodule "tests/gbmicrotest"]
 	path = tests/gbmicrotest
 	url = https://github.com/evanwporter/gbmicrotest
+[submodule "tests/sm83"]
+	path = tests/sm83
+	url = https://github.com/SingleStepTests/sm83.git

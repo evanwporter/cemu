@@ -10,7 +10,7 @@ namespace fs = std::filesystem;
 static constexpr uint64_t MAX_INSTRUCTIONS = 1'000'000'000;
 
 static void run_single_file(const fs::path& path) {
-    GameboyHarness harness(false, false);
+    GameboyHarness harness(false, false, false);
 
     const fs::path base = fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/individual";
 
@@ -77,6 +77,6 @@ TEST(BlarggROMTests, CPUInstrsAll) {
     run_single_file(fs::path(TEST_DIR) / "gb-test-roms/cpu_instrs/cpu_instrs.gb");
 }
 
-// TEST(BlarggROMTests, InstrsTiming) {
-//     run_single_file(fs::path(TEST_DIR) / "gb-test-roms/instr_timing/instr_timing.gb");
-// }
+TEST(BlarggROMTests, InstrsTiming) {
+    run_single_file(fs::path(TEST_DIR) / "gb-test-roms/instr_timing/instr_timing.gb");
+}
