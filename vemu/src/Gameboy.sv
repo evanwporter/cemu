@@ -5,6 +5,8 @@
 
 `include "util/logger.svh"
 
+import mmu_addresses_pkg::*;
+
 module Gameboy (
     input logic clk,
     input logic reset
@@ -99,11 +101,24 @@ module Gameboy (
       .bus  (serial_bus)
   );
 
-  RAM ram_inst (
-      .clk(clk),
+  Memory #(
+      .START_ADDR(HRAM_start),
+      .END_ADDR  (HRAM_end),
+      .SIZE      (HRAM_len)
+  ) hram_inst (
+      .clk  (clk),
       .reset(reset),
-      .bus(ram_bus),
-      .hram_bus(hram_bus)
+      .bus  (hram_bus)
+  );
+
+  Memory #(
+      .START_ADDR(WRAM_start),
+      .END_ADDR  (WRAM_end),
+      .SIZE      (WRAM_len)
+  ) wram_inst (
+      .clk  (clk),
+      .reset(reset),
+      .bus  (ram_bus)
   );
 
 endmodule

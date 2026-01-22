@@ -44,7 +44,7 @@ bool GB::setup(const std::filesystem::path& rom_path) {
     set_initial_state();
 
     for (int i = 0; i < 0x7F; i++) {
-        top->rootp->Gameboy__DOT__ram_inst__DOT__HRAM[i] = 0xFF;
+        top->rootp->Gameboy__DOT__hram_inst__DOT__mem[i] = 0xFF;
     }
 
     while (began_instruction()) {
@@ -100,19 +100,19 @@ u8 GB::read_memory(u16 addr) const {
 
     else if (addr <= 0xBFFF) {
         u16 address = addr - 0xA000;
-        u8 val = top->rootp->Gameboy__DOT__ram_inst__DOT__WRAM[address];
+        u8 val = top->rootp->Gameboy__DOT__wram_inst__DOT__mem[address];
         return val;
     }
 
     else if (addr <= 0xDFFF) {
         u16 address = addr - 0xC000;
-        u8 val = top->rootp->Gameboy__DOT__ram_inst__DOT__WRAM[address];
+        u8 val = top->rootp->Gameboy__DOT__wram_inst__DOT__mem[address];
         return val;
     }
 
     else if (addr <= 0xFDFF) {
         u16 address = addr - 0xC000 - 0x2000;
-        u8 val = top->rootp->Gameboy__DOT__ram_inst__DOT__WRAM[address];
+        u8 val = top->rootp->Gameboy__DOT__wram_inst__DOT__mem[address];
         return val;
     }
 
@@ -129,7 +129,7 @@ u8 GB::read_memory(u16 addr) const {
 
     else if (addr <= 0xFFFE) {
         u16 address = addr - 0xFF80;
-        u8 val = top->rootp->Gameboy__DOT__ram_inst__DOT__HRAM[address];
+        u8 val = top->rootp->Gameboy__DOT__hram_inst__DOT__mem[address];
         return val;
     }
 

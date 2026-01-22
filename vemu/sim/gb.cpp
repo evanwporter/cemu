@@ -35,7 +35,7 @@ bool GameboyHarness::setup(const fs::path& rom_path) {
     set_initial_state(*top);
 
     for (int i = 0; i < 0x7F; i++) {
-        top->rootp->Gameboy__DOT__ram_inst__DOT__HRAM[i] = 0xFF;
+        top->rootp->Gameboy__DOT__hram_inst__DOT__mem[i] = 0xFF;
     }
 
     while (top->rootp->Gameboy__DOT__cpu_inst__DOT__instr_boundary == 0) {
@@ -145,7 +145,7 @@ bool GameboyHarness::run(const fs::path& rom_path, InstructionCallback on_instru
     set_initial_state(top);
 
     for (int i = 0; i < 0x7F; i++) {
-        top.rootp->Gameboy__DOT__ram_inst__DOT__HRAM[i] = 0xFF;
+        top.rootp->Gameboy__DOT__hram_inst__DOT__mem[i] = 0xFF;
     }
 
     const uint64_t max_cycles = 1'000'000'000;
@@ -260,19 +260,19 @@ u8 GameboyHarness::read_mem(VGameboy& top, u16 PC) {
 
     else if (PC <= 0xBFFF) {
         u16 addr = PC - 0xA000;
-        u8 val = top.rootp->Gameboy__DOT__ram_inst__DOT__WRAM[addr];
+        u8 val = top.rootp->Gameboy__DOT__wram_inst__DOT__mem[addr];
         return val;
     }
 
     else if (PC <= 0xDFFF) {
         u16 addr = PC - 0xC000;
-        u8 val = top.rootp->Gameboy__DOT__ram_inst__DOT__WRAM[addr];
+        u8 val = top.rootp->Gameboy__DOT__wram_inst__DOT__mem[addr];
         return val;
     }
 
     else if (PC <= 0xFDFF) {
         u16 addr = PC - 0xC000 - 0x2000;
-        u8 val = top.rootp->Gameboy__DOT__ram_inst__DOT__WRAM[addr];
+        u8 val = top.rootp->Gameboy__DOT__wram_inst__DOT__mem[addr];
         return val;
     }
 
@@ -289,7 +289,7 @@ u8 GameboyHarness::read_mem(VGameboy& top, u16 PC) {
 
     else if (PC <= 0xFFFE) {
         u16 addr = PC - 0xFF80;
-        u8 val = top.rootp->Gameboy__DOT__ram_inst__DOT__HRAM[addr];
+        u8 val = top.rootp->Gameboy__DOT__hram_inst__DOT__mem[addr];
         return val;
     }
 

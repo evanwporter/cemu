@@ -12,6 +12,7 @@ vemu_add_rtl(
         ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
     INTERFACES
     SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/Memory.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/Input.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/Serial.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/Timer.sv
