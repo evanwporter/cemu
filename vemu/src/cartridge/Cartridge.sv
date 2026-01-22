@@ -10,7 +10,7 @@ import mmu_addresses_pkg::*;
 module Cartridge (
     input logic clk,
     input logic reset,
-    Bus_if.Peripheral_side bus
+    Bus_if.Slave_side bus
 );
 
   /// Maximum ROM Size is 8 MiB

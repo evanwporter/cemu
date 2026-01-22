@@ -52,8 +52,6 @@ module Gameboy (
   );
 
   MMU mmu_inst (
-      .clk(clk),
-      .reset(reset),
       .cpu_bus(cpu_bus),
       .dma_bus(dma_bus),
       .ppu_bus(ppu_bus),

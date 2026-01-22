@@ -13,8 +13,8 @@ module DMA (
     input logic clk,
     input logic reset,
 
-    Bus_if.Peripheral_side bus,
-    DMA_if.DMA_side mmu_bus
+    Bus_if.Slave_side bus,
+    DMA_if.DMA_side   mmu_bus
 );
   // DMA
   logic [7:0] DMA;

@@ -10,20 +10,13 @@ interface Bus_if;
   logic        read_en;
   logic        write_en;
 
-  /// The CPU is the bus master: it drives addr/wdata/read/write_en
-  modport CPU_side(output addr, wdata, read_en, write_en, input rdata);
-
-  /// MMU as a router slave: it reads CPU’s signals, and passes the read
-  /// data back to the CPU
-  modport MMU_side(input addr, wdata, read_en, write_en, output rdata);
-
-  /// MMU as a router master: this connects to the Peripherals, and passes
+  /// Bus master/router master: this connects to the Peripherals, and passes
   /// the CPU signals along to them, as well as gathering rdata from the Peripherals
-  modport MMU_master(output addr, wdata, read_en, write_en, input rdata);
+  modport Master_side(output addr, wdata, read_en, write_en, input rdata);
 
   /// Peripherals (PPU/APU/etc.) are slaves: they listen to addr, write_en/read_en,
   /// and drive rdata when selected.
-  modport Peripheral_side(input addr, wdata, read_en, write_en, output rdata);
+  modport Slave_side(input addr, wdata, read_en, write_en, output rdata);
 
 endinterface
 

@@ -6,8 +6,8 @@ import mmu_addresses_pkg::*;
 module RAM (
     input logic clk,
     input logic reset,
-    Bus_if.Peripheral_side bus,
-    Bus_if.Peripheral_side hram_bus
+    Bus_if.Slave_side bus,
+    Bus_if.Slave_side hram_bus
 );
   logic [7:0] WRAM[WRAM_len];
   logic [7:0] HRAM[HRAM_len];

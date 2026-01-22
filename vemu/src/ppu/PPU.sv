@@ -7,7 +7,7 @@ import ppu_util_pkg::*;
 module PPU (
     input logic clk,
     input logic reset,
-    Bus_if.Peripheral_side bus,
+    Bus_if.Slave_side bus,
     Interrupt_if.PPU_side IF_bus
 );
 

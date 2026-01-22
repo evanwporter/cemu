@@ -6,7 +6,7 @@ import mmu_addresses_pkg::*;
 module Input (
     input logic clk,
     input logic reset,
-    Bus_if.Peripheral_side bus
+    Bus_if.Slave_side bus
 );
   logic [7:0] JOYPAD_reg;
 

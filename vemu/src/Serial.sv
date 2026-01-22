@@ -8,7 +8,7 @@ import mmu_addresses_pkg::*;
 module Serial (
     input logic clk,
     input logic reset,
-    Bus_if.Peripheral_side bus
+    Bus_if.Slave_side bus
 );
   /// Serial transfer registers
   logic [7:0] SB;

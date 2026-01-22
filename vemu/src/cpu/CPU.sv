@@ -23,8 +23,8 @@ module CPU (
 
     output t_phase_t t_phase,
 
-    Bus_if.CPU_side bus,
-    Bus_if.Peripheral_side interrupt_bus,
+    Bus_if.Master_side bus,
+    Bus_if.Slave_side interrupt_bus,
     Interrupt_if.CPU_side IF_bus
 );
 

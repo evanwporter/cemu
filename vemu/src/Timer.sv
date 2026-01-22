@@ -7,7 +7,7 @@ module Timer (
     input logic clk,
     input logic reset,
     input gameboy_types_pkg::t_phase_t t_phase,
-    Bus_if.Peripheral_side bus,
+    Bus_if.Slave_side bus,
     Interrupt_if.Timer_side IF_bus
 );
   /// Divider Register

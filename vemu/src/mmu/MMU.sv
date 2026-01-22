@@ -4,23 +4,23 @@ import ppu_types_pkg::*;
 
 `include "util/logger.svh"
 
+/// MMU: Memory Mapper Unit
+/// Orchestrates memory accesses between CPU, DMA, and peripherals
+/// Notably it doesn't have any memory of its own.
 module MMU (
-    input logic clk,
-    input logic reset,
+    Bus_if.Slave_side cpu_bus,
+    DMA_if.MMU_side   dma_bus,
 
-    Bus_if.MMU_side cpu_bus,
-    DMA_if.MMU_side dma_bus,
-
-    Bus_if.MMU_master ppu_bus,
-    Bus_if.MMU_master apu_bus,
-    Bus_if.MMU_master cart_bus,
-    Bus_if.MMU_master ram_bus,
-    Bus_if.MMU_master hram_bus,
-    Bus_if.MMU_master serial_bus,
-    Bus_if.MMU_master timer_bus,
-    Bus_if.MMU_master input_bus,
-    Bus_if.MMU_master dma_wrbus,
-    Bus_if.MMU_master interrupt_bus
+    Bus_if.Master_side ppu_bus,
+    Bus_if.Master_side apu_bus,
+    Bus_if.Master_side cart_bus,
+    Bus_if.Master_side ram_bus,
+    Bus_if.Master_side hram_bus,
+    Bus_if.Master_side serial_bus,
+    Bus_if.Master_side timer_bus,
+    Bus_if.Master_side input_bus,
+    Bus_if.Master_side dma_wrbus,
+    Bus_if.Master_side interrupt_bus
 );
 
   wire [15:0] effective_addr = dma_bus.active ? dma_bus.addr : cpu_bus.addr;
