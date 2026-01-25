@@ -19,3 +19,6 @@
 [submodule "tests/sm83"]
 	path = tests/sm83
 	url = https://github.com/SingleStepTests/sm83.git
+[submodule "tests/no-rom-gb"]
+	path = tests/no-rom-gb
+	url = https://github.com/evanwporter/no-rom-gb
