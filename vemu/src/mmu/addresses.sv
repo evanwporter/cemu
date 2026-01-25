@@ -22,7 +22,14 @@ package mmu_addresses_pkg;
   //-------------------------------
   // External RAM
   //-------------------------------
-  localparam address_t WRAM_start = 16'hA000;
+  localparam address_t ERAM_start = 16'hA000;
+  localparam address_t ERAM_end = 16'hBFFF;
+  localparam address_t ERAM_len = ERAM_end - ERAM_start + 1;
+
+  //-------------------------------
+  // Working RAM
+  //-------------------------------
+  localparam address_t WRAM_start = 16'hC000;
   localparam address_t WRAM_end = 16'hDFFF;
   localparam address_t WRAM_len = WRAM_end - WRAM_start + 1;
 

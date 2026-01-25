@@ -4,7 +4,6 @@
 `define LOG_LEVEL_WARN 
 
 `include "cpu/CPU.sv"
-`include "cpu/RAM.sv"
 
 `include "MockMMU.sv"
 

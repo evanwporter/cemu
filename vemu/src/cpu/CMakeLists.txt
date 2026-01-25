@@ -3,5 +3,4 @@ vemu_add_rtl(
     INTERFACES
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/CPU.sv
-        ${CMAKE_CURRENT_SOURCE_DIR}/RAM.sv
 )

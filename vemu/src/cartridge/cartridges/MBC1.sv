@@ -13,9 +13,6 @@ package MBC1_pkg;
   localparam address_t ROM_RAM_mode_start = 16'h6000;
   localparam address_t ROM_RAM_mode_end = 16'h7FFF;
 
-  // 16KiB per ROM bank
-  localparam logic [16:0] ROM_bank_size = 16 * 1024;
-
   typedef struct packed {
     /// RAM Enable Switch
     // Before using RAM must be enabled by writing 0x0A to address range 0x0000-0x1FFF
