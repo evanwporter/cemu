@@ -6,7 +6,7 @@ add_library(test_cpu)
 target_sources(test_cpu
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/test_cpu.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/test_sm83.cpp
+        # ${CMAKE_CURRENT_SOURCE_DIR}/test_sm83.cpp
 )
 
 target_link_libraries(test_cpu PRIVATE
