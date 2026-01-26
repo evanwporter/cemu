@@ -230,6 +230,7 @@ module PPU (
     end
 
     if (bus.read_en) begin
+
       // VRAM reads (blocked in Mode 3)
       if (VRAM_selected) begin
         bus.rdata = (mode == PPU_MODE_3) ? 8'hFF : VRAM[13'(bus.addr-VRAM_start)];
@@ -238,7 +239,7 @@ module PPU (
 
       // OAM reads (blocked in Mode 2 & 3)
       if (OAM_selected) begin
-        bus.rdata = OAM[8'(bus.addr-OAM_start)];
+        bus.rdata = dma_bus.active ? 8'hFF : OAM[8'(bus.addr-OAM_start)];
         `LOG_TRACE(("[PPU] OAM READ addr=%h -> %h (mode=%0d)", bus.addr, bus.rdata, mode))
       end
 
