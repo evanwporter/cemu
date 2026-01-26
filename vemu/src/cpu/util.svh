@@ -107,7 +107,7 @@ localparam logic [15:0] INTERRUPT_VECTOR_TABLE[0:4] = '{
         (REGS).IME <= 1'd1; \
       end \
       MISC_OP_IME_DISABLE: begin \
-        $display("[CPU] Disabling IME"); \
+        // $display("[CPU] Disabling IME"); \
         (REGS).IME <= 1'd0; \
       end \
       MISC_OP_R16_WZ_COPY: begin \
