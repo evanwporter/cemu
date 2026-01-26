@@ -37,7 +37,7 @@ jobs:
         run: cmake --preset debug
 
       - name: Build
-        run: cmake --build --preset debug
+        run: cmake --build --preset debug --target test_vemu
 
       - name: Run tests
         run: ctest --test-dir build/debug -j8 -V
