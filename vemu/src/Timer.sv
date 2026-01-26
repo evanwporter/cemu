@@ -3,6 +3,8 @@
 
 // https://gbdev.io/pandocs/Timer_and_Divider_Registers.html#timer-and-divider-registers
 
+import mmu_addresses_pkg::*;
+
 module Timer (
     input logic clk,
     input logic reset,
@@ -47,6 +49,44 @@ module Timer (
   /// Timer Tick (Falling Edge Detection)
   wire timer_tick = (sel_div_bit_prev == 1'b1) && (sel_div_bit == 1'b0);
 
+  // ======================================================
+  // Tick
+  // ======================================================
+  always_ff @(posedge clk or posedge reset) begin
+    if (reset) begin
+      sel_div_bit_prev <= 1'b0;
+      tima_overflow_pending <= 1'b0;
+      IF_bus.timer_req <= 1'b0;
+    end else begin
+      if (bus.write_en && div_selected) begin
+      end else begin
+        // Increment DIV every t-cycle
+        DIV <= DIV + 16'd1;
+      end
+
+      sel_div_bit_prev <= sel_div_bit;
+
+      // Clear timer interrupt request by default
+      IF_bus.timer_req <= 1'b0;
+
+      if (t_phase == gameboy_types_pkg::T1 && tima_overflow_pending) begin
+        tima_overflow_pending <= 1'b0;
+        TIMA <= TMA;
+        IF_bus.timer_req <= 1'b1;
+      end else if (timer_tick) begin
+        if (TIMA == 8'hFF) begin
+          TIMA <= 8'h00;
+          tima_overflow_pending <= 1'b1;
+        end else begin
+          TIMA <= TIMA + 8'h01;
+        end
+      end
+    end
+  end
+
+  // ======================================================
+  // Write
+  // ======================================================
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       DIV  <= 16'h0000;
@@ -54,10 +94,7 @@ module Timer (
       TMA  <= 8'h00;
       TAC  <= 8'b11111000;
     end else if (bus.write_en) begin
-
-      // ======================================================
-      // Write
-      // ======================================================
+      // TODO: DIV
       if (div_selected) begin
         // Writing any value resets DIV to 0.
         // TODO: Why 4? Idk, but this is what this does:
@@ -66,35 +103,6 @@ module Timer (
       end else if (tima_selected) TIMA <= bus.wdata;
       else if (tma_selected) TMA <= bus.wdata;
       else if (tac_selected) TAC <= bus.wdata | 8'b11111000;
-      else begin
-
-        // ======================================================
-        // Tick
-        // ======================================================
-        if (bus.write_en && div_selected) begin
-        end else begin
-          // Increment DIV every t-cycle
-          DIV <= DIV + 16'd1;
-        end
-
-        sel_div_bit_prev <= sel_div_bit;
-
-        // Clear timer interrupt request by default
-        IF_bus.timer_req <= 1'b0;
-
-        if (t_phase == gameboy_types_pkg::T1 && tima_overflow_pending) begin
-          tima_overflow_pending <= 1'b0;
-          TIMA <= TMA;
-          IF_bus.timer_req <= 1'b1;
-        end else if (timer_tick) begin
-          if (TIMA == 8'hFF) begin
-            TIMA <= 8'h00;
-            tima_overflow_pending <= 1'b1;
-          end else begin
-            TIMA <= TIMA + 8'h01;
-          end
-        end
-      end
     end
   end
 
