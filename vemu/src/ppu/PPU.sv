@@ -8,7 +8,8 @@ module PPU (
     input logic clk,
     input logic reset,
     Bus_if.Slave_side bus,
-    Interrupt_if.PPU_side IF_bus
+    Interrupt_if.PPU_side IF_bus,
+    DMA_if.DMA_side dma_bus
 );
 
   // Dot counters (resets after each line)
@@ -171,13 +172,13 @@ module PPU (
 
       // OAM writes (blocked in Mode 2 & 3)
       if (OAM_selected) begin
-        // if (!(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
-        OAM[8'(bus.addr-16'hFE00)] <= bus.wdata;
-        `LOG_TRACE(("[PPU] OAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
-        // end else begin
-        //   `LOG_INFO(
-        //       ("[PPU] OAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
-        // end
+        if (dma_bus.active || !(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
+          OAM[8'(bus.addr-16'hFE00)] <= bus.wdata;
+          `LOG_TRACE(("[PPU] OAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
+        end else begin
+          `LOG_INFO(
+              ("[PPU] OAM WRITE BLOCKED addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
+        end
       end
 
       // PPU register writes

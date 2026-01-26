@@ -72,7 +72,8 @@ module Gameboy (
       .clk   (clk),
       .reset (reset),
       .bus   (ppu_bus),
-      .IF_bus(IF_bus)
+      .IF_bus(IF_bus),
+      .dma_bus(dma_bus)
   );
 
   Cartridge cart_inst (

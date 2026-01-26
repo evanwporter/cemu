@@ -15,12 +15,14 @@ module ppu_top (
 
   Bus_if ppu_bus ();
   Interrupt_if IF_bus ();
+  DMA_if dma_bus ();
 
   PPU ppu (
       clk,
       reset,
       ppu_bus,
-      IF_bus
+      IF_bus,
+      dma_bus
   );
 
   initial begin
