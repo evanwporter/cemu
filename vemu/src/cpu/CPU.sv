@@ -1,14 +1,13 @@
 `ifndef CPU_SV
 `define CPU_SV 
 
+import cpu_types_pkg::*;
+import gameboy_types_pkg::*;
+
 `include "cpu/control_words.svh"
 `include "cpu/cb_control_words.svh"
 `include "cpu/interrupt_control_words.svh"
 `include "cpu/opcodes.svh"
-
-import cpu_types_pkg::*;
-import ppu_types_pkg::*;
-import gameboy_types_pkg::*;
 
 `include "cpu/util.svh"
 

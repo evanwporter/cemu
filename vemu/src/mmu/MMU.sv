@@ -34,7 +34,9 @@ module MMU (
   assign ppu_bus.addr = effective_addr;
   assign apu_bus.addr = cpu_bus.addr;
   assign cart_bus.addr = effective_addr;
-  assign ram_bus.addr = effective_addr;
+  assign ram_bus.addr = (effective_addr inside {[Echo_RAM_start : Echo_RAM_end]})
+    ? (effective_addr - 16'h2000) // Map Echo RAM to WRAM
+      : effective_addr;
   assign hram_bus.addr = cpu_bus.addr;
   assign serial_bus.addr = cpu_bus.addr;
   assign timer_bus.addr = cpu_bus.addr;
@@ -54,10 +56,9 @@ module MMU (
   assign dma_wrbus.wdata = cpu_bus.wdata;
 
   // PPU VRAM: $8000–$9FFF, OAM: $FE00–$FE9F, PPU I/O: $FF40–$FF4B
-  wire ppu_selected =
-       (effective_addr inside {[VRAM_start : VRAM_end]})  ||
-       (effective_addr inside {[OAM_start : OAM_end]})   ||
-       (effective_addr inside {[PPU_regs_start : PPU_regs_end]} 
+  wire ppu_selected = (effective_addr inside {[VRAM_start : VRAM_end]})  ||
+                      (effective_addr inside {[OAM_start : OAM_end]})   ||
+                      (effective_addr inside {[PPU_regs_start : PPU_regs_end]} 
                        & effective_addr != DMA_OAM_addr);
   assign ppu_bus.read_en  = cpu_req_read && ppu_selected;
   assign ppu_bus.write_en = (cpu_req_write || dma_req_write) && ppu_selected;
@@ -68,10 +69,11 @@ module MMU (
   assign apu_bus.write_en = cpu_req_write && apu_selected;
 
   // ROM: $0000–$7FFF, RAM: $A000–$BFFF
-  wire cart_selected = (effective_addr inside {[ROM_start : ROM_end]}) || 
+  wire cart_selected = (effective_addr inside {[ROM_start : ROM_end]}) ||
+                       (effective_addr inside {[ERAM_start : ERAM_end]}) ||
                        (effective_addr == 16'hFF50);
-  assign cart_bus.read_en = (cpu_req_read || dma_req_read) && cart_selected;
-  assign cart_bus.write_en = cpu_req_write && cart_selected; // We'll have an issue if we try to write to ROM
+  assign cart_bus.read_en  = (cpu_req_read || dma_req_read) && cart_selected;
+  assign cart_bus.write_en = cpu_req_write && cart_selected;
 
   // RAM
   wire ram_selected = (effective_addr inside {[WRAM_start : Echo_RAM_end]});

@@ -79,7 +79,6 @@ module Cartridge (
     endcase
   end
 
-
   always_comb begin
     selected_ram_bank = 0;
 
@@ -175,7 +174,7 @@ module Cartridge (
       // $display("Cartridge Type: %s", cartridge_type);
     end else if (bus.write_en) begin
       if (rom_selected) begin
-        case (cartridge_type)
+        unique case (cartridge_type)
           CARTRIDGE_ROM_ONLY: ;
           CARTRIDGE_MBC1: begin
             unique case (1'b1)
@@ -212,24 +211,25 @@ module Cartridge (
               // ROM Bank Select
               bus.addr inside {[MBC3_pkg::ROM_bank_number_start : MBC3_pkg::ROM_bank_number_end]} : begin
                 mbc3.ROM_bank_select <= bus.wdata[6:0];
+                // $display("Wrote to ROM at address 0x%h with data 0x%h, selected_bank 0x%h",
+                //          bus.addr, bus.wdata, selected_rom_bank);
               end
 
-              // RAM Bank Select (ignore RTC registers)
+              // RAM Bank Select / RTC Register Select
               bus.addr inside {[MBC3_pkg::RAM_bank_number_start : MBC3_pkg::RAM_bank_number_end]} : begin
-                if (bus.wdata <= 8'h03) mbc3.RAM_bank_select <= bus.wdata[1:0];
+                if (bus.wdata <= 8'h07) mbc3.RAM_bank_select <= bus.wdata[1:0];
+                // $display("Wrote to RAM at address 0x%h with data 0x%h, selected_bank 0x%h",
+                //          bus.addr, bus.wdata, selected_ram_bank);
               end
 
-              // Latch clock — ignored
+              // Latch clock
               bus.addr inside {[MBC3_pkg::LATCH_CLOCK_start : MBC3_pkg::LATCH_CLOCK_end]} : begin
                 // no-op
               end
 
             endcase
           end
-          default: ;
         endcase
-        // $display("Wrote to ROM at address 0x%h with data 0x%h, selected_bank 0x%h", bus.addr,
-        //          bus.wdata, selected_rom_bank);
       end else if (bus.write_en && eram_selected) begin
         unique case (cartridge_type)
           CARTRIDGE_ROM_ONLY: ;
