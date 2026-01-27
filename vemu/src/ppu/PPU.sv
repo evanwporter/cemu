@@ -24,6 +24,8 @@ module PPU (
   logic [7:0] VRAM[VRAM_len];
   logic [7:0] OAM[OAM_len];
 
+  wire LCD_enabled = regs.LCDC[7];
+
   // ======================================================
   // Renderer Submodules
   // ======================================================
@@ -161,7 +163,7 @@ module PPU (
 
       // VRAM writes (blocked in Mode 3)
       if (VRAM_selected) begin
-        if (mode != PPU_MODE_3) begin
+        if (!LCD_enabled || mode != PPU_MODE_3) begin
           VRAM[13'(bus.addr-16'h8000)] <= bus.wdata;
           `LOG_TRACE(("[PPU] VRAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
         end else begin
@@ -172,7 +174,7 @@ module PPU (
 
       // OAM writes (blocked in Mode 2 & 3)
       if (OAM_selected) begin
-        if (dma_bus.active || !(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
+        if (!LCD_enabled || dma_bus.active || !(mode == PPU_MODE_2 || mode == PPU_MODE_3)) begin
           OAM[8'(bus.addr-16'hFE00)] <= bus.wdata;
           `LOG_TRACE(("[PPU] OAM WRITE addr=%h data=%h (mode=%0d)", bus.addr, bus.wdata, mode))
         end else begin
