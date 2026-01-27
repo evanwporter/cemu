@@ -4,7 +4,6 @@ add_subdirectory(cpu)
 add_subdirectory(ppu)
 add_subdirectory(blargg)
 add_subdirectory(mooneye)
-add_subdirectory(gbmicrotest)
 
 add_executable(test_vemu
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
@@ -25,7 +24,6 @@ target_link_libraries(test_vemu
         test_blargg
         test_mooneye
         # test_ppu
-        # test_gbmicrotest
         libvemu
         GTest::gtest
 )

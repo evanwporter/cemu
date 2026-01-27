@@ -4,21 +4,9 @@
 [submodule "tests/GameboyCPUTests"]
 	path = tests/GameboyCPUTests
 	url = https://github.com/evanwporter/GameboyCPUTests.git
-[submodule "tests/gameboy-doctor"]
-	path = tests/gameboy-doctor
-	url = https://github.com/evanwporter/gameboy-doctor.git
 [submodule "tests/mooneye-test-suite"]
 	path = tests/mooneye-test-suite
 	url = https://github.com/evanwporter/mooneye-test-suite
 [submodule "vemu/debug"]
 	path = vemu/debug
 	url = https://github.com/evanwporter/GBDebugger
-[submodule "tests/gbmicrotest"]
-	path = tests/gbmicrotest
-	url = https://github.com/evanwporter/gbmicrotest
-[submodule "tests/sm83"]
-	path = tests/sm83
-	url = https://github.com/SingleStepTests/sm83.git
-[submodule "tests/no-rom-gb"]
-	path = tests/no-rom-gb
-	url = https://github.com/evanwporter/no-rom-gb
