@@ -90,24 +90,23 @@ module Decoder (
             // Immediate value with rotate
             bus.word.immediate.data_proc_imm.imm8 <= bus.IR[7:0];
             bus.word.immediate.data_proc_imm.rotate <= bus.IR[11:8];
+            bus.word.immediate.data_proc_imm.set_flags <= bus.IR[20];
             bus.word.immediate.data_proc_imm.opcode <= bus.IR[24:21];
             bus.word.instr_type <= ARM_INSTR_DATAPROC_IMM;
           end else if (bus.IR[4] == 1'b0) begin  // bus.IR[25] == 1'b0 is implied
             // Register with immediate shift
             bus.word.immediate.data_proc_reg_imm.shift_imm <= bus.IR[11:7];
             bus.word.immediate.data_proc_reg_imm.shift_type <= shift_type_t'(bus.IR[6:5]);
+            bus.word.immediate.data_proc_reg_imm.set_flags <= bus.IR[20];
             bus.word.immediate.data_proc_reg_imm.opcode <= bus.IR[24:21];
             bus.word.instr_type <= ARM_INSTR_DATAPROC_REG_IMM;
           end else begin
             // Register with register shift
             bus.word.immediate.data_proc_reg_reg.shift_type <= shift_type_t'(bus.IR[6:5]);
             bus.word.immediate.data_proc_reg_reg.opcode <= bus.IR[24:21];
+            bus.word.immediate.data_proc_reg_reg.set_flags <= bus.IR[20];
             bus.word.instr_type <= ARM_INSTR_DATAPROC_REG_REG;
           end
-
-          // 20: set condition flags
-          //  (0) = No, (1) = Yes
-          bus.word.set_flags <= bus.IR[20];
 
           bus.word.Rn <= bus.IR[19:16];
           bus.word.Rd <= bus.IR[15:12];

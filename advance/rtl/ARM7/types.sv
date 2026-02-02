@@ -222,10 +222,13 @@ package cpu_types_pkg;
 
     /// Data Processing Immediate (ARM_INSTR_DATAPROC_IMM)
     struct packed {
-      logic [7:0] _pad;
+      logic [6:0] _pad;
 
       // Bits 24-21
       logic [3:0] opcode;
+
+      // Bit 20
+      logic set_flags;
 
       // Bits 11-8
       logic [3:0] rotate;
@@ -236,10 +239,13 @@ package cpu_types_pkg;
 
     /// Data Processing Register Immediate Shift (ARM_INSTR_DATAPROC_REG_IMM)
     struct packed {
-      logic [12:0] _pad;
+      logic [11:0] _pad;
 
       // Bits 24-21
       logic [3:0] opcode;
+
+      // Bit 20
+      logic set_flags;
 
       // Bits 11-7
       logic [4:0] shift_imm;
@@ -250,10 +256,13 @@ package cpu_types_pkg;
 
     /// Data Processing Register Register Shift (ARM_INSTR_DATAPROC_REG_REG)
     struct packed {
-      logic [17:0] _pad;
+      logic [16:0] _pad;
 
       // Bits 24-21
       logic [3:0] opcode;
+
+      // Bit 20
+      logic set_flags;
 
       // Bits 6-5
       shift_type_t shift_type;
@@ -354,9 +363,6 @@ package cpu_types_pkg;
 
     // Bits 31-28
     condition_t condition;
-
-    // Bit 20
-    logic set_flags;
 
     // Bits 15-12
     logic [3:0] Rd;
