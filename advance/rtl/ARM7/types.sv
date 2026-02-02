@@ -394,6 +394,7 @@ package cpu_types_pkg;
     logic v;
   } flags_t;
 
+  /// TODO: verify this is in order
   typedef enum logic [3:0] {
     ALU_OP_AND,
     ALU_OP_XOR,

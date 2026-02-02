@@ -28,18 +28,19 @@ module CPU (
   // assign condition = IR[31:28];
 
   always_comb begin
-    alu_bus.op_a   = 32'd0;
-    alu_bus.op_b   = 32'd0;
 
+    alu_bus.op_a = 32'd0;
+    alu_bus.op_b = 32'd0;
     alu_bus.alu_op = ALU_OP_ADD;
+    alu_bus.set_flags = 1'b0;
 
     if (decoder_bus.word.instr_type == ARM_INSTR_DATAPROC_IMM) begin
       case (decoder_bus.word.instr_type)
         ARM_INSTR_DATAPROC_IMM: begin
-          alu_bus.op_a   = regs[decoder_bus.word.Rn];
-          alu_bus.op_b   = regs[decoder_bus.word.Rm];
-
+          alu_bus.op_a = regs[decoder_bus.word.Rn];
+          alu_bus.op_b = regs[decoder_bus.word.Rm];
           alu_bus.alu_op = alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode);
+          alu_bus.set_flags = decoder_bus.word.immediate.data_proc_imm.set_flags;
         end
 
         default: ;
