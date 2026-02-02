@@ -61,6 +61,12 @@ package cpu_types_pkg;
 
   } cpu_regs_t;
 
+  typedef enum logic [1:0] {
+    SHIFT_LSL = 2'b00,
+    SHIFT_LSR = 2'b01,
+    SHIFT_ASR = 2'b10,
+    SHIFT_ROR = 2'b11
+  } shift_type_t;
 
   /// Conditional codes
   /// https://mgba-emu.github.io/gbatek/#arm-condition-field-cond
@@ -115,58 +121,289 @@ package cpu_types_pkg;
   } condition_t;
 
 
-  typedef enum logic [3:0] {
+  typedef enum logic [4:0] {
+
+    // ======================================================
+    // Invalid / System
+    // ======================================================
+
     /// Undefined / illegal instruction
     ARM_INSTR_UNDEF,
 
-    //// Branch and Exchange (BX, BLX_reg)
-    ARM_INSTR_BRANCH_EX,
+    /// Software interrupt (SWI)
+    ARM_INSTR_SWI,
 
-    /// Block data transfer (LDM, STM)
-    ARM_INSTR_BLOCK_DATA_TRANSFER,
+    /// Exception entry (prefetch abort, data abort, etc.)
+    ARM_INSTR_EXCEPTION,
 
-    /// Data processing (AND,EOR,ADD,SUB,MOV,CMP,...)
-    ARM_INSTR_DATAPROC,
+    // ======================================================
+    // Branch
+    // ======================================================
 
-    //// Branch
+    /// Branch (B)
     ARM_INSTR_BRANCH,
 
-    /// Branch with Link (BL)
+    /// Branch with link (BL)
     ARM_INSTR_BRANCH_LINK,
 
-    /// MUL, MLA (and long multiplies if implemented)
+    /// Branch and exchange (BX)
+    ARM_INSTR_BRANCH_EX,
+
+    // ======================================================
+    // Data Processing
+    // ======================================================
+
+    /// Operand2 = immediate (rotate + imm8)
+    ARM_INSTR_DATAPROC_IMM,
+
+    /// Operand2 = register shifted by immediate
+    ARM_INSTR_DATAPROC_REG_IMM,
+
+    /// Operand2 = register shifted by register
+    ARM_INSTR_DATAPROC_REG_REG,
+
+    // ======================================================
+    // Multiply
+    // ======================================================
+
+    /// MUL / MLA
     ARM_INSTR_MULTIPLY,
 
-    /// Single data transfer (LDR, STR, byte variants)
-    ARM_INSTR_LDR_STR,
+    /// UMULL / UMLAL / SMULL / SMLAL
+    ARM_INSTR_MULTIPLY_LONG,
 
-    /// Block data transfer (LDM, STM)
+    // ======================================================
+    // Single Data Transfer
+    // ======================================================
+
+    /// LDR / STR (word, immediate offset)
+    ARM_INSTR_LDR_STR_IMM,
+
+    /// LDR / STR (word, register offset)
+    ARM_INSTR_LDR_STR_REG,
+
+    /// LDRB / STRB
+    ARM_INSTR_LDR_STR_BYTE,
+
+    /// LDRH / STRH / LDRSB / LDRSH (immediate)
+    ARM_INSTR_LDR_STR_HALF_IMM,
+
+    /// LDRH / STRH / LDRSB / LDRSH (register)
+    ARM_INSTR_LDR_STR_HALF_REG,
+
+    /// SWP / SWPB
+    ARM_INSTR_SWAP,
+
+    // ======================================================
+    // Block Data Transfer
+    // ======================================================
+
+    /// LDM / STM
     ARM_INSTR_LDM_STM,
 
-    /// B, BL
-    // ARM_INSTR_BRANCH,
+    // ======================================================
+    // PSR Transfer
+    // ======================================================
 
-    /// MRS, MSR
-    ARM_INSTR_PSR_TRANSFER,
+    /// MRS (read CPSR/SPSR)
+    ARM_INSTR_MRS,
 
-    /// Software interrupt (SWI)
-    ARM_INSTR_SWI
+    /// MSR (write CPSR/SPSR)
+    ARM_INSTR_MSR
+
   } arm_instr_t;
 
-  typedef struct packed {
-    condition_t condition;
 
+  typedef union packed {
+
+    // ======================================================
+    // Data Processing
+    // ======================================================
+
+    /// Data Processing Immediate (ARM_INSTR_DATAPROC_IMM)
+    struct packed {
+      logic [7:0] _pad;
+
+      // Bits 24-21
+      logic [3:0] opcode;
+
+      // Bits 11-8
+      logic [3:0] rotate;
+
+      // Bits 7-0
+      logic [7:0] imm8;
+    } data_proc_imm;
+
+    /// Data Processing Register Immediate Shift (ARM_INSTR_DATAPROC_REG_IMM)
+    struct packed {
+      logic [12:0] _pad;
+
+      // Bits 24-21
+      logic [3:0] opcode;
+
+      // Bits 11-7
+      logic [4:0] shift_imm;
+
+      // Bits 6-5
+      shift_type_t shift_type;
+    } data_proc_reg_imm;
+
+    /// Data Processing Register Register Shift (ARM_INSTR_DATAPROC_REG_REG)
+    struct packed {
+      logic [17:0] _pad;
+
+      // Bits 24-21
+      logic [3:0] opcode;
+
+      // Bits 6-5
+      shift_type_t shift_type;
+    } data_proc_reg_reg;
+
+
+    // ======================================================
+    // Single Data Transfer (Word / Byte / Halfword)
+    // ======================================================
+
+    /// ARM_INSTR_LOAD_REG / ARM_INSTR_STORE_REG
+    /// Immediate offset
+    struct packed {
+      logic [11:0] _pad;
+
+      // Bits 11-0
+      logic [11:0] imm12;
+    } ls_imm;
+
+    /// ARM_INSTR_LOAD_IMM / ARM_INSTR_STORE_IMM
+    /// Register offset with shift
+    struct packed {
+      logic [16:0] _pad;
+
+      // Bits 11-7
+      logic [4:0] shift_imm;
+
+      // Bits 6-5
+      shift_type_t shift_type;
+    } ls_reg;
+
+    /// LDRH / STRH / LDRSB / LDRSH (immediate form)
+    struct packed {
+      logic [15:0] _pad;
+
+      // Bits 11-8
+      logic [3:0] imm_hi;
+
+      // Bits 3-0
+      logic [3:0] imm_lo;
+    } ls_half_imm;
+
+
+    // ======================================================
+    // Block Data Transfer
+    // ======================================================
+
+    /// ARM_INSTR_LDM_STM
+    struct packed {
+      logic [7:0] _pad;
+
+      // Bits 15-0
+      logic [15:0] reg_list;
+    } block;
+
+
+    // ======================================================
+    // Branch
+    // ======================================================
+
+    /// ARM_INSTR_BRANCH / ARM_INSTR_BRANCH_LINK
+    struct packed {
+      // Bits 23-0
+      logic [23:0] imm24;
+    } branch;
+
+
+    // ======================================================
+    // PSR Transfer
+    // ======================================================
+
+    /// MSR (immediate form)
+    struct packed {
+      logic [11:0] _pad;
+
+      // Bits 11-8
+      logic [3:0] rotate;
+
+      // Bits 7-0
+      logic [7:0] imm8;
+    } psr_imm;
+
+
+    // ======================================================
+    // Software Interrupt
+    // ======================================================
+
+    /// ARM_INSTR_SWI
+    struct packed {
+      // Bits 23-0
+      logic [23:0] comment;
+    } swi;
+  } immediate_t;
+
+
+  typedef struct packed {
     arm_instr_t instr_type;
 
+    // Bits 31-28
+    condition_t condition;
+
+    // Bit 20
+    logic set_flags;
+
+    // Bits 15-12
     logic [3:0] Rd;
+
+    // Bits 19-16
     logic [3:0] Rn;
+
+    // Bits 3-0
     logic [3:0] Rm;
+
+    // Bits 11-8
     logic [3:0] Rs;
 
-    /// Per instruction opcode
-    logic [3:0] opcode;
+    immediate_t immediate;
   } decoded_word_t;
 
 
+  typedef struct packed {
+    /// Negative
+    logic n;
+
+    /// Zero
+    logic z;
+
+    /// Carry
+    logic c;
+
+    /// Overflow
+    logic v;
+  } flags_t;
+
+  typedef enum logic [3:0] {
+    ALU_OP_AND,
+    ALU_OP_XOR,
+    ALU_OP_SUB,
+    ALU_OP_SUB_REVERSED,
+    ALU_OP_ADD,
+    ALU_OP_ADC,
+    ALU_OP_SBC,
+    ALU_OP_TEST,
+    ALU_OP_TEST_EXCLUSIVE,
+    ALU_OP_CMP,
+    ALU_OP_CMP_NEG,
+    ALU_OP_OR,
+    ALU_OP_MOV,
+    ALU_OP_BIT_CLEAR,
+    ALU_OP_NOT
+  } alu_op_t;
 
 endpackage : cpu_types_pkg

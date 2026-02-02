@@ -6,63 +6,11 @@ module Decoder (
     Decoder_if.Decoder_side bus
 );
 
-  function automatic arm_instr_t get_instr_type(word_t opcode);
-
-    priority casez (opcode)
-      /// Branch and Branch Exchange
-      32'b????_0001_0010_1111_1111_1111_0001_????: return ARM_INSTR_BRANCH_EX;
-
-      /// Block Data Transfer
-      32'b????_100?_????_????_????_????_????_????: return ARM_INSTR_BRANCH_EX;
-
-      /// Branch
-      32'b????_1010_????_????_????_????_????_????: return ARM_INSTR_BRANCH;
-
-      /// Branch with Link
-      32'b????_1011_????_????_????_????_????_????: return ARM_INSTR_BRANCH;
-
-      /// Software Interrupt
-      32'b????_1111_????_????_????_????_????_????: return ARM_INSTR_SWI;
-
-      /// Single Data Transfer
-      32'b????_011?_????_????_????_????_???1_????: return ARM_INSTR_LDM_STM;
-
-      /// Single Data Swap
-      32'b????_0001_0???_????_????_0000_1001_????: return ARM_INSTR_MULTIPLY;
-
-      /// Multiply
-      32'b????_0000_0???_????_????_????_1001_????: return ARM_INSTR_MULTIPLY;
-
-      /// Multiply Long
-      32'b????_0000_1???_????_????_????_1001_????: return ARM_INSTR_MULTIPLY;
-
-      // Halfword Data Transfer Register
-      32'b????_000?_?0??_????_????_0000_1??1_????: return ARM_INSTR_LDR_STR;
-
-      /// Halfword Data Transfer Immediate
-      32'b????_000?_?1??_????_????_????_1??1_????: return ARM_INSTR_LDR_STR;
-
-      /// PSR Transfer MSR
-      32'b????_0001_0?00_1111_????_????_????_????: return ARM_INSTR_PSR_TRANSFER;
-
-      /// PSR Transfer MRS
-      32'b????_00?1_0?10_????_1111_????_????_????: return ARM_INSTR_PSR_TRANSFER;
-
-      /// Data Processing
-      32'b????_00??_????_????_????_????_????_????: return ARM_INSTR_DATAPROC;
-
-      default: return ARM_INSTR_UNDEF;
-    endcase
-
-    return ARM_INSTR_UNDEF;
-  endfunction
-
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
       // Reset logic here
     end else begin
       bus.word.condition <= condition_t'(bus.IR[31:28]);
-      bus.word.instr_type <= get_instr_type(bus.IR);
 
       bus.word.Rn <= bus.IR[19:16];
       bus.word.Rd <= bus.IR[15:12];
@@ -125,12 +73,46 @@ module Decoder (
 
         /// Data Processing
         32'b????_00??_????_????_????_????_????_????: begin
+
+          // Notable bits
+          // 2nd Operand
+          // 25 (I): indicates whether its an immediate value or a register value
+          //  (1) = immediate, (0) = register
+          // 4 (R): Shift by register or immediate
+          //   (0) = immediate, (1) = register
+
+          // Forms:
+          // I=0 R=0: Register with immediate shift
+          // I=0 R=1: Register with register shift
+          // I=1: Immediate value with rotate
+
+          if (bus.IR[25] == 1'b1) begin
+            // Immediate value with rotate
+            bus.word.immediate.data_proc_imm.imm8 <= bus.IR[7:0];
+            bus.word.immediate.data_proc_imm.rotate <= bus.IR[11:8];
+            bus.word.immediate.data_proc_imm.opcode <= bus.IR[24:21];
+            bus.word.instr_type <= ARM_INSTR_DATAPROC_IMM;
+          end else if (bus.IR[4] == 1'b0) begin  // bus.IR[25] == 1'b0 is implied
+            // Register with immediate shift
+            bus.word.immediate.data_proc_reg_imm.shift_imm <= bus.IR[11:7];
+            bus.word.immediate.data_proc_reg_imm.shift_type <= shift_type_t'(bus.IR[6:5]);
+            bus.word.immediate.data_proc_reg_imm.opcode <= bus.IR[24:21];
+            bus.word.instr_type <= ARM_INSTR_DATAPROC_REG_IMM;
+          end else begin
+            // Register with register shift
+            bus.word.immediate.data_proc_reg_reg.shift_type <= shift_type_t'(bus.IR[6:5]);
+            bus.word.immediate.data_proc_reg_reg.opcode <= bus.IR[24:21];
+            bus.word.instr_type <= ARM_INSTR_DATAPROC_REG_REG;
+          end
+
+          // 20: set condition flags
+          //  (0) = No, (1) = Yes
+          bus.word.set_flags <= bus.IR[20];
+
           bus.word.Rn <= bus.IR[19:16];
           bus.word.Rd <= bus.IR[15:12];
           bus.word.Rs <= bus.IR[11:8];
           bus.word.Rm <= bus.IR[3:0];
-
-          bus.word.opcode <= bus.IR[24:21];
         end
 
         default: begin

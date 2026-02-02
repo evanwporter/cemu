@@ -1,22 +1,61 @@
-interface Shifter_if;
-  // Register in
-  logic [31:0] R_in;
+import cpu_types_pkg::*;
 
-  /// Shift amount (0–31)
-  logic [ 4:0] shift_amount;
-  logic [ 1:0] shift_type;  // LSL / LSR / ASR / ROR
-  logic        carry_in;  // CPSR.C 
+module BarrelShifter (
+    Shifter_if.shifter_side bus
+);
 
-  logic [31:0] B_out;
-  logic        carry_out;
+  function automatic logic [31:0] shift(input logic [31:0] value, input shift_type_t shift_type,
+                                        input int unsigned amount);
+    case (shift_type)
+      SHIFT_LSL: shift = value << amount;
+      SHIFT_LSR: shift = value >> amount;
+      SHIFT_ASR: shift = $signed(value) >>> amount;
+      SHIFT_ROR: shift = (value >> amount) | (value << (32 - amount));
+      default:   shift = value;
+    endcase
+  endfunction
 
-  modport shifter_side(
-      input R_in,
-      input shift_amount,
-      input shift_type,
-      input carry_in,
-      output B_out,
-      output carry_out
-  );
+  logic [31:0] stage[0:5];
 
-endinterface : Shifter_if
+  assign stage[0] = bus.R_in;
+
+  assign stage[1] = bus.shift_amount[0] ? shift(stage[0], bus.shift_type, 1) : stage[0];
+  assign stage[2] = bus.shift_amount[1] ? shift(stage[1], bus.shift_type, 2) : stage[1];
+  assign stage[3] = bus.shift_amount[2] ? shift(stage[2], bus.shift_type, 4) : stage[2];
+  assign stage[4] = bus.shift_amount[3] ? shift(stage[3], bus.shift_type, 8) : stage[3];
+  assign stage[5] = bus.shift_amount[4] ? shift(stage[4], bus.shift_type, 16) : stage[4];
+
+  // Default output
+  always_comb begin
+    bus.B_out     = stage[5];
+    bus.carry_out = bus.carry_in;
+
+    unique case (bus.shift_type)
+
+      SHIFT_LSL: begin
+        if (bus.shift_amount != 5'd0) bus.carry_out = bus.R_in[32-bus.shift_amount];
+      end
+
+      SHIFT_LSR: begin
+        if (bus.shift_amount == 5'd0) bus.carry_out = bus.R_in[31];  // LSR #32
+        else bus.carry_out = bus.R_in[bus.shift_amount-1];
+      end
+
+      SHIFT_ASR: begin
+        if (bus.shift_amount == 5'd0) bus.carry_out = bus.R_in[31];  // ASR #32
+        else bus.carry_out = bus.R_in[bus.shift_amount-1];
+      end
+
+      SHIFT_ROR: begin
+        if (bus.shift_amount == 5'd0) begin  // RRX
+          bus.B_out     = {bus.carry_in, bus.R_in[31:1]};
+          bus.carry_out = bus.R_in[0];
+        end else begin
+          bus.carry_out = bus.R_in[bus.shift_amount-1];
+        end
+      end
+
+    endcase
+  end
+
+endmodule
