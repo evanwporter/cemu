@@ -1,4 +1,5 @@
 import cpu_types_pkg::*;
+import types_pkg::*;
 
 module Decoder (
     input logic clk,
@@ -95,7 +96,7 @@ module Decoder (
             bus.word.instr_type <= ARM_INSTR_DATAPROC_IMM;
           end else if (bus.IR[4] == 1'b0) begin  // bus.IR[25] == 1'b0 is implied
             // Register with immediate shift
-            bus.word.immediate.data_proc_reg_imm.shift_imm <= bus.IR[11:7];
+            bus.word.immediate.data_proc_reg_imm.shift_amount <= bus.IR[11:7];
             bus.word.immediate.data_proc_reg_imm.shift_type <= shift_type_t'(bus.IR[6:5]);
             bus.word.immediate.data_proc_reg_imm.set_flags <= bus.IR[20];
             bus.word.immediate.data_proc_reg_imm.opcode <= bus.IR[24:21];

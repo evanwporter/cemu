@@ -7,6 +7,7 @@ add_subdirectory(MMU)
 
 vemu_adv_add_rtl(
     PACKAGES
+        ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
     INTERFACES
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Gameboy.sv

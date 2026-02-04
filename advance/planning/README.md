@@ -211,3 +211,26 @@ A reset means that we flush the whole pipeline and start anew
 | I4      |     |     |     |     |     | F   | D   | E   |     |
 
 Alternatively the we could stall the Fetcher from the Decoder, which would eliminate the second row of Discard.
+
+### Micro Ops
+
+Each Micro op can be performed in parallel during a cycle:
+
+- Compute the address
+  - Incrementer
+  - ALU result
+  - Directly from a Register
+
+- Memory access
+  - read_en
+  - write_en
+
+- ALU Op
+  - Input `Rn` and `Rm` directly from registers
+  - `Rm` is routed through the barrel shifter first.
+
+- Change up the flags
+
+- Registers
+  - Read three registers
+  - Write to two registers

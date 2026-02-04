@@ -1,4 +1,5 @@
 import cpu_types_pkg::*;
+import types_pkg::*;
 
 // interface CPU_if;
 //   logic [15:0] addr;
@@ -25,7 +26,6 @@ endinterface : Decoder_if
 
 interface ALU_if;
   word_t op_a;
-  word_t op_b;
 
   alu_op_t alu_op;
 
@@ -39,28 +39,36 @@ interface ALU_if;
   word_t result;
   flags_t flags_out;
 
-  modport ALU_side(input op_a, op_b, alu_op, carry_in, set_flags, output result, flags_out);
+  modport ALU_side(input op_a, alu_op, carry_in, set_flags, output result, flags_out);
 endinterface : ALU_if
 
 interface Shifter_if;
   // Register in
-  logic [31:0] R_in;
+  word_t Rm;
 
   /// Shift amount (0–31)
   logic [4:0] shift_amount;
   shift_type_t shift_type;
   logic carry_in;  // CPSR.C 
 
-  logic [31:0] B_out;
+  word_t op_b;
   logic carry_out;
 
   modport shifter_side(
-      input R_in,
+      input Rm,
       input shift_amount,
       input shift_type,
       input carry_in,
-      output B_out,
+      output op_b,
       output carry_out
   );
 
+  modport ALU_side(input op_b, input carry_out);
+
 endinterface : Shifter_if
+
+interface B_if;
+
+  word_t data;
+
+endinterface : B_if

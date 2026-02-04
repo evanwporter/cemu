@@ -1,4 +1,5 @@
 import cpu_types_pkg::*;
+import types_pkg::*;
 
 module BarrelShifter (
     Shifter_if.shifter_side bus
@@ -17,7 +18,7 @@ module BarrelShifter (
 
   logic [31:0] stage[0:5];
 
-  assign stage[0] = bus.R_in;
+  assign stage[0] = bus.Rm;
 
   assign stage[1] = bus.shift_amount[0] ? shift(stage[0], bus.shift_type, 1) : stage[0];
   assign stage[2] = bus.shift_amount[1] ? shift(stage[1], bus.shift_type, 2) : stage[1];
@@ -27,31 +28,31 @@ module BarrelShifter (
 
   // Default output
   always_comb begin
-    bus.B_out     = stage[5];
+    bus.op_b      = stage[5];
     bus.carry_out = bus.carry_in;
 
     unique case (bus.shift_type)
 
       SHIFT_LSL: begin
-        if (bus.shift_amount != 5'd0) bus.carry_out = bus.R_in[32-bus.shift_amount];
+        if (bus.shift_amount != 5'd0) bus.carry_out = bus.Rm[32-bus.shift_amount];
       end
 
       SHIFT_LSR: begin
-        if (bus.shift_amount == 5'd0) bus.carry_out = bus.R_in[31];  // LSR #32
-        else bus.carry_out = bus.R_in[bus.shift_amount-1];
+        if (bus.shift_amount == 5'd0) bus.carry_out = bus.Rm[31];  // LSR #32
+        else bus.carry_out = bus.Rm[bus.shift_amount-1];
       end
 
       SHIFT_ASR: begin
-        if (bus.shift_amount == 5'd0) bus.carry_out = bus.R_in[31];  // ASR #32
-        else bus.carry_out = bus.R_in[bus.shift_amount-1];
+        if (bus.shift_amount == 5'd0) bus.carry_out = bus.Rm[31];  // ASR #32
+        else bus.carry_out = bus.Rm[bus.shift_amount-1];
       end
 
       SHIFT_ROR: begin
         if (bus.shift_amount == 5'd0) begin  // RRX
-          bus.B_out     = {bus.carry_in, bus.R_in[31:1]};
-          bus.carry_out = bus.R_in[0];
+          bus.op_b      = {bus.carry_in, bus.Rm[31:1]};
+          bus.carry_out = bus.Rm[0];
         end else begin
-          bus.carry_out = bus.R_in[bus.shift_amount-1];
+          bus.carry_out = bus.Rm[bus.shift_amount-1];
         end
       end
 

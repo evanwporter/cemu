@@ -1,14 +1,16 @@
+import types_pkg::*;
+
 /// MMU bus interface
 /// Connects CPU to MMU, and MMU to peripherals.
 /// CPU <--> MMU <--> Peripherals
 ///     BUS       BUS
 /// Most data between the CPU and peripherals flows through this bus.
 interface Bus_if;
-  logic [15:0] addr;
-  logic [ 7:0] wdata;
-  logic [ 7:0] rdata;
-  logic        read_en;
-  logic        write_en;
+  word_t addr;
+  word_t wdata;
+  word_t rdata;
+  logic  read_en;
+  logic  write_en;
 
   /// Bus master/router master: this connects to the Peripherals, and passes
   /// the CPU signals along to them, as well as gathering rdata from the Peripherals

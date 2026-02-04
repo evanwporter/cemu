@@ -1,10 +1,6 @@
+import types_pkg::*;
+
 package cpu_types_pkg;
-
-  typedef logic [31:0] word_t;
-
-  typedef logic [15:0] half_t;
-
-  typedef logic [7:0] byte_t;
 
   /**
     From: https://mgba-emu.github.io/gbatek/#overview-11
@@ -176,6 +172,9 @@ package cpu_types_pkg;
     // Single Data Transfer
     // ======================================================
 
+    /// LDR
+    ARM_INSTR_LOAD,
+
     /// LDR / STR (word, immediate offset)
     ARM_INSTR_LDR_STR_IMM,
 
@@ -213,6 +212,46 @@ package cpu_types_pkg;
 
   } arm_instr_t;
 
+  typedef enum logic {
+    ARM_LDR_STR_WORD,
+    ARM_LDR_STR_BYTE
+  } bit_length_flag_t;
+
+  typedef enum logic {
+    /// Immediate Offset
+    ARM_LDR_STR_IMMEDIATE,
+
+    /// Shifted Register Offset
+    ARM_LDR_STR_SHIFTED
+  } mem_offset_flag_t;
+
+  typedef enum logic {
+    ARM_LDR_STR_PRE_OFFSET,
+    ARM_LDR_STR_POST_OFFSET
+  } pre_post_offset_flag_t;
+
+  typedef struct packed {
+    /// Immediate Offset Flag 
+    /// 0=Immediate, 1=Shifted Register
+    logic i;
+
+    /// Pre/Post (0=post; add offset after transfer, 1=pre; before transer)
+    logic p;
+
+    /// Up/Down Bit (0=down; subtract offset from base, 1=up; add to base)
+    logic u;
+
+    /// Byte/Word bit (0=transfer 32bit/word, 1=transfer 8bit/byte)
+    logic b;  // byte/word
+
+    // When above Bit 24 P=0 (Post-indexing, write-back is ALWAYS enabled):
+    //   21     T - Memory Management (0=Normal, 1=Force non-privileged access)
+    // When above Bit 24 P=1 (Pre-indexing, write-back is optional):
+    //   21     W - Write-back bit (0=no write-back, 1=write address into base)
+    logic w;  // writeback
+
+    logic l;  // load/store
+  } ls_ctrl_t;
 
   typedef union packed {
 
@@ -248,7 +287,7 @@ package cpu_types_pkg;
       logic set_flags;
 
       // Bits 11-7
-      logic [4:0] shift_imm;
+      logic [4:0] shift_amount;
 
       // Bits 6-5
       shift_type_t shift_type;
@@ -264,6 +303,10 @@ package cpu_types_pkg;
       // Bit 20
       logic set_flags;
 
+      // Bits 11-8
+      // The rotate amount is stored wholly within Rs
+      // logic [3:0] rotate;
+
       // Bits 6-5
       shift_type_t shift_type;
     } data_proc_reg_reg;
@@ -273,26 +316,64 @@ package cpu_types_pkg;
     // Single Data Transfer (Word / Byte / Halfword)
     // ======================================================
 
-    /// ARM_INSTR_LOAD_REG / ARM_INSTR_STORE_REG
-    /// Immediate offset
+    /// ARM_INSTR_LOAD / ARM_INSTR_STORE
     struct packed {
-      logic [11:0] _pad;
+      logic [7:0] _pad;
 
-      // Bits 11-0
-      logic [11:0] imm12;
-    } ls_imm;
+      // Bit 25
+      mem_offset_flag_t I;
 
-    /// ARM_INSTR_LOAD_IMM / ARM_INSTR_STORE_IMM
-    /// Register offset with shift
-    struct packed {
-      logic [16:0] _pad;
+      // Bit 24
+      pre_post_offset_flag_t P;
 
-      // Bits 11-7
-      logic [4:0] shift_imm;
+      // Bit 23
+      logic U;
 
-      // Bits 6-5
-      shift_type_t shift_type;
-    } ls_reg;
+      /// Byte / Word bit (0=transfer 32bit/word, 1=transfer 8bit/byte)
+      /// Bit 22
+      bit_length_flag_t B;
+
+      // Rn
+      // Rd
+
+      union packed {
+
+        struct packed {
+          logic [4:0] _pad;
+
+          // Bits 11-7
+          logic [4:0] shift_amount;
+
+          // Bits 6-5
+          shift_type_t shift_type;
+        } shifted;
+
+        logic [11:0] imm12;
+      } offset;
+
+      // Uses Rm as offset register
+    } ls;
+
+    // /// ARM_INSTR_LOAD_REG / ARM_INSTR_STORE_REG
+    // /// Immediate offset
+    // struct packed {
+    //   logic [11:0] _pad;
+
+    //   // Bits 11-0
+    //   logic [11:0] imm12;
+    // } ls_imm;
+
+    // /// ARM_INSTR_LOAD_IMM / ARM_INSTR_STORE_IMM
+    // /// Register offset with shift
+    // struct packed {
+    //   logic [16:0] _pad;
+
+    //   // Bits 11-7
+    //   logic [4:0] shift_imm;
+
+    //   // Bits 6-5
+    //   shift_type_t shift_type;
+    // } ls_reg;
 
     /// LDRH / STRH / LDRSB / LDRSH (immediate form)
     struct packed {
@@ -310,7 +391,7 @@ package cpu_types_pkg;
     // Block Data Transfer
     // ======================================================
 
-    /// ARM_INSTR_LDM_STM
+    /// ARM_INSTR_LDM / ARM_INSTR_STM
     struct packed {
       logic [7:0] _pad;
 
@@ -355,7 +436,7 @@ package cpu_types_pkg;
       // Bits 23-0
       logic [23:0] comment;
     } swi;
-  } immediate_t;
+  } extra_t;
 
 
   typedef struct packed {
@@ -376,7 +457,7 @@ package cpu_types_pkg;
     // Bits 11-8
     logic [3:0] Rs;
 
-    immediate_t immediate;
+    extra_t immediate;
   } decoded_word_t;
 
 

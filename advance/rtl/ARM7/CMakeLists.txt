@@ -1,6 +1,7 @@
 vemu_adv_add_rtl(
     PACKAGES
         ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/control_types.sv
     INTERFACES
         ${CMAKE_CURRENT_SOURCE_DIR}/interface.sv
     SOURCES
