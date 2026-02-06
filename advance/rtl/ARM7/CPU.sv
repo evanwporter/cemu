@@ -48,6 +48,8 @@ module CPU (
   );
 
   ControlUnit controlUnit (
+      .clk(clk),
+      .reset(reset),
       .decoder_bus(decoder_bus),
       .control_signals(control_signals)
   );
@@ -141,7 +143,6 @@ module CPU (
   // Calculate address bus value
   always_ff @(posedge clk) begin
     if (reset) begin
-      // Reset logic
     end else begin
       unique case (control_signals.addr_bus_src)
         ADDR_SRC_NONE: begin
@@ -164,74 +165,14 @@ module CPU (
     end
   end
 
-
-  // ======================================================
-  // ALU and Shifter
-  // ======================================================
-
-  // always_comb begin
-  //   shifter_bus.shift_amount = 5'd0;
-
-  //   alu_bus.alu_op           = ALU_OP_ADD;
-  //   alu_bus.set_flags        = 1'b0;
-
-  //   unique case (decoder_bus.word.instr_type)
-
-  //     // ============================
-  //     // Data Processing (Immediate)
-  //     // ============================
-  //     ARM_INSTR_DATAPROC_IMM: begin
-  //       shifter_bus.Rm           = {24'd0, decoder_bus.word.immediate.data_proc_imm.imm8};
-  //       shifter_bus.shift_type   = SHIFT_ROR;
-  //       shifter_bus.shift_amount = decoder_bus.word.immediate.data_proc_imm.rotate << 1;
-
-  //       alu_bus.alu_op           = alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode);
-  //       alu_bus.set_flags        = decoder_bus.word.immediate.data_proc_imm.set_flags;
-  //     end
-
-  //     // ============================
-  //     // Data Processing (Reg + Imm)
-  //     // ============================
-  //     ARM_INSTR_DATAPROC_REG_IMM: begin
-  //       shifter_bus.Rm           = regs[decoder_bus.word.Rm];
-  //       shifter_bus.shift_type   = decoder_bus.word.immediate.data_proc_reg_imm.shift_type;
-  //       shifter_bus.shift_amount = decoder_bus.word.immediate.data_proc_reg_imm.shift_amount;
-
-  //       alu_bus.alu_op           = alu_op_t'(decoder_bus.word.immediate.data_proc_reg_imm.opcode);
-  //       alu_bus.set_flags        = decoder_bus.word.immediate.data_proc_reg_imm.set_flags;
-  //     end
-
-  //     // ============================
-  //     // Data Processing (Reg + Reg)
-  //     // ============================
-  //     ARM_INSTR_DATAPROC_REG_REG: begin
-  //       shifter_bus.Rm           = regs[decoder_bus.word.Rm];
-  //       shifter_bus.shift_type   = decoder_bus.word.immediate.data_proc_reg_reg.shift_type;
-  //       shifter_bus.shift_amount = regs[decoder_bus.word.Rs][4:0];
-
-  //       alu_bus.alu_op           = alu_op_t'(decoder_bus.word.immediate.data_proc_reg_reg.opcode);
-  //       alu_bus.set_flags        = decoder_bus.word.immediate.data_proc_reg_reg.set_flags;
-  //     end
-
-  //     // ============================
-  //     // Load / Store (offset only)
-  //     // ============================
-  //     ARM_INSTR_STORE, ARM_INSTR_LOAD: begin
-  //       if (decoder_bus.word.immediate.ls.I == ARM_LDR_STR_IMMEDIATE) begin
-  //         shifter_bus.Rm           = {20'd0, decoder_bus.word.immediate.ls.offset.imm12};
-  //         shifter_bus.shift_type   = SHIFT_LSL;
-  //         shifter_bus.shift_amount = 5'd0;
-  //       end else begin
-  //         shifter_bus.Rm           = regs[decoder_bus.word.Rm];
-  //         shifter_bus.shift_type   = decoder_bus.word.immediate.ls.offset.shifted.shift_type;
-  //         shifter_bus.shift_amount = decoder_bus.word.immediate.ls.offset.shifted.shift_amount;
-  //       end
-
-  //       alu_bus.alu_op = decoder_bus.word.immediate.ls.U ? ALU_OP_ADD : ALU_OP_SUB;
-  //     end
-
-  //     default: ;
-  //   endcase
-  // end
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      IR <= 32'd0;
+    end else begin
+      if (control_signals.memory_latch_IR) begin
+        IR <= bus.rdata;
+      end
+    end
+  end
 
 endmodule : CPU

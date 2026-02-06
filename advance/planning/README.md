@@ -241,3 +241,34 @@ Each Micro op can be performed in parallel during a cycle:
 - Registers
   - Read three registers
   - Write to two registers
+
+The new stall pipeline:
+
+| Cycle   | 1   | 2   | 3   | 4   | 5   | 5   | 6   | 7   | 8   |
+| ------- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| I1      | F   | D   | E   |     |     |     |     |     |     |
+| Discard |     | F   | D   |     |     |     |     |     |     |
+| Discard |     |     | F   |     |     |     |     |     |     |
+| I2      |     |     |     | F   | D   | E   |     |     |     |
+| I3      |     |     |     |     | F   | D   | E   |     |     |
+| I4      |     |     |     |     |     | F   | D   | E   |     |
+
+---
+
+### Data Operation (Stalled by Reg Shift)
+
+| Cycle | 1   | 2   | 3   | 4   | 5   | 5   | 6   |
+| ----- | --- | --- | --- | --- | --- | --- | --- |
+| I1    | F   | D   | I   | E   |     |     |     |
+| I2    |     | F   | -   | D   | E   |     |     |
+| I3    |     |     |     | F   | D   | E   |     |
+| I4    |     |     |     |     | F   | D   | E   |
+
+### LDR
+
+| Cycle | 1   | 2   | 3   | 4   | 5   | 5   | 6   | 7   |
+| ----- | --- | --- | --- | --- | --- | --- | --- | --- |
+| I1    | F   | D   | E   | N   | I   |     |     |     |
+| I2    |     | F   | -   | -   | D   | E   |     |     |
+| I3    |     |     |     | -   | F   | D   | E   |     |
+| I4    |     |     |     |     |     | F   | D   | E   |

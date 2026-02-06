@@ -106,6 +106,11 @@ package control_types_pkg;
     /// Whether to accept the B_bus as data to write to memory
     logic memory_write_en;
 
+    /// Whether to read data from memory and place it on the B_bus
+    logic memory_read_en;
+
+    logic memory_latch_IR;
+
     // ======================================================
     // ALU
     // ======================================================

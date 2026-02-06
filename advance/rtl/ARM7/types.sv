@@ -220,43 +220,21 @@ package cpu_types_pkg;
     ARM_LDR_STR_BYTE
   } bit_length_flag_t;
 
+  /// TODO verify order
   typedef enum logic {
-    /// Immediate Offset
-    /// Offset it by an immediate value encoded in the instruction
-    ARM_LDR_STR_IMMEDIATE,
-
     /// Shifted Register Offset
     /// Offset it by a register value (Rm)
-    ARM_LDR_STR_SHIFTED
+    ARM_LDR_STR_SHIFTED,
+
+    /// Immediate Offset
+    /// Offset it by an immediate value encoded in the instruction
+    ARM_LDR_STR_IMMEDIATE
   } mem_offset_flag_t;
 
   typedef enum logic {
     ARM_LDR_STR_PRE_OFFSET,
     ARM_LDR_STR_POST_OFFSET
   } pre_post_offset_flag_t;
-
-  typedef struct packed {
-    /// Immediate Offset Flag 
-    /// 0=Immediate, 1=Shifted Register
-    logic i;
-
-    /// Pre/Post (0=post; add offset after transfer, 1=pre; before transer)
-    logic p;
-
-    /// Up/Down Bit (0=down; subtract offset from base, 1=up; add to base)
-    logic u;
-
-    /// Byte/Word bit (0=transfer 32bit/word, 1=transfer 8bit/byte)
-    logic b;  // byte/word
-
-    // When above Bit 24 P=0 (Post-indexing, write-back is ALWAYS enabled):
-    //   21     T - Memory Management (0=Normal, 1=Force non-privileged access)
-    // When above Bit 24 P=1 (Pre-indexing, write-back is optional):
-    //   21     W - Write-back bit (0=no write-back, 1=write address into base)
-    logic w;  // writeback
-
-    logic l;  // load/store
-  } ls_ctrl_t;
 
   typedef union packed {
 

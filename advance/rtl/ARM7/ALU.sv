@@ -32,7 +32,7 @@ module ALU (
 
     temp = 33'h0;
 
-    case (bus.alu_op)
+    unique case (bus.alu_op)
 
       ALU_OP_MOV: begin
         bus.result = op_b;
