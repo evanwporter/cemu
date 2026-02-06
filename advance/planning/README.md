@@ -185,6 +185,13 @@ Execute sets a `stall` latch to `false` at the end of the last cycle in the exec
 | I3    |     |     | F   | -   | D   | E   |     |
 | I4    |     |     |     |     | F   | D   | E   |
 
+| Cycle | 1   | 2   | 3   | 4   | 5   | 5   | 6   |
+| ----- | --- | --- | --- | --- | --- | --- | --- |
+| I1    | F   | D   | I   | E   |     |     |     |
+| I2    |     | F   |     | D   | E   |     |     |
+| I3    |     |     |     | F   | D   | E   |     |
+| I4    |     |     |     |     | F   | D   | E   |
+
 Now if I1 has x=1I and I2 also has x=I2 then:
 
 | Cycle | 1   | 2   | 3   | 4   | 5   | 5   | 6   | 7   | 8   |

@@ -29,33 +29,33 @@ package cpu_types_pkg;
     --          SPSR_fiq  SPSR_svc   SPSR_abt  SPSR_irq  SPSR_und
     --------------------------------------------------------------
   */
-  typedef struct {
-    word_t R0;
-    word_t R1;
-    word_t R2;
-    word_t R3;
-    word_t R4;
-    word_t R5;
-    word_t R6;
-    word_t R7;
-    word_t R8;
-    word_t R9;
-    word_t R10;
-    word_t R11;
-    word_t R12;
+  // typedef struct {
+  //   word_t R0;
+  //   word_t R1;
+  //   word_t R2;
+  //   word_t R3;
+  //   word_t R4;
+  //   word_t R5;
+  //   word_t R6;
+  //   word_t R7;
+  //   word_t R8;
+  //   word_t R9;
+  //   word_t R10;
+  //   word_t R11;
+  //   word_t R12;
 
-    /// Program Counter (PC)
-    word_t R13;
+  //   /// Program Counter (PC)
+  //   word_t R13;
 
-    /// Link Register (LR)
-    word_t R14;
+  //   /// Link Register (LR)
+  //   word_t R14;
 
-    /// Stack Pointer (SP)
-    word_t R15;
+  //   /// Stack Pointer (SP)
+  //   word_t R15;
 
-    word_t CPSR;
+  //   word_t CPSR;
 
-  } cpu_regs_t;
+  // } cpu_regs_t;
 
   typedef enum logic [1:0] {
     SHIFT_LSL = 2'b00,
@@ -175,6 +175,9 @@ package cpu_types_pkg;
     /// LDR
     ARM_INSTR_LOAD,
 
+    /// STR
+    ARM_INSTR_STORE,
+
     /// LDR / STR (word, immediate offset)
     ARM_INSTR_LDR_STR_IMM,
 
@@ -219,9 +222,11 @@ package cpu_types_pkg;
 
   typedef enum logic {
     /// Immediate Offset
+    /// Offset it by an immediate value encoded in the instruction
     ARM_LDR_STR_IMMEDIATE,
 
     /// Shifted Register Offset
+    /// Offset it by a register value (Rm)
     ARM_LDR_STR_SHIFTED
   } mem_offset_flag_t;
 
@@ -318,7 +323,7 @@ package cpu_types_pkg;
 
     /// ARM_INSTR_LOAD / ARM_INSTR_STORE
     struct packed {
-      logic [7:0] _pad;
+      logic [6:0] _pad;
 
       // Bit 25
       mem_offset_flag_t I;
@@ -329,9 +334,12 @@ package cpu_types_pkg;
       // Bit 23
       logic U;
 
-      /// Byte / Word bit (0=transfer 32bit/word, 1=transfer 8bit/byte)
-      /// Bit 22
+      // Byte / Word bit (0=transfer 32bit/word, 1=transfer 8bit/byte)
+      // Bit 22
       bit_length_flag_t B;
+
+      // Bit 21
+      logic wt;
 
       // Rn
       // Rd
@@ -484,6 +492,7 @@ package cpu_types_pkg;
     ALU_OP_ADD,
     ALU_OP_ADC,
     ALU_OP_SBC,
+    ALU_OP_SBC_REVERSED,
     ALU_OP_TEST,
     ALU_OP_TEST_EXCLUSIVE,
     ALU_OP_CMP,

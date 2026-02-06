@@ -2,9 +2,24 @@ import cpu_types_pkg::*;
 import types_pkg::*;
 
 module ALU (
+    input clk,
+    input reset,
     ALU_if.ALU_side bus,
     Shifter_if.ALU_side shifter_bus
 );
+
+  word_t op_b_latch;
+
+  wire [31:0] op_b = bus.use_op_b_latch ? op_b_latch : (bus.disable_op_b ? 32'h0 : shifter_bus.op_b);
+
+  always_ff @(posedge clk) begin
+    if (reset) begin
+    end else begin
+      if (bus.latch_op_b) begin
+        op_b_latch <= shifter_bus.op_b;
+      end
+    end
+  end
 
   logic [32:0] temp;
 
@@ -13,71 +28,76 @@ module ALU (
     bus.result = 32'h0;
     bus.flags_out.n = 1'b0;
     bus.flags_out.z = 1'b0;
-    bus.flags_out.c = bus.flags_out.c;
+    bus.flags_out.c = bus.carry_in;
+
+    temp = 33'h0;
 
     case (bus.alu_op)
 
       ALU_OP_MOV: begin
-        bus.result = shifter_bus.op_b;
+        bus.result = op_b;
       end
 
       ALU_OP_NOT: begin
-        bus.result = ~shifter_bus.op_b;
+        bus.result = ~op_b;
       end
 
       ALU_OP_AND, ALU_OP_TEST: begin
-        bus.result = bus.op_a & shifter_bus.op_b;
+        bus.result = bus.op_a & op_b;
       end
 
       ALU_OP_XOR, ALU_OP_TEST_EXCLUSIVE: begin
-        bus.result = bus.op_a ^ shifter_bus.op_b;
+        bus.result = bus.op_a ^ op_b;
       end
 
       ALU_OP_OR: begin
-        bus.result = bus.op_a | shifter_bus.op_b;
+        bus.result = bus.op_a | op_b;
       end
 
       ALU_OP_BIT_CLEAR: begin
-        bus.result = bus.op_a & ~shifter_bus.op_b;
+        bus.result = bus.op_a & ~op_b;
       end
 
       ALU_OP_ADD, ALU_OP_CMP_NEG: begin
-        temp            = {1'b0, bus.op_a} + {1'b0, shifter_bus.op_b};
+        temp            = {1'b0, bus.op_a} + {1'b0, op_b};
         bus.result      = temp[31:0];
         bus.flags_out.c = temp[32];
-        bus.flags_out.v = ~(bus.op_a[31] ^ shifter_bus.op_b[31]) & (bus.op_a[31] ^ bus.result[31]);
+        bus.flags_out.v = ~(bus.op_a[31] ^ op_b[31]) & (bus.op_a[31] ^ bus.result[31]);
       end
 
       ALU_OP_ADC: begin
-        temp            = {1'b0, bus.op_a} + {1'b0, shifter_bus.op_b} + bus.carry_in;
+        temp            = {1'b0, bus.op_a} + {1'b0, op_b} + {32'b0, bus.carry_in};
         bus.result      = temp[31:0];
         bus.flags_out.c = temp[32];
-        bus.flags_out.v = ~(bus.op_a[31] ^ shifter_bus.op_b[31]) & (bus.op_a[31] ^ bus.result[31]);
+        bus.flags_out.v = ~(bus.op_a[31] ^ op_b[31]) & (bus.op_a[31] ^ bus.result[31]);
       end
 
       ALU_OP_SUB, ALU_OP_CMP: begin
-        temp            = {1'b0, bus.op_a} - {1'b0, shifter_bus.op_b};
+        temp            = {1'b0, bus.op_a} - {1'b0, op_b};
         bus.result      = temp[31:0];
         bus.flags_out.c = ~temp[32];  // NOT borrow
-        bus.flags_out.v = (bus.op_a[31] ^ shifter_bus.op_b[31]) & (bus.op_a[31] ^ bus.result[31]);
+        bus.flags_out.v = (bus.op_a[31] ^ op_b[31]) & (bus.op_a[31] ^ bus.result[31]);
       end
 
       ALU_OP_SBC: begin
-        temp            = {1'b0, bus.op_a} - {1'b0, shifter_bus.op_b} - ~bus.carry_in;
+        temp            = {1'b0, bus.op_a} - {1'b0, op_b} - {32'b0, ~bus.carry_in};
         bus.result      = temp[31:0];
         bus.flags_out.c = ~temp[32];
-        bus.flags_out.v = (bus.op_a[31] ^ shifter_bus.op_b[31]) & (bus.op_a[31] ^ bus.result[31]);
+        bus.flags_out.v = (bus.op_a[31] ^ op_b[31]) & (bus.op_a[31] ^ bus.result[31]);
       end
 
       ALU_OP_SUB_REVERSED: begin
-        temp = {1'b0, shifter_bus.op_b} - {1'b0, bus.op_a};
+        temp = {1'b0, op_b} - {1'b0, bus.op_a};
         bus.result = temp[31:0];
         bus.flags_out.c = ~temp[32];
-        bus.flags_out.v = (bus.op_a[31] ^ shifter_bus.op_b[31]) & (shifter_bus.op_b[31] ^ bus.result[31]);
+        bus.flags_out.v = (bus.op_a[31] ^ op_b[31]) & (op_b[31] ^ bus.result[31]);
       end
 
-      default: begin
-        bus.result = 32'h0;
+      ALU_OP_SBC_REVERSED: begin
+        temp = {1'b0, op_b} - {1'b0, bus.op_a} - {32'b0, ~bus.carry_in};
+        bus.result = temp[31:0];
+        bus.flags_out.c = ~temp[32];
+        bus.flags_out.v = (bus.op_a[31] ^ op_b[31]) & (op_b[31] ^ bus.result[31]);
       end
 
     endcase

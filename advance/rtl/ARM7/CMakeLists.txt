@@ -9,4 +9,5 @@ vemu_adv_add_rtl(
         ${CMAKE_CURRENT_SOURCE_DIR}/BarrelShifter.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/CPU.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/Decoder.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/ControlUnit.sv
 )
