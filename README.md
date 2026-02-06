@@ -2,13 +2,14 @@
 
 (name in the works)
 
-There are two parts to this project
+There are three parts to this project
 (1) C++ Gameboy emulator
-(2) FPGA emualtor
+(2) FPGA Gameboy emulator
+(3) FPGA Gameboy emulator
 
-The C++ emulator is working. I created it to get a better understanding about how the internals of the emulator works. The FPGA emulator is in progress.
+The Gameboy emulators are working. The GBA emulator is WIP.
 
-The FPGA emulator currently:
+Here is the SystemVerilog Emulator simulated using Verilator.
 
 ![](./display.gif)
 
