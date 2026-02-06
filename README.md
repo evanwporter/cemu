@@ -5,7 +5,7 @@
 There are three parts to this project
 (1) C++ Gameboy emulator
 (2) FPGA Gameboy emulator
-(3) FPGA Gameboy emulator
+(3) FPGA Gameboy Advance emulator
 
 The Gameboy emulators are working. The GBA emulator is WIP.
 
