@@ -7,3 +7,6 @@
 [submodule "tests/mooneye-test-suite"]
 	path = tests/mooneye-test-suite
 	url = https://github.com/evanwporter/mooneye-test-suite
+[submodule "tests/GameboyAdvanceCPUTests"]
+	path = tests/GameboyAdvanceCPUTests
+	url = https://github.com/SingleStepTests/ARM7TDMI

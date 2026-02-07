@@ -8,7 +8,6 @@
 #include <Varm_cpu_top___024root.h>
 #include <verilated.h>
 
-#include "Varm_cpu_top_Decoder_if.h"
 #include "util/util.hpp"
 
 #include "json_parser.hpp"
@@ -79,6 +78,9 @@ static void apply_instruction_memory(Varm_cpu_top& top, const json& test) {
 
     top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__expected_count = test["transactions"].size();
 
+    top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__opcode = test["opcode"];
+    top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__base_addr = test["base_addr"];
+
     txn_index = 0;
 
     for (size_t i = 0; i < test["transactions"].size(); i++) {
@@ -94,9 +96,11 @@ static void apply_initial_state(Varm_cpu_top& top, const json& test) {
 
     const auto& init = test["initial"];
 
-    for (int i = 0; i < 16; ++i) {
+    for (int i = 0; i < 15; ++i) {
         regs.__PVT__user[i] = init["R"][i];
     }
+
+    regs.__PVT__user[15] = init["R"][15].get<uint32_t>() - 8;
 
     regs.__PVT__CPSR = init["CPSR"];
 
@@ -119,7 +123,7 @@ static void verify_registers(const Varm_cpu_top& top, const json& expected, cons
     }
 
     // R15 (PC)
-    ASSERT_EQ(regs.__PVT__user[15], expected["R"][15])
+    ASSERT_EQ(regs.__PVT__user[15], expected["R"][15].get<uint32_t>())
         << "PC (R15) mismatch in test \"" << test_name << "\"";
 
     // CPSR
@@ -128,10 +132,9 @@ static void verify_registers(const Varm_cpu_top& top, const json& expected, cons
 }
 
 static void run_single_test(const json& testCase, const fs::path& source, size_t index) {
-    static const fs::path trace_log_path = fs::current_path() / "trace.log";
 
-    std::ofstream trace(trace_log_path, std::ios::trunc);
-    ASSERT_TRUE(trace.is_open());
+    testing::internal::CaptureStdout();
+    testing::internal::CaptureStderr();
 
     VerilatedContext ctx;
     ctx.debug(0);
@@ -148,9 +151,9 @@ static void run_single_test(const json& testCase, const fs::path& source, size_t
 
     std::cout << "\nCycle 1: Reset Phase 2:" << std::endl;
 
-    ASSERT_TRUE(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__reset_phase);
-
     apply_initial_state(top, testCase);
+
+    ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 3);
 
     // Fetch
     tick(top, ctx);
@@ -160,7 +163,6 @@ static void run_single_test(const json& testCase, const fs::path& source, size_t
     // Check if it reset correctly and is now starting a flush.
     ASSERT_TRUE(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flushing);
     ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 2);
-    ASSERT_FALSE(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__reset_phase);
 
     const auto& IR = top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__IR;
 
@@ -170,7 +172,6 @@ static void run_single_test(const json& testCase, const fs::path& source, size_t
 
     ASSERT_TRUE(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flushing);
     ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 1);
-    ASSERT_FALSE(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__reset_phase);
 
     // Fetch and Decode
     tick(top, ctx);
@@ -181,7 +182,7 @@ static void run_single_test(const json& testCase, const fs::path& source, size_t
     ASSERT_FALSE(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flushing);
     ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 0);
 
-    // tick(top, ctx);
+    tick(top, ctx);
 
     // ASSERT_EQ(top.rootp->__PVT__arm_cpu_top__DOT__cpu_inst__DOT__decoder_bus->word.__PVT__IR, 0)
     //     << "CPU not in IF1 state after reset flush in test " << index
@@ -198,7 +199,16 @@ static void run_single_test(const json& testCase, const fs::path& source, size_t
 
     verify_registers(top, testCase["final"], to_string(testCase["opcode"]));
 
+    std::string stdout_output = testing::internal::GetCapturedStdout();
+    std::string stderr_output = testing::internal::GetCapturedStderr();
+
     if (::testing::Test::HasFailure()) {
+        std::cerr << "\n==== Captured stdout ====\n"
+                  << stdout_output
+                  << "\n==== Captured stderr ====\n"
+                  << stderr_output
+                  << "\n=========================\n";
+
         dump_failed_test_to_file(testCase, source, index);
     }
 }

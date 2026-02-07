@@ -158,6 +158,8 @@ module CPU (
       if (control_signals.incrementer_writeback) begin
         // PC = PC + 4
         regs.user[15] <= regs.user[15] + 32'd4;
+        $display("Incrementing PC to: 0x%0d", regs.user[15] + 32'd4);
+        $fflush();
       end
 
       if (control_signals.ALU_set_flags) begin

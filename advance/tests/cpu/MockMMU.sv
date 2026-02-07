@@ -1,6 +1,8 @@
 `ifndef MMU_SV
 `define MMU_SV 
 
+import types_pkg::*;
+
 module MockMMU (
     input logic clk,
     input logic reset,
@@ -15,37 +17,37 @@ module MockMMU (
     logic [31:0] data;
   } transaction_t;
 
-  logic discard_first_tx;
+  (* maybe_unused *)
+  word_t base_addr, opcode  /* verilator public_flat_rw */;
 
+  (* maybe_unused *)
   transaction_t expected[0:31]  /* verilator public_flat_rw */;
 
+  (* maybe_unused *)
   integer expected_count  /* verilator public_flat_rw */;
 
   integer txn_index  /* verilator public_flat_rw */;
 
   always_comb begin
-    transaction_t t;
-
-    cpu_bus.rdata = '0;
+    cpu_bus.rdata = 32'd0;
 
     if (cpu_bus.read_en) begin
-      t = expected[txn_index];
+      transaction_t t = expected[txn_index];
 
-      // assert (t.kind == mmu_types_pkg::INSTR_READ || t.kind == mmu_types_pkg::DATA_READ);
-      // assert (t.addr == cpu_bus.addr);
-
-      cpu_bus.rdata = t.data;
-
-      // $display("MMU: Received read transaction: addr=0x%0d, data=0x%0d", cpu_bus.addr,
-      //          cpu_bus.rdata);
-      // $fflush();
+      if (t.kind == 2'd0) begin
+        // Instruction read
+        if (cpu_bus.addr == base_addr) cpu_bus.rdata = opcode;
+        else cpu_bus.rdata = cpu_bus.addr;
+      end else begin
+        // Data read
+        cpu_bus.rdata = t.data;
+      end
     end
   end
 
   always_ff @(posedge clk) begin
     if (reset) begin
       txn_index <= 0;
-      discard_first_tx <= 1;
     end else if (cpu_bus.read_en || cpu_bus.write_en) begin
       transaction_t t = expected[txn_index];
 

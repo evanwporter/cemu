@@ -40,21 +40,14 @@ module ControlUnit (
     end
   end
 
-  logic reset_phase;
-
   always_ff @(posedge clk) begin
     if (reset) begin
       /// Start with a flush so we can fetch the first instruction
       /// This will start flushing next cycle.
-      reset_phase <= 1'b1;
-
-      flush_cnt   <= 3'd0;
+      flush_cnt <= 3'd3;
       $display("ControlUnit: Reset, starting flush");
-    end else if (reset_phase) begin
-      /// We wait one cycle after reset to start the flush so that we can ensure the system is in a known state before we start flushing instructions.
-      flush_cnt   <= 3'd2;
-      reset_phase <= 1'b0;
-      $display("ControlUnit: Starting flush");
+      $fflush();
+
     end else if (flushing) begin
       flush_cnt <= flush_cnt - 3'd1;
     end
@@ -79,17 +72,32 @@ module ControlUnit (
 
     // decoder_bus.enable = 1'b1;
 
-    if (reset_phase) begin
-      control_signals.memory_read_en  = 1;
-      control_signals.memory_latch_IR = 1;
-      control_signals.addr_bus_src    = ADDR_SRC_PC;
+    if (flush_cnt == 3'd3) begin
+      // Start by writing  the Address to PC
+      control_signals.addr_bus_src = ADDR_SRC_PC;
+
+      $display("ControlUnit: In reset phase, preparing for flush");
+      $fflush();
 
     end else if (flush_cnt == 3'd2) begin
       /// Plan for fetch and decode next cycle.
-      control_signals.memory_read_en  = 1;
+      control_signals.memory_read_en = 1;
       control_signals.memory_latch_IR = 1;
-      control_signals.addr_bus_src    = ADDR_SRC_PC;
+      control_signals.incrementer_writeback = 1;
+      control_signals.addr_bus_src = ADDR_SRC_INCR;
+
+      $display("ControlUnit: Flush cycle 1, fetching instruction");
+      $fflush();
+
+    end else if (flush_cnt == 3'd1) begin
+      control_signals.memory_read_en = 1;
+      control_signals.memory_latch_IR = 1;
+      control_signals.incrementer_writeback = 1;
+      control_signals.addr_bus_src = ADDR_SRC_PC;
       instr_done = 1'b1;
+
+      $display("ControlUnit: Flush cycle 2, flushing instruction");
+      $fflush();
 
     end else begin
 
