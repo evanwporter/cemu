@@ -1,6 +1,6 @@
 # TODO: The CMake is incredibly messy right now. Clean it up.
 
-set(VEMU_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(VEMU_ADV_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/rtl)
 
 add_library(vemu_adv_rtl INTERFACE)
 
@@ -39,7 +39,7 @@ target_compile_definitions(libvemu_adv PUBLIC
     SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
-# add_subdirectory(tests)
+add_subdirectory(tests)
 
 find_package(Verilator REQUIRED HINTS $ENV{VERILATOR_ROOT})
 

@@ -1,12 +1,14 @@
 import control_types_pkg::*;
 import cpu_types_pkg::*;
 
+`include "cpu/util.svh"
+
 // In the future just add these signals when instr_done goes high
 `define FETCH_NEXT_INSTR(ctrl)        \
   ctrl.memory_latch_IR = 1'b1;        \
   ctrl.memory_read_en= 1'b1;          \
   ctrl.incrementer_writeback = 1'b1;  \
-  ctrl.addr_bus_src= ADDR_SRC_INCR;
+  ctrl.addr_bus_src= ADDR_SRC_PC;
 
 module ControlUnit (
     input logic clk,
@@ -17,14 +19,14 @@ module ControlUnit (
 
   logic [3:0] cycle;
 
-  // Flush lasts 2 cycles (so it can run a fetch, then a fetch and decode)
-  logic flush;
-
   logic [2:0] flush_cnt;
 
   wire flushing = flush_cnt != 3'd0;
 
   logic instr_done;
+
+  /// We only enable the decoder when we are ready to fetch a new instruction.
+  assign decoder_bus.enable = instr_done;
 
   always_ff @(posedge clk) begin
     if (reset) begin
@@ -38,28 +40,57 @@ module ControlUnit (
     end
   end
 
+  logic reset_phase;
+
   always_ff @(posedge clk) begin
     if (reset) begin
       /// Start with a flush so we can fetch the first instruction
-      flush_cnt <= 3'd2;
+      /// This will start flushing next cycle.
+      reset_phase <= 1'b1;
+
+      flush_cnt   <= 3'd0;
+      $display("ControlUnit: Reset, starting flush");
+    end else if (reset_phase) begin
+      /// We wait one cycle after reset to start the flush so that we can ensure the system is in a known state before we start flushing instructions.
+      flush_cnt   <= 3'd2;
+      reset_phase <= 1'b0;
+      $display("ControlUnit: Starting flush");
     end else if (flushing) begin
       flush_cnt <= flush_cnt - 3'd1;
-    end else if (flush) begin
-      flush_cnt <= 3'd2;
     end
   end
+
+  function automatic alu_writeback_source_t get_alu_writeback(input alu_op_t opcode);
+    case (opcode)
+      ALU_OP_CMP, ALU_OP_CMP_NEG, ALU_OP_TEST, ALU_OP_TEST_EXCLUSIVE: begin
+        return ALU_WB_NONE;
+      end
+
+      default: begin
+        return ALU_WB_REG_RD;
+      end
+    endcase
+  endfunction
 
   always_comb begin
     control_signals = '0;
 
     instr_done = 1'b0;
 
-    decoder_bus.enable = 1'b1;
+    // decoder_bus.enable = 1'b1;
 
-    if (flushing) begin
-      // Force fetch behavior
-      `FETCH_NEXT_INSTR(control_signals)
+    if (reset_phase) begin
+      control_signals.memory_read_en  = 1;
+      control_signals.memory_latch_IR = 1;
+      control_signals.addr_bus_src    = ADDR_SRC_PC;
+
+    end else if (flush_cnt == 3'd2) begin
+      /// Plan for fetch and decode next cycle.
+      control_signals.memory_read_en  = 1;
+      control_signals.memory_latch_IR = 1;
+      control_signals.addr_bus_src    = ADDR_SRC_PC;
       instr_done = 1'b1;
+
     end else begin
 
       case (decoder_bus.word.instr_type)
@@ -69,8 +100,13 @@ module ControlUnit (
         // ============================
 
         ARM_INSTR_DATAPROC_IMM: begin
+          $display("ControlUnit: Decoding data processing immediate instruction with IR=0x%08x",
+                   decoder_bus.word.IR);
+          $fflush();
+
           if (cycle == 4'd0) begin
-            control_signals.alu_writeback = ALU_WB_REG_RD;
+            control_signals.alu_writeback =
+                get_alu_writeback(alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode));
 
             control_signals.B_bus_source = B_BUS_SRC_IMM;
             control_signals.B_bus_imm = 12'(decoder_bus.word.immediate.data_proc_imm.imm8);
@@ -80,9 +116,15 @@ module ControlUnit (
             control_signals.shift_type = SHIFT_ROR;
 
             control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode);
-            control_signals.set_ALU_flags = decoder_bus.word.immediate.data_proc_imm.set_flags;
+            control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_imm.set_flags;
 
-            `FETCH_NEXT_INSTR(control_signals)
+            control_signals.memory_latch_IR = 1'b1;
+            control_signals.memory_read_en = 1'b1;
+            control_signals.incrementer_writeback = 1'b1;
+            control_signals.addr_bus_src = ADDR_SRC_PC;
+
+            $display("HERE");
+            $fflush();
 
             instr_done = 1'b1;
           end
@@ -96,7 +138,7 @@ module ControlUnit (
           // Performs one internal cycle
           // Notably we don't fetch or decode this cycle
           if (cycle == 4'd0) begin
-            decoder_bus.enable = 1'b0;
+            // decoder_bus.enable = 1'b0;
 
             control_signals.B_bus_source = B_BUS_SRC_REG_RS;
 
@@ -112,7 +154,7 @@ module ControlUnit (
             control_signals.alu_writeback = ALU_WB_REG_RD;
 
             control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode);
-            control_signals.set_ALU_flags = decoder_bus.word.immediate.data_proc_imm.set_flags;
+            control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_imm.set_flags;
 
             `FETCH_NEXT_INSTR(control_signals)
 
@@ -133,7 +175,7 @@ module ControlUnit (
           control_signals.shift_amount = decoder_bus.word.immediate.data_proc_reg_imm.shift_amount;
 
           control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_reg_imm.opcode);
-          control_signals.set_ALU_flags = decoder_bus.word.immediate.data_proc_reg_imm.set_flags;
+          control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_reg_imm.set_flags;
 
           `FETCH_NEXT_INSTR(control_signals)
 
@@ -146,7 +188,7 @@ module ControlUnit (
 
         ARM_INSTR_STORE, ARM_INSTR_LOAD: begin
           if (cycle == 4'd0) begin
-            decoder_bus.enable = 1'b0;
+            // decoder_bus.enable = 1'b0;
 
             control_signals.incrementer_writeback = 1'b1;
 
@@ -193,7 +235,7 @@ module ControlUnit (
           end
 
           if (decoder_bus.word.instr_type == ARM_INSTR_LOAD) begin
-            decoder_bus.enable = 1'b0;
+            // decoder_bus.enable = 1'b0;
             if (cycle == 4'd1) begin
 
               /// TODO W and P bits
@@ -217,6 +259,10 @@ module ControlUnit (
 
         default: ;
       endcase
+
+      control_signals.memory_latch_IR = instr_done;
+
+      // `DISPLAY_CONTROL(control_signals)
     end
   end
 

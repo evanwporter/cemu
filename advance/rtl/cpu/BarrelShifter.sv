@@ -1,5 +1,5 @@
-import cpu_types_pkg::*;
 import types_pkg::*;
+import cpu_types_pkg::*;
 
 module BarrelShifter (
     input clk,

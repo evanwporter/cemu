@@ -7,7 +7,7 @@ module Decoder (
     Decoder_if.Decoder_side bus
 );
 
-  always_ff @(posedge clk or posedge reset) begin
+  always_ff @(posedge clk) begin
     if (reset) begin
       // Reset logic here
     end else begin
@@ -18,6 +18,10 @@ module Decoder (
         bus.word.Rd <= bus.IR[15:12];
         bus.word.Rs <= bus.IR[11:8];
         bus.word.Rm <= bus.IR[3:0];
+
+        bus.word.IR <= bus.IR;
+
+        $display("Decoder: Decoding instruction 0x%08x", bus.IR);
 
         priority casez (bus.IR)
           /// Branch and Branch Exchange
@@ -95,6 +99,11 @@ module Decoder (
               bus.word.immediate.data_proc_imm.set_flags <= bus.IR[20];
               bus.word.immediate.data_proc_imm.opcode <= bus.IR[24:21];
               bus.word.instr_type <= ARM_INSTR_DATAPROC_IMM;
+              $display(
+                  "Decoded data processing immediate instruction with opcode=%0d, set_flags=%0b, imm8=0x%02x, rotate=0x%01x",
+                  bus.word.immediate.data_proc_imm.opcode,
+                  bus.word.immediate.data_proc_imm.set_flags,
+                  bus.word.immediate.data_proc_imm.imm8, bus.word.immediate.data_proc_imm.rotate);
             end else if (bus.IR[4] == 1'b0) begin  // bus.IR[25] == 1'b0 is implied
               // Register with immediate shift
               bus.word.immediate.data_proc_reg_imm.shift_amount <= bus.IR[11:7];

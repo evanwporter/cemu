@@ -1,5 +1,5 @@
-import cpu_types_pkg::*;
 import types_pkg::*;
+import cpu_types_pkg::*;
 
 interface Decoder_if (
     input word_t IR
@@ -32,16 +32,16 @@ interface ALU_if (
 
   logic carry_in;
 
-  /// Set CSPR flags
-  // Whether to update the CPU flags based on the ALU result
-  // Bit 20 of the IR
-  logic set_flags;
+  //   /// Set CSPR flags
+  //   // Whether to update the CPU flags based on the ALU result
+  //   // Bit 20 of the IR
+  //   logic set_flags;
 
   word_t result;
   flags_t flags_out;
 
   modport ALU_side(
-      input op_a, alu_op, carry_in, set_flags, use_op_b_latch, disable_op_b, latch_op_b,
+      input op_a, alu_op, carry_in, use_op_b_latch, disable_op_b, latch_op_b,
       output result, flags_out
   );
 endinterface : ALU_if

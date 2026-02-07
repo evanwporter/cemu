@@ -11,8 +11,10 @@
       "program": "${workspaceFolder}/build/debug/cemu/cemu.exe",
       "args": [
         // "${workspaceFolder}/tests/gb-test-roms/cpu_instrs/cpu_instrs.gb"
-        "${workspaceFolder}/tests/gb-test-roms/cpu_instrs/individual/01-special.gb"
+        // "${workspaceFolder}/tests/gb-test-roms/cpu_instrs/individual/01-special.gb"
+        "${workspaceFolder}/tests/testris.gb",
         // "${workspaceFolder}/tests/Pokemon_Red.gb"
+        "--skip-boot-rom"
       ],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
@@ -37,10 +39,11 @@
         // "${workspaceFolder}/tests/mooneye-test-suite/acceptance/ret_timing.gb",
         // "${workspaceFolder}/tests/mooneye-test-suite/acceptance/oam_dma_timing.gb",
         // "${workspaceFolder}/tests/mooneye-test-suite/acceptance/oam_dma/basic.gb",
-        "${workspaceFolder}/tests/mooneye-test-suite/acceptance/bits/mem_oam.gb",
+        // "${workspaceFolder}/tests/mooneye-test-suite/acceptance/bits/mem_oam.gb",
         // "${workspaceFolder}/tests/mooneye-test-suite/acceptance/timer/tim11.gb",
-        "--skip-boot-rom",
-        "--gui"
+        "${workspaceFolder}/tests/testris.gb"
+        // "--skip-boot-rom",
+        // "--gui"
         // "--trace"
       ],
       "stopAtEntry": false,

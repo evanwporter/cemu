@@ -272,3 +272,36 @@ The new stall pipeline:
 | I2    |     | F   | -   | -   | D   | E   |     |     |
 | I3    |     |     |     | -   | F   | D   | E   |     |
 | I4    |     |     |     |     |     | F   | D   | E   |
+
+### Control Signals
+
+Control signals decide what happens _next_ cycle.
+
+We always know what happens next cycle on the current cycle. Including for a flush or something.
+
+The control signal are wires and are combinatinally decided based on the decoded_word (reg/latched) and the stage (reg/latched)
+
+![](https://media.discordapp.net/attachments/626698583239819271/1469443655809896552/Screenshot_2026-02-06_161728.png?ex=6988564c&is=698704cc&hm=5f548e27ff3c3d2e19b93af503cef8e695d82d6f461cd2b1e36a2ec710490b23&=&format=webp&quality=lossless&width=1776&height=1276)
+
+### Reset
+
+| Cycle | 1   | 2   | 3   | 4   | 5   | 5   | 6   | 7   |
+| ----- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Reset | R   | D   | E   | N   | I   |     |     |     |
+| F1    |     | F   | -   | -   | D   | E   |     |     |
+| F2    |     |     |     | -   | F   | D   | E   |     |
+| Exec  |     |     |     |     |     | F   | D   | E   |
+
+Reset:
+
+- Flush
+
+F1
+
+- F1
+
+F2
+
+- F2
+
+In the reset cycle we need the control word to immediately begin a flush.

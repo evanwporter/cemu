@@ -29,33 +29,28 @@ package cpu_types_pkg;
     --          SPSR_fiq  SPSR_svc   SPSR_abt  SPSR_irq  SPSR_und
     --------------------------------------------------------------
   */
-  // typedef struct {
-  //   word_t R0;
-  //   word_t R1;
-  //   word_t R2;
-  //   word_t R3;
-  //   word_t R4;
-  //   word_t R5;
-  //   word_t R6;
-  //   word_t R7;
-  //   word_t R8;
-  //   word_t R9;
-  //   word_t R10;
-  //   word_t R11;
-  //   word_t R12;
+  typedef struct {
 
-  //   /// Program Counter (PC)
-  //   word_t R13;
+    word_t user[16];
 
-  //   /// Link Register (LR)
-  //   word_t R14;
+    /**
+      From: https://mgba-emu.github.io/gbatek/#current-program-status-register-cpsr
+      
+      Bit   Expl.
+      31    N - Sign Flag       (0=Not Signed, 1=Signed)               ;\
+      30    Z - Zero Flag       (0=Not Zero, 1=Zero)                   ; Condition
+      29    C - Carry Flag      (0=Borrow/No Carry, 1=Carry/No Borrow) ; Code Flags
+      28    V - Overflow Flag   (0=No Overflow, 1=Overflow)            ;/
+      27    Q - Sticky Overflow (1=Sticky Overflow, ARMv5TE and up only)
+      26-8  Reserved            (For future use) - Do not change manually!
+      7     I - IRQ disable     (0=Enable, 1=Disable)                     ;\
+      6     F - FIQ disable     (0=Enable, 1=Disable)                     ; Control
+      5     T - State Bit       (0=ARM, 1=THUMB) - Do not change manually!; Bits
+      4-0   M4-M0 - Mode Bits   (See below)         
+    */
+    word_t CPSR;
 
-  //   /// Stack Pointer (SP)
-  //   word_t R15;
-
-  //   word_t CPSR;
-
-  // } cpu_regs_t;
+  } cpu_regs_t;
 
   typedef enum logic [1:0] {
     SHIFT_LSL = 2'b00,
@@ -425,7 +420,7 @@ package cpu_types_pkg;
   } extra_t;
 
 
-  typedef struct packed {
+  typedef struct {
     arm_instr_t instr_type;
 
     // Bits 31-28
@@ -442,6 +437,9 @@ package cpu_types_pkg;
 
     // Bits 11-8
     logic [3:0] Rs;
+
+    /// TODO Debug only
+    word_t IR;
 
     extra_t immediate;
   } decoded_word_t;

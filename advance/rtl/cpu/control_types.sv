@@ -126,7 +126,7 @@ package control_types_pkg;
     logic ALU_disable_op_b;
 
     // TODO
-    logic set_ALU_flags;
+    logic ALU_set_flags;
     alu_op_t ALU_op;
 
     // ======================================================
@@ -143,6 +143,12 @@ package control_types_pkg;
     shift_type_t shift_type;
 
     logic [4:0] shift_amount;
+
+    // ======================================================
+    // Pipeline Control
+    // ======================================================
+
+    logic pipeline_flush;
 
 
   } control_t;

@@ -2,9 +2,6 @@ find_package(Verilator REQUIRED HINTS $ENV{VERILATOR_ROOT})
 
 add_library(libvemu_adv)
 
-add_subdirectory(ARM7)
-add_subdirectory(MMU)
-
 vemu_adv_add_rtl(
     PACKAGES
         ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
@@ -12,6 +9,9 @@ vemu_adv_add_rtl(
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Gameboy.sv
 )
+
+add_subdirectory(cpu)
+add_subdirectory(mmu)
 
 get_target_property(VEMU_ADV_PACKAGES vemu_adv_rtl INTERFACE_VEMU_PACKAGES)
 get_target_property(VEMU_ADV_INTERFACES vemu_adv_rtl INTERFACE_VEMU_INTERFACES)
