@@ -163,25 +163,8 @@ module CPU (
         instr_done <= 1'b1;
       end
 
-      // `DISPLAY_CONTROL(control_signals)
-
       assert (!(control_signals.memory_write_en && control_signals.memory_read_en))
       else $fatal(1, "Both memory_read_en and memory_write_en asserted!");
-
-      // if (control_signals.memory_write_en) begin
-      //   $display("Memory Write: addr=0x%08x, data=0x%08x", bus.addr, bus.wdata);
-      //   $fflush();
-
-      //   bus.write_en <= control_signals.memory_write_en;
-      //   bus.wdata <= B_bus;
-      // end
-
-      // if (control_signals.memory_read_en) begin
-      //   $display("Memory Read: addr=0x%08x", bus.addr);
-      //   $fflush();
-
-      //   bus.read_en <= control_signals.memory_read_en;
-      // end
 
       if (control_signals.memory_latch_IR) begin
         IR <= bus.rdata;

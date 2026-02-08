@@ -53,12 +53,8 @@ module MockMMU (
 
       $display("MMU: Using tx data=%0d addr=%0d expected_kind=%0d", t.data, t.addr, t.kind);
 
-      // assert (t.addr == cpu_bus.addr);
-      // assert (t.kind == cpu_bus.kind);
 
       if (cpu_bus.write_en) begin
-        // assert (t.data == cpu_bus.wdata);
-
         $display("MMU: Received write transaction: addr=0x%08x, data=0x%08x", cpu_bus.addr,
                  cpu_bus.wdata);
         $fflush();
@@ -70,14 +66,9 @@ module MockMMU (
         $fflush();
       end
 
-      // if (discard_first_tx) begin
-      //   $display("MMU: Discarding first transaction");
-      //   discard_first_tx <= 0;
-      // end else begin
       $display("MMU: Completed transaction %0d/%0d", txn_index + 1, expected_count);
       $fflush();
       txn_index <= txn_index + 1;
-      // end
     end
   end
 endmodule

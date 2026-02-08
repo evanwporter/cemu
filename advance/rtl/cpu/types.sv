@@ -492,7 +492,6 @@ package cpu_types_pkg;
     arm_instr_t instr_type;
 
     // Bits 31-28
-    condition_t condition;
     /// Whether the condition code check passed and the 
     /// instruction should be executed. This is computed in 
     /// the Decoder and used in the Control Unit to determine 
@@ -530,6 +529,7 @@ package cpu_types_pkg;
 
     /// Overflow
     logic v;
+
   } flags_t;
 
   /// TODO: verify this is in order

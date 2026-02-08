@@ -27,8 +27,6 @@ std::vector<fs::path> collect_files_in_directory(const fs::path& dir, const std:
 
     std::sort(roms.begin(), roms.end());
 
-    std::cerr << "Found " << roms.size() << " GBA test files\n";
-
     return roms;
 }
 

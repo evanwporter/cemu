@@ -23,6 +23,8 @@ interface ALU_if (
   logic latch_op_b;
 
   /// Whether to use the latched B_bus value in the ALU for the current cycle
+  /// This is used for times when I just want to let the a op pass through the ALU 
+  /// unchanged.
   logic use_op_b_latch;
 
   /// Whether to use the B_bus value in the ALU for the current cycle
@@ -32,11 +34,6 @@ interface ALU_if (
   alu_op_t alu_op;
 
   flags_t flags_in;
-
-  //   /// Set CSPR flags
-  //   // Whether to update the CPU flags based on the ALU result
-  //   // Bit 20 of the IR
-  //   logic set_flags;
 
   word_t result;
   flags_t flags_out;

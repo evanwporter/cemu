@@ -1,5 +1,4 @@
 import cpu_types_pkg::*;
-import types_pkg::*;
 import cpu_util_pkg::*;
 
 module Decoder (
@@ -13,7 +12,6 @@ module Decoder (
       // Reset logic here
     end else begin
       if (bus.enable) begin
-        bus.word.condition <= condition_t'(bus.IR[31:28]);
         bus.word.condition_pass = eval_cond(condition_t'(bus.IR[31:28]), bus.flags.n, bus.flags.z,
                                             bus.flags.c, bus.flags.v);
 
@@ -40,7 +38,6 @@ module Decoder (
           /// Branch
           32'b????_1010_????_????_????_????_????_????: begin
             $display("Decoder: Detected B instruction with IR=0x%08x", bus.IR);
-
           end
 
           /// Branch with Link
