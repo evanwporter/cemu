@@ -1,6 +1,7 @@
 import types_pkg::*;
 import cpu_types_pkg::*;
 import control_types_pkg::*;
+import cpu_util_pkg::*;
 
 `include "cpu/util.svh"
 
@@ -14,12 +15,24 @@ module CPU (
   /// TODO: Remove
   control_t control_signals;
 
+  logic cond_pass;
+
+  assign cond_pass = eval_cond(
+      decoder_bus.word.condition,  // or IR[31:28]
+      regs.CPSR[31],  // N
+      regs.CPSR[30],  // Z
+      regs.CPSR[29],  // C
+      regs.CPSR[28]  // V
+  );
+
   word_t IR;
 
   cpu_regs_t regs;
 
   word_t A_bus;
   word_t B_bus;
+
+  logic instr_done;
 
   Decoder_if decoder_bus (.IR(IR));
 
@@ -58,7 +71,8 @@ module CPU (
       .clk(clk),
       .reset(reset),
       .decoder_bus(decoder_bus),
-      .control_signals(control_signals)
+      .control_signals(control_signals),
+      .cond_pass(cond_pass)
   );
 
   BarrelShifter shifter_inst (
@@ -120,6 +134,12 @@ module CPU (
     end else begin
       `TRACE_CPU
 
+      instr_done <= 1'b0;
+
+      if (control_signals.instr_done) begin
+        instr_done <= 1'b1;
+      end
+
       // `DISPLAY_CONTROL(control_signals)
 
       assert (!(control_signals.memory_write_en && control_signals.memory_read_en))
@@ -155,7 +175,8 @@ module CPU (
     if (reset) begin
       regs.user <= '{default: 32'd0};
     end else begin
-      if (control_signals.incrementer_writeback) begin
+      if (control_signals.alu_writeback == ALU_WB_REG_RD && decoder_bus.word.Rd == 4'd15) begin
+      end else if (control_signals.incrementer_writeback) begin
         // PC = PC + 4
         regs.user[15] <= regs.user[15] + 32'd4;
         $display("Incrementing PC to: 0x%0d", regs.user[15] + 32'd4);
@@ -171,7 +192,10 @@ module CPU (
 
       unique case (control_signals.alu_writeback)
         ALU_WB_NONE:   ;
-        ALU_WB_REG_RD: regs.user[decoder_bus.word.Rd] <= alu_bus.result;
+        ALU_WB_REG_RD: begin
+          regs.user[decoder_bus.word.Rd] <= alu_bus.result;
+          $display("Writing back ALU result %0d to Rd (R%d)", alu_bus.result, decoder_bus.word.Rd);
+        end
         ALU_WB_REG_RS: regs.user[decoder_bus.word.Rs] <= alu_bus.result;
         ALU_WB_REG_RN: regs.user[decoder_bus.word.Rn] <= alu_bus.result;
         ALU_WB_REG_14: regs.user[14] <= alu_bus.result;

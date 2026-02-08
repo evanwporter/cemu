@@ -145,6 +145,7 @@ module Decoder (
           end
 
           default: begin
+            // TODO error
             $display("Decoder: Unrecognized instruction with IR=0x%08x", bus.IR);
           end
         endcase

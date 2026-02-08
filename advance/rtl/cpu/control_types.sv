@@ -150,6 +150,8 @@ package control_types_pkg;
 
     logic pipeline_flush;
 
+    logic instr_done;
+
 
   } control_t;
 

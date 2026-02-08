@@ -7,7 +7,7 @@
     regs.user[15], \
     IR, \
     decoder_bus.word.instr_type, \
-    controlUnit.flushing, \
+    controlUnit.flush_cnt != 3'd0, \
     controlUnit.cycle, \
     control_signals.alu_writeback, \
     decoder_bus.word.Rd, \

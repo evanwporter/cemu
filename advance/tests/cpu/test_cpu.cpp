@@ -161,7 +161,6 @@ static void run_single_test(const json& testCase, const fs::path& source, size_t
     std::cout << "\nCycle 2: Start flush" << std::endl;
 
     // Check if it reset correctly and is now starting a flush.
-    ASSERT_TRUE(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flushing);
     ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 2);
 
     const auto& IR = top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__IR;
@@ -170,7 +169,6 @@ static void run_single_test(const json& testCase, const fs::path& source, size_t
 
     std::cout << "\nCycle 3: Start flush and decode" << std::endl;
 
-    ASSERT_TRUE(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flushing);
     ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 1);
 
     // Fetch and Decode
@@ -179,19 +177,30 @@ static void run_single_test(const json& testCase, const fs::path& source, size_t
     std::cout << "\nCycle 4: Execute" << std::endl;
 
     // Check if it flushed the reset correctly and is now ready to begin executing the instruction.
-    ASSERT_FALSE(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flushing);
     ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 0);
 
-    tick(top, ctx);
+    // tick(top, ctx);
 
     // ASSERT_EQ(top.rootp->__PVT__arm_cpu_top__DOT__cpu_inst__DOT__decoder_bus->word.__PVT__IR, 0)
     //     << "CPU not in IF1 state after reset flush in test " << index
     //     << " from " << source;
 
-    // int max_ticks = 200;
-    // while (top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__instr_done == 0 && max_ticks-- > 0) {
+    // top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_done = 0;
+
+    tick(top, ctx);
+
+    // int max_ticks = 5;
+    // while (top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_done == 0 && max_ticks-- > 0) {
     //     tick(top, ctx);
     // }
+
+    int max_ticks = 5;
+    const auto& flush_cnt = top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt;
+    while (flush_cnt > 0 && max_ticks-- > 0) {
+        std::cout << "\n"
+                  << int(flush_cnt) << " cycles of flush remaining" << std::endl;
+        tick(top, ctx);
+    }
 
     // ASSERT_GT(max_ticks, 0)
     //     << "Timeout in test " << index

@@ -14,25 +14,24 @@ module ControlUnit (
     input logic clk,
     input logic reset,
     Decoder_if.ControlUnit_side decoder_bus,
-    output control_t control_signals
+    output control_t control_signals,
+    input logic cond_pass
 );
 
   logic [3:0] cycle;
 
   logic [2:0] flush_cnt;
 
-  wire flushing = flush_cnt != 3'd0;
-
-  logic instr_done;
+  wire flush_required = decoder_bus.word.Rd == 4'd15 && cond_pass;
 
   /// We only enable the decoder when we are ready to fetch a new instruction.
-  assign decoder_bus.enable = instr_done;
+  assign decoder_bus.enable = control_signals.instr_done;
 
   always_ff @(posedge clk) begin
     if (reset) begin
       cycle <= 4'd0;
     end else begin
-      if (instr_done) begin
+      if (control_signals.instr_done) begin
         cycle <= 4'd0;
       end else begin
         cycle <= cycle + 4'd1;
@@ -48,8 +47,13 @@ module ControlUnit (
       $display("ControlUnit: Reset, starting flush");
       $fflush();
 
-    end else if (flushing) begin
+    end else if (flush_required && flush_cnt == 3'd0 && control_signals.instr_done) begin
+      $display("ControlUnit: Flush required, starting flush");
+      flush_cnt <= 3'd2;
+    end else if (flush_cnt != 3'd0) begin
       flush_cnt <= flush_cnt - 3'd1;
+      $display("ControlUnit: Flushing, %0d cycles of flush remaining", flush_cnt);
+      $fflush();
     end
   end
 
@@ -68,12 +72,13 @@ module ControlUnit (
   always_comb begin
     control_signals = '0;
 
-    instr_done = 1'b0;
+    control_signals.instr_done = 1'b0;
 
     // decoder_bus.enable = 1'b1;
 
     if (flush_cnt == 3'd3) begin
-      // Start by writing  the Address to PC
+      /// Start by writing the Address to PC
+
       control_signals.addr_bus_src = ADDR_SRC_PC;
 
       $display("ControlUnit: In reset phase, preparing for flush");
@@ -94,7 +99,7 @@ module ControlUnit (
       control_signals.memory_latch_IR = 1;
       control_signals.incrementer_writeback = 1;
       control_signals.addr_bus_src = ADDR_SRC_PC;
-      instr_done = 1'b1;
+      control_signals.instr_done = 1'b1;
 
       $display("ControlUnit: Flush cycle 2, flushing instruction");
       $fflush();
@@ -113,9 +118,6 @@ module ControlUnit (
           $fflush();
 
           if (cycle == 4'd0) begin
-            control_signals.alu_writeback =
-                get_alu_writeback(alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode));
-
             control_signals.B_bus_source = B_BUS_SRC_IMM;
             control_signals.B_bus_imm = 12'(decoder_bus.word.immediate.data_proc_imm.imm8);
 
@@ -124,17 +126,23 @@ module ControlUnit (
             control_signals.shift_type = SHIFT_ROR;
 
             control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode);
-            control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_imm.set_flags;
 
-            control_signals.memory_latch_IR = 1'b1;
-            control_signals.memory_read_en = 1'b1;
-            control_signals.incrementer_writeback = 1'b1;
-            control_signals.addr_bus_src = ADDR_SRC_PC;
+            if (cond_pass) begin
+              control_signals.alu_writeback =
+                  get_alu_writeback(alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode));
+              control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_imm.set_flags;
+            end
 
-            $display("HERE");
-            $fflush();
+            control_signals.instr_done = 1'b1;
 
-            instr_done = 1'b1;
+            if (!flush_required) begin
+              control_signals.memory_latch_IR = 1'b1;
+              control_signals.memory_read_en = 1'b1;
+              control_signals.incrementer_writeback = 1'b1;
+              control_signals.addr_bus_src = ADDR_SRC_PC;
+
+              $display("ControlUnit: Decoding complete, preparing for next instruction");
+            end
           end
         end
 
@@ -166,7 +174,7 @@ module ControlUnit (
 
             `FETCH_NEXT_INSTR(control_signals)
 
-            instr_done = 1'b1;
+            control_signals.instr_done = 1'b1;
           end
         end
 
@@ -187,7 +195,7 @@ module ControlUnit (
 
           `FETCH_NEXT_INSTR(control_signals)
 
-          instr_done = 1'b1;
+          control_signals.instr_done = 1'b1;
         end
 
         // ============================
@@ -268,7 +276,11 @@ module ControlUnit (
         default: ;
       endcase
 
-      control_signals.memory_latch_IR = instr_done;
+      // if (flush_required) begin
+      //   control_signals.memory_latch_IR = 1'b0;
+      //   control_signals.memory_read_en = 1'b0;
+      //   control_signals.incrementer_writeback = 1'b0;
+      // end
 
       // `DISPLAY_CONTROL(control_signals)
     end
