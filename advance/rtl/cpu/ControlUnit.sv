@@ -15,14 +15,12 @@ module ControlUnit (
     input logic reset,
     Decoder_if.ControlUnit_side decoder_bus,
     output control_t control_signals,
-    input logic cond_pass
+    input flush_req
 );
 
   logic [3:0] cycle;
 
   logic [2:0] flush_cnt;
-
-  wire flush_required = decoder_bus.word.Rd == 4'd15 && cond_pass;
 
   /// We only enable the decoder when we are ready to fetch a new instruction.
   assign decoder_bus.enable = control_signals.instr_done;
@@ -46,10 +44,11 @@ module ControlUnit (
       flush_cnt <= 3'd3;
       $display("ControlUnit: Reset, starting flush");
       $fflush();
+    end else if (flush_req) begin
+      flush_cnt <= 3'd1;
+      $display("ControlUnit: Flush requested, starting flush");
+      $fflush();
 
-    end else if (flush_required && flush_cnt == 3'd0 && control_signals.instr_done) begin
-      $display("ControlUnit: Flush required, starting flush");
-      flush_cnt <= 3'd2;
     end else if (flush_cnt != 3'd0) begin
       flush_cnt <= flush_cnt - 3'd1;
       $display("ControlUnit: Flushing, %0d cycles of flush remaining", flush_cnt);
@@ -69,6 +68,12 @@ module ControlUnit (
     endcase
   endfunction
 
+  always_ff @(posedge clk) begin
+    if (decoder_bus.word.instr_type == ARM_INSTR_DATAPROC_IMM) begin
+      `DISPLAY_DECODED_DATAPROC_IMM(decoder_bus.word)
+    end
+  end
+
   always_comb begin
     control_signals = '0;
 
@@ -84,14 +89,14 @@ module ControlUnit (
       $display("ControlUnit: In reset phase, preparing for flush");
       $fflush();
 
-    end else if (flush_cnt == 3'd2) begin
+    end else if (flush_cnt == 3'd2 || flush_req) begin
       /// Plan for fetch and decode next cycle.
       control_signals.memory_read_en = 1;
       control_signals.memory_latch_IR = 1;
       control_signals.incrementer_writeback = 1;
       control_signals.addr_bus_src = ADDR_SRC_INCR;
 
-      $display("ControlUnit: Flush cycle 1, fetching instruction");
+      $display("\nControlUnit: Flush cycle 1, fetching instruction");
       $fflush();
 
     end else if (flush_cnt == 3'd1) begin
@@ -127,22 +132,23 @@ module ControlUnit (
 
             control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode);
 
-            if (cond_pass) begin
+            if (decoder_bus.word.condition_pass) begin
+              $display("ControlUnit: Condition passed, executing instruction");
               control_signals.alu_writeback =
                   get_alu_writeback(alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode));
               control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_imm.set_flags;
+              $display("ControlUnit: ALU writeback source=%0d, set_flags=%b",
+                       control_signals.alu_writeback, control_signals.ALU_set_flags);
             end
 
             control_signals.instr_done = 1'b1;
 
-            if (!flush_required) begin
-              control_signals.memory_latch_IR = 1'b1;
-              control_signals.memory_read_en = 1'b1;
-              control_signals.incrementer_writeback = 1'b1;
-              control_signals.addr_bus_src = ADDR_SRC_PC;
+            control_signals.addr_bus_src = ADDR_SRC_PC;
+            control_signals.memory_latch_IR = 1'b1;
+            control_signals.memory_read_en = 1'b1;
+            control_signals.incrementer_writeback = 1'b1;
 
-              $display("ControlUnit: Decoding complete, preparing for next instruction");
-            end
+            $display("ControlUnit: Decoding complete, preparing for next instruction");
           end
         end
 

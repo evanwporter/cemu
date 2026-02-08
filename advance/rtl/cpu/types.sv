@@ -31,7 +31,57 @@ package cpu_types_pkg;
   */
   typedef struct {
 
-    word_t user[16];
+    struct {
+      word_t r0;
+      word_t r1;
+      word_t r2;
+      word_t r3;
+      word_t r4;
+      word_t r5;
+      word_t r6;
+      word_t r7;
+    } common;
+
+    struct {
+      word_t r8;
+      word_t r9;
+      word_t r10;
+      word_t r11;
+      word_t r12;
+      word_t r13;  // SP
+      word_t r14;  // LR
+      word_t r15;  // PC
+    } user;
+
+    struct {
+      word_t r8;
+      word_t r9;
+      word_t r10;
+      word_t r11;
+      word_t r12;
+      word_t r13;  // SP
+      word_t r14;  // LR
+    } fiq;
+
+    struct {
+      word_t r13;  // SP
+      word_t r14;  // LR
+    } supervisor;
+
+    struct {
+      word_t r13;  // SP
+      word_t r14;  // LR
+    } abort;
+
+    struct {
+      word_t r13;  // SP
+      word_t r14;  // LR
+    } irq;
+
+    struct {
+      word_t r13;  // SP
+      word_t r14;  // LR
+    } undefined;
 
     /**
       From: https://mgba-emu.github.io/gbatek/#current-program-status-register-cpsr
@@ -50,7 +100,25 @@ package cpu_types_pkg;
     */
     word_t CPSR;
 
+    struct {
+      word_t fiq;
+      word_t supervisor;
+      word_t abort;
+      word_t irq;
+      word_t undefined;
+    } SPSR;
+
   } cpu_regs_t;
+
+  typedef enum logic [3:0] {
+    MODE_USR = 4'b0000,
+    MODE_FIQ = 4'b0001,
+    MODE_IRQ = 4'b0010,
+    MODE_SVC = 4'b0011,
+    MODE_ABT = 4'b0111,
+    MODE_UND = 4'b1011,
+    MODE_SYS = 4'b1111
+  } cpu_mode_t;
 
   typedef enum logic [1:0] {
     SHIFT_LSL = 2'b00,
@@ -425,6 +493,11 @@ package cpu_types_pkg;
 
     // Bits 31-28
     condition_t condition;
+    /// Whether the condition code check passed and the 
+    /// instruction should be executed. This is computed in 
+    /// the Decoder and used in the Control Unit to determine 
+    /// whether to execute the instruction or treat it as a NOP.
+    logic condition_pass;
 
     // Bits 15-12
     logic [3:0] Rd;
@@ -461,22 +534,22 @@ package cpu_types_pkg;
 
   /// TODO: verify this is in order
   typedef enum logic [3:0] {
-    ALU_OP_AND,
-    ALU_OP_XOR,
-    ALU_OP_SUB,
-    ALU_OP_SUB_REVERSED,
-    ALU_OP_ADD,
-    ALU_OP_ADC,
-    ALU_OP_SBC,
-    ALU_OP_SBC_REVERSED,
-    ALU_OP_TEST,
-    ALU_OP_TEST_EXCLUSIVE,
-    ALU_OP_CMP,
-    ALU_OP_CMP_NEG,
-    ALU_OP_OR,
-    ALU_OP_MOV,
-    ALU_OP_BIT_CLEAR,
-    ALU_OP_NOT
+    ALU_OP_AND = 4'h0,
+    ALU_OP_XOR = 4'h1,
+    ALU_OP_SUB = 4'h2,
+    ALU_OP_SUB_REVERSED = 4'h3,
+    ALU_OP_ADD = 4'h4,
+    ALU_OP_ADC = 4'h5,
+    ALU_OP_SBC = 4'h6,
+    ALU_OP_SBC_REVERSED = 4'h7,
+    ALU_OP_TEST = 4'h8,
+    ALU_OP_TEST_EXCLUSIVE = 4'h9,
+    ALU_OP_CMP = 4'hA,
+    ALU_OP_CMP_NEG = 4'hB,
+    ALU_OP_OR = 4'hC,
+    ALU_OP_MOV = 4'hD,
+    ALU_OP_BIT_CLEAR = 4'hE,
+    ALU_OP_NOT = 4'hF
   } alu_op_t;
 
 endpackage : cpu_types_pkg

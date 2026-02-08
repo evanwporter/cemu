@@ -6,8 +6,15 @@ on:
   pull_request:
 
 jobs:
-  build:
+  build-and-test:
     runs-on: windows-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        test:
+          - test_vemu
+          - test_vemu_advance
 
     steps:
       - uses: actions/checkout@v4
@@ -37,7 +44,14 @@ jobs:
         run: cmake --preset debug
 
       - name: Build
-        run: cmake --build --preset debug --target test_vemu
+        run: cmake --build --preset debug --target ${{ matrix.test }}
 
       - name: Run gameboy tests
+        if: matrix.test == 'test_vemu'
         run: ctest --test-dir build/debug -R ^test_vemu$ -V
+
+      - name: Run gameboy advance tests
+        if: matrix.test == 'test_vemu_advance'
+        run: >
+          build\debug\advance\tests\test_vemu_advance.exe
+          --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_data_proc_immediate_json

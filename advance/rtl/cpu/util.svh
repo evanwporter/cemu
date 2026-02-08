@@ -4,7 +4,7 @@
 `define TRACE_CPU \
   $display("[%0t] PC=%0d IR=%h instr=%0d flush=%b cycle=%0d | WB=%0d Rd=%0d ALU=%h", \
     $time, \
-    regs.user[15], \
+    regs.user.r15, \
     IR, \
     decoder_bus.word.instr_type, \
     controlUnit.flush_cnt != 3'd0, \
@@ -37,5 +37,80 @@
   $display("----------------------"); \
   $fflush();
 
+`define DISPLAY_DECODED_DATAPROC_IMM(word) \
+  begin \
+    $display("---- DECODED WORD (DATAPROC_IMM) ----");                      \
+    $display("IR        = 0x%08x", (word).IR);                              \
+    $display("opcode    = %0d",   (word).immediate.data_proc_imm.opcode);   \
+    $display("S bit     = %0b",   (word).immediate.data_proc_imm.set_flags);\
+    $display("Rn        = R%0d",  (word).Rn); \
+    $display("Rd        = R%0d",  (word).Rd); \
+    $display("Rm        = R%0d",  (word).Rm);                               \
+    $display("Rs        = R%0d",  (word).Rs);                               \
+    $display("imm8      = 0x%02x", \
+             (word).immediate.data_proc_imm.imm8);                          \
+    $display("cond pass = %0d", (word).condition_pass); \
+    $display("rotate    = %0d (actual ROR=%0d)",                            \
+             (word).immediate.data_proc_imm.rotate,                         \
+             ((word).immediate.data_proc_imm.rotate << 1));                 \
+    $display("------------------------------------");                       \
+    $fflush();                                                              \
+  end
+
+
+`define WRITE_REG(REGS, MODE, REGNUM, VALUE) \
+  begin \
+    unique case (REGNUM) \
+      4'd0:  (REGS).common.r0  <= (VALUE); \
+      4'd1:  (REGS).common.r1  <= (VALUE); \
+      4'd2:  (REGS).common.r2  <= (VALUE); \
+      4'd3:  (REGS).common.r3  <= (VALUE); \
+      4'd4:  (REGS).common.r4  <= (VALUE); \
+      4'd5:  (REGS).common.r5  <= (VALUE); \
+      4'd6:  (REGS).common.r6  <= (VALUE); \
+      4'd7:  (REGS).common.r7  <= (VALUE); \
+      4'd8: begin \
+        if ((MODE) == MODE_FIQ) (REGS).fiq.r8  <= (VALUE); \
+        else (REGS).user.r8 <= (VALUE); \
+      end \
+      4'd9: begin \
+        if ((MODE) == MODE_FIQ) (REGS).fiq.r9  <= (VALUE); \
+        else (REGS).user.r9 <= (VALUE); \
+      end \
+      4'd10: begin \
+        if ((MODE) == MODE_FIQ) (REGS).fiq.r10 <= (VALUE); \
+        else (REGS).user.r10<= (VALUE); \
+      end \
+      4'd11: begin \
+        if ((MODE) == MODE_FIQ) (REGS).fiq.r11 <= (VALUE); \
+        else (REGS).user.r11<= (VALUE); \
+      end \
+      4'd12: begin \
+        if ((MODE) == MODE_FIQ) (REGS).fiq.r12 <= (VALUE); \
+        else (REGS).user.r12<= (VALUE); \
+      end \
+      4'd13: begin \
+        unique case (MODE) \
+          MODE_USR, MODE_SYS: (REGS).user.r13 <= (VALUE); \
+          MODE_FIQ: (REGS).fiq.r13 <= (VALUE); \
+          MODE_SVC: (REGS).supervisor.r13 <= (VALUE); \
+          MODE_ABT: (REGS).abort.r13 <= (VALUE); \
+          MODE_IRQ: (REGS).irq.r13 <= (VALUE); \
+          MODE_UND: (REGS).undefined.r13 <= (VALUE);  \
+        endcase \
+      end \
+      4'd14: begin \
+        unique case (MODE) \
+          MODE_USR, MODE_SYS: (REGS).user.r14 <= (VALUE); \
+          MODE_FIQ: (REGS).fiq.r14 <= (VALUE); \
+          MODE_SVC: (REGS).supervisor.r14 <= (VALUE); \
+          MODE_ABT: (REGS).abort.r14 <= (VALUE); \
+          MODE_IRQ: (REGS).irq.r14 <= (VALUE); \
+          MODE_UND: (REGS).undefined.r14 <= (VALUE); \
+        endcase \
+      end \
+      4'd15: (REGS).user.r15 <= (VALUE); \
+    endcase \
+  end
 
 `endif // CPU_UTIL_SVH

@@ -15,17 +15,9 @@ module CPU (
   /// TODO: Remove
   control_t control_signals;
 
-  logic cond_pass;
-
-  assign cond_pass = eval_cond(
-      decoder_bus.word.condition,  // or IR[31:28]
-      regs.CPSR[31],  // N
-      regs.CPSR[30],  // Z
-      regs.CPSR[29],  // C
-      regs.CPSR[28]  // V
-  );
-
   word_t IR;
+
+  logic flush_request;
 
   cpu_regs_t regs;
 
@@ -34,7 +26,35 @@ module CPU (
 
   logic instr_done;
 
-  Decoder_if decoder_bus (.IR(IR));
+  cpu_mode_t cpu_mode;
+
+  always_comb begin
+    unique casez (regs.CPSR[4:0])
+
+      5'b0??00: cpu_mode = MODE_USR;  // Old User
+      5'b0??01: cpu_mode = MODE_FIQ;  // Old FIQ
+      5'b0??10: cpu_mode = MODE_IRQ;  // Old IRQ
+      5'b0??11: cpu_mode = MODE_SVC;  // Old Supervisor
+
+      5'b10000: cpu_mode = MODE_USR;  // User
+      5'b10001: cpu_mode = MODE_FIQ;  // FIQ
+      5'b10010: cpu_mode = MODE_IRQ;  // IRQ
+      5'b10011: cpu_mode = MODE_SVC;  // Supervisor
+      5'b10111: cpu_mode = MODE_ABT;  // Abort
+      5'b11011: cpu_mode = MODE_UND;  // Undefined
+      5'b11111: cpu_mode = MODE_SYS;  // System
+
+      default: begin
+        cpu_mode = MODE_USR;
+        $warning("Illegal CPSR mode encoding: %b", regs.CPSR[4:0]);
+      end
+    endcase
+  end
+
+  Decoder_if decoder_bus (
+      .IR(IR),
+      .flags(regs.CPSR[31:28])
+  );
 
   ALU_if alu_bus (.op_a(A_bus));
   Shifter_if shifter_bus (.R_in(B_bus));
@@ -42,11 +62,14 @@ module CPU (
   assign shifter_bus.latch_shift_amt = control_signals.latch_shift_amt;
   assign shifter_bus.use_shift_latch = control_signals.use_shift_latch;
   assign shifter_bus.shift_amount = control_signals.shift_amount;
+  assign shifter_bus.shift_type = control_signals.shift_type;
+  assign shifter_bus.carry_in = regs.CPSR[29]; // CPSR.C
 
   assign alu_bus.alu_op = control_signals.ALU_op;
   assign alu_bus.use_op_b_latch = control_signals.ALU_use_op_b_latch;
   assign alu_bus.disable_op_b = control_signals.ALU_disable_op_b;
   assign alu_bus.latch_op_b = control_signals.ALU_latch_op_b;
+  assign alu_bus.flags_in = regs.CPSR[31:28]; // N,Z,C,V
 
   assign bus.read_en  = control_signals.memory_read_en;
   assign bus.write_en = control_signals.memory_write_en;
@@ -72,7 +95,7 @@ module CPU (
       .reset(reset),
       .decoder_bus(decoder_bus),
       .control_signals(control_signals),
-      .cond_pass(cond_pass)
+      .flush_req(flush_request)
   );
 
   BarrelShifter shifter_inst (
@@ -86,7 +109,7 @@ module CPU (
   // ======================================================
 
   // This may get more complicated in the future
-  assign A_bus = regs.user[decoder_bus.word.Rn];
+  assign A_bus = read_reg(regs, cpu_mode, decoder_bus.word.Rn);
 
   // ======================================================
   // Assign B Bus
@@ -100,7 +123,7 @@ module CPU (
       end
 
       B_BUS_SRC_IMM: begin
-        B_bus = 32'(control_signals.B_bus_imm);
+        B_bus = {24'b0, decoder_bus.word.immediate.data_proc_imm.imm8};
       end
 
       B_BUS_SRC_READ_DATA: begin
@@ -108,15 +131,15 @@ module CPU (
       end
 
       B_BUS_SRC_REG_RM: begin
-        B_bus = regs.user[decoder_bus.word.Rm];
+        B_bus = read_reg(regs, cpu_mode, decoder_bus.word.Rm);
       end
 
       B_BUS_SRC_REG_RS: begin
-        B_bus = regs.user[decoder_bus.word.Rs];
+        B_bus = read_reg(regs, cpu_mode, decoder_bus.word.Rs);
       end
 
       B_BUS_SRC_REG_RD: begin
-        B_bus = regs.user[decoder_bus.word.Rd];
+        B_bus = read_reg(regs, cpu_mode, decoder_bus.word.Rd);
       end
     endcase
   end
@@ -175,30 +198,46 @@ module CPU (
     if (reset) begin
       regs.user <= '{default: 32'd0};
     end else begin
+      flush_request <= 1'b0;
       if (control_signals.alu_writeback == ALU_WB_REG_RD && decoder_bus.word.Rd == 4'd15) begin
+        flush_request <= 1'b1;
       end else if (control_signals.incrementer_writeback) begin
         // PC = PC + 4
-        regs.user[15] <= regs.user[15] + 32'd4;
-        $display("Incrementing PC to: 0x%0d", regs.user[15] + 32'd4);
+        regs.user.r15 <= regs.user.r15 + 32'd4;
+        $display("Incrementing PC to: 0x%0d", regs.user.r15 + 32'd4);
         $fflush();
       end
 
-      if (control_signals.ALU_set_flags) begin
-        regs.CPSR[31] <= alu_bus.flags_out.n;
-        regs.CPSR[30] <= alu_bus.flags_out.z;
-        regs.CPSR[29] <= alu_bus.flags_out.c;
-        regs.CPSR[28] <= alu_bus.flags_out.v;
+      if (control_signals.ALU_set_flags && control_signals.instr_done) begin
+        if ((decoder_bus.word.Rd == 4'd15) && mode_has_spsr(cpu_mode)) begin
+          regs.CPSR <= read_spsr(regs, cpu_mode);
+
+          $display("Restoring CPSR from SPSR_%0d: 0x%08x", cpu_mode, read_spsr(regs, cpu_mode));
+          $fflush();
+        end else begin
+          $display("Setting flags: N=%b, Z=%b, C=%b, V=%b", alu_bus.flags_out.n,
+                   alu_bus.flags_out.z, alu_bus.flags_out.c, alu_bus.flags_out.v);
+
+          regs.CPSR[31] <= alu_bus.flags_out.n;
+          regs.CPSR[30] <= alu_bus.flags_out.z;
+          regs.CPSR[29] <= alu_bus.flags_out.c;
+          regs.CPSR[28] <= alu_bus.flags_out.v;
+
+          $display("ALU op was %0d, setting C flag to %b", control_signals.ALU_op,
+                   alu_bus.flags_out.c);
+          $fflush();
+        end
       end
 
       unique case (control_signals.alu_writeback)
         ALU_WB_NONE:   ;
         ALU_WB_REG_RD: begin
-          regs.user[decoder_bus.word.Rd] <= alu_bus.result;
+          `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rd, alu_bus.result)
           $display("Writing back ALU result %0d to Rd (R%d)", alu_bus.result, decoder_bus.word.Rd);
         end
-        ALU_WB_REG_RS: regs.user[decoder_bus.word.Rs] <= alu_bus.result;
-        ALU_WB_REG_RN: regs.user[decoder_bus.word.Rn] <= alu_bus.result;
-        ALU_WB_REG_14: regs.user[14] <= alu_bus.result;
+        ALU_WB_REG_RS: `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rs, alu_bus.result)
+        ALU_WB_REG_RN: `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rn, alu_bus.result)
+        ALU_WB_REG_14: `WRITE_REG(regs, cpu_mode, 14, alu_bus.result)
       endcase
     end
   end
@@ -221,8 +260,8 @@ module CPU (
 
         ADDR_SRC_PC: begin
           // PC
-          $display("Setting address bus to PC value: 0x%08x", regs.user[15]);
-          bus.addr <= regs.user[15];
+          $display("Setting address bus to PC value: 0x%08x", regs.user.r15);
+          bus.addr <= regs.user.r15;
         end
 
         ADDR_SRC_INCR: begin

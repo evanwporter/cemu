@@ -12,6 +12,8 @@ module ALU (
 
   wire [31:0] op_b = bus.use_op_b_latch ? op_b_latch : (bus.disable_op_b ? 32'h0 : shifter_bus.op_b);
 
+  wire carry_in = shifter_bus.carry_out;
+
   always_ff @(posedge clk) begin
     if (reset) begin
     end else begin
@@ -26,9 +28,13 @@ module ALU (
   always_comb begin
     // Defaults
     bus.result = 32'h0;
-    bus.flags_out.n = 1'b0;
-    bus.flags_out.z = 1'b0;
-    bus.flags_out.c = bus.carry_in;
+    bus.flags_out.n = bus.flags_in.n;
+    bus.flags_out.z = bus.flags_in.z;
+    bus.flags_out.c = bus.flags_in.c;
+    bus.flags_out.v = bus.flags_in.v;
+
+    $display("ALU operation: op_a=0x%08x op_b=0x%08x alu_op=%0d carry_in=%b", bus.op_a, op_b,
+             bus.alu_op, carry_in);
 
     temp = 33'h0;
 
@@ -36,26 +42,32 @@ module ALU (
 
       ALU_OP_MOV: begin
         bus.result = op_b;
+        bus.flags_out.c = shifter_bus.carry_out;
       end
 
       ALU_OP_NOT: begin
         bus.result = ~op_b;
+        bus.flags_out.c = shifter_bus.carry_out;
       end
 
       ALU_OP_AND, ALU_OP_TEST: begin
         bus.result = bus.op_a & op_b;
+        bus.flags_out.c = shifter_bus.carry_out;
       end
 
       ALU_OP_XOR, ALU_OP_TEST_EXCLUSIVE: begin
         bus.result = bus.op_a ^ op_b;
+        bus.flags_out.c = shifter_bus.carry_out;
       end
 
       ALU_OP_OR: begin
         bus.result = bus.op_a | op_b;
+        bus.flags_out.c = shifter_bus.carry_out;
       end
 
       ALU_OP_BIT_CLEAR: begin
         bus.result = bus.op_a & ~op_b;
+        bus.flags_out.c = shifter_bus.carry_out;
       end
 
       ALU_OP_ADD, ALU_OP_CMP_NEG: begin
@@ -66,7 +78,7 @@ module ALU (
       end
 
       ALU_OP_ADC: begin
-        temp            = {1'b0, bus.op_a} + {1'b0, op_b} + {32'b0, bus.carry_in};
+        temp            = {1'b0, bus.op_a} + {1'b0, op_b} + {32'b0, bus.flags_in.c};
         bus.result      = temp[31:0];
         bus.flags_out.c = temp[32];
         bus.flags_out.v = ~(bus.op_a[31] ^ op_b[31]) & (bus.op_a[31] ^ bus.result[31]);
@@ -80,7 +92,7 @@ module ALU (
       end
 
       ALU_OP_SBC: begin
-        temp            = {1'b0, bus.op_a} - {1'b0, op_b} - {32'b0, ~bus.carry_in};
+        temp            = {1'b0, bus.op_a} - {1'b0, op_b} - {32'b0, ~bus.flags_in.c};
         bus.result      = temp[31:0];
         bus.flags_out.c = ~temp[32];
         bus.flags_out.v = (bus.op_a[31] ^ op_b[31]) & (bus.op_a[31] ^ bus.result[31]);
@@ -94,7 +106,7 @@ module ALU (
       end
 
       ALU_OP_SBC_REVERSED: begin
-        temp = {1'b0, op_b} - {1'b0, bus.op_a} - {32'b0, ~bus.carry_in};
+        temp = {1'b0, op_b} - {1'b0, bus.op_a} - {32'b0, ~bus.flags_in.c};
         bus.result = temp[31:0];
         bus.flags_out.c = ~temp[32];
         bus.flags_out.v = (bus.op_a[31] ^ op_b[31]) & (op_b[31] ^ bus.result[31]);

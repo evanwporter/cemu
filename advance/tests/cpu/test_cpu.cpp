@@ -45,7 +45,10 @@ static inline u16 read_u16(const json& j) {
 }
 
 static void tick(Varm_cpu_top& top, VerilatedContext& ctx) {
-    std::cout << "PC: " << top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__regs.__PVT__user[15] << std::endl;
+    std::cout << "PC: "
+              << top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__regs
+                     .__PVT__user.__PVT__r15
+              << std::endl;
 
     top.clk = 0;
     top.eval();
@@ -56,7 +59,7 @@ static void tick(Varm_cpu_top& top, VerilatedContext& ctx) {
     ctx.timeInc(5);
 }
 
-static void dump_failed_test_to_file(const json& test, const fs::path& source, size_t index) {
+static void dump_failed_test_to_file(const json& test, const fs::path& source) {
     // fs::path out = fs::current_path() / ("failed_test" + source.stem().string() + "_" + std::to_string(index) + ".json");
     fs::path out = fs::current_path() / "failed_test.json";
 
@@ -96,42 +99,114 @@ static void apply_initial_state(Varm_cpu_top& top, const json& test) {
 
     const auto& init = test["initial"];
 
-    for (int i = 0; i < 15; ++i) {
-        regs.__PVT__user[i] = init["R"][i];
-    }
+    // R0–R7
+    regs.__PVT__common.__PVT__r0 = init["R"][0];
+    regs.__PVT__common.__PVT__r1 = init["R"][1];
+    regs.__PVT__common.__PVT__r2 = init["R"][2];
+    regs.__PVT__common.__PVT__r3 = init["R"][3];
+    regs.__PVT__common.__PVT__r4 = init["R"][4];
+    regs.__PVT__common.__PVT__r5 = init["R"][5];
+    regs.__PVT__common.__PVT__r6 = init["R"][6];
+    regs.__PVT__common.__PVT__r7 = init["R"][7];
 
-    regs.__PVT__user[15] = init["R"][15].get<uint32_t>() - 8;
+    // R8–R14 (user bank)
+    regs.__PVT__user.__PVT__r8 = init["R"][8];
+    regs.__PVT__user.__PVT__r9 = init["R"][9];
+    regs.__PVT__user.__PVT__r10 = init["R"][10];
+    regs.__PVT__user.__PVT__r11 = init["R"][11];
+    regs.__PVT__user.__PVT__r12 = init["R"][12];
+    regs.__PVT__user.__PVT__r13 = init["R"][13];
+    regs.__PVT__user.__PVT__r14 = init["R"][14];
+
+    regs.__PVT__user.__PVT__r15 = init["R"][15].get<uint32_t>() - 8;
 
     regs.__PVT__CPSR = init["CPSR"];
 
-    // // Optional: banked registers
-    // if (init.contains("R_fiq")) {
-    //     for (int i = 0; i < 7; ++i)
-    //         regs.R_fiq[i] = init["R_fiq"][i];
-    // }
+    regs.__PVT__fiq.__PVT__r8 = init["R_fiq"][0];
+    regs.__PVT__fiq.__PVT__r9 = init["R_fiq"][1];
+    regs.__PVT__fiq.__PVT__r10 = init["R_fiq"][2];
+    regs.__PVT__fiq.__PVT__r11 = init["R_fiq"][3];
+    regs.__PVT__fiq.__PVT__r12 = init["R_fiq"][4];
+    regs.__PVT__fiq.__PVT__r13 = init["R_fiq"][5];
+    regs.__PVT__fiq.__PVT__r14 = init["R_fiq"][6];
+
+    regs.__PVT__abort.__PVT__r13 = init["R_abt"][0];
+    regs.__PVT__abort.__PVT__r14 = init["R_abt"][1];
+
+    regs.__PVT__irq.__PVT__r13 = init["R_irq"][0];
+    regs.__PVT__irq.__PVT__r14 = init["R_irq"][1];
+
+    regs.__PVT__supervisor.__PVT__r13 = init["R_svc"][0];
+    regs.__PVT__supervisor.__PVT__r14 = init["R_svc"][1];
+
+    regs.__PVT__undefined.__PVT__r13 = init["R_und"][0];
+    regs.__PVT__undefined.__PVT__r14 = init["R_und"][1];
+
+    regs.__PVT__SPSR.__PVT__fiq = init["SPSR"][0];
+    regs.__PVT__SPSR.__PVT__supervisor = init["SPSR"][1];
+    regs.__PVT__SPSR.__PVT__abort = init["SPSR"][2];
+    regs.__PVT__SPSR.__PVT__irq = init["SPSR"][3];
+    regs.__PVT__SPSR.__PVT__undefined = init["SPSR"][4];
 
     apply_instruction_memory(top, test);
 }
 
-static void verify_registers(const Varm_cpu_top& top, const json& expected, const std::string& test_name) {
+static void verify_registers(
+    const Varm_cpu_top& top,
+    const json& expected,
+    const std::string& test_name) {
     const auto& regs = top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__regs;
 
-    // R0–R14
-    for (int i = 0; i < 15; ++i) {
-        ASSERT_EQ(regs.__PVT__user[i], expected["R"][i])
-            << "R" << i << " mismatch in test \"" << test_name << "\"";
+#define CHECK_REG(actual, exp, name) \
+    ASSERT_EQ((actual), (exp))       \
+        << name << " mismatch in test " << test_name;
+
+    // --------------------
+    // R0–R7 (common)
+    // --------------------
+    CHECK_REG(regs.__PVT__common.__PVT__r0, expected["R"][0], "R0");
+    CHECK_REG(regs.__PVT__common.__PVT__r1, expected["R"][1], "R1");
+    CHECK_REG(regs.__PVT__common.__PVT__r2, expected["R"][2], "R2");
+    CHECK_REG(regs.__PVT__common.__PVT__r3, expected["R"][3], "R3");
+    CHECK_REG(regs.__PVT__common.__PVT__r4, expected["R"][4], "R4");
+    CHECK_REG(regs.__PVT__common.__PVT__r5, expected["R"][5], "R5");
+    CHECK_REG(regs.__PVT__common.__PVT__r6, expected["R"][6], "R6");
+    CHECK_REG(regs.__PVT__common.__PVT__r7, expected["R"][7], "R7");
+
+    // --------------------
+    // R8–R15 (user bank)
+    // --------------------
+    CHECK_REG(regs.__PVT__user.__PVT__r8, expected["R"][8], "R8 (user)");
+    CHECK_REG(regs.__PVT__user.__PVT__r9, expected["R"][9], "R9 (user)");
+    CHECK_REG(regs.__PVT__user.__PVT__r10, expected["R"][10], "R10 (user)");
+    CHECK_REG(regs.__PVT__user.__PVT__r11, expected["R"][11], "R11 (user)");
+    CHECK_REG(regs.__PVT__user.__PVT__r12, expected["R"][12], "R12 (user)");
+    CHECK_REG(regs.__PVT__user.__PVT__r13, expected["R"][13], "R13/SP (user)");
+    CHECK_REG(regs.__PVT__user.__PVT__r14, expected["R"][14], "R14/LR (user)");
+    CHECK_REG(regs.__PVT__user.__PVT__r15, expected["R"][15], "R15/PC");
+
+    // --------------------
+    // FIQ bank (R8–R14)
+    // --------------------
+    if (expected.contains("R_fiq")) {
+        CHECK_REG(regs.__PVT__fiq.__PVT__r8, expected["R_fiq"][0], "R8_fiq");
+        CHECK_REG(regs.__PVT__fiq.__PVT__r9, expected["R_fiq"][1], "R9_fiq");
+        CHECK_REG(regs.__PVT__fiq.__PVT__r10, expected["R_fiq"][2], "R10_fiq");
+        CHECK_REG(regs.__PVT__fiq.__PVT__r11, expected["R_fiq"][3], "R11_fiq");
+        CHECK_REG(regs.__PVT__fiq.__PVT__r12, expected["R_fiq"][4], "R12_fiq");
+        CHECK_REG(regs.__PVT__fiq.__PVT__r13, expected["R_fiq"][5], "R13_fiq");
+        CHECK_REG(regs.__PVT__fiq.__PVT__r14, expected["R_fiq"][6], "R14_fiq");
     }
 
-    // R15 (PC)
-    ASSERT_EQ(regs.__PVT__user[15], expected["R"][15].get<uint32_t>())
-        << "PC (R15) mismatch in test \"" << test_name << "\"";
-
+    // --------------------
     // CPSR
-    ASSERT_EQ(regs.__PVT__CPSR, expected["CPSR"])
-        << "CPSR mismatch in test \"" << test_name << "\"";
+    // --------------------
+    CHECK_REG(regs.__PVT__CPSR, expected["CPSR"], "CPSR");
+
+#undef CHECK_REG
 }
 
-static void run_single_test(const json& testCase, const fs::path& source, size_t index) {
+static void run_single_test(const json& testCase, const fs::path& source, const size_t index) {
 
     testing::internal::CaptureStdout();
     testing::internal::CaptureStderr();
@@ -195,10 +270,17 @@ static void run_single_test(const json& testCase, const fs::path& source, size_t
     // }
 
     int max_ticks = 5;
-    const auto& flush_cnt = top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt;
-    while (flush_cnt > 0 && max_ticks-- > 0) {
-        std::cout << "\n"
-                  << int(flush_cnt) << " cycles of flush remaining" << std::endl;
+    // const auto& flush_cnt = top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt;
+    // while (flush_cnt > 0 && max_ticks-- > 0) {
+    // std::cout << "\n"
+    //           << int(flush_cnt) << " cycles of flush remaining" << std::endl;
+    //     tick(top, ctx);
+    // }
+
+    if (top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__flush_request) {
+        std::cout << "\n2 cycles of flush remaining" << std::endl;
+        tick(top, ctx);
+        std::cout << "\n1 cycles of flush remaining" << std::endl;
         tick(top, ctx);
     }
 
@@ -206,7 +288,7 @@ static void run_single_test(const json& testCase, const fs::path& source, size_t
     //     << "Timeout in test " << index
     //     << " from " << source;
 
-    verify_registers(top, testCase["final"], to_string(testCase["opcode"]));
+    verify_registers(top, testCase["final"], std::to_string(index));
 
     std::string stdout_output = testing::internal::GetCapturedStdout();
     std::string stderr_output = testing::internal::GetCapturedStderr();
@@ -218,7 +300,7 @@ static void run_single_test(const json& testCase, const fs::path& source, size_t
                   << stderr_output
                   << "\n=========================\n";
 
-        dump_failed_test_to_file(testCase, source, index);
+        dump_failed_test_to_file(testCase, source);
     }
 }
 

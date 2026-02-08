@@ -1,5 +1,6 @@
 import cpu_types_pkg::*;
 import types_pkg::*;
+import cpu_util_pkg::*;
 
 module Decoder (
     input logic clk,
@@ -13,6 +14,8 @@ module Decoder (
     end else begin
       if (bus.enable) begin
         bus.word.condition <= condition_t'(bus.IR[31:28]);
+        bus.word.condition_pass = eval_cond(condition_t'(bus.IR[31:28]), bus.flags.n, bus.flags.z,
+                                            bus.flags.c, bus.flags.v);
 
         bus.word.Rn <= bus.IR[19:16];
         bus.word.Rd <= bus.IR[15:12];
@@ -116,8 +119,10 @@ module Decoder (
               bus.word.immediate.data_proc_imm.imm8 <= bus.IR[7:0];
               bus.word.immediate.data_proc_imm.rotate <= bus.IR[11:8];
               bus.word.immediate.data_proc_imm.set_flags <= bus.IR[20];
+
               bus.word.immediate.data_proc_imm.opcode <= bus.IR[24:21];
               bus.word.instr_type <= ARM_INSTR_DATAPROC_IMM;
+
               $display(
                   "Decoded data processing immediate instruction with opcode=%0d, set_flags=%0b, imm8=0x%02x, rotate=0x%01x",
                   bus.word.immediate.data_proc_imm.opcode,
