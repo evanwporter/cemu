@@ -15,7 +15,7 @@ module Decoder (
       // Reset logic here
       IR = 32'h0;
     end else begin
-      if (bus.enable) begin
+      if (bus.pipeline_advance) begin
         IR <= bus.IR;
         $display("Decoder: Latched instruction 0x%08x into IR", bus.IR);
       end
@@ -32,6 +32,10 @@ module Decoder (
     bus.word.Rm = IR[3:0];
 
     bus.word.IR = IR;
+
+    bus.word.immediate = 24'b0;
+
+    bus.word.instr_type = ARM_INSTR_UNDEFINED;
 
     $display("Decoder: Decoding instruction 0x%08x", IR);
 

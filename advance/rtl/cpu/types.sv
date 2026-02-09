@@ -187,7 +187,7 @@ package cpu_types_pkg;
     // ======================================================
 
     /// Undefined / illegal instruction
-    ARM_INSTR_UNDEF,
+    ARM_INSTR_UNDEFINED,
 
     /// Software interrupt (SWI)
     ARM_INSTR_SWI,

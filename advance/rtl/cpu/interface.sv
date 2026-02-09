@@ -7,11 +7,11 @@ interface Decoder_if (
 );
 
   decoded_word_t word;
-  logic enable;
+  logic pipeline_advance;
 
-  modport Decoder_side(input IR, flags, enable, output word);
+  modport Decoder_side(input IR, flags, pipeline_advance, output word);
 
-  modport ControlUnit_side(input word, output enable);
+  modport ControlUnit_side(input word, output pipeline_advance);
 
 endinterface : Decoder_if
 

@@ -9,7 +9,7 @@
     decoder_bus.word.instr_type, \
     controlUnit.flush_cnt != 3'd0, \
     controlUnit.cycle, \
-    control_signals.alu_writeback, \
+    control_signals.ALU_writeback, \
     decoder_bus.word.Rd, \
     alu_bus.result \
   );
@@ -17,7 +17,7 @@
 `define DISPLAY_CONTROL(ctrl) \
   $display("---- CONTROL WORD ----"); \
   $display("incrementer_writeback : %0b", ctrl.incrementer_writeback); \
-  $display("alu_writeback         : %s", ctrl.alu_writeback.name()); \
+  $display("ALU_writeback         : %s", ctrl.ALU_writeback.name()); \
   $display("shift_source          : %s", ctrl.shift_source.name()); \
   $display("B_bus_source          : %s", ctrl.B_bus_source.name()); \
   $display("B_bus_imm             : 0x%03h", ctrl.B_bus_imm); \

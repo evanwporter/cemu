@@ -26,8 +26,11 @@ module CPU (
 
   cpu_mode_t cpu_mode;
 
+  /// Data that has been latched from the read bus
+  word_t read_data;
+
   always_comb begin
-    unique casez (regs.CPSR[4:0])
+    casez (regs.CPSR[4:0])
 
       5'b0??00: cpu_mode = MODE_USR;  // Old User
       5'b0??01: cpu_mode = MODE_FIQ;  // Old FIQ
@@ -75,6 +78,7 @@ module CPU (
   assign bus.wdata    = B_bus;
 
   /// TODO: Debug signal
+  (* maybe_unused *)
   logic instr_boundary;
 
   // assign decoder_bus.IR = IR;
@@ -133,7 +137,7 @@ module CPU (
       end
 
       B_BUS_SRC_READ_DATA: begin
-        B_bus = bus.rdata;
+        B_bus = read_data;
       end
 
       B_BUS_SRC_REG_RM: begin
@@ -155,7 +159,7 @@ module CPU (
   always_ff @(posedge clk) begin
     `DISPLAY_CONTROL(control_signals)
 
-    instr_boundary <= control_signals.instr_done;
+    instr_boundary <= control_signals.pipeline_advance;
   end
 
   // ======================================================
@@ -169,6 +173,10 @@ module CPU (
 
       assert (!(control_signals.memory_write_en && control_signals.memory_read_en))
       else $fatal(1, "Both memory_read_en and memory_write_en asserted!");
+
+      if (control_signals.memory_read_en) begin
+        read_data <= bus.rdata;
+      end
 
       if (control_signals.memory_latch_IR) begin
         IR <= bus.rdata;
@@ -186,7 +194,7 @@ module CPU (
       regs.user <= '{default: 32'd0};
     end else begin
       flush_request <= 1'b0;
-      if (control_signals.alu_writeback == ALU_WB_REG_RD && decoder_bus.word.Rd == 4'd15) begin
+      if (control_signals.ALU_writeback == ALU_WB_REG_RD && decoder_bus.word.Rd == 4'd15) begin
         flush_request <= 1'b1;
       end else if (control_signals.incrementer_writeback) begin
         // PC = PC + 4
@@ -195,7 +203,7 @@ module CPU (
         $fflush();
       end
 
-      if (control_signals.ALU_set_flags && control_signals.instr_done) begin
+      if (control_signals.ALU_set_flags && control_signals.pipeline_advance) begin
         if ((decoder_bus.word.Rd == 4'd15) && mode_has_spsr(cpu_mode)) begin
           regs.CPSR <= read_spsr(regs, cpu_mode);
 
@@ -216,7 +224,7 @@ module CPU (
         end
       end
 
-      unique case (control_signals.alu_writeback)
+      unique case (control_signals.ALU_writeback)
         ALU_WB_NONE:   ;
         ALU_WB_REG_RD: begin
           `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rd, alu_bus.result)

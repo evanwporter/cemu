@@ -4,7 +4,6 @@
 //  Each module independently decides whether to accept or ignore the bus
 //   based on its control signals.
 
-import types_pkg::*;
 import cpu_types_pkg::*;
 
 package control_types_pkg;
@@ -72,7 +71,7 @@ package control_types_pkg;
     logic incrementer_writeback;
 
     /// Write back to register Rd from ALU output
-    alu_writeback_source_t alu_writeback;
+    alu_writeback_source_t ALU_writeback;
 
     // ======================================================
     // Shift Bus
@@ -111,6 +110,8 @@ package control_types_pkg;
 
     logic memory_latch_IR;
 
+    logic memory_latch_read_bus;
+
     // ======================================================
     // ALU
     // ======================================================
@@ -128,6 +129,10 @@ package control_types_pkg;
     // TODO
     logic ALU_set_flags;
     alu_op_t ALU_op;
+
+    logic pc_rn_add_4;
+    logic pc_rs_add_4;
+    logic pc_rm_add_4;
 
     // ======================================================
     // Barrel Shifter
@@ -152,12 +157,7 @@ package control_types_pkg;
 
     logic pipeline_flush;
 
-    logic instr_done;
-
-    logic pc_rn_add_4;
-    logic pc_rs_add_4;
-    logic pc_rm_add_4;
-
+    logic pipeline_advance;
 
   } control_t;
 
