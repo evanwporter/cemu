@@ -198,8 +198,9 @@ module CPU (
         flush_request <= 1'b1;
       end else if (control_signals.incrementer_writeback) begin
         // PC = PC + 4
-        regs.user.r15 <= regs.user.r15 + 32'd4;
-        $display("Incrementing PC to: 0x%0d", regs.user.r15 + 32'd4);
+
+        `WRITE_REG(regs, cpu_mode, 15, read_reg(regs, cpu_mode, 15) + 32'd4);
+        $display("Incrementing PC to: 0x%0d", read_reg(regs, cpu_mode, 15) + 32'd4);
         $fflush();
       end
 
@@ -255,8 +256,8 @@ module CPU (
 
         ADDR_SRC_PC: begin
           // PC
-          $display("Setting address bus to PC value: 0x%08x", regs.user.r15);
-          bus.addr <= regs.user.r15;
+          $display("Setting address bus to PC value: 0x%08x", read_reg(regs, cpu_mode, 15));
+          bus.addr <= read_reg(regs, cpu_mode, 15);
         end
 
         ADDR_SRC_INCR: begin

@@ -260,7 +260,7 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
         cycles++;
     }
 
-    ASSERT_GT(max_ticks, 0)
+    EXPECT_GT(max_ticks, 0)
         << "Timeout in test " << index
         << " from " << source;
 

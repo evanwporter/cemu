@@ -89,6 +89,37 @@
     $fflush();                                                            \
   end
 
+`define DISPLAY_DECODED_LS(word) \
+  begin \
+    $display("---- DECODED WORD (LOAD / STORE) ----"); \
+    $display("IR           = 0x%08x", (word).IR); \
+    $display("instr_type   = %s", (word).instr_type.name()); \
+    $display("cond pass    = %0d", (word).condition_pass); \
+    $display("Rn           = R%0d", (word).Rn); \
+    $display("Rd           = R%0d", (word).Rd); \
+    $display("Rm           = R%0d", (word).Rm); \
+    $display(""); \
+    $display("Addressing:"); \
+    $display("  I (offset) = %s", (word).immediate.ls.I.name()); \
+    $display("  P (index)  = %s", (word).immediate.ls.P.name()); \
+    $display("  U (add)    = %0b", (word).immediate.ls.U); \
+    $display("  B (size)   = %s", (word).immediate.ls.B.name()); \
+    $display("  W (write)  = %0b", (word).immediate.ls.wt); \
+    if ((word).immediate.ls.I == ARM_LDR_STR_SHIFTED) begin \
+      $display("Offset (register shifted):"); \
+      $display("  shift type = %s", \
+               (word).immediate.ls.offset.shifted.shift_type.name()); \
+      $display("  shift amt  = %0d", \
+               (word).immediate.ls.offset.shifted.shift_amount); \
+    end else begin \
+      $display("Offset (immediate):"); \
+      $display("  imm12      = 0x%03h", \
+               (word).immediate.ls.offset.imm12); \
+    end \
+    $display("------------------------------------"); \
+    $fflush(); \
+  end
+
 
 `define WRITE_REG(REGS, MODE, REGNUM, VALUE) \
   begin \

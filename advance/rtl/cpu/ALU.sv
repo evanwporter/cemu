@@ -16,6 +16,7 @@ module ALU (
 
   always_ff @(posedge clk) begin
     if (reset) begin
+      op_b_latch <= 32'h0;
     end else begin
       if (bus.latch_op_b) begin
         op_b_latch <= shifter_bus.op_b;

@@ -110,7 +110,8 @@ package control_types_pkg;
 
     logic memory_latch_IR;
 
-    logic memory_latch_read_bus;
+    /// TODO: Implement more instruction to see if I need this
+    // logic memory_latch_read_bus;
 
     // ======================================================
     // ALU

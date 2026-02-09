@@ -66,7 +66,26 @@ module Decoder (
       end
 
       /// Single Data Transfer
-      32'b????_011?_????_????_????_????_???1_????: begin
+      32'b????_01??_????_????_????_????_???1_????: begin
+        bus.word.immediate.ls.I  = mem_offset_flag_t'(IR[25]);
+        bus.word.immediate.ls.P  = pre_post_offset_flag_t'(IR[24]);
+        bus.word.immediate.ls.U  = IR[23];
+        bus.word.immediate.ls.B  = bit_length_flag_t'(IR[22]);
+        bus.word.immediate.ls.wt = IR[21];
+
+        if (IR[20] == 1'b1) begin
+          bus.word.instr_type = ARM_INSTR_LOAD;
+        end else begin
+          bus.word.instr_type = ARM_INSTR_STORE;
+        end
+
+        if (bus.word.immediate.ls.I == ARM_LDR_STR_SHIFTED) begin
+          bus.word.immediate.ls.offset.shifted.shift_amount = IR[11:7];
+          bus.word.immediate.ls.offset.shifted.shift_type   = shift_type_t'(IR[6:5]);
+        end else begin
+          bus.word.immediate.ls.offset.imm12 = IR[11:0];
+        end
+
         $display("Decoder: Detected single data transfer instruction with IR=0x%08x", IR);
       end
 

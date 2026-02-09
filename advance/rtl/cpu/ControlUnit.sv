@@ -66,6 +66,8 @@ module ControlUnit (
       `DISPLAY_DECODED_DATAPROC_REG_IMM(decoder_bus.word)
     end else if (decoder_bus.word.instr_type == ARM_INSTR_DATAPROC_REG_REG) begin
       `DISPLAY_DECODED_DATAPROC_REG_REG(decoder_bus.word)
+    end else if (decoder_bus.word.instr_type == ARM_INSTR_LOAD || decoder_bus.word.instr_type == ARM_INSTR_STORE) begin
+      `DISPLAY_DECODED_LS(decoder_bus.word)
     end
   end
 
