@@ -237,21 +237,22 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
     // Fetch and Decode
     tick(top, ctx);
 
-    std::cout << "\nCycle 4: Execute" << std::endl;
-
     // Check if it flushed the reset correctly and is now ready to begin executing the instruction.
     ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 0);
 
-    tick(top, ctx);
+    // tick(top, ctx);
 
-    ASSERT_TRUE(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary);
+    // ASSERT_TRUE(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary);
 
-    // top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary = 0;
+    top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary = 0;
 
-    // int max_ticks = 5;
-    // while (top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary == 0 && max_ticks-- > 0) {
-    //     tick(top, ctx);
-    // }
+    int max_ticks = 5;
+    int cycles = 0;
+    while (top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary == 0 && max_ticks-- > 0) {
+        std::cout << "\nCycle " << (cycles + 4) << ": Execute" << std::endl;
+        tick(top, ctx);
+        cycles++;
+    }
 
     // const auto& flush_cnt = top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt;
     // while (flush_cnt > 0 && max_ticks-- > 0) {

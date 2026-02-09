@@ -30,10 +30,22 @@ module ControlUnit (
       cycle <= 4'd0;
     end else begin
       if (control_signals.instr_done) begin
+        $display("\nControlUnit: Instruction complete, preparing for next instruction");
         cycle <= 4'd0;
       end else begin
         cycle <= cycle + 4'd1;
+        $display("\nControlUnit: Instruction not complete");
       end
+    end
+  end
+
+  /// After cycle 0, the decoded word may no longer be valid, so we latch it.
+  decoded_word_t curr_instr;
+
+  always_ff @(posedge clk) begin
+    if (reset) begin
+    end else if (cycle == 4'd0) begin
+      curr_instr <= decoder_bus.word;
     end
   end
 
@@ -168,6 +180,14 @@ module ControlUnit (
 
             control_signals.shift_latch_amt = 1'b1;
 
+            $display("ControlUnit: Instr done is %b, cycle is %0d", control_signals.instr_done,
+                     cycle);
+
+            // if (!decoder_bus.word.condition_pass) begin
+            //   control_signals.instr_done = 1'b1;
+
+            //   $display("ControlUnit: Condition failed, skipping instruction");
+            // end
           end
 
           if (cycle == 4'd1) begin
@@ -175,16 +195,19 @@ module ControlUnit (
 
             control_signals.B_bus_source = B_BUS_SRC_REG_RM;
 
-            control_signals.shift_type = decoder_bus.word.immediate.data_proc_reg_reg.shift_type;
+            control_signals.shift_type = curr_instr.immediate.data_proc_reg_reg.shift_type;
             control_signals.shift_use_latch = 1'b1;
 
-            control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_reg_reg.opcode);
+            control_signals.ALU_op = alu_op_t'(curr_instr.immediate.data_proc_reg_reg.opcode);
 
-            if (decoder_bus.word.condition_pass) begin
+            if (curr_instr.condition_pass) begin
               control_signals.alu_writeback =
-                  get_alu_writeback(alu_op_t'(decoder_bus.word.immediate.data_proc_reg_reg.opcode));
-              control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_reg_reg.set_flags;
+                  get_alu_writeback(alu_op_t'(curr_instr.immediate.data_proc_reg_reg.opcode));
+              control_signals.ALU_set_flags = curr_instr.immediate.data_proc_reg_reg.set_flags;
             end
+
+            $display("ControlUnit: 2 Instr done is %b, cycle is %0d", control_signals.instr_done,
+                     cycle);
 
             `FETCH_NEXT_INSTR(control_signals)
 
