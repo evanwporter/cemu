@@ -48,11 +48,9 @@ module BarrelShifter (
 
       SHIFT_LSR: begin
         if (!bus.shift_use_latch && shift_amt_full == 0) begin
-          // LSR #0 (immediate form) => LSR #32
           bus.op_b = 32'b0;
           bus.carry_out = bus.R_in[31];
         end else if (shift_amt_full == 0) begin
-          // Register form Rs==0 => no shift
           bus.op_b = bus.R_in;
           bus.carry_out = bus.carry_in;
         end else if (shift_amt_full < 32) begin
@@ -69,11 +67,9 @@ module BarrelShifter (
 
       SHIFT_ASR: begin
         if (!bus.shift_use_latch && shift_amt_full == 0) begin
-          // ASR #0 (immediate form) => ASR #32
           bus.op_b = {32{bus.R_in[31]}};
           bus.carry_out = bus.R_in[31];
         end else if (shift_amt_full == 0) begin
-          // Register form with Rs[7:0]==0 => no shift
           bus.op_b = bus.R_in;
           bus.carry_out = bus.carry_in;
         end else if (shift_amt_full < 32) begin
@@ -91,17 +87,9 @@ module BarrelShifter (
           bus.op_b      = {bus.carry_in, bus.R_in[31:1]};
           bus.carry_out = bus.R_in[0];
         end else if (shift_amt_full == 0) begin
-          // if (!bus.shift_use_rxx) begin
-          //   // Register shift-immediate encoding: ROR #0 => RRX
-          //   bus.op_b = {bus.carry_in, bus.R_in[31:1]};
-          //   bus.carry_out = bus.R_in[0];
-          // end else begin
-          //   // Immediate rotate encoding: rotate=0 => no rotate
           bus.op_b = bus.R_in;
           bus.carry_out = bus.carry_in;
-          // end
         end else if (shift_amt_5 == 0) begin
-          // Multiple of 32 (register form)
           bus.op_b = bus.R_in;
           bus.carry_out = bus.R_in[31];
         end else begin

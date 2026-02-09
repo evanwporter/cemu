@@ -149,7 +149,6 @@ module ControlUnit (
             control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode);
 
             if (decoder_bus.word.condition_pass) begin
-              $display("ControlUnit: Condition passed, executing instruction");
               control_signals.alu_writeback =
                   get_alu_writeback(alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode));
               control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_imm.set_flags;
@@ -189,12 +188,6 @@ module ControlUnit (
               control_signals.pc_rs_add_4 = 1'b1;
               $display("ControlUnit: Rs is PC, adding 4 to value read from Rs");
             end
-
-            // if (!decoder_bus.word.condition_pass) begin
-            //   control_signals.instr_done = 1'b1;
-
-            //   $display("ControlUnit: Condition failed, skipping instruction");
-            // end
           end
 
           if (cycle == 4'd1) begin

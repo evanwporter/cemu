@@ -1,11 +1,8 @@
 def to_casez(value, mask):
-    # Strip formatting
     value = value.replace("_", "")
     mask = mask.replace("_", "")
     assert len(value) == len(mask)
-
     bits = "".join(v if m == "1" else "?" for v, m in zip(value, mask))
-
     return "_".join(bits[i : i + 4] for i in range(0, len(bits), 4))
 
 

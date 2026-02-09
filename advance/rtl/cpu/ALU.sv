@@ -114,7 +114,6 @@ module ALU (
 
     endcase
 
-    // Common flags
     bus.flags_out.n = bus.result[31];
     bus.flags_out.z = (bus.result == 32'h0);
   end

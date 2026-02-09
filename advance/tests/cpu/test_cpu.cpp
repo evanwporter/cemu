@@ -179,15 +179,25 @@ static void verify_registers(
     CHECK_REG(regs.__PVT__user.__PVT__r14, expected["R"][14], "R14/LR (user)");
     CHECK_REG(regs.__PVT__user.__PVT__r15, expected["R"][15], "R15/PC");
 
-    if (expected.contains("R_fiq")) {
-        CHECK_REG(regs.__PVT__fiq.__PVT__r8, expected["R_fiq"][0], "R8_fiq");
-        CHECK_REG(regs.__PVT__fiq.__PVT__r9, expected["R_fiq"][1], "R9_fiq");
-        CHECK_REG(regs.__PVT__fiq.__PVT__r10, expected["R_fiq"][2], "R10_fiq");
-        CHECK_REG(regs.__PVT__fiq.__PVT__r11, expected["R_fiq"][3], "R11_fiq");
-        CHECK_REG(regs.__PVT__fiq.__PVT__r12, expected["R_fiq"][4], "R12_fiq");
-        CHECK_REG(regs.__PVT__fiq.__PVT__r13, expected["R_fiq"][5], "R13_fiq");
-        CHECK_REG(regs.__PVT__fiq.__PVT__r14, expected["R_fiq"][6], "R14_fiq");
-    }
+    CHECK_REG(regs.__PVT__fiq.__PVT__r8, expected["R_fiq"][0], "R8_fiq");
+    CHECK_REG(regs.__PVT__fiq.__PVT__r9, expected["R_fiq"][1], "R9_fiq");
+    CHECK_REG(regs.__PVT__fiq.__PVT__r10, expected["R_fiq"][2], "R10_fiq");
+    CHECK_REG(regs.__PVT__fiq.__PVT__r11, expected["R_fiq"][3], "R11_fiq");
+    CHECK_REG(regs.__PVT__fiq.__PVT__r12, expected["R_fiq"][4], "R12_fiq");
+    CHECK_REG(regs.__PVT__fiq.__PVT__r13, expected["R_fiq"][5], "R13_fiq");
+    CHECK_REG(regs.__PVT__fiq.__PVT__r14, expected["R_fiq"][6], "R14_fiq");
+
+    CHECK_REG(regs.__PVT__abort.__PVT__r13, expected["R_abt"][0], "R13_abt");
+    CHECK_REG(regs.__PVT__abort.__PVT__r14, expected["R_abt"][1], "R14_abt");
+
+    CHECK_REG(regs.__PVT__irq.__PVT__r13, expected["R_irq"][0], "R13_irq");
+    CHECK_REG(regs.__PVT__irq.__PVT__r14, expected["R_irq"][1], "R14_irq");
+
+    CHECK_REG(regs.__PVT__supervisor.__PVT__r13, expected["R_svc"][0], "R13_svc");
+    CHECK_REG(regs.__PVT__supervisor.__PVT__r14, expected["R_svc"][1], "R14_svc");
+
+    CHECK_REG(regs.__PVT__undefined.__PVT__r13, expected["R_und"][0], "R13_und");
+    CHECK_REG(regs.__PVT__undefined.__PVT__r14, expected["R_und"][1], "R14_und");
 
     CHECK_REG(regs.__PVT__CPSR, expected["CPSR"], "CPSR");
 
@@ -240,10 +250,6 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
     // Check if it flushed the reset correctly and is now ready to begin executing the instruction.
     ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 0);
 
-    // tick(top, ctx);
-
-    // ASSERT_TRUE(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary);
-
     top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary = 0;
 
     int max_ticks = 5;
@@ -254,12 +260,9 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
         cycles++;
     }
 
-    // const auto& flush_cnt = top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt;
-    // while (flush_cnt > 0 && max_ticks-- > 0) {
-    // std::cout << "\n"
-    //           << int(flush_cnt) << " cycles of flush remaining" << std::endl;
-    //     tick(top, ctx);
-    // }
+    ASSERT_GT(max_ticks, 0)
+        << "Timeout in test " << index
+        << " from " << source;
 
     if (top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__flush_request) {
         std::cout << "\n2 cycles of flush remaining" << std::endl;
@@ -267,10 +270,6 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
         std::cout << "\n1 cycles of flush remaining" << std::endl;
         tick(top, ctx);
     }
-
-    // ASSERT_GT(max_ticks, 0)
-    //     << "Timeout in test " << index
-    //     << " from " << source;
 
     verify_registers(top, testCase["final"], std::to_string(index));
 
@@ -281,8 +280,7 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
         std::cerr << "\n==== Captured stdout ====\n"
                   << stdout_output
                   << "\n==== Captured stderr ====\n"
-                  << stderr_output
-                  << "\n=========================\n";
+                  << stderr_output;
 
         dump_failed_test_to_file(testCase, source);
     }
