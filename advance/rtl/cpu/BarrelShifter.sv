@@ -86,7 +86,11 @@ module BarrelShifter (
       end
 
       SHIFT_ROR: begin
-        if (shift_amt_full == 0) begin
+        if (bus.shift_use_rxx) begin
+          // Explicit RRX (only when control unit says so)
+          bus.op_b      = {bus.carry_in, bus.R_in[31:1]};
+          bus.carry_out = bus.R_in[0];
+        end else if (shift_amt_full == 0) begin
           // if (!bus.shift_use_rxx) begin
           //   // Register shift-immediate encoding: ROR #0 => RRX
           //   bus.op_b = {bus.carry_in, bus.R_in[31:1]};
