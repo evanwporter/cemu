@@ -85,6 +85,8 @@ module ControlUnit (
       `DISPLAY_DECODED_DATAPROC_IMM(decoder_bus.word)
     end else if (decoder_bus.word.instr_type == ARM_INSTR_DATAPROC_REG_IMM) begin
       `DISPLAY_DECODED_DATAPROC_REG_IMM(decoder_bus.word)
+    end else if (decoder_bus.word.instr_type == ARM_INSTR_DATAPROC_REG_REG) begin
+      `DISPLAY_DECODED_DATAPROC_REG_REG(decoder_bus.word)
     end
   end
 
@@ -183,6 +185,11 @@ module ControlUnit (
             $display("ControlUnit: Instr done is %b, cycle is %0d", control_signals.instr_done,
                      cycle);
 
+            if (cycle == 4'd1 && decoder_bus.word.Rs == 4'd15) begin
+              control_signals.pc_rs_add_4 = 1'b1;
+              $display("ControlUnit: Rs is PC, adding 4 to value read from Rs");
+            end
+
             // if (!decoder_bus.word.condition_pass) begin
             //   control_signals.instr_done = 1'b1;
 
@@ -204,6 +211,14 @@ module ControlUnit (
               control_signals.alu_writeback =
                   get_alu_writeback(alu_op_t'(curr_instr.immediate.data_proc_reg_reg.opcode));
               control_signals.ALU_set_flags = curr_instr.immediate.data_proc_reg_reg.set_flags;
+            end
+
+            if (cycle == 4'd1 && curr_instr.Rn == 4'd15) begin
+              control_signals.pc_rn_add_4 = 1'b1;
+            end
+
+            if (cycle == 4'd1 && curr_instr.Rm == 4'd15) begin
+              control_signals.pc_rm_add_4 = 1'b1;
             end
 
             $display("ControlUnit: 2 Instr done is %b, cycle is %0d", control_signals.instr_done,

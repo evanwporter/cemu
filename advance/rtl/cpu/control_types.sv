@@ -154,6 +154,10 @@ package control_types_pkg;
 
     logic instr_done;
 
+    logic pc_rn_add_4;
+    logic pc_rs_add_4;
+    logic pc_rm_add_4;
+
 
   } control_t;
 

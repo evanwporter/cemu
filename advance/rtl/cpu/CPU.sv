@@ -111,7 +111,11 @@ module CPU (
   // ======================================================
 
   // This may get more complicated in the future
-  assign A_bus = read_reg(regs, cpu_mode, decoder_bus.word.Rn);
+  assign A_bus = control_signals.pc_rn_add_4 ? (read_reg(
+      regs, cpu_mode, decoder_bus.word.Rn
+  ) + 32'd4) : read_reg(
+      regs, cpu_mode, decoder_bus.word.Rn
+  );
 
   // ======================================================
   // Assign B Bus
@@ -133,11 +137,13 @@ module CPU (
       end
 
       B_BUS_SRC_REG_RM: begin
-        B_bus = read_reg(regs, cpu_mode, decoder_bus.word.Rm);
+        B_bus = control_signals.pc_rm_add_4 ? (read_reg(regs, cpu_mode, decoder_bus.word.Rm) + 32'd4
+            ) : read_reg(regs, cpu_mode, decoder_bus.word.Rm);
       end
 
       B_BUS_SRC_REG_RS: begin
-        B_bus = read_reg(regs, cpu_mode, decoder_bus.word.Rs);
+        B_bus = control_signals.pc_rs_add_4 ? (read_reg(regs, cpu_mode, decoder_bus.word.Rs) + 32'd4
+            ) : read_reg(regs, cpu_mode, decoder_bus.word.Rs);
       end
 
       B_BUS_SRC_REG_RD: begin

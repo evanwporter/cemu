@@ -73,6 +73,22 @@
     $fflush();                                                            \
   end
 
+  `define DISPLAY_DECODED_DATAPROC_REG_REG(word) \
+  begin \
+    $display("---- DECODED WORD (DATAPROC_REG_REG) ----");                  \
+    $display("IR          = 0x%08x", (word).IR);                           \
+    $display("opcode      = %0d",   (word).immediate.data_proc_reg_reg.opcode); \
+    $display("S bit       = %0b",   (word).immediate.data_proc_reg_reg.set_flags); \
+    $display("Rn          = R%0d",  (word).Rn);                            \
+    $display("Rd          = R%0d",  (word).Rd);                            \
+    $display("Rm          = R%0d",  (word).Rm);                            \
+    $display("Rs          = R%0d",  (word).Rs);                            \
+    $display("shift type  = %s",    (word).immediate.data_proc_reg_reg.shift_type.name()); \
+    $display("cond pass   = %0d",   (word).condition_pass);               \
+    $display("------------------------------------------");                  \
+    $fflush();                                                            \
+  end
+
 
 `define WRITE_REG(REGS, MODE, REGNUM, VALUE) \
   begin \
