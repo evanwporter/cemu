@@ -30,8 +30,8 @@
   $display("ALU_disable_op_b      : %0b", ctrl.ALU_disable_op_b); \
   $display("ALU_set_flags         : %0b", ctrl.ALU_set_flags); \
   $display("ALU_op                : %s", ctrl.ALU_op.name()); \
-  $display("latch_shift_amt       : %0b", ctrl.latch_shift_amt); \
-  $display("use_shift_latch       : %0b", ctrl.use_shift_latch); \
+  $display("shift_latch_amt       : %0b", ctrl.shift_latch_amt); \
+  $display("shift_use_latch       : %0b", ctrl.shift_use_latch); \
   $display("shift_type            : %s", ctrl.shift_type.name()); \
   $display("shift_amount          : %0d", ctrl.shift_amount); \
   $display("----------------------"); \
@@ -55,6 +55,22 @@
              ((word).immediate.data_proc_imm.rotate << 1));                 \
     $display("------------------------------------");                       \
     $fflush();                                                              \
+  end
+
+`define DISPLAY_DECODED_DATAPROC_REG_IMM(word) \
+  begin \
+    $display("---- DECODED WORD (DATAPROC_REG_IMM) ----");                 \
+    $display("IR          = 0x%08x", (word).IR);                           \
+    $display("opcode      = %0d",   (word).immediate.data_proc_reg_imm.opcode); \
+    $display("S bit       = %0b",   (word).immediate.data_proc_reg_imm.set_flags); \
+    $display("Rn          = R%0d",  (word).Rn);                            \
+    $display("Rd          = R%0d",  (word).Rd);                            \
+    $display("Rm          = R%0d",  (word).Rm);                            \
+    $display("shift type  = %s",    (word).immediate.data_proc_reg_imm.shift_type.name()); \
+    $display("shift amt   = %0d",   (word).immediate.data_proc_reg_imm.shift_amount); \
+    $display("cond pass   = %0d",   (word).condition_pass);               \
+    $display("----------------------------------------");                   \
+    $fflush();                                                            \
   end
 
 

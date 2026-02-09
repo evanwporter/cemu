@@ -52,10 +52,12 @@ interface Shifter_if (
   logic [4:0] shift_amount;
 
   /// Signal to latch the shift amount from the Rs register
-  logic latch_shift_amt;
+  logic shift_latch_amt;
 
   /// Signal to use the latched shift amount
-  logic use_shift_latch;
+  logic shift_use_latch;
+
+  logic shift_use_rxx;
 
   shift_type_t shift_type;
   logic carry_in;  // CPSR.C 
@@ -68,8 +70,9 @@ interface Shifter_if (
       input shift_amount,
       input shift_type,
       input carry_in,
-      input latch_shift_amt,
-      input use_shift_latch,
+      input shift_latch_amt,
+      input shift_use_latch,
+      input shift_use_rxx,
       output op_b,
       output carry_out
   );

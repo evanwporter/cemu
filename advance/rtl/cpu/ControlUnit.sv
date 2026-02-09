@@ -71,6 +71,8 @@ module ControlUnit (
   always_ff @(posedge clk) begin
     if (decoder_bus.word.instr_type == ARM_INSTR_DATAPROC_IMM) begin
       `DISPLAY_DECODED_DATAPROC_IMM(decoder_bus.word)
+    end else if (decoder_bus.word.instr_type == ARM_INSTR_DATAPROC_REG_IMM) begin
+      `DISPLAY_DECODED_DATAPROC_REG_IMM(decoder_bus.word)
     end
   end
 
@@ -164,19 +166,25 @@ module ControlUnit (
 
             control_signals.B_bus_source = B_BUS_SRC_REG_RS;
 
-            control_signals.latch_shift_amt = 1'b1;
+            control_signals.shift_latch_amt = 1'b1;
 
           end
 
           if (cycle == 4'd1) begin
-            control_signals.use_shift_latch = 1'b1;
+            control_signals.shift_use_latch = 1'b1;
 
             control_signals.B_bus_source = B_BUS_SRC_REG_RM;
 
-            control_signals.alu_writeback = ALU_WB_REG_RD;
+            control_signals.shift_type = decoder_bus.word.immediate.data_proc_reg_reg.shift_type;
+            control_signals.shift_use_latch = 1'b1;
 
-            control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode);
-            control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_imm.set_flags;
+            control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_reg_reg.opcode);
+
+            if (decoder_bus.word.condition_pass) begin
+              control_signals.alu_writeback =
+                  get_alu_writeback(alu_op_t'(decoder_bus.word.immediate.data_proc_reg_reg.opcode));
+              control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_reg_reg.set_flags;
+            end
 
             `FETCH_NEXT_INSTR(control_signals)
 
@@ -189,7 +197,6 @@ module ControlUnit (
         // ============================
 
         ARM_INSTR_DATAPROC_REG_IMM: begin
-          control_signals.alu_writeback = ALU_WB_REG_RD;
 
           control_signals.B_bus_source = B_BUS_SRC_REG_RM;
 
@@ -197,7 +204,18 @@ module ControlUnit (
           control_signals.shift_amount = decoder_bus.word.immediate.data_proc_reg_imm.shift_amount;
 
           control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_reg_imm.opcode);
-          control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_reg_imm.set_flags;
+
+          if (decoder_bus.word.condition_pass) begin
+            control_signals.alu_writeback =
+                get_alu_writeback(alu_op_t'(decoder_bus.word.immediate.data_proc_reg_imm.opcode));
+            control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_reg_imm.set_flags;
+          end
+
+          if (decoder_bus.word.immediate.data_proc_reg_imm.shift_type == SHIFT_ROR &&
+              decoder_bus.word.immediate.data_proc_reg_imm.shift_amount == 5'd0) begin
+            // Register shift-immediate encoding: ROR #0 => RRX
+            control_signals.shift_use_rxx = 1'b1;
+          end
 
           `FETCH_NEXT_INSTR(control_signals)
 

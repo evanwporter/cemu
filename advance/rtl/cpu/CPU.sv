@@ -24,8 +24,6 @@ module CPU (
   word_t A_bus;
   word_t B_bus;
 
-  logic instr_done;
-
   cpu_mode_t cpu_mode;
 
   always_comb begin
@@ -59,11 +57,12 @@ module CPU (
   ALU_if alu_bus (.op_a(A_bus));
   Shifter_if shifter_bus (.R_in(B_bus));
 
-  assign shifter_bus.latch_shift_amt = control_signals.latch_shift_amt;
-  assign shifter_bus.use_shift_latch = control_signals.use_shift_latch;
+  assign shifter_bus.shift_latch_amt = control_signals.shift_latch_amt;
+  assign shifter_bus.shift_use_latch = control_signals.shift_use_latch;
   assign shifter_bus.shift_amount = control_signals.shift_amount;
   assign shifter_bus.shift_type = control_signals.shift_type;
   assign shifter_bus.carry_in = regs.CPSR[29]; // CPSR.C
+  assign shifter_bus.shift_use_rxx = control_signals.shift_use_rxx;
 
   assign alu_bus.alu_op = control_signals.ALU_op;
   assign alu_bus.use_op_b_latch = control_signals.ALU_use_op_b_latch;
@@ -74,6 +73,9 @@ module CPU (
   assign bus.read_en  = control_signals.memory_read_en;
   assign bus.write_en = control_signals.memory_write_en;
   assign bus.wdata    = B_bus;
+
+  /// TODO: Debug signal
+  logic instr_boundary;
 
   // assign decoder_bus.IR = IR;
 
@@ -146,6 +148,8 @@ module CPU (
 
   always_ff @(posedge clk) begin
     `DISPLAY_CONTROL(control_signals)
+
+    instr_boundary <= control_signals.instr_done;
   end
 
   // ======================================================
@@ -156,12 +160,6 @@ module CPU (
       IR <= 32'd0;
     end else begin
       `TRACE_CPU
-
-      instr_done <= 1'b0;
-
-      if (control_signals.instr_done) begin
-        instr_done <= 1'b1;
-      end
 
       assert (!(control_signals.memory_write_en && control_signals.memory_read_en))
       else $fatal(1, "Both memory_read_en and memory_write_en asserted!");

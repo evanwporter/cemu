@@ -134,13 +134,15 @@ package control_types_pkg;
     // ======================================================
 
     /// Whether the barrel shifter should latch the shift amount from the Rs register
-    logic latch_shift_amt;
+    logic shift_latch_amt;
 
     /// Lets the barrel shifter know that the shift amount has been latched from 
     /// the Rs register, so it should use that instead of the immediate shift amount
-    logic use_shift_latch;
+    logic shift_use_latch;
 
     shift_type_t shift_type;
+
+    logic shift_use_rxx;
 
     logic [4:0] shift_amount;
 

@@ -161,9 +161,6 @@ static void verify_registers(
     ASSERT_EQ((actual), (exp))       \
         << name << " mismatch in test " << test_name;
 
-    // --------------------
-    // R0–R7 (common)
-    // --------------------
     CHECK_REG(regs.__PVT__common.__PVT__r0, expected["R"][0], "R0");
     CHECK_REG(regs.__PVT__common.__PVT__r1, expected["R"][1], "R1");
     CHECK_REG(regs.__PVT__common.__PVT__r2, expected["R"][2], "R2");
@@ -173,9 +170,6 @@ static void verify_registers(
     CHECK_REG(regs.__PVT__common.__PVT__r6, expected["R"][6], "R6");
     CHECK_REG(regs.__PVT__common.__PVT__r7, expected["R"][7], "R7");
 
-    // --------------------
-    // R8–R15 (user bank)
-    // --------------------
     CHECK_REG(regs.__PVT__user.__PVT__r8, expected["R"][8], "R8 (user)");
     CHECK_REG(regs.__PVT__user.__PVT__r9, expected["R"][9], "R9 (user)");
     CHECK_REG(regs.__PVT__user.__PVT__r10, expected["R"][10], "R10 (user)");
@@ -185,9 +179,6 @@ static void verify_registers(
     CHECK_REG(regs.__PVT__user.__PVT__r14, expected["R"][14], "R14/LR (user)");
     CHECK_REG(regs.__PVT__user.__PVT__r15, expected["R"][15], "R15/PC");
 
-    // --------------------
-    // FIQ bank (R8–R14)
-    // --------------------
     if (expected.contains("R_fiq")) {
         CHECK_REG(regs.__PVT__fiq.__PVT__r8, expected["R_fiq"][0], "R8_fiq");
         CHECK_REG(regs.__PVT__fiq.__PVT__r9, expected["R_fiq"][1], "R9_fiq");
@@ -198,9 +189,6 @@ static void verify_registers(
         CHECK_REG(regs.__PVT__fiq.__PVT__r14, expected["R_fiq"][6], "R14_fiq");
     }
 
-    // --------------------
-    // CPSR
-    // --------------------
     CHECK_REG(regs.__PVT__CPSR, expected["CPSR"], "CPSR");
 
 #undef CHECK_REG
@@ -254,22 +242,17 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
     // Check if it flushed the reset correctly and is now ready to begin executing the instruction.
     ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 0);
 
-    // tick(top, ctx);
-
-    // ASSERT_EQ(top.rootp->__PVT__arm_cpu_top__DOT__cpu_inst__DOT__decoder_bus->word.__PVT__IR, 0)
-    //     << "CPU not in IF1 state after reset flush in test " << index
-    //     << " from " << source;
-
-    // top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_done = 0;
-
     tick(top, ctx);
 
+    ASSERT_TRUE(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary);
+
+    // top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary = 0;
+
     // int max_ticks = 5;
-    // while (top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_done == 0 && max_ticks-- > 0) {
+    // while (top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary == 0 && max_ticks-- > 0) {
     //     tick(top, ctx);
     // }
 
-    int max_ticks = 5;
     // const auto& flush_cnt = top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt;
     // while (flush_cnt > 0 && max_ticks-- > 0) {
     // std::cout << "\n"

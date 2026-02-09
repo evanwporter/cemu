@@ -6,6 +6,7 @@ add_library(test_cpu_adv)
 target_sources(test_cpu_adv
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/test_cpu.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/json_parser.cpp
 )
 
 target_link_libraries(test_cpu_adv PRIVATE
