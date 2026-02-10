@@ -27,6 +27,7 @@ module Decoder (
         eval_cond(condition_t'(IR[31:28]), bus.flags.n, bus.flags.z, bus.flags.c, bus.flags.v);
 
     bus.word.Rn = IR[19:16];
+    $display("Decoder: Extracted Rn = R%0d from IR %b", bus.word.Rn, IR[19:16]);
     bus.word.Rd = IR[15:12];
     bus.word.Rs = IR[11:8];
     bus.word.Rm = IR[3:0];
@@ -66,7 +67,7 @@ module Decoder (
       end
 
       /// Single Data Transfer
-      32'b????_01??_????_????_????_????_???1_????: begin
+      32'b????_01??_????_????_????_????_????_????: begin
         bus.word.immediate.ls.I  = mem_offset_flag_t'(IR[25]);
         bus.word.immediate.ls.P  = pre_post_offset_flag_t'(IR[24]);
         bus.word.immediate.ls.U  = IR[23];

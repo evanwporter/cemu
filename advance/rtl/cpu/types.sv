@@ -295,8 +295,8 @@ package cpu_types_pkg;
   } mem_offset_flag_t;
 
   typedef enum logic {
-    ARM_LDR_STR_PRE_OFFSET,
-    ARM_LDR_STR_POST_OFFSET
+    ARM_LDR_STR_POST_OFFSET,
+    ARM_LDR_STR_PRE_OFFSET
   } pre_post_offset_flag_t;
 
   typedef union packed {

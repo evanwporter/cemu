@@ -238,6 +238,8 @@ module ControlUnit (
 
         ARM_INSTR_STORE, ARM_INSTR_LOAD: begin
           if (cycle == 4'd0) begin
+            $display("ControlUnit: Cycle 0 of load/store instruction, calculating address");
+
             // Perform a fetch in this cycle
             control_signals.memory_latch_IR = 1'b1;
             control_signals.memory_read_en = 1'b1;
@@ -297,14 +299,21 @@ module ControlUnit (
 
             if (cycle == 4'd1) begin
 
+              $display(
+                  "ControlUnit: Cycle 1 of load instruction, address calculation done, preparing for memory read and writeback");
+
               // Do we writeback?
-              if (decoder_bus.word.immediate.ls.P == ARM_LDR_STR_POST_OFFSET 
-              || decoder_bus.word.immediate.ls.wt == 1'b1) begin
+              if (decoder_bus.word.condition_pass &&
+                  (decoder_bus.word.immediate.ls.P == ARM_LDR_STR_POST_OFFSET 
+                  || decoder_bus.word.immediate.ls.wt == 1'b1)) begin
                 // Since we are writing back to the base register, 
                 // we need to make sure to use the offset for the writeback
                 // which we latched in the previous cycle
                 control_signals.ALU_use_op_b_latch = 1'b1;
                 control_signals.ALU_writeback = ALU_WB_REG_RN;
+
+                $display("ControlUnit: Load instruction requires writeback to base register R%0d",
+                         decoder_bus.word.Rn);
               end
 
               control_signals.memory_read_en = 1'b1;
@@ -315,6 +324,9 @@ module ControlUnit (
             end
 
             if (cycle == 4'd2) begin
+              $display(
+                  "ControlUnit: Cycle 2 of load instruction, latching read data and preparing for writeback");
+
               control_signals.pipeline_advance = 1'b1;
 
               // Allows op B to pass through the ALU unmodified
@@ -324,9 +336,11 @@ module ControlUnit (
               // back to the register file
               control_signals.B_bus_source = B_BUS_SRC_READ_DATA;
 
-              // Write back to Rd from the ALU output, which is the 
-              // value read from memory
-              control_signals.ALU_writeback = ALU_WB_REG_RD;
+              if (decoder_bus.word.condition_pass) begin
+                // Write back to Rd from the ALU output, which is the 
+                // value read from memory
+                control_signals.ALU_writeback = ALU_WB_REG_RD;
+              end
 
               // Load the PC back into the address bus
               control_signals.addr_bus_src = ADDR_SRC_PC;
@@ -343,8 +357,9 @@ module ControlUnit (
               control_signals.memory_write_en = 1'b1;
 
               // Do we writeback?
-              if (decoder_bus.word.immediate.ls.P == ARM_LDR_STR_POST_OFFSET 
-              || decoder_bus.word.immediate.ls.wt == 1'b1) begin
+              if (decoder_bus.word.condition_pass &&
+                  (decoder_bus.word.immediate.ls.P == ARM_LDR_STR_POST_OFFSET 
+                   || decoder_bus.word.immediate.ls.wt == 1'b1)) begin
                 // Since we are writing back to the base register, 
                 // we need to make sure to use the offset for the writeback
                 // which we latched in the previous cycle
