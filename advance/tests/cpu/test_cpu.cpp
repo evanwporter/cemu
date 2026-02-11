@@ -60,7 +60,6 @@ static void tick(Varm_cpu_top& top, VerilatedContext& ctx) {
 }
 
 static void dump_failed_test_to_file(const json& test, const fs::path& source) {
-    // fs::path out = fs::current_path() / ("failed_test" + source.stem().string() + "_" + std::to_string(index) + ".json");
     fs::path out = fs::current_path() / "failed_test.json";
 
     std::ofstream f(out);
@@ -74,23 +73,26 @@ static void dump_failed_test_to_file(const json& test, const fs::path& source) {
 }
 
 static void apply_instruction_memory(Varm_cpu_top& top, const json& test) {
-    // auto* mmu = top.rootp->arm_cpu_top__DOT__mmu_inst;
-
     auto& expected = top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__expected;
-    auto& txn_index = top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__txn_index;
+
+    top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__txn_index = 0;
 
     top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__expected_count = test["transactions"].size();
 
     top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__opcode = test["opcode"];
     top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__base_addr = test["base_addr"];
 
-    txn_index = 0;
+    // expected[0].__PVT__kind = 0;
+    // expected[0].__PVT__addr = test["base_addr"];
+    // expected[0].__PVT__data = test["opcode"];
 
     for (size_t i = 0; i < test["transactions"].size(); i++) {
-        expected[i].__PVT__kind = test["transactions"][i]["kind"];
+        // std::cout << "Expecting transaction " << i << ": kind=" << test["transactions"][i]["kind"]
+        //           << " addr=" << test["transactions"][i]["addr"]
+        //           << " data=" << test["transactions"][i]["data"] << std::endl;
+        expected[i].__PVT__kind = (test["transactions"][i]["kind"] == 1) ? 0 : 1;
         expected[i].__PVT__addr = test["transactions"][i]["addr"];
         expected[i].__PVT__data = test["transactions"][i]["data"];
-        expected[i].__PVT__size = test["transactions"][i]["size"];
     }
 }
 
@@ -215,7 +217,7 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
 
     Varm_cpu_top top(&ctx);
 
-    std::cout << "Cycle 0: Resetting CPU" << std::endl;
+    std::cout << "Cycle 0: Reset Phase 1" << std::endl;
 
     // Reset
     top.reset = 1;
@@ -233,12 +235,17 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
 
     std::cout << "\nCycle 2: Start flush" << std::endl;
 
+    ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__regs.__PVT__user.__PVT__r15, testCase["base_addr"]);
+
     // Check if it reset correctly and is now starting a flush.
     ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 2);
 
+    tick(top, ctx);
+
     const auto& IR = top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__IR;
 
-    tick(top, ctx);
+    // The IR should be latched
+    ASSERT_EQ(IR, testCase["opcode"]);
 
     std::cout << "\nCycle 3: Start flush and decode" << std::endl;
 
@@ -247,8 +254,17 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
     // Fetch and Decode
     tick(top, ctx);
 
+    ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__decoder_inst__DOT__IR, testCase["opcode"]);
+
     // Check if it flushed the reset correctly and is now ready to begin executing the instruction.
     ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 0);
+
+    const auto pipe1 = testCase["initial"]["pipeline"][1].get<uint32_t>();
+
+    // Verify pipeline looks good
+    ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__decoder_inst__DOT__IR, testCase["initial"]["pipeline"][0])
+        << "Pipeline stage 2 mismatch in test " << index
+        << " where " << top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__decoder_inst__DOT__IR << " != " << testCase["initial"]["pipeline"][0];
 
     top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary = 0;
 
@@ -264,7 +280,7 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
         << "Timeout in test " << index
         << " from " << source;
 
-    if (top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__flush_request) {
+    if (top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__flush_req) {
         std::cout << "\n2 cycles of flush remaining" << std::endl;
         tick(top, ctx);
         std::cout << "\n1 cycles of flush remaining" << std::endl;

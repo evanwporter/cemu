@@ -52,6 +52,6 @@ jobs:
 
       - name: Run gameboy advance tests
         if: matrix.test == 'test_vemu_advance'
-        run: >
-          build\debug\advance\tests\test_vemu_advance.exe
-          --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_data_proc_*_json
+        run: |
+          build\debug\advance\tests\test_vemu_advance.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_data_proc_*_json
+          build\debug\advance\tests\test_vemu_advance.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/ldr_str_*_json

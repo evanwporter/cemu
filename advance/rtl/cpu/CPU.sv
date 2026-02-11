@@ -17,7 +17,8 @@ module CPU (
 
   word_t IR;
 
-  logic flush_request;
+  logic flush_req;
+  logic flush_req_pending;
 
   cpu_regs_t regs;
 
@@ -28,6 +29,33 @@ module CPU (
 
   /// Data that has been latched from the read bus
   word_t read_data;
+
+  /// Address associated with above read data; used for byte loads
+  word_t addr_data;
+
+  function automatic byte_t get_byte_val(logic [1:0] addr_bits, word_t result);
+    unique case (addr_bits)
+      2'b00: begin
+        get_byte_val = result[7:0];
+        $display("Byte load with address ending in 00, selecting bits [7:0]: 0x%02x", result[7:0]);
+      end
+      2'b01: begin
+        get_byte_val = result[15:8];
+        $display("Byte load with address ending in 01, selecting bits [15:8]: 0x%02x",
+                 result[15:8]);
+      end
+      2'b10: begin
+        get_byte_val = result[23:16];
+        $display("Byte load with address ending in 10, selecting bits [23:16]: 0x%02x",
+                 result[23:16]);
+      end
+      2'b11: begin
+        get_byte_val = result[31:24];
+        $display("Byte load with address ending in 11, selecting bits [31:24]: 0x%02x",
+                 result[31:24]);
+      end
+    endcase
+  endfunction : get_byte_val
 
   always_comb begin
     casez (regs.CPSR[4:0])
@@ -101,7 +129,7 @@ module CPU (
       .reset(reset),
       .decoder_bus(decoder_bus),
       .control_signals(control_signals),
-      .flush_req(flush_request)
+      .flush_req(flush_req)
   );
 
   BarrelShifter shifter_inst (
@@ -121,6 +149,10 @@ module CPU (
       regs, cpu_mode, decoder_bus.word.Rn
   );
 
+  function automatic word_t ror32(word_t x, int unsigned sh);
+    ror32 = (x >> sh) | (x << (32 - sh));
+  endfunction
+
   // ======================================================
   // Assign B Bus
   // ======================================================
@@ -133,11 +165,12 @@ module CPU (
       end
 
       B_BUS_SRC_IMM: begin
-        B_bus = {24'b0, decoder_bus.word.immediate.data_proc_imm.imm8};
+        B_bus = {20'b0, control_signals.B_bus_imm};
       end
 
       B_BUS_SRC_READ_DATA: begin
         B_bus = read_data;
+        $display("Driving B bus with read_data value: 0x%08x", read_data);
       end
 
       B_BUS_SRC_REG_RM: begin
@@ -175,13 +208,28 @@ module CPU (
       else $fatal(1, "Both memory_read_en and memory_write_en asserted!");
 
       if (control_signals.memory_read_en) begin
-        read_data <= bus.rdata;
-      end
+        if (control_signals.memory_latch_IR) begin
+          IR <= bus.rdata;
+          $display("Latching IR with value: 0x%08x", bus.rdata);
+          $fflush();
 
-      if (control_signals.memory_latch_IR) begin
-        IR <= bus.rdata;
-        $display("Latching IR with value: 0x%08x", bus.rdata);
-        $fflush();
+        end else begin
+          read_data <= bus.rdata;
+
+          // Misaligned word-load rotate quirk (ARM7TDMI)
+          if (!control_signals.memory_byte_transfer) begin
+            logic [1:0] a;
+            a = bus.addr[1:0];
+            if (a != 2'b00) begin
+              $display("Misaligned word with a=%b, rotate=%d, prior=%d", a, ror32(
+                       bus.rdata, 32'({a, 3'b000})), bus.rdata);
+              read_data <= ror32(bus.rdata, 32'({a, 3'b000}));  // (a*8)
+            end
+          end
+
+          $display("ALU is driving address bus with value: 0x%08x", alu_bus.result);
+          addr_data <= alu_bus.result;
+        end
       end
     end
   end
@@ -193,14 +241,30 @@ module CPU (
     if (reset) begin
       regs.user <= '{default: 32'd0};
     end else begin
-      flush_request <= 1'b0;
-      if (control_signals.ALU_writeback == ALU_WB_REG_RD && decoder_bus.word.Rd == 4'd15) begin
-        flush_request <= 1'b1;
+      flush_req <= 1'b0;
+
+      if (control_signals.pipeline_advance && flush_req_pending) begin
+        $display("Pipeline advance, checking for writebacks and flushes");
+        $fflush();
+
+        flush_req_pending <= 1'b0;
+        flush_req <= 1'b1;
+      end
+
+      if ((control_signals.ALU_writeback == ALU_WB_REG_RD && decoder_bus.word.Rd == 4'd15) ||
+          (control_signals.ALU_writeback == ALU_WB_REG_RN && decoder_bus.word.Rn == 4'd15)) begin
+
+        if (control_signals.pipeline_advance) begin
+          flush_req <= 1'b1;
+        end else begin
+          flush_req_pending <= 1'b1;
+          $display("Setting flush_req_pending to ensure flush on next cycle.");
+        end
       end else if (control_signals.incrementer_writeback) begin
         // PC = PC + 4
 
-        `WRITE_REG(regs, cpu_mode, 15, read_reg(regs, cpu_mode, 15) + 32'd4);
-        $display("Incrementing PC to: 0x%0d", read_reg(regs, cpu_mode, 15) + 32'd4);
+        `WRITE_REG(regs, cpu_mode, 15, read_reg(regs, cpu_mode, 15) + 32'd4)
+        $display("Incrementing PC to: %0d", read_reg(regs, cpu_mode, 15) + 32'd4);
         $fflush();
       end
 
@@ -228,11 +292,30 @@ module CPU (
       unique case (control_signals.ALU_writeback)
         ALU_WB_NONE:   ;
         ALU_WB_REG_RD: begin
-          `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rd, alu_bus.result)
-          $display("Writing back ALU result %0d to Rd (R%d)", alu_bus.result, decoder_bus.word.Rd);
+          word_t value_to_write;
+          value_to_write = alu_bus.result;
+          // if (control_signals.memory_byte_transfer) begin
+          //   $display(
+          //       "Performing byte transfer, extracting byte from ALU result based on address: 0x%08x",
+          //       alu_bus.result);
+          //   value_to_write = {24'd0, get_byte_val(addr_data[1:0], alu_bus.result)};
+          // end
+
+          // ARM7TDMI: PC is forcibly aligned on write
+          // https://mgba-emu.github.io/gbatek/#mis-aligned-pcr15-branch-opcodes-or-movaluldr-with-rdr15
+          // if (decoder_bus.word.Rd == 4'd15) begin
+          //   value_to_write[1:0] = 2'b00;
+          //   $display("Writeback to PC, aligning value to 0x%08x", value_to_write);
+          // end
+
+          `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rd, value_to_write)
+          $display("Writing back ALU result %0d to Rd (R%d)", value_to_write, decoder_bus.word.Rd);
         end
         ALU_WB_REG_RS: `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rs, alu_bus.result)
-        ALU_WB_REG_RN: `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rn, alu_bus.result)
+        ALU_WB_REG_RN: begin
+          $display("Writing back ALU result %0d to Rn (R%d)", alu_bus.result, decoder_bus.word.Rn);
+          `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rn, alu_bus.result)
+        end
         ALU_WB_REG_14: `WRITE_REG(regs, cpu_mode, 14, alu_bus.result)
       endcase
     end

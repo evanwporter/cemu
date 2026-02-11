@@ -113,6 +113,8 @@ package control_types_pkg;
     /// TODO: Implement more instruction to see if I need this
     // logic memory_latch_read_bus;
 
+    logic memory_byte_transfer;
+
     // ======================================================
     // ALU
     // ======================================================

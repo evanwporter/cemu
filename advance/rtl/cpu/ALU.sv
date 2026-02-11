@@ -12,12 +12,23 @@ module ALU (
 
   wire [31:0] op_b = bus.use_op_b_latch ? op_b_latch : (bus.disable_op_b ? 32'h0 : shifter_bus.op_b);
 
+  always_comb begin
+    if (bus.use_op_b_latch) begin
+      $display("ALU: Using latched result 0x%08x", op_b_latch);
+    end
+  end
+
   wire carry_in = shifter_bus.carry_out;
 
   always_ff @(posedge clk) begin
     if (reset) begin
       op_b_latch <= 32'h0;
     end else begin
+      $display(
+          "ALU: op=%s,latch_op_b=%b, use_op_b_latch=%b, disable_op_b=%b, op_a=%0d, op_b=%0d. result=%0d",
+          bus.alu_op.name(), bus.latch_op_b, bus.use_op_b_latch, bus.disable_op_b, bus.op_a, op_b,
+          bus.result);
+
       if (bus.latch_op_b) begin
         op_b_latch <= shifter_bus.op_b;
       end
@@ -34,8 +45,8 @@ module ALU (
     bus.flags_out.c = bus.flags_in.c;
     bus.flags_out.v = bus.flags_in.v;
 
-    $display("ALU operation: op_a=0x%08x op_b=0x%08x alu_op=%0d carry_in=%b", bus.op_a, op_b,
-             bus.alu_op, carry_in);
+    $display("ALU operation: op_a=0x%08x op_b=0x%08x alu_op=%0d carry_in=%b, bus.result=0x%08x",
+             bus.op_a, op_b, bus.alu_op, carry_in, bus.result);
 
     temp = 33'h0;
 

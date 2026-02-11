@@ -2,7 +2,7 @@
 `define CPU_UTIL_SVH
 
 `define TRACE_CPU \
-  $display("[%0t] PC=%0d IR=%h instr=%0d flush=%b cycle=%0d | WB=%0d Rd=%0d ALU=%h", \
+  $display("[%0t] PC=%0d IR=%h instr=%0d flush=%b cycle=%0d WB=%0d Rd=%0d ALU=%h LatchedReadData=%0d mode=%s", \
     $time, \
     regs.user.r15, \
     IR, \
@@ -11,7 +11,9 @@
     controlUnit.cycle, \
     control_signals.ALU_writeback, \
     decoder_bus.word.Rd, \
-    alu_bus.result \
+    alu_bus.result, \
+    read_data, \
+    cpu_mode.name() \
   );
 
 `define DISPLAY_CONTROL(ctrl) \
@@ -25,6 +27,7 @@
   $display("memory_write_en       : %0b", ctrl.memory_write_en); \
   $display("memory_read_en        : %0b", ctrl.memory_read_en); \
   $display("memory_latch_IR       : %0b", ctrl.memory_latch_IR); \
+  $display("memory_byte_transfer  : %0b", ctrl.memory_byte_transfer); \
   $display("ALU_latch_op_b        : %0b", ctrl.ALU_latch_op_b); \
   $display("ALU_use_op_b_latch    : %0b", ctrl.ALU_use_op_b_latch); \
   $display("ALU_disable_op_b      : %0b", ctrl.ALU_disable_op_b); \
@@ -34,6 +37,7 @@
   $display("shift_use_latch       : %0b", ctrl.shift_use_latch); \
   $display("shift_type            : %s", ctrl.shift_type.name()); \
   $display("shift_amount          : %0d", ctrl.shift_amount); \
+  $display("advance_pipeline      : %0b", ctrl.pipeline_advance); \
   $display("----------------------"); \
   $fflush();
 

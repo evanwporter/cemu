@@ -285,13 +285,13 @@ package cpu_types_pkg;
 
   /// TODO verify order
   typedef enum logic {
-    /// Shifted Register Offset
-    /// Offset it by a register value (Rm)
-    ARM_LDR_STR_SHIFTED,
-
     /// Immediate Offset
     /// Offset it by an immediate value encoded in the instruction
-    ARM_LDR_STR_IMMEDIATE
+    ARM_LDR_STR_IMMEDIATE,
+
+    /// Shifted Register Offset
+    /// Offset it by a register value (Rm)
+    ARM_LDR_STR_SHIFTED
   } mem_offset_flag_t;
 
   typedef enum logic {

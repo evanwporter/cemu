@@ -280,7 +280,7 @@ module ControlUnit (
               // Immediate offset with an optional rotation/shift
 
               control_signals.B_bus_source = B_BUS_SRC_IMM;
-              control_signals.B_bus_imm    = decoder_bus.word.immediate.ls.offset.imm12;
+              control_signals.B_bus_imm = decoder_bus.word.immediate.ls.offset.imm12;
 
               // No shift
               control_signals.shift_type = SHIFT_LSL;
@@ -292,6 +292,12 @@ module ControlUnit (
               control_signals.B_bus_source = B_BUS_SRC_REG_RM;
               control_signals.shift_type = decoder_bus.word.immediate.ls.offset.shifted.shift_type;
               control_signals.shift_amount = decoder_bus.word.immediate.ls.offset.shifted.shift_amount;
+
+              if (decoder_bus.word.immediate.data_proc_reg_imm.shift_type == SHIFT_ROR &&
+                  decoder_bus.word.immediate.data_proc_reg_imm.shift_amount == 5'd0) begin
+                // Register shift-immediate encoding: ROR #0 => RRX
+                control_signals.shift_use_rxx = 1'b1;
+              end
             end
           end
 
@@ -301,6 +307,8 @@ module ControlUnit (
 
               $display(
                   "ControlUnit: Cycle 1 of load instruction, address calculation done, preparing for memory read and writeback");
+
+              control_signals.ALU_op = decoder_bus.word.immediate.ls.U ? ALU_OP_ADD : ALU_OP_SUB;
 
               // Do we writeback?
               if (decoder_bus.word.condition_pass &&
@@ -316,10 +324,12 @@ module ControlUnit (
                          decoder_bus.word.Rn);
               end
 
+              control_signals.memory_byte_transfer = decoder_bus.word.immediate.ls.B;
+
               control_signals.memory_read_en = 1'b1;
 
               // Load the PC back into the address bus
-              control_signals.addr_bus_src   = ADDR_SRC_PC;
+              control_signals.addr_bus_src = ADDR_SRC_PC;
 
             end
 
@@ -342,6 +352,8 @@ module ControlUnit (
                 control_signals.ALU_writeback = ALU_WB_REG_RD;
               end
 
+              control_signals.memory_byte_transfer = decoder_bus.word.immediate.ls.B;
+
               // Load the PC back into the address bus
               control_signals.addr_bus_src = ADDR_SRC_PC;
 
@@ -354,6 +366,8 @@ module ControlUnit (
 
               control_signals.B_bus_source = B_BUS_SRC_REG_RD;
 
+              control_signals.ALU_op = decoder_bus.word.immediate.ls.U ? ALU_OP_ADD : ALU_OP_SUB;
+
               control_signals.memory_write_en = 1'b1;
 
               // Do we writeback?
@@ -365,13 +379,15 @@ module ControlUnit (
                 // which we latched in the previous cycle
                 control_signals.ALU_use_op_b_latch = 1'b1;
                 control_signals.ALU_writeback = ALU_WB_REG_RN;
+
+                $display("ControlUnit: Store instruction requires writeback to base register R%0d",
+                         decoder_bus.word.Rn);
               end
 
               // Load the PC back into the address bus
               control_signals.addr_bus_src = ADDR_SRC_PC;
             end
           end
-
         end
 
         default: ;
