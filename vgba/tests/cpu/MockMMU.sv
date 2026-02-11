@@ -11,7 +11,7 @@ module MockMMU (
 );
 
   typedef struct {
-    logic kind;  // 0 = read, 1 = write
+    logic [1:0]  kind;  // 0 = instruction read, 1 = data read, 2 = write
     logic [31:0] addr;
     logic [31:0] data;
   } transaction_t;
@@ -50,17 +50,25 @@ module MockMMU (
         logic signed [5:0] match;
         transaction_t t;
 
-        match = find_match(0, cpu_bus.addr);
-
-        if (match == -1) begin
-          $display("MMU: No match found for read transaction at addr=%0d", cpu_bus.addr);
-          $fflush();
-          cpu_bus.rdata = cpu_bus.addr;
+        if (!cpu_bus.instruction_fetch) begin
+          match = find_match(1, cpu_bus.addr);
+          if (match == -1) begin
+            $display("MMU: No match found for read transaction at addr=%0d", cpu_bus.addr);
+            $fflush();
+          end else begin
+            t = expected[match];
+            cpu_bus.rdata = t.data;
+            $display("MMU: Providing data=%0d for read transaction at addr=%0d kind=%0d match=%0d",
+                     t.data, cpu_bus.addr, t.kind, match);
+            $fflush();
+          end
+        end else if (cpu_bus.addr == base_addr) begin
+          cpu_bus.rdata = opcode;
+          $display("MMU: Providing opcode %0d for read at base address %0d", opcode, base_addr);
         end else begin
-          t = expected[match];
-          cpu_bus.rdata = t.data;
+          cpu_bus.rdata = cpu_bus.addr;
           $display("MMU: Providing data=%0d for read transaction at addr=%0d kind=%0d match=%0d",
-                   t.data, cpu_bus.addr, t.kind, match);
+                   cpu_bus.rdata, cpu_bus.addr, t.kind, match);
           $fflush();
         end
       end

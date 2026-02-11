@@ -30,9 +30,6 @@ module CPU (
   /// Data that has been latched from the read bus
   word_t read_data;
 
-  /// Address associated with above read data; used for byte loads
-  word_t addr_data;
-
   always_comb begin
     casez (regs.CPSR[4:0])
 
@@ -80,6 +77,7 @@ module CPU (
   assign bus.read_en = control_signals.memory_read_en;
   assign bus.write_en = control_signals.memory_write_en;
   assign bus.wdata = B_bus;
+  assign bus.instruction_fetch = control_signals.memory_latch_IR;
 
   /// TODO: Debug signal
   (* maybe_unused *)
@@ -202,9 +200,6 @@ module CPU (
               read_data <= ror32(bus.rdata, 32'({a, 3'b000}));  // (a*8)
             end
           end
-
-          $display("ALU is driving address bus with value: 0x%08x", alu_bus.result);
-          addr_data <= alu_bus.result;
         end
       end
     end

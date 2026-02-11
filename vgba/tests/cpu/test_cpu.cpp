@@ -82,15 +82,8 @@ static void apply_instruction_memory(Varm_cpu_top& top, const json& test) {
     top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__opcode = test["opcode"];
     top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__base_addr = test["base_addr"];
 
-    // expected[0].__PVT__kind = 0;
-    // expected[0].__PVT__addr = test["base_addr"];
-    // expected[0].__PVT__data = test["opcode"];
-
     for (size_t i = 0; i < test["transactions"].size(); i++) {
-        // std::cout << "Expecting transaction " << i << ": kind=" << test["transactions"][i]["kind"]
-        //           << " addr=" << test["transactions"][i]["addr"]
-        //           << " data=" << test["transactions"][i]["data"] << std::endl;
-        expected[i].__PVT__kind = (test["transactions"][i]["kind"] == 1) ? 0 : 1;
+        expected[i].__PVT__kind = test["transactions"][i]["kind"];
         expected[i].__PVT__addr = test["transactions"][i]["addr"];
         expected[i].__PVT__data = test["transactions"][i]["data"];
     }
