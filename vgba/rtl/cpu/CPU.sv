@@ -76,7 +76,7 @@ module CPU (
 
   assign bus.read_en = control_signals.memory_read_en;
   assign bus.write_en = control_signals.memory_write_en;
-  assign bus.wdata = B_bus;
+  assign bus.wdata = control_signals.memory_byte_transfer ? {24'd0, B_bus[7:0]} : B_bus;
   assign bus.instruction_fetch = control_signals.memory_latch_IR;
 
   /// TODO: Debug signal

@@ -368,7 +368,9 @@ module ControlUnit (
 
               control_signals.ALU_op = decoder_bus.word.immediate.ls.U ? ALU_OP_ADD : ALU_OP_SUB;
 
-              control_signals.memory_write_en = 1'b1;
+              control_signals.memory_write_en = decoder_bus.word.condition_pass;
+
+              control_signals.memory_byte_transfer = decoder_bus.word.immediate.ls.B;
 
               // Do we writeback?
               if (decoder_bus.word.condition_pass &&

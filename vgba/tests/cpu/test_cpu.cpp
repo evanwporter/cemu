@@ -54,9 +54,15 @@ static void tick(Varm_cpu_top& top, VerilatedContext& ctx) {
     top.eval();
     ctx.timeInc(5);
 
+    if (Verilated::gotError())
+        FAIL() << "Simulation finished early";
+
     top.clk = 1;
     top.eval();
     ctx.timeInc(5);
+
+    if (Verilated::gotError())
+        FAIL() << "Simulation finished early";
 }
 
 static void dump_failed_test_to_file(const json& test, const fs::path& source) {
@@ -73,19 +79,15 @@ static void dump_failed_test_to_file(const json& test, const fs::path& source) {
 }
 
 static void apply_instruction_memory(Varm_cpu_top& top, const json& test) {
-    auto& expected = top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__expected;
-
-    top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__txn_index = 0;
-
-    top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__expected_count = test["transactions"].size();
+    auto& memory = top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__memory;
 
     top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__opcode = test["opcode"];
     top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__base_addr = test["base_addr"];
 
     for (size_t i = 0; i < test["transactions"].size(); i++) {
-        expected[i].__PVT__kind = test["transactions"][i]["kind"];
-        expected[i].__PVT__addr = test["transactions"][i]["addr"];
-        expected[i].__PVT__data = test["transactions"][i]["data"];
+        memory.set(
+            test["transactions"][i]["addr"].get<uint32_t>(),
+            test["transactions"][i]["data"].get<uint32_t>());
     }
 }
 
@@ -199,6 +201,30 @@ static void verify_registers(
 #undef CHECK_REG
 }
 
+static void verify_memory_writes(
+    const Varm_cpu_top& top,
+    const json& testCase,
+    const std::string& test_name) {
+    const auto& memory = top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__memory;
+
+    for (const auto& tx : testCase["transactions"]) {
+        if (tx["kind"].get<int>() == 2) { // write
+            uint32_t addr = tx["addr"].get<uint32_t>();
+            uint32_t expected = tx["data"].get<uint32_t>();
+
+            EXPECT_TRUE(memory.exists(addr))
+                << "Memory write missing at addr=" << addr
+                << " in test " << test_name;
+
+            uint32_t actual = memory.at(addr);
+
+            EXPECT_EQ(actual, expected)
+                << "Memory mismatch at addr=" << addr
+                << " in test " << test_name;
+        }
+    }
+}
+
 static void run_single_test(const json& testCase, const fs::path& source, const size_t index) {
 
     testing::internal::CaptureStdout();
@@ -281,6 +307,7 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
     }
 
     verify_registers(top, testCase["final"], std::to_string(index));
+    verify_memory_writes(top, testCase, std::to_string(index));
 
     std::string stdout_output = testing::internal::GetCapturedStdout();
     std::string stderr_output = testing::internal::GetCapturedStderr();
