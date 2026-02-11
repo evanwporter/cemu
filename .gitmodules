@@ -9,4 +9,4 @@
 	url = https://github.com/evanwporter/mooneye-test-suite
 [submodule "tests/GameboyAdvanceCPUTests"]
 	path = tests/GameboyAdvanceCPUTests
-	url = https://github.com/SingleStepTests/ARM7TDMI
+	url = https://github.com/evanwporter/ARM7TDMI.git

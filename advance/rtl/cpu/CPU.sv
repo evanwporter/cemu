@@ -33,30 +33,6 @@ module CPU (
   /// Address associated with above read data; used for byte loads
   word_t addr_data;
 
-  function automatic byte_t get_byte_val(logic [1:0] addr_bits, word_t result);
-    unique case (addr_bits)
-      2'b00: begin
-        get_byte_val = result[7:0];
-        $display("Byte load with address ending in 00, selecting bits [7:0]: 0x%02x", result[7:0]);
-      end
-      2'b01: begin
-        get_byte_val = result[15:8];
-        $display("Byte load with address ending in 01, selecting bits [15:8]: 0x%02x",
-                 result[15:8]);
-      end
-      2'b10: begin
-        get_byte_val = result[23:16];
-        $display("Byte load with address ending in 10, selecting bits [23:16]: 0x%02x",
-                 result[23:16]);
-      end
-      2'b11: begin
-        get_byte_val = result[31:24];
-        $display("Byte load with address ending in 11, selecting bits [31:24]: 0x%02x",
-                 result[31:24]);
-      end
-    endcase
-  endfunction : get_byte_val
-
   always_comb begin
     casez (regs.CPSR[4:0])
 
@@ -92,18 +68,18 @@ module CPU (
   assign shifter_bus.shift_use_latch = control_signals.shift_use_latch;
   assign shifter_bus.shift_amount = control_signals.shift_amount;
   assign shifter_bus.shift_type = control_signals.shift_type;
-  assign shifter_bus.carry_in = regs.CPSR[29]; // CPSR.C
+  assign shifter_bus.carry_in = regs.CPSR[29];  // CPSR.C
   assign shifter_bus.shift_use_rxx = control_signals.shift_use_rxx;
 
   assign alu_bus.alu_op = control_signals.ALU_op;
   assign alu_bus.use_op_b_latch = control_signals.ALU_use_op_b_latch;
   assign alu_bus.disable_op_b = control_signals.ALU_disable_op_b;
   assign alu_bus.latch_op_b = control_signals.ALU_latch_op_b;
-  assign alu_bus.flags_in = regs.CPSR[31:28]; // N,Z,C,V
+  assign alu_bus.flags_in = regs.CPSR[31:28];  // N,Z,C,V
 
-  assign bus.read_en  = control_signals.memory_read_en;
+  assign bus.read_en = control_signals.memory_read_en;
   assign bus.write_en = control_signals.memory_write_en;
-  assign bus.wdata    = B_bus;
+  assign bus.wdata = B_bus;
 
   /// TODO: Debug signal
   (* maybe_unused *)
@@ -294,20 +270,6 @@ module CPU (
         ALU_WB_REG_RD: begin
           word_t value_to_write;
           value_to_write = alu_bus.result;
-          // if (control_signals.memory_byte_transfer) begin
-          //   $display(
-          //       "Performing byte transfer, extracting byte from ALU result based on address: 0x%08x",
-          //       alu_bus.result);
-          //   value_to_write = {24'd0, get_byte_val(addr_data[1:0], alu_bus.result)};
-          // end
-
-          // ARM7TDMI: PC is forcibly aligned on write
-          // https://mgba-emu.github.io/gbatek/#mis-aligned-pcr15-branch-opcodes-or-movaluldr-with-rdr15
-          // if (decoder_bus.word.Rd == 4'd15) begin
-          //   value_to_write[1:0] = 2'b00;
-          //   $display("Writeback to PC, aligning value to 0x%08x", value_to_write);
-          // end
-
           `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rd, value_to_write)
           $display("Writing back ALU result %0d to Rd (R%d)", value_to_write, decoder_bus.word.Rd);
         end
