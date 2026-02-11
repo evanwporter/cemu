@@ -1,4 +1,4 @@
-name: build vemu
+name: vgba
 
 on:
   workflow_dispatch:
@@ -13,8 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         test:
-          - test_vemu
-          - test_vemu_advance
+          - test_vgb
+          - test_vgba
 
     steps:
       - uses: actions/checkout@v4
@@ -47,11 +47,11 @@ jobs:
         run: cmake --build --preset debug --target ${{ matrix.test }}
 
       - name: Run gameboy tests
-        if: matrix.test == 'test_vemu'
-        run: ctest --test-dir build/debug -R ^test_vemu$ -V
+        if: matrix.test == 'test_vgb'
+        run: ctest --test-dir build/debug -R ^test_vgb$ -V
 
-      - name: Run gameboy advance tests
-        if: matrix.test == 'test_vemu_advance'
+      - name: Run gameboy vgba tests
+        if: matrix.test == 'test_vgba'
         run: |
-          build\debug\advance\tests\test_vemu_advance.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_data_proc_*_json
-          build\debug\advance\tests\test_vemu_advance.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_ldr_str_*_json
+          build\debug\vgba\tests\test_vgba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_data_proc_*_json
+          build\debug\vgba\tests\test_vgba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_ldr_str_*_json

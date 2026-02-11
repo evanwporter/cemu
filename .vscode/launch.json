@@ -25,7 +25,7 @@
       "name": "(Windows) Vemu",
       "type": "cppvsdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/build/debug/vemu/vemu.exe",
+      "program": "${workspaceFolder}/build/debug/vgb/vgb.exe",
       "args": [
         // "${workspaceFolder}/tests/gb-test-roms/interrupt_time/interrupt_time.gb",
         // "${workspaceFolder}/tests/gb-test-roms/instr_timing/instr_timing.gb",
@@ -55,8 +55,8 @@
       "name": "(Windows) Display PPM",
       "type": "cppvsdbg",
       "request": "launch",
-      "program": "${workspaceFolder}\\build\\debug\\vemu\\tests\\util\\display_ppm.exe",
-      "args": ["${workspaceFolder}\\vemu\\tests\\ppu\\golden\\bg_numbers.ppm"],
+      "program": "${workspaceFolder}\\build\\debug\\vgb\\tests\\util\\display_ppm.exe",
+      "args": ["${workspaceFolder}\\vgb\\tests\\ppu\\golden\\bg_numbers.ppm"],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
       "environment": [],
@@ -66,7 +66,7 @@
       "name": "(Windows) Debugger",
       "type": "cppvsdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/build/debug/vemu/debug.exe",
+      "program": "${workspaceFolder}/build/debug/vgb/debug.exe",
       "args": [
         // "${workspaceFolder}/tests/gb-test-roms/cpu_instrs/individual/01-special.gb"
         "${workspaceFolder}/tests/mooneye-test-suite/acceptance/oam_dma/basic.gb"
