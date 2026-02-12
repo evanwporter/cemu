@@ -1,0 +1,345 @@
+#include <filesystem>
+#include <fstream>
+#include <gtest/gtest.h>
+#include <nlohmann/json.hpp>
+
+#include <Varm_cpu_top.h>
+#include <Varm_cpu_top_Bus_if.h>
+#include <Varm_cpu_top___024root.h>
+#include <verilated.h>
+
+#include "util/util.hpp"
+
+#include "json_parser.hpp"
+
+using namespace std;
+namespace fs = std::filesystem;
+using json = nlohmann::json;
+
+using u8 = uint8_t;
+using u16 = uint16_t;
+
+static const fs::path kTestDir = fs::path(TEST_DIR) / "GameboyAdvanceCPUTests/v1";
+
+static inline u16 get_u16(u8 hi, u8 lo) {
+    return static_cast<u16>((hi << 8) | lo);
+}
+
+static inline void set_u16(u8& hi, u8& lo, u16 val) {
+    hi = static_cast<u8>(val >> 8);
+    lo = static_cast<u8>(val & 0xFF);
+}
+
+static inline u8 read_u8(const json& j) {
+    if (j.is_string()) {
+        return static_cast<u8>(std::stoul(j.get<std::string>(), nullptr, 16));
+    }
+    return j.get<u8>();
+}
+
+static inline u16 read_u16(const json& j) {
+    if (j.is_string()) {
+        return static_cast<u16>(std::stoul(j.get<std::string>(), nullptr, 16));
+    }
+    return j.get<u16>();
+}
+
+static void tick(Varm_cpu_top& top, VerilatedContext& ctx) {
+    std::cout << "PC: "
+              << top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__regs
+                     .__PVT__user.__PVT__r15
+              << std::endl;
+
+    top.clk = 0;
+    top.eval();
+    ctx.timeInc(5);
+
+    top.clk = 1;
+    top.eval();
+    ctx.timeInc(5);
+}
+
+static void dump_failed_test_to_file(const json& test, const fs::path& source) {
+    fs::path out = fs::current_path() / "failed_test.json";
+
+    std::ofstream f(out);
+    if (!f.is_open())
+        return;
+
+    f << test.dump(2);
+    f << std::endl;
+
+    std::cerr << "Wrote failing test to: " << out.string() << "\n";
+}
+
+static void apply_instruction_memory(Varm_cpu_top& top, const json& test) {
+    auto& memory = top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__memory;
+
+    top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__opcode = test["opcode"];
+    top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__base_addr = test["base_addr"];
+
+    for (size_t i = 0; i < test["transactions"].size(); i++) {
+        memory.set(
+            test["transactions"][i]["addr"].get<uint32_t>(),
+            test["transactions"][i]["data"].get<uint32_t>());
+    }
+}
+
+static void apply_initial_state(Varm_cpu_top& top, const json& test) {
+    auto& regs = top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__regs;
+
+    const auto& init = test["initial"];
+
+    // R0–R7
+    regs.__PVT__common.__PVT__r0 = init["R"][0];
+    regs.__PVT__common.__PVT__r1 = init["R"][1];
+    regs.__PVT__common.__PVT__r2 = init["R"][2];
+    regs.__PVT__common.__PVT__r3 = init["R"][3];
+    regs.__PVT__common.__PVT__r4 = init["R"][4];
+    regs.__PVT__common.__PVT__r5 = init["R"][5];
+    regs.__PVT__common.__PVT__r6 = init["R"][6];
+    regs.__PVT__common.__PVT__r7 = init["R"][7];
+
+    // R8–R14 (user bank)
+    regs.__PVT__user.__PVT__r8 = init["R"][8];
+    regs.__PVT__user.__PVT__r9 = init["R"][9];
+    regs.__PVT__user.__PVT__r10 = init["R"][10];
+    regs.__PVT__user.__PVT__r11 = init["R"][11];
+    regs.__PVT__user.__PVT__r12 = init["R"][12];
+    regs.__PVT__user.__PVT__r13 = init["R"][13];
+    regs.__PVT__user.__PVT__r14 = init["R"][14];
+
+    regs.__PVT__user.__PVT__r15 = init["R"][15].get<uint32_t>() - 8;
+
+    regs.__PVT__CPSR = init["CPSR"];
+
+    regs.__PVT__fiq.__PVT__r8 = init["R_fiq"][0];
+    regs.__PVT__fiq.__PVT__r9 = init["R_fiq"][1];
+    regs.__PVT__fiq.__PVT__r10 = init["R_fiq"][2];
+    regs.__PVT__fiq.__PVT__r11 = init["R_fiq"][3];
+    regs.__PVT__fiq.__PVT__r12 = init["R_fiq"][4];
+    regs.__PVT__fiq.__PVT__r13 = init["R_fiq"][5];
+    regs.__PVT__fiq.__PVT__r14 = init["R_fiq"][6];
+
+    regs.__PVT__abort.__PVT__r13 = init["R_abt"][0];
+    regs.__PVT__abort.__PVT__r14 = init["R_abt"][1];
+
+    regs.__PVT__irq.__PVT__r13 = init["R_irq"][0];
+    regs.__PVT__irq.__PVT__r14 = init["R_irq"][1];
+
+    regs.__PVT__supervisor.__PVT__r13 = init["R_svc"][0];
+    regs.__PVT__supervisor.__PVT__r14 = init["R_svc"][1];
+
+    regs.__PVT__undefined.__PVT__r13 = init["R_und"][0];
+    regs.__PVT__undefined.__PVT__r14 = init["R_und"][1];
+
+    regs.__PVT__SPSR.__PVT__fiq = init["SPSR"][0];
+    regs.__PVT__SPSR.__PVT__supervisor = init["SPSR"][1];
+    regs.__PVT__SPSR.__PVT__abort = init["SPSR"][2];
+    regs.__PVT__SPSR.__PVT__irq = init["SPSR"][3];
+    regs.__PVT__SPSR.__PVT__undefined = init["SPSR"][4];
+
+    apply_instruction_memory(top, test);
+}
+
+static void verify_registers(
+    const Varm_cpu_top& top,
+    const json& expected,
+    const std::string& test_name) {
+    const auto& regs = top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__regs;
+
+#define CHECK_REG(actual, exp, name) \
+    ASSERT_EQ((actual), (exp))       \
+        << name << " mismatch in test " << test_name;
+
+    CHECK_REG(regs.__PVT__common.__PVT__r0, expected["R"][0], "R0");
+    CHECK_REG(regs.__PVT__common.__PVT__r1, expected["R"][1], "R1");
+    CHECK_REG(regs.__PVT__common.__PVT__r2, expected["R"][2], "R2");
+    CHECK_REG(regs.__PVT__common.__PVT__r3, expected["R"][3], "R3");
+    CHECK_REG(regs.__PVT__common.__PVT__r4, expected["R"][4], "R4");
+    CHECK_REG(regs.__PVT__common.__PVT__r5, expected["R"][5], "R5");
+    CHECK_REG(regs.__PVT__common.__PVT__r6, expected["R"][6], "R6");
+    CHECK_REG(regs.__PVT__common.__PVT__r7, expected["R"][7], "R7");
+
+    CHECK_REG(regs.__PVT__user.__PVT__r8, expected["R"][8], "R8 (user)");
+    CHECK_REG(regs.__PVT__user.__PVT__r9, expected["R"][9], "R9 (user)");
+    CHECK_REG(regs.__PVT__user.__PVT__r10, expected["R"][10], "R10 (user)");
+    CHECK_REG(regs.__PVT__user.__PVT__r11, expected["R"][11], "R11 (user)");
+    CHECK_REG(regs.__PVT__user.__PVT__r12, expected["R"][12], "R12 (user)");
+    CHECK_REG(regs.__PVT__user.__PVT__r13, expected["R"][13], "R13/SP (user)");
+    CHECK_REG(regs.__PVT__user.__PVT__r14, expected["R"][14], "R14/LR (user)");
+    CHECK_REG(regs.__PVT__user.__PVT__r15, expected["R"][15], "R15/PC");
+
+    CHECK_REG(regs.__PVT__fiq.__PVT__r8, expected["R_fiq"][0], "R8_fiq");
+    CHECK_REG(regs.__PVT__fiq.__PVT__r9, expected["R_fiq"][1], "R9_fiq");
+    CHECK_REG(regs.__PVT__fiq.__PVT__r10, expected["R_fiq"][2], "R10_fiq");
+    CHECK_REG(regs.__PVT__fiq.__PVT__r11, expected["R_fiq"][3], "R11_fiq");
+    CHECK_REG(regs.__PVT__fiq.__PVT__r12, expected["R_fiq"][4], "R12_fiq");
+    CHECK_REG(regs.__PVT__fiq.__PVT__r13, expected["R_fiq"][5], "R13_fiq");
+    CHECK_REG(regs.__PVT__fiq.__PVT__r14, expected["R_fiq"][6], "R14_fiq");
+
+    CHECK_REG(regs.__PVT__abort.__PVT__r13, expected["R_abt"][0], "R13_abt");
+    CHECK_REG(regs.__PVT__abort.__PVT__r14, expected["R_abt"][1], "R14_abt");
+
+    CHECK_REG(regs.__PVT__irq.__PVT__r13, expected["R_irq"][0], "R13_irq");
+    CHECK_REG(regs.__PVT__irq.__PVT__r14, expected["R_irq"][1], "R14_irq");
+
+    CHECK_REG(regs.__PVT__supervisor.__PVT__r13, expected["R_svc"][0], "R13_svc");
+    CHECK_REG(regs.__PVT__supervisor.__PVT__r14, expected["R_svc"][1], "R14_svc");
+
+    CHECK_REG(regs.__PVT__undefined.__PVT__r13, expected["R_und"][0], "R13_und");
+    CHECK_REG(regs.__PVT__undefined.__PVT__r14, expected["R_und"][1], "R14_und");
+
+    CHECK_REG(regs.__PVT__CPSR, expected["CPSR"], "CPSR");
+
+#undef CHECK_REG
+}
+
+static void verify_memory_writes(
+    const Varm_cpu_top& top,
+    const json& testCase,
+    const std::string& test_name) {
+    const auto& memory = top.rootp->arm_cpu_top__DOT__mmu_inst__DOT__memory;
+
+    for (const auto& tx : testCase["transactions"]) {
+        if (tx["kind"].get<int>() == 2) { // write
+            uint32_t addr = tx["addr"].get<uint32_t>();
+            uint32_t expected = tx["data"].get<uint32_t>();
+
+            EXPECT_TRUE(memory.exists(addr))
+                << "Memory write missing at addr=" << addr
+                << " in test " << test_name;
+
+            uint32_t actual = memory.at(addr);
+
+            EXPECT_EQ(actual, expected)
+                << "Memory mismatch at addr=" << addr
+                << " in test " << test_name;
+        }
+    }
+}
+
+static void run_single_test(const json& testCase, const fs::path& source, const size_t index) {
+
+    testing::internal::CaptureStdout();
+    testing::internal::CaptureStderr();
+
+    VerilatedContext ctx;
+    ctx.debug(0);
+    ctx.time(0);
+
+    Varm_cpu_top top(&ctx);
+
+    std::cout << "Cycle 0: Reset Phase 1" << std::endl;
+
+    // Reset
+    top.reset = 1;
+    tick(top, ctx);
+    top.reset = 0;
+
+    std::cout << "\nCycle 1: Reset Phase 2:" << std::endl;
+
+    apply_initial_state(top, testCase);
+
+    ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 3);
+
+    // Fetch
+    tick(top, ctx);
+
+    std::cout << "\nCycle 2: Start flush" << std::endl;
+
+    ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__regs.__PVT__user.__PVT__r15, testCase["base_addr"]);
+
+    // Check if it reset correctly and is now starting a flush.
+    ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 2);
+
+    tick(top, ctx);
+
+    const auto& IR = top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__IR;
+
+    // The IR should be latched
+    ASSERT_EQ(IR, testCase["opcode"]);
+
+    std::cout << "\nCycle 3: Start flush and decode" << std::endl;
+
+    ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 1);
+
+    // Fetch and Decode
+    tick(top, ctx);
+
+    ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__decoder_inst__DOT__IR, testCase["opcode"]);
+
+    // Check if it flushed the reset correctly and is now ready to begin executing the instruction.
+    ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__controlUnit__DOT__flush_cnt, 0);
+
+    const auto pipe1 = testCase["initial"]["pipeline"][1].get<uint32_t>();
+
+    // Verify pipeline looks good
+    ASSERT_EQ(top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__decoder_inst__DOT__IR, testCase["initial"]["pipeline"][0])
+        << "Pipeline stage 2 mismatch in test " << index
+        << " where " << top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__decoder_inst__DOT__IR << " != " << testCase["initial"]["pipeline"][0];
+
+    top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary = 0;
+
+    int max_ticks = 5;
+    int cycles = 0;
+    while (top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary == 0 && max_ticks-- > 0) {
+        std::cout << "\nCycle " << (cycles + 4) << ": Execute" << std::endl;
+        tick(top, ctx);
+        cycles++;
+    }
+
+    EXPECT_GT(max_ticks, 0)
+        << "Timeout in test " << index
+        << " from " << source;
+
+    if (top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__flush_req) {
+        std::cout << "\n2 cycles of flush remaining" << std::endl;
+        tick(top, ctx);
+        std::cout << "\n1 cycles of flush remaining" << std::endl;
+        tick(top, ctx);
+    }
+
+    verify_registers(top, testCase["final"], std::to_string(index));
+    verify_memory_writes(top, testCase, std::to_string(index));
+
+    std::string stdout_output = testing::internal::GetCapturedStdout();
+    std::string stderr_output = testing::internal::GetCapturedStderr();
+
+    if (::testing::Test::HasFailure()) {
+        std::cerr << "\n==== Captured stdout ====\n"
+                  << stdout_output
+                  << "\n==== Captured stderr ====\n"
+                  << stderr_output;
+
+        dump_failed_test_to_file(testCase, source);
+    }
+}
+
+static void run_single_file(const fs::path& path) {
+    TestStream stream(path.string());
+
+    json testCase;
+    size_t test_index = 0;
+
+    while (stream.next(testCase)) {
+        run_single_test(testCase, path, test_index);
+        if (::testing::Test::HasFailure())
+            break;
+        ++test_index;
+    }
+}
+
+class GameboyAdvanceOpcodeTest : public ::testing::TestWithParam<fs::path> { };
+
+TEST_P(GameboyAdvanceOpcodeTest, Run) {
+    run_single_file(GetParam());
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    CPUTests,
+    GameboyAdvanceOpcodeTest,
+    ::testing::ValuesIn(collect_files_in_directory(
+        kTestDir,
+        ".bin")),
+    get_test_name);

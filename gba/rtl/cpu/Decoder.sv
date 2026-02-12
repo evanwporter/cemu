@@ -1,0 +1,191 @@
+import types_pkg::*;
+import cpu_types_pkg::*;
+import cpu_util_pkg::*;
+
+module Decoder (
+    input logic clk,
+    input logic reset,
+    Decoder_if.Decoder_side bus
+);
+
+  word_t IR;
+
+  always_ff @(posedge clk) begin
+    if (reset) begin
+      // Reset logic here
+      IR = 32'h0;
+    end else begin
+      if (bus.pipeline_advance) begin
+        IR <= bus.IR;
+        $display("Decoder: Latched instruction 0x%08x into IR", bus.IR);
+      end
+    end
+  end
+
+  always_comb begin
+    bus.word.condition_pass =
+        eval_cond(condition_t'(IR[31:28]), bus.flags.n, bus.flags.z, bus.flags.c, bus.flags.v);
+
+    bus.word.Rn = IR[19:16];
+    $display("Decoder: Extracted Rn = R%0d from IR %b", bus.word.Rn, IR[19:16]);
+    bus.word.Rd = IR[15:12];
+    bus.word.Rs = IR[11:8];
+    bus.word.Rm = IR[3:0];
+
+    bus.word.IR = IR;
+
+    bus.word.immediate = 24'b0;
+
+    bus.word.instr_type = ARM_INSTR_UNDEFINED;
+
+    $display("Decoder: Decoding instruction 0x%08x", IR);
+
+    priority casez (IR)
+      /// Branch and Branch Exchange
+      32'b????_0001_0010_1111_1111_1111_0001_????: begin
+        $display("Decoder: Detected BX instruction with IR=0x%08x", IR);
+      end
+
+      /// Block Data Transfer
+      32'b????_100?_????_????_????_????_????_????: begin
+        bus.word.immediate.block.P = pre_post_offset_flag_t'(IR[24]);
+        bus.word.immediate.block.U = IR[23];
+        bus.word.immediate.block.S = IR[22];
+        bus.word.immediate.block.W = IR[21];
+        bus.word.immediate.block.reg_list = IR[15:0];
+
+        $display("Decoder: Detected block data transfer instruction with IR=0x%08x", IR);
+      end
+
+      /// Branch
+      32'b????_1010_????_????_????_????_????_????: begin
+        $display("Decoder: Detected B instruction with IR=0x%08x", IR);
+      end
+
+      /// Branch with Link
+      32'b????_1011_????_????_????_????_????_????: begin
+        $display("Decoder: Detected BL instruction with IR=0x%08x", IR);
+      end
+
+      /// Software Interrupt
+      32'b????_1111_????_????_????_????_????_????: begin
+        $display("Decoder: Detected SWI instruction with IR=0x%08x", IR);
+      end
+
+      /// Single Data Transfer
+      32'b????_01??_????_????_????_????_????_????: begin
+        bus.word.immediate.ls.I  = mem_offset_flag_t'(IR[25]);
+        bus.word.immediate.ls.P  = pre_post_offset_flag_t'(IR[24]);
+        bus.word.immediate.ls.U  = IR[23];
+        bus.word.immediate.ls.B  = bit_length_flag_t'(IR[22]);
+        bus.word.immediate.ls.wt = IR[21];
+
+        if (IR[20] == 1'b1) begin
+          bus.word.instr_type = ARM_INSTR_LOAD;
+        end else begin
+          bus.word.instr_type = ARM_INSTR_STORE;
+        end
+
+        if (bus.word.immediate.ls.I == ARM_LDR_STR_SHIFTED) begin
+          bus.word.immediate.ls.offset.shifted.shift_amount = IR[11:7];
+          bus.word.immediate.ls.offset.shifted.shift_type   = shift_type_t'(IR[6:5]);
+        end else begin
+          bus.word.immediate.ls.offset.imm12 = IR[11:0];
+        end
+
+        $display("Decoder: Detected single data transfer instruction with IR=0x%08x", IR);
+      end
+
+      /// Single Data Swap
+      32'b????_0001_0???_????_????_0000_1001_????: begin
+        $display("Decoder: Detected single data swap instruction with IR=0x%08x", IR);
+      end
+
+      /// Multiply
+      32'b????_0000_0???_????_????_????_1001_????: begin
+        $display("Decoder: Detected multiply instruction with IR=0x%08x", IR);
+      end
+
+      /// Multiply Long
+      32'b????_0000_1???_????_????_????_1001_????: begin
+        $display("Decoder: Detected multiply long instruction with IR=0x%08x", IR);
+      end
+
+      // Halfword Data Transfer Register
+      32'b????_000?_?0??_????_????_0000_1??1_????: begin
+        $display("Decoder: Detected halfword data transfer register instruction with IR=0x%08x",
+                 IR);
+      end
+
+      /// Halfword Data Transfer Immediate
+      32'b????_000?_?1??_????_????_????_1??1_????: begin
+        $display("Decoder: Detected halfword data transfer immediate instruction with IR=0x%08x",
+                 IR);
+      end
+
+      /// PSR Transfer MSR
+      32'b????_0001_0?00_1111_????_????_????_????: begin
+        $display("Decoder: Detected MSR instruction with IR=0x%08x", IR);
+      end
+
+      /// PSR Transfer MRS
+      32'b????_00?1_0?10_????_1111_????_????_????: begin
+        $display("Decoder: Detected MRS instruction with IR=0x%08x", IR);
+      end
+
+      /// Data Processing
+      32'b????_00??_????_????_????_????_????_????: begin
+
+        $display("Decoder: Detected data processing instruction with IR=0x%08x", IR);
+        $fflush();
+
+        // Notable bits
+        // 2nd Operand
+        // 25 (I): indicates whether its an immediate value or a register value
+        //  (1) = immediate, (0) = register
+        // 4 (R): Shift by register or immediate
+        //   (0) = immediate, (1) = register
+
+        // Forms:
+        // I=0 R=0: Register with immediate shift
+        // I=0 R=1: Register with register shift
+        // I=1: Immediate value with rotate
+
+        if (IR[25] == 1'b1) begin
+          // Immediate value with rotate
+          bus.word.immediate.data_proc_imm.imm8 = IR[7:0];
+          bus.word.immediate.data_proc_imm.rotate = IR[11:8];
+          bus.word.immediate.data_proc_imm.set_flags = IR[20];
+
+          bus.word.immediate.data_proc_imm.opcode = IR[24:21];
+          bus.word.instr_type = ARM_INSTR_DATAPROC_IMM;
+
+          $display(
+              "Decoded data processing immediate instruction with opcode=%0d, set_flags=%0b, imm8=0x%02x, rotate=0x%01x",
+              bus.word.immediate.data_proc_imm.opcode, bus.word.immediate.data_proc_imm.set_flags,
+              bus.word.immediate.data_proc_imm.imm8, bus.word.immediate.data_proc_imm.rotate);
+        end else if (IR[4] == 1'b0) begin  // IR[25] == 1'b0 is implied
+          // Register with immediate shift
+          bus.word.immediate.data_proc_reg_imm.shift_amount = IR[11:7];
+          bus.word.immediate.data_proc_reg_imm.shift_type = shift_type_t'(IR[6:5]);
+          bus.word.immediate.data_proc_reg_imm.set_flags = IR[20];
+          bus.word.immediate.data_proc_reg_imm.opcode = IR[24:21];
+          bus.word.instr_type = ARM_INSTR_DATAPROC_REG_IMM;
+        end else begin
+          // Register with register shift
+          bus.word.immediate.data_proc_reg_reg.shift_type = shift_type_t'(IR[6:5]);
+          bus.word.immediate.data_proc_reg_reg.opcode = IR[24:21];
+          bus.word.immediate.data_proc_reg_reg.set_flags = IR[20];
+          bus.word.instr_type = ARM_INSTR_DATAPROC_REG_REG;
+        end
+      end
+
+      default: begin
+        // TODO error
+        $display("Decoder: Unrecognized instruction with IR=0x%08x", IR);
+      end
+    endcase
+  end
+  // end
+
+endmodule : Decoder

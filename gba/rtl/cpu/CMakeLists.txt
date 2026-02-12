@@ -1,0 +1,14 @@
+gba_add_rtl(
+    PACKAGES
+        ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/control_types.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/util.sv
+    INTERFACES
+        ${CMAKE_CURRENT_SOURCE_DIR}/interface.sv
+    SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/ALU.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/BarrelShifter.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/CPU.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/Decoder.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/ControlUnit.sv
+)

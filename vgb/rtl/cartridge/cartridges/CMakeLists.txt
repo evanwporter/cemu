@@ -1,7 +1,0 @@
-vemu_add_rtl(
-    PACKAGES 
-        ${CMAKE_CURRENT_SOURCE_DIR}/MBC1.sv
-        ${CMAKE_CURRENT_SOURCE_DIR}/MBC3.sv
-    INTERFACES
-    SOURCES
-)
