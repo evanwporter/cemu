@@ -33,7 +33,11 @@ package control_types_pkg;
   } shift_source_t;
 
   typedef enum logic {
+    /// By default, the A bus uses the value from register Rn
     A_BUS_SRC_RN,
+
+    /// Set the A_bus to the immediate value
+    /// If set, then `A_bus_imm` must be assigned.
     A_BUS_SRC_IMM
   } A_bus_source_t;
 
@@ -66,6 +70,10 @@ package control_types_pkg;
     ALU_WB_REG_RD,
     ALU_WB_REG_RS,
     ALU_WB_REG_RN,
+
+    /// If set, we need also need to set `ALU_Rp_imm`
+    ALU_WB_REG_RP,
+
     ALU_WB_REG_14
   } alu_writeback_source_t;
 
@@ -75,10 +83,10 @@ package control_types_pkg;
     // Register Bank
     // ======================================================
 
-    /// Whether to update the PC with the incremented address
+    /// Whether to update the `PC` with the incremented address
     logic incrementer_writeback;
 
-    /// Write back to register Rd from ALU output
+    /// Write back to register `Rd` from ALU output
     alu_writeback_source_t ALU_writeback;
 
     // ======================================================
@@ -97,7 +105,7 @@ package control_types_pkg;
     A_bus_source_t A_bus_source;
 
     /// Immediate value to place on the A bus, if selected in `A_bus_source`
-    logic [11:0] A_bus_imm;
+    logic [3:0] A_bus_imm;
 
     // ======================================================
     // B Bus
@@ -147,6 +155,8 @@ package control_types_pkg;
     /// Whether to use the B_bus value in the ALU for the current cycle
     /// If true, then regardless of what the B_bus value is, the ALU will use zero as its B operand
     logic ALU_disable_op_b;
+
+    logic [3:0] ALU_Rp_imm;
 
     // TODO
     logic ALU_set_flags;

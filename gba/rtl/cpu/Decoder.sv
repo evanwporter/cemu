@@ -54,6 +54,12 @@ module Decoder (
         bus.word.immediate.block.W = IR[21];
         bus.word.immediate.block.reg_list = IR[15:0];
 
+        if (IR[20] == 1'b1) begin
+          bus.word.instr_type = ARM_INSTR_LDM;
+        end else begin
+          bus.word.instr_type = ARM_INSTR_STM;
+        end
+
         $display("Decoder: Detected block data transfer instruction with IR=0x%08x", IR);
       end
 

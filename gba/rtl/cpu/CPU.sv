@@ -117,11 +117,22 @@ module CPU (
   // ======================================================
 
   // This may get more complicated in the future
-  assign A_bus = control_signals.pc_rn_add_4 ? (read_reg(
-      regs, cpu_mode, decoder_bus.word.Rn
-  ) + 32'd4) : read_reg(
-      regs, cpu_mode, decoder_bus.word.Rn
-  );
+  always_comb begin
+    if (control_signals.A_bus_source == A_BUS_SRC_RN) begin
+      $display("Driving A bus with value from Rn (R%d): %0d", decoder_bus.word.Rn, read_reg(
+               regs, cpu_mode, decoder_bus.word.Rn));
+      if (control_signals.pc_rn_add_4) begin
+        A_bus = read_reg(regs, cpu_mode, decoder_bus.word.Rn) + 32'd4;
+      end else begin
+        A_bus = read_reg(regs, cpu_mode, decoder_bus.word.Rn);
+      end
+    end else begin  // A_BUS_SRC_IMM
+      $display("Driving A bus with value from imm (%0d)", control_signals.A_bus_imm);
+      // TODO: check if i need to multiply it by 4?
+      A_bus = word_t'(control_signals.A_bus_imm);
+    end
+  end
+
 
   function automatic word_t ror32(word_t x, int unsigned sh);
     ror32 = (x >> sh) | (x << (32 - sh));
@@ -278,6 +289,9 @@ module CPU (
           `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rn, alu_bus.result)
         end
         ALU_WB_REG_14: `WRITE_REG(regs, cpu_mode, 14, alu_bus.result)
+        ALU_WB_REG_RP: begin
+          `WRITE_REG(regs, cpu_mode, control_signals.ALU_Rp_imm, alu_bus.result)
+        end
       endcase
     end
   end

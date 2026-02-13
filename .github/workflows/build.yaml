@@ -1,4 +1,4 @@
-name: gba
+name: vemu
 
 on:
   workflow_dispatch:

@@ -21,6 +21,8 @@
   $display("incrementer_writeback : %0b", ctrl.incrementer_writeback); \
   $display("ALU_writeback         : %s", ctrl.ALU_writeback.name()); \
   $display("shift_source          : %s", ctrl.shift_source.name()); \
+  $display("A_bus_source          : %s", ctrl.A_bus_source.name()); \
+  $display("A_bus_imm             : 0x%0d", ctrl.A_bus_imm); \
   $display("B_bus_source          : %s", ctrl.B_bus_source.name()); \
   $display("B_bus_imm             : 0x%03h", ctrl.B_bus_imm); \
   $display("addr_bus_src          : %s", ctrl.addr_bus_src.name()); \
@@ -31,13 +33,19 @@
   $display("ALU_latch_op_b        : %0b", ctrl.ALU_latch_op_b); \
   $display("ALU_use_op_b_latch    : %0b", ctrl.ALU_use_op_b_latch); \
   $display("ALU_disable_op_b      : %0b", ctrl.ALU_disable_op_b); \
+  $display("ALU_Rp_imm            : %0d", ctrl.ALU_Rp_imm); \
   $display("ALU_set_flags         : %0b", ctrl.ALU_set_flags); \
   $display("ALU_op                : %s", ctrl.ALU_op.name()); \
+  $display("pc_rn_add_4           : %0b", ctrl.pc_rn_add_4); \
+  $display("pc_rs_add_4           : %0b", ctrl.pc_rs_add_4); \
+  $display("pc_rm_add_4           : %0b", ctrl.pc_rm_add_4); \
   $display("shift_latch_amt       : %0b", ctrl.shift_latch_amt); \
   $display("shift_use_latch       : %0b", ctrl.shift_use_latch); \
   $display("shift_type            : %s", ctrl.shift_type.name()); \
+  $display("shift_use_rxx         : %0b", ctrl.shift_use_rxx); \
   $display("shift_amount          : %0d", ctrl.shift_amount); \
-  $display("advance_pipeline      : %0b", ctrl.pipeline_advance); \
+  $display("pipeline_flush        : %0b", ctrl.pipeline_flush); \
+  $display("pipeline_advance      : %0b", ctrl.pipeline_advance); \
   $display("----------------------"); \
   $fflush();
 
@@ -124,6 +132,30 @@
     $fflush(); \
   end
 
+`define DISPLAY_DECODED_BLOCK(word) \
+  begin \
+    $display("---- DECODED WORD (BLOCK DATA TRANSFER) ----"); \
+    $display("IR           = 0x%08x", (word).IR); \
+    $display("instr_type   = %s", (word).instr_type.name()); \
+    $display("cond pass    = %0d", (word).condition_pass); \
+    $display("Rn (base)    = R%0d", (word).Rn); \
+    $display(""); \
+    $display("Addressing Mode:"); \
+    $display("  P (index)  = %s", (word).immediate.block.P.name()); \
+    $display("  U (add)    = %0b", (word).immediate.block.U); \
+    $display("  S (PSR)    = %0b", (word).immediate.block.S); \
+    $display("  W (wb)     = %0b", (word).immediate.block.W); \
+    $display(""); \
+    $display("Register List (reg_list = 0x%04h):", \
+             (word).immediate.block.reg_list); \
+    for (int i = 0; i < 16; i++) begin \
+      if ((word).immediate.block.reg_list[i]) \
+        $write("R%0d ", i); \
+    end \
+    $display(""); \
+    $display("--------------------------------------------"); \
+    $fflush(); \
+  end
 
 `define WRITE_REG(REGS, MODE, REGNUM, VALUE) \
   begin \

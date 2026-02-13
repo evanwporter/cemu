@@ -112,4 +112,30 @@ package cpu_util_pkg;
     endcase
   endfunction
 
+  /// TODO: Look into replacing with $countones / $countbits
+  function automatic logic [3:0] count_ones(input logic [15:0] value);
+    logic [3:0] count;
+    count = 4'd0;
+    for (logic [4:0] i = 0; i < 16; i++) begin
+      count += 4'(value[4'(i)]);
+    end
+    return count;
+  endfunction
+
+  /// Finds the first i'th 1 bit in `value`.
+  // TODO: this should be a priority encoder
+  function automatic logic [3:0] get_ith_bit(input logic [3:0] i, input logic [15:0] value);
+    logic [3:0] found;
+    found = 4'd0;
+    for (logic [4:0] j = 0; j < 16; j++) begin
+      if (value[4'(j)]) begin
+        if (found == i) begin
+          return 4'(j);
+        end
+        found += 4'd1;
+      end
+    end
+    return 4'd0;
+  endfunction : get_ith_bit
+
 endpackage : cpu_util_pkg

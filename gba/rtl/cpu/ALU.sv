@@ -15,6 +15,7 @@ module ALU (
   always_comb begin
     if (bus.use_op_b_latch) begin
       $display("ALU: Using latched result 0x%08x", op_b_latch);
+      $fflush();
     end
   end
 
@@ -25,7 +26,7 @@ module ALU (
       op_b_latch <= 32'h0;
     end else begin
       $display(
-          "ALU: op=%s,latch_op_b=%b, use_op_b_latch=%b, disable_op_b=%b, op_a=%0d, op_b=%0d. result=%0d",
+          "ALU: op=%s, latch_op_b=%b, use_op_b_latch=%b, disable_op_b=%b, op_a=%0d, op_b=%0d. result=%0d",
           bus.alu_op.name(), bus.latch_op_b, bus.use_op_b_latch, bus.disable_op_b, bus.op_a, op_b,
           bus.result);
 
