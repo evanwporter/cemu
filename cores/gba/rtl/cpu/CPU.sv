@@ -230,7 +230,7 @@ module CPU (
       flush_req <= 1'b0;
 
       if (control_signals.pipeline_advance && flush_req_pending) begin
-        $display("Pipeline vgba, checking for writebacks and flushes");
+        $display("Pipeline gba, checking for writebacks and flushes");
         $fflush();
 
         flush_req_pending <= 1'b0;

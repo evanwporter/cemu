@@ -50,14 +50,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(argparse)
 
-add_executable(vgb ${CMAKE_CURRENT_SOURCE_DIR}/sim/main.cpp)
+add_executable(gb ${CMAKE_CURRENT_SOURCE_DIR}/sim/main.cpp)
 
-target_include_directories(vgb PRIVATE
-    ${CMAKE_BINARY_DIR}/vgb/CMakeFiles/libgb.dir/VGameboy.dir
+target_include_directories(gb PRIVATE
+    ${CMAKE_BINARY_DIR}/gb/CMakeFiles/libgb.dir/VGameboy.dir
     ${VERILATOR_ROOT}/include
 )
 
-target_link_libraries(vgb PRIVATE
+target_link_libraries(gb PRIVATE
     libgb
     argparse
     GameboyHarness

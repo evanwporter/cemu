@@ -432,7 +432,7 @@ bool GB::run() {
             break;
 
         case DebugCommand::Pause:
-            // don't vgba emu, but keep drawing debugger UI
+            // stop program, but keep drawing debugger UI
             // if (debugger)
             //     debugger->on_idle();
             break;

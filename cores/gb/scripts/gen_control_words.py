@@ -1364,11 +1364,11 @@ def generate_cb_sv(cb_control_words, cb_opcode_comments) -> str:
     return "".join(lines)
 
 
-output_path = "vgb/src/cpu/control_words.svh"
+output_path = "cores/gb/src/cpu/control_words.svh"
 with open(output_path, "w", newline="\n") as f:
     f.write(generate_sv(control_words, opcode_comments))
 
-output_path_cb = "vgb/src/cpu/cb_control_words.svh"
+output_path_cb = "cores/gb/src/cpu/cb_control_words.svh"
 with open(output_path_cb, "w", newline="\n") as f:
     f.write(generate_cb_sv(cb_control_words, cb_opcode_comments))
 
@@ -1448,6 +1448,6 @@ def generate_interrupt_sv(interrupt_words):
     return "".join(lines)
 
 
-output_path_int = "vgb/src/cpu/interrupt_control_words.svh"
+output_path_int = "cores/gb/src/cpu/interrupt_control_words.svh"
 with open(output_path_int, "w", newline="\n") as f:
     f.write(generate_interrupt_sv(interrupt_words))

@@ -354,7 +354,7 @@ module PPU (
           if (regs.LY == GB_SCREEN_HEIGHT - 1) IF_bus.vblank_req <= 1'b1;
 
         end else begin
-          // If we haven't reached end of line, then vgba dot
+          // If we haven't reached end of line, then advance dot
           dot_counter <= dot_counter + 1'b1;
         end
       end

@@ -48,10 +48,10 @@ jobs:
 
       - name: Run gameboy tests
         if: matrix.test == 'test_gb'
-        run: ctest --test-dir build/debug -R ^test_gb$ -V
+        run: ctest --test-dir build/debug/ -R ^test_gb$ -V
 
       - name: Run gameboy gba tests
         if: matrix.test == 'test_gba'
         run: |
-          build\debug\gba\tests\test_gba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_data_proc_*_json
-          build\debug\gba\tests\test_gba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_ldr_str_*_json
+          build\debug\cores\gba\tests\test_gba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_data_proc_*_json
+          build\debug\cores\gba\tests\test_gba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_ldr_str_*_json

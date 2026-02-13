@@ -1,4 +1,4 @@
-// ./build/debug/vgb/tests/test_gb.exe --gtest_filter=PPU* --update
+// ./build/debug/gb/tests/test_gb.exe --gtest_filter=PPU* --update
 //
 // You can display the generated PPM files using the util/display_ppm tool.
 

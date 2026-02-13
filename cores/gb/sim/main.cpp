@@ -21,7 +21,7 @@ double sc_time_stamp() {
 }
 
 int main(int argc, char* argv[]) {
-    argparse::ArgumentParser program("vgb");
+    argparse::ArgumentParser program("gb");
 
     program.add_argument("rom")
         .help("Path to the ROM file to load.");
