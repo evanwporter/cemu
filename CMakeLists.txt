@@ -6,6 +6,4 @@ enable_testing()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(cemu)
-add_subdirectory(gb)
-add_subdirectory(gba)
+add_subdirectory(cores)
