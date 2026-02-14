@@ -1,6 +1,7 @@
 import types_pkg::*;
 import cpu_types_pkg::*;
 import cpu_util_pkg::*;
+import cpu_decoder_types_pkg::*;
 
 module Decoder (
     input logic clk,

@@ -26,7 +26,7 @@ module ALU (
       op_b_latch <= 32'h0;
     end else begin
       $display(
-          "ALU: op=%s, latch_op_b=%b, use_op_b_latch=%b, disable_op_b=%b, op_a=%0d, op_b=%0d. result=%0d",
+          "ALU: op=%s, latch_op_b=%b, use_op_b_latch=%b, disable_op_b=%b, op_a=%0d, op_b=%0d, result=%0d",
           bus.alu_op.name(), bus.latch_op_b, bus.use_op_b_latch, bus.disable_op_b, bus.op_a, op_b,
           bus.result);
 
@@ -84,29 +84,29 @@ module ALU (
       end
 
       ALU_OP_ADD, ALU_OP_CMP_NEG: begin
-        temp            = {1'b0, bus.op_a} + {1'b0, op_b};
-        bus.result      = temp[31:0];
+        temp = {1'b0, bus.op_a} + {1'b0, op_b};
+        bus.result = temp[31:0];
         bus.flags_out.c = temp[32];
         bus.flags_out.v = ~(bus.op_a[31] ^ op_b[31]) & (bus.op_a[31] ^ bus.result[31]);
       end
 
       ALU_OP_ADC: begin
-        temp            = {1'b0, bus.op_a} + {1'b0, op_b} + {32'b0, bus.flags_in.c};
-        bus.result      = temp[31:0];
+        temp = {1'b0, bus.op_a} + {1'b0, op_b} + {32'b0, bus.flags_in.c};
+        bus.result = temp[31:0];
         bus.flags_out.c = temp[32];
         bus.flags_out.v = ~(bus.op_a[31] ^ op_b[31]) & (bus.op_a[31] ^ bus.result[31]);
       end
 
       ALU_OP_SUB, ALU_OP_CMP: begin
-        temp            = {1'b0, bus.op_a} - {1'b0, op_b};
-        bus.result      = temp[31:0];
+        temp = {1'b0, bus.op_a} - {1'b0, op_b};
+        bus.result = temp[31:0];
         bus.flags_out.c = ~temp[32];  // NOT borrow
         bus.flags_out.v = (bus.op_a[31] ^ op_b[31]) & (bus.op_a[31] ^ bus.result[31]);
       end
 
       ALU_OP_SBC: begin
-        temp            = {1'b0, bus.op_a} - {1'b0, op_b} - {32'b0, ~bus.flags_in.c};
-        bus.result      = temp[31:0];
+        temp = {1'b0, bus.op_a} - {1'b0, op_b} - {32'b0, ~bus.flags_in.c};
+        bus.result = temp[31:0];
         bus.flags_out.c = ~temp[32];
         bus.flags_out.v = (bus.op_a[31] ^ op_b[31]) & (bus.op_a[31] ^ bus.result[31]);
       end

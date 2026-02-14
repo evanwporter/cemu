@@ -1,6 +1,7 @@
 import control_types_pkg::*;
 import cpu_types_pkg::*;
 import cpu_util_pkg::*;
+import cpu_decoder_types_pkg::*;
 
 `include "cpu/util.svh"
 
@@ -113,6 +114,17 @@ module ControlUnit (
       $display("ControlUnit: Flush cycle 2, flushing instruction");
       $fflush();
 
+    end else if (decoder_bus.word.condition_pass == 1'b0) begin
+      // If the condition check fails, we still want to advance the pipeline and fetch the next instruction
+      control_signals.memory_read_en = 1;
+      control_signals.memory_latch_IR = 1;
+      control_signals.incrementer_writeback = 1;
+      control_signals.addr_bus_src = ADDR_SRC_PC;
+      control_signals.pipeline_advance = 1'b1;
+
+      $display("ControlUnit: Condition check failed, advancing pipeline to fetch next instruction");
+      $fflush();
+
     end else begin
 
       case (decoder_bus.word.instr_type)
@@ -136,13 +148,11 @@ module ControlUnit (
 
             control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode);
 
-            if (decoder_bus.word.condition_pass) begin
-              control_signals.ALU_writeback = cpu_util_pkg::get_alu_writeback(
-                  alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode));
-              control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_imm.set_flags;
-              $display("ControlUnit: ALU writeback source=%0d, set_flags=%b",
-                       control_signals.ALU_writeback, control_signals.ALU_set_flags);
-            end
+            control_signals.ALU_writeback = cpu_util_pkg::get_alu_writeback(
+                alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode));
+            control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_imm.set_flags;
+            $display("ControlUnit: ALU writeback source=%0d, set_flags=%b",
+                     control_signals.ALU_writeback, control_signals.ALU_set_flags);
 
             control_signals.pipeline_advance = 1'b1;
 
@@ -188,11 +198,9 @@ module ControlUnit (
 
             control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_reg_reg.opcode);
 
-            if (decoder_bus.word.condition_pass) begin
-              control_signals.ALU_writeback = cpu_util_pkg::get_alu_writeback(
-                  alu_op_t'(decoder_bus.word.immediate.data_proc_reg_reg.opcode));
-              control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_reg_reg.set_flags;
-            end
+            control_signals.ALU_writeback = cpu_util_pkg::get_alu_writeback(
+                alu_op_t'(decoder_bus.word.immediate.data_proc_reg_reg.opcode));
+            control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_reg_reg.set_flags;
 
             if (cycle == 4'd1 && decoder_bus.word.Rn == 4'd15) begin
               control_signals.pc_rn_add_4 = 1'b1;
@@ -224,11 +232,9 @@ module ControlUnit (
 
           control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_reg_imm.opcode);
 
-          if (decoder_bus.word.condition_pass) begin
-            control_signals.ALU_writeback = cpu_util_pkg::get_alu_writeback(
-                alu_op_t'(decoder_bus.word.immediate.data_proc_reg_imm.opcode));
-            control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_reg_imm.set_flags;
-          end
+          control_signals.ALU_writeback = cpu_util_pkg::get_alu_writeback(
+              alu_op_t'(decoder_bus.word.immediate.data_proc_reg_imm.opcode));
+          control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_reg_imm.set_flags;
 
           if (decoder_bus.word.immediate.data_proc_reg_imm.shift_type == SHIFT_ROR &&
               decoder_bus.word.immediate.data_proc_reg_imm.shift_amount == 5'd0) begin
@@ -320,9 +326,8 @@ module ControlUnit (
               control_signals.ALU_op = decoder_bus.word.immediate.ls.U ? ALU_OP_ADD : ALU_OP_SUB;
 
               // Do we writeback?
-              if (decoder_bus.word.condition_pass &&
-                  (decoder_bus.word.immediate.ls.P == ARM_LDR_STR_POST_OFFSET 
-                  || decoder_bus.word.immediate.ls.wt == 1'b1)) begin
+              if (decoder_bus.word.immediate.ls.P == ARM_LDR_STR_POST_OFFSET 
+                  || decoder_bus.word.immediate.ls.wt == 1'b1) begin
                 // Since we are writing back to the base register, 
                 // we need to make sure to use the offset for the writeback
                 // which we latched in the previous cycle
@@ -355,11 +360,9 @@ module ControlUnit (
               // back to the register file
               control_signals.B_bus_source = B_BUS_SRC_READ_DATA;
 
-              if (decoder_bus.word.condition_pass) begin
-                // Write back to Rd from the ALU output, which is the 
-                // value read from memory
-                control_signals.ALU_writeback = ALU_WB_REG_RD;
-              end
+              // Write back to Rd from the ALU output, which is the 
+              // value read from memory
+              control_signals.ALU_writeback = ALU_WB_REG_RD;
 
               control_signals.memory_byte_transfer = decoder_bus.word.immediate.ls.B;
 
@@ -382,9 +385,8 @@ module ControlUnit (
               control_signals.memory_byte_transfer = decoder_bus.word.immediate.ls.B;
 
               // Do we writeback?
-              if (decoder_bus.word.condition_pass &&
-                  (decoder_bus.word.immediate.ls.P == ARM_LDR_STR_POST_OFFSET 
-                   || decoder_bus.word.immediate.ls.wt == 1'b1)) begin
+              if (decoder_bus.word.immediate.ls.P == ARM_LDR_STR_POST_OFFSET 
+                  || decoder_bus.word.immediate.ls.wt == 1'b1) begin
                 // Since we are writing back to the base register, 
                 // we need to make sure to use the offset for the writeback
                 // which we latched in the previous cycle
@@ -425,7 +427,7 @@ module ControlUnit (
             control_signals.A_bus_source = A_BUS_SRC_IMM;
             control_signals.A_bus_imm = regs_count;
 
-            control_signals.ALU_op = decoder_bus.word.immediate.block.U ? ALU_OP_ADD : ALU_OP_SUB;
+            control_signals.ALU_op = decoder_bus.word.immediate.block.U ? ALU_OP_ADD : ALU_OP_SUB_REVERSED;
 
             // If its pre offset we add/subtract the offset to the base register before the memory access
             if (decoder_bus.word.immediate.block.P == ARM_LDR_STR_PRE_OFFSET) begin
@@ -463,10 +465,11 @@ module ControlUnit (
             /// We can use $countones / $countbits
             /// And $low(index, bits) to get the offset for the current register we are loading
 
+            control_signals.ALU_op = decoder_bus.word.immediate.block.U ? ALU_OP_ADD : ALU_OP_SUB_REVERSED;
+
             // Do we writeback?
-            if (decoder_bus.word.condition_pass &&
-                  (decoder_bus.word.immediate.block.P == ARM_LDR_STR_POST_OFFSET 
-                  || decoder_bus.word.immediate.block.W == 1'b1)) begin
+            if (decoder_bus.word.immediate.block.P == ARM_LDR_STR_POST_OFFSET 
+                || decoder_bus.word.immediate.block.W == 1'b1) begin
               // Since we are writing back to the base register, 
               // we need to make sure to use the offset for the writeback
               // which we latched in the previous cycle

@@ -1,5 +1,6 @@
 import types_pkg::*;
 import cpu_types_pkg::*;
+import cpu_decoder_types_pkg::*;
 
 interface Decoder_if (
     input word_t  IR,

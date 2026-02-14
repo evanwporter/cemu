@@ -1,5 +1,5 @@
 {
-  "indexGlobs": ["./gb/src/.../*.sv*", "./gba/rtl/.../*.sv*"],
-  "flags": "-f ./build/debug/gba/rtl/gba.f",
-  "build": "./build/debug/gba/rtl/gba.f"
+  "indexGlobs": ["./cores/gb/src/.../*.sv*", "./cores/gba/rtl/.../*.sv*"],
+  "flags": "-f ./build/debug/cores/gba/rtl/gba.f",
+  "build": "./build/debug/cores/gba/rtl/gba.f"
 }

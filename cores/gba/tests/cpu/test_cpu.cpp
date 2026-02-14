@@ -83,6 +83,14 @@ static void apply_instruction_memory(Varm_cpu_top& top, const json& test) {
             test["transactions"][i]["addr"].get<uint32_t>(),
             test["transactions"][i]["data"].get<uint32_t>());
     }
+
+    std::cout << "Initial memory state:" << std::endl;
+    for (size_t i = 0; i < test["transactions"].size(); i++) {
+        uint32_t addr = test["transactions"][i]["addr"].get<uint32_t>();
+        uint32_t data = test["transactions"][i]["data"].get<uint32_t>();
+
+        std::cout << "  [" << addr << "] = " << data << std::endl;
+    }
 }
 
 static void apply_initial_state(Varm_cpu_top& top, const json& test) {
@@ -281,7 +289,7 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
 
     top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary = 0;
 
-    int max_ticks = 5;
+    int max_ticks = 20;
     int cycles = 0;
     while (top.rootp->arm_cpu_top__DOT__cpu_inst__DOT__instr_boundary == 0 && max_ticks-- > 0) {
         std::cout << "\nCycle " << (cycles + 4) << ": Execute" << std::endl;
@@ -311,6 +319,16 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
                   << stdout_output
                   << "\n==== Captured stderr ====\n"
                   << stderr_output;
+
+        const fs::path log_path = fs::current_path() / "failed_test.log";
+        std::ofstream log_file(log_path);
+        log_file << "==== Captured stdout ====\n"
+                 << stdout_output
+                 << "\n==== Captured stderr ====\n"
+                 << stderr_output;
+        log_file.close();
+
+        std::cout << "Wrote logs to: " << log_path.string() << "\n";
 
         dump_failed_test_to_file(testCase, source);
     }

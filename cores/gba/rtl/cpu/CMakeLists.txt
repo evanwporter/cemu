@@ -1,6 +1,7 @@
 gba_add_rtl(
     PACKAGES
         ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/decoder_types.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/control_types.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/util.sv
     INTERFACES

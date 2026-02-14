@@ -128,8 +128,8 @@ module CPU (
       end
     end else begin  // A_BUS_SRC_IMM
       $display("Driving A bus with value from imm (%0d)", control_signals.A_bus_imm);
-      // TODO: check if i need to multiply it by 4?
-      A_bus = word_t'(control_signals.A_bus_imm);
+      // TODO: move the x4 somewhere cleaner
+      A_bus = word_t'({control_signals.A_bus_imm, 2'b00});
     end
   end
 
@@ -206,7 +206,8 @@ module CPU (
           read_data <= bus.rdata;
 
           // Misaligned word-load rotate quirk (ARM7TDMI)
-          if (!control_signals.memory_byte_transfer) begin
+          if (decoder_bus.word.instr_type == ARM_INSTR_LOAD && 
+              !control_signals.memory_byte_transfer) begin
             logic [1:0] a;
             a = bus.addr[1:0];
             if (a != 2'b00) begin
@@ -238,10 +239,15 @@ module CPU (
       end
 
       if ((control_signals.ALU_writeback == ALU_WB_REG_RD && decoder_bus.word.Rd == 4'd15) ||
-          (control_signals.ALU_writeback == ALU_WB_REG_RN && decoder_bus.word.Rn == 4'd15)) begin
+          (control_signals.ALU_writeback == ALU_WB_REG_RN && decoder_bus.word.Rn == 4'd15) ||
+          (control_signals.ALU_writeback == ALU_WB_REG_RP && control_signals.ALU_Rp_imm == 4'd15)) begin
+
+        $display("ALU writeback to PC (R15) detected. ALU_writeback=%0d, Rd=%0d, Rn=%0d",
+                 control_signals.ALU_writeback, decoder_bus.word.Rd, decoder_bus.word.Rn);
 
         if (control_signals.pipeline_advance) begin
           flush_req <= 1'b1;
+          $display("Requesting pipeline flush due to writeback to PC (R15)");
         end else begin
           flush_req_pending <= 1'b1;
           $display("Setting flush_req_pending to ensure flush on next cycle.");
