@@ -427,8 +427,6 @@ module ControlUnit (
             control_signals.A_bus_source = A_BUS_SRC_IMM;
             control_signals.A_bus_imm = regs_count;
 
-            control_signals.ALU_op = decoder_bus.word.immediate.block.U ? ALU_OP_ADD : ALU_OP_SUB_REVERSED;
-
             // If its pre offset we add/subtract the offset to the base register before the memory access
             if (decoder_bus.word.immediate.block.P == ARM_LDR_STR_PRE_OFFSET) begin
               if (decoder_bus.word.immediate.block.W == 1'b1) begin
@@ -436,14 +434,17 @@ module ControlUnit (
                 // latch operand b for the writeback in the next cycle
                 control_signals.ALU_latch_op_b = 1'b1;
               end
+
+              control_signals.ALU_op = decoder_bus.word.immediate.block.U ? ALU_OP_ADD : ALU_OP_SUB_REVERSED;
             end else begin
-              // Post offset, so we don't add/subtract operand b
+              // Post offset, so we don't add/subtract operand a
               // before its used to update the address bus
-              control_signals.ALU_disable_op_b = 1'b1;
+              control_signals.ALU_op = ALU_OP_MOV;
 
               // We also make sure to latch operand b so that we can 
               // use it for the writeback in the next cycle
-              control_signals.ALU_latch_op_b   = 1'b1;
+              control_signals.ALU_latch_op_b = 1'b1;
+
             end
 
             $display("ControlUnit: Cycle 0 of LDM instruction, calculating address");
