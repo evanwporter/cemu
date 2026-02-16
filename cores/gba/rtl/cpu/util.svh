@@ -33,7 +33,7 @@
   $display("ALU_latch_op_b        : %0b", ctrl.ALU_latch_op_b); \
   $display("ALU_use_op_b_latch    : %0b", ctrl.ALU_use_op_b_latch); \
   $display("ALU_disable_op_b      : %0b", ctrl.ALU_disable_op_b); \
-  $display("ALU_Rp_imm            : %0d", ctrl.ALU_Rp_imm); \
+  $display("Rp_imm                : %0d", ctrl.Rp_imm); \
   $display("ALU_set_flags         : %0b", ctrl.ALU_set_flags); \
   $display("ALU_op                : %s", ctrl.ALU_op.name()); \
   $display("pc_rn_add_4           : %0b", ctrl.pc_rn_add_4); \

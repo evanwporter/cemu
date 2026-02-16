@@ -21,7 +21,7 @@ module ControlUnit (
 );
 
   /// Cycle counter to keep track of which cycle of the instruction we are on
-  logic [3:0] cycle;
+  logic [7:0] cycle;
 
   logic [2:0] flush_cnt;
 
@@ -30,13 +30,13 @@ module ControlUnit (
 
   always_ff @(posedge clk) begin
     if (reset) begin
-      cycle <= 4'd0;
+      cycle <= 8'd0;
     end else begin
       if (control_signals.pipeline_advance) begin
         $display("\nControlUnit: Instruction complete, preparing for next instruction");
-        cycle <= 4'd0;
+        cycle <= 8'd0;
       end else begin
-        cycle <= cycle + 4'd1;
+        cycle <= cycle + 8'd1;
         $display("\nControlUnit: Instruction not complete");
       end
     end
@@ -138,7 +138,7 @@ module ControlUnit (
                    decoder_bus.word.IR);
           $fflush();
 
-          if (cycle == 4'd0) begin
+          if (cycle == 8'd0) begin
             control_signals.B_bus_source = B_BUS_SRC_IMM;
             control_signals.B_bus_imm = 12'(decoder_bus.word.immediate.data_proc_imm.imm8);
 
@@ -172,7 +172,7 @@ module ControlUnit (
         ARM_INSTR_DATAPROC_REG_REG: begin
           // Performs one internal cycle
           // Notably we don't fetch or decode this cycle
-          if (cycle == 4'd0) begin
+          if (cycle == 8'd0) begin
             // decoder_bus.enable = 1'b0;
 
             control_signals.B_bus_source = B_BUS_SRC_REG_RS;
@@ -182,13 +182,13 @@ module ControlUnit (
             $display("ControlUnit: Instr done is %b, cycle is %0d",
                      control_signals.pipeline_advance, cycle);
 
-            if (cycle == 4'd1 && decoder_bus.word.Rs == 4'd15) begin
+            if (cycle == 8'd1 && decoder_bus.word.Rs == 4'd15) begin
               control_signals.pc_rs_add_4 = 1'b1;
               $display("ControlUnit: Rs is PC, adding 4 to value read from Rs");
             end
           end
 
-          if (cycle == 4'd1) begin
+          if (cycle == 8'd1) begin
             control_signals.shift_use_latch = 1'b1;
 
             control_signals.B_bus_source = B_BUS_SRC_REG_RM;
@@ -202,11 +202,11 @@ module ControlUnit (
                 alu_op_t'(decoder_bus.word.immediate.data_proc_reg_reg.opcode));
             control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_reg_reg.set_flags;
 
-            if (cycle == 4'd1 && decoder_bus.word.Rn == 4'd15) begin
+            if (cycle == 8'd1 && decoder_bus.word.Rn == 4'd15) begin
               control_signals.pc_rn_add_4 = 1'b1;
             end
 
-            if (cycle == 4'd1 && decoder_bus.word.Rm == 4'd15) begin
+            if (cycle == 8'd1 && decoder_bus.word.Rm == 4'd15) begin
               control_signals.pc_rm_add_4 = 1'b1;
             end
 
@@ -252,7 +252,7 @@ module ControlUnit (
         // ============================
 
         ARM_INSTR_STORE, ARM_INSTR_LOAD: begin
-          if (cycle == 4'd0) begin
+          if (cycle == 8'd0) begin
             $display("ControlUnit: Cycle 0 of load/store instruction, calculating address");
 
             // Perform a fetch in this cycle
@@ -318,7 +318,7 @@ module ControlUnit (
 
           if (decoder_bus.word.instr_type == ARM_INSTR_LOAD) begin
 
-            if (cycle == 4'd1) begin
+            if (cycle == 8'd1) begin
 
               $display(
                   "ControlUnit: Cycle 1 of load instruction, address calculation done, preparing for memory read and writeback");
@@ -347,7 +347,7 @@ module ControlUnit (
 
             end
 
-            if (cycle == 4'd2) begin
+            if (cycle == 8'd2) begin
               $display(
                   "ControlUnit: Cycle 2 of load instruction, latching read data and preparing for writeback");
 
@@ -373,7 +373,7 @@ module ControlUnit (
           end
 
           if (decoder_bus.word.instr_type == ARM_INSTR_STORE) begin
-            if (cycle == 4'd1) begin
+            if (cycle == 8'd1) begin
               control_signals.pipeline_advance = 1'b1;
 
               control_signals.B_bus_source = B_BUS_SRC_REG_RD;
@@ -407,11 +407,11 @@ module ControlUnit (
         // Load / Store (Block)
         // ============================
 
-        ARM_INSTR_LDM: begin
+        ARM_INSTR_LDM, ARM_INSTR_STM: begin
           regs_count = count_ones(decoder_bus.word.immediate.block.reg_list);
 
           // First cycle: Prefetch and calculate first address
-          if (cycle == 4'd0) begin
+          if (cycle == 8'd0) begin
             // Perform a prefetch
             control_signals.memory_latch_IR = 1'b1;
             control_signals.memory_read_en = 1'b1;
@@ -448,87 +448,160 @@ module ControlUnit (
             end
 
             $display("ControlUnit: Cycle 0 of LDM instruction, calculating address");
-          end else
+          end else if (decoder_bus.word.instr_type == ARM_INSTR_LDM) begin
 
-          // Optionally writeback address to Rn and 
-          // fetch first first word from memory
-          if (cycle == 4'd1) begin
+            // Optionally writeback address to Rn and 
+            // fetch first first word from memory
+            if (cycle == 8'd1) begin
 
-            // Read the first word in the block
-            control_signals.memory_read_en = 1'b1;
+              // Read the first word in the block
+              control_signals.memory_read_en = 1'b1;
 
-            // Increment address for next (sequential) memory access
-            control_signals.addr_bus_src = ADDR_SRC_INCR;
+              // Increment address for next (sequential) memory access
+              control_signals.addr_bus_src = ADDR_SRC_INCR;
 
-            control_signals.A_bus_source = A_BUS_SRC_IMM;
-            control_signals.A_bus_imm = regs_count;
+              control_signals.A_bus_source = A_BUS_SRC_IMM;
+              control_signals.A_bus_imm = regs_count;
 
-            /// We can use $countones / $countbits
-            /// And $low(index, bits) to get the offset for the current register we are loading
+              control_signals.ALU_op = decoder_bus.word.immediate.block.U ? ALU_OP_ADD : ALU_OP_SUB_REVERSED;
 
-            control_signals.ALU_op = decoder_bus.word.immediate.block.U ? ALU_OP_ADD : ALU_OP_SUB_REVERSED;
-
-            // Do we writeback?
-            if (decoder_bus.word.immediate.block.P == ARM_LDR_STR_POST_OFFSET 
+              // Do we writeback?
+              if (decoder_bus.word.immediate.block.P == ARM_LDR_STR_POST_OFFSET 
                 || decoder_bus.word.immediate.block.W == 1'b1) begin
-              // Since we are writing back to the base register, 
-              // we need to make sure to use the offset for the writeback
-              // which we latched in the previous cycle
-              control_signals.ALU_use_op_b_latch = 1'b1;
-              control_signals.ALU_writeback = ALU_WB_REG_RN;
+                // Since we are writing back to the base register, 
+                // we need to make sure to use the offset for the writeback
+                // which we latched in the previous cycle
+                control_signals.ALU_use_op_b_latch = 1'b1;
+                control_signals.ALU_writeback = ALU_WB_REG_RN;
 
-              $display("ControlUnit: Load instruction requires writeback to base register R%0d",
-                       decoder_bus.word.Rn);
+                $display("ControlUnit: Load instruction requires writeback to base register R%0d",
+                         decoder_bus.word.Rn);
+              end
+
+              $display(
+                  "ControlUnit: Cycle 1 of LDM instruction, address calculation done, preparing for memory read");
+            end else
+
+            // Latch the last fetched word into the register file and 
+            // increment address for the next memory access
+            if (cycle < 8'd1 + 8'(regs_count)) begin
+              control_signals.Rp_imm =
+                  get_ith_bit(4'(cycle - 8'd2), decoder_bus.word.immediate.block.reg_list);
+
+              control_signals.ALU_writeback = ALU_WB_REG_RP;
+
+              control_signals.B_bus_source = B_BUS_SRC_READ_DATA;
+
+              control_signals.addr_bus_src = ADDR_SRC_INCR;
+
+              // Read the next word in the block
+              control_signals.memory_read_en = 1'b1;
+
+              // Let the B_bus word pass through the ALU unmodified for the writeback
+              control_signals.ALU_op = ALU_OP_MOV;
+            end else
+
+            // Latch the final fetched word into the register file and 
+            // update the address bus back to PC for the next instruction
+            if (cycle == 8'd1 + 8'(regs_count)) begin
+
+              control_signals.addr_bus_src = ADDR_SRC_PC;
+
+              control_signals.ALU_writeback = ALU_WB_REG_RP;
+              control_signals.Rp_imm =
+                  get_ith_bit(4'(cycle - 8'd2), decoder_bus.word.immediate.block.reg_list);
+
+              // Let the B_bus word pass through the ALU unmodified for the writeback
+              control_signals.ALU_op = ALU_OP_MOV;
+
+              control_signals.B_bus_source = B_BUS_SRC_READ_DATA;
+
+              control_signals.pipeline_advance = 1'b1;
+
+              $display(
+                  "ControlUnit: Cycle %0d of LDM instruction, latching final word and preparing for next instruction",
+                  cycle);
+            end
+          end else if (decoder_bus.word.instr_type == ARM_INSTR_STM) begin
+            // Optionally writeback address to Rn and 
+            // fetch first first word from memory
+            if (cycle == 8'd1) begin
+              control_signals.Rp_imm =
+                  get_ith_bit(4'(cycle - 8'd1), decoder_bus.word.immediate.block.reg_list);
+
+              // Write the next register in the block to memory
+              control_signals.memory_write_en = 1'b1;
+
+              control_signals.B_bus_source = B_BUS_SRC_REG_RP;
+
+              // Increment address for next (sequential) memory access
+              control_signals.addr_bus_src = ADDR_SRC_INCR;
+
+              control_signals.A_bus_source = A_BUS_SRC_IMM;
+              control_signals.A_bus_imm = regs_count;
+
+              control_signals.ALU_op = decoder_bus.word.immediate.block.U ? ALU_OP_ADD : ALU_OP_SUB_REVERSED;
+
+              // Do we writeback?
+              if (decoder_bus.word.immediate.block.P == ARM_LDR_STR_POST_OFFSET 
+                || decoder_bus.word.immediate.block.W == 1'b1) begin
+                // Since we are writing back to the base register, 
+                // we need to make sure to use the offset for the writeback
+                // which we latched in the previous cycle
+                control_signals.ALU_use_op_b_latch = 1'b1;
+                control_signals.ALU_writeback = ALU_WB_REG_RN;
+
+                $display("ControlUnit: Store instruction requires writeback to base register R%0d",
+                         decoder_bus.word.Rn);
+              end
+
+              $display(
+                  "[ControlUnit] Cycle 1 of STM instruction, address calculation done, preparing for memory write");
+            end else
+
+            // Latch the last fetched word into the register file and 
+            // increment address for the next memory access
+            if (cycle < 8'd1 + 8'(regs_count)) begin
+              control_signals.Rp_imm =
+                  get_ith_bit(4'(cycle - 8'd1), decoder_bus.word.immediate.block.reg_list);
+
+              control_signals.B_bus_source = B_BUS_SRC_REG_RP;
+
+              control_signals.addr_bus_src = ADDR_SRC_INCR;
+
+              // Write the next word in the block
+              control_signals.memory_write_en = 1'b1;
+
+              $display("[ControlUnit] Cycle %0d of STM instruction, writing register R%0d to data",
+                       cycle, control_signals.Rp_imm);
+
+            end else
+
+            // Latch the final fetched word into the register file and 
+            // update the address bus back to PC for the next instruction
+            if (cycle == 8'd1 + 8'(regs_count)) begin
+
+              control_signals.Rp_imm =
+                  get_ith_bit(4'(cycle - 8'd1), decoder_bus.word.immediate.block.reg_list);
+
+              control_signals.B_bus_source = B_BUS_SRC_REG_RP;
+
+              control_signals.addr_bus_src = ADDR_SRC_PC;
+
+              // Write the next word in the block
+              control_signals.memory_write_en = 1'b1;
+
+              control_signals.pipeline_advance = 1'b1;
+
+              $display(
+                  "[ControlUnit] Cycle %0d of STM instruction writing register R%0d to data, and preparing for next instruction",
+                  cycle, control_signals.Rp_imm);
             end
 
-            $display(
-                "ControlUnit: Cycle 1 of LDM instruction, address calculation done, preparing for memory read");
-          end else
-
-          // Latch the last fetched word into the register file and 
-          // increment address for the next memory access
-          if (cycle < 4'd1 + regs_count) begin
-            control_signals.ALU_Rp_imm =
-                get_ith_bit(cycle - 4'd2, decoder_bus.word.immediate.block.reg_list);
-
-            control_signals.ALU_writeback = ALU_WB_REG_RP;
-
-            control_signals.B_bus_source = B_BUS_SRC_READ_DATA;
-
-            control_signals.addr_bus_src = ADDR_SRC_INCR;
-
-            // Read the next word in the block
-            control_signals.memory_read_en = 1'b1;
-
-            // Let the B_bus word pass through the ALU unmodified for the writeback
-            control_signals.ALU_op = ALU_OP_MOV;
-          end else
-
-          // Latch the final fetched word into the register file and 
-          // update the address bus back to PC for the next instruction
-          if (cycle == 4'd1 + regs_count) begin
-
-            control_signals.addr_bus_src = ADDR_SRC_PC;
-
-            control_signals.ALU_writeback = ALU_WB_REG_RP;
-            control_signals.ALU_Rp_imm =
-                get_ith_bit(cycle - 4'd2, decoder_bus.word.immediate.block.reg_list);
-
-            // Let the B_bus word pass through the ALU unmodified for the writeback
-            control_signals.ALU_op = ALU_OP_MOV;
-
-            control_signals.B_bus_source = B_BUS_SRC_READ_DATA;
-
-            control_signals.pipeline_advance = 1'b1;
-
-            $display(
-                "ControlUnit: Cycle %0d of LDM instruction, latching final word and preparing for next instruction",
-                cycle);
           end
 
           $display("ControlUnit: Detected multiple data transfer instruction.");
         end
-
         default: ;
       endcase
     end

@@ -2,6 +2,8 @@ import types_pkg::*;
 
 package cpu_types_pkg;
 
+  typedef logic [3:0] reg_index_t;
+
   /**
     From: https://mgba-emu.github.io/gbatek/#overview-11
 

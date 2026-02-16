@@ -175,6 +175,12 @@ module CPU (
       B_BUS_SRC_REG_RN: begin
         B_bus = read_reg(regs, cpu_mode, decoder_bus.word.Rn);
       end
+
+      B_BUS_SRC_REG_RP: begin
+        $display("Driving B bus with value from Rp (R%0d): %0d", control_signals.Rp_imm, read_reg(
+                 regs, cpu_mode, control_signals.Rp_imm));
+        B_bus = read_reg(regs, cpu_mode, control_signals.Rp_imm);
+      end
     endcase
   end
 
@@ -240,7 +246,7 @@ module CPU (
 
       if ((control_signals.ALU_writeback == ALU_WB_REG_RD && decoder_bus.word.Rd == 4'd15) ||
           (control_signals.ALU_writeback == ALU_WB_REG_RN && decoder_bus.word.Rn == 4'd15) ||
-          (control_signals.ALU_writeback == ALU_WB_REG_RP && control_signals.ALU_Rp_imm == 4'd15)) begin
+          (control_signals.ALU_writeback == ALU_WB_REG_RP && control_signals.Rp_imm == 4'd15)) begin
 
         $display("ALU writeback to PC (R15) detected. ALU_writeback=%0d, Rd=%0d, Rn=%0d",
                  control_signals.ALU_writeback, decoder_bus.word.Rd, decoder_bus.word.Rn);
@@ -296,7 +302,7 @@ module CPU (
         end
         ALU_WB_REG_14: `WRITE_REG(regs, cpu_mode, 14, alu_bus.result)
         ALU_WB_REG_RP: begin
-          `WRITE_REG(regs, cpu_mode, control_signals.ALU_Rp_imm, alu_bus.result)
+          `WRITE_REG(regs, cpu_mode, control_signals.Rp_imm, alu_bus.result)
         end
       endcase
     end

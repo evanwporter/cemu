@@ -61,19 +61,29 @@ package control_types_pkg;
     B_BUS_SRC_REG_RS,
 
     /// Read data from register Rd
-    B_BUS_SRC_REG_RD
+    B_BUS_SRC_REG_RD,
+
+    /// Read data from register Rp (immediate value)
+    /// If set, then `Rp_imm` must be assigned to specify which register to read from
+    B_BUS_SRC_REG_RP
 
   } B_bus_source_t;
 
   typedef enum logic [3:0] {
     ALU_WB_NONE,
+    /// Write back ALU output to register Rd
     ALU_WB_REG_RD,
+
+    /// Write back ALU output to register Rs
     ALU_WB_REG_RS,
+
+    /// Write back ALU output to register Rn
     ALU_WB_REG_RN,
 
-    /// If set, we need also need to set `ALU_Rp_imm`
+    /// If set, we need also need to set `Rp_imm`
     ALU_WB_REG_RP,
 
+    /// Write back to register 14
     ALU_WB_REG_14
   } alu_writeback_source_t;
 
@@ -83,11 +93,14 @@ package control_types_pkg;
     // Register Bank
     // ======================================================
 
-    /// Whether to update the `PC` with the incremented address
+    /// Whether to update the `PC` with `address + 4`
     logic incrementer_writeback;
 
     /// Write back to register `Rd` from ALU output
     alu_writeback_source_t ALU_writeback;
+
+    /// An immediate value we can use to specify a register
+    reg_index_t Rp_imm;
 
     // ======================================================
     // Shift Bus
@@ -155,8 +168,6 @@ package control_types_pkg;
     /// Whether to use the B_bus value in the ALU for the current cycle
     /// If true, then regardless of what the B_bus value is, the ALU will use zero as its B operand
     logic ALU_disable_op_b;
-
-    logic [3:0] ALU_Rp_imm;
 
     // TODO
     logic ALU_set_flags;
