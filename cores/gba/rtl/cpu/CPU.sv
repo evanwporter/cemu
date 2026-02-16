@@ -31,7 +31,7 @@ module CPU (
   word_t read_data;
 
   always_comb begin
-    casez (regs.CPSR[4:0])
+    unique casez (regs.CPSR[4:0])
 
       5'b0??00: cpu_mode = MODE_USR;  // Old User
       5'b0??01: cpu_mode = MODE_FIQ;  // Old FIQ
@@ -128,8 +128,7 @@ module CPU (
       end
     end else begin  // A_BUS_SRC_IMM
       $display("Driving A bus with value from imm (%0d)", control_signals.A_bus_imm);
-      // TODO: move the x4 somewhere cleaner
-      A_bus = word_t'({control_signals.A_bus_imm, 2'b00});
+      A_bus = word_t'(control_signals.A_bus_imm);
     end
   end
 
@@ -179,7 +178,8 @@ module CPU (
       B_BUS_SRC_REG_RP: begin
         $display("Driving B bus with value from Rp (R%0d): %0d", control_signals.Rp_imm, read_reg(
                  regs, cpu_mode, control_signals.Rp_imm));
-        B_bus = read_reg(regs, cpu_mode, control_signals.Rp_imm);
+        B_bus = read_reg(regs, control_signals.force_user_mode ? MODE_USR : cpu_mode,
+                         control_signals.Rp_imm);
       end
     endcase
   end
@@ -266,7 +266,16 @@ module CPU (
         $fflush();
       end
 
+      $display("[CPU] Checking ALU flags writeback. ALU_set_flags=%b, restore_cpsr_from_spsr=%b",
+               control_signals.ALU_set_flags, control_signals.restore_cpsr_from_spsr);
+
+      if (control_signals.restore_cpsr_from_spsr) begin
+        regs.CPSR <= read_spsr(regs, cpu_mode);
+        $display("Restoring CPSR from SPSR_%0d: 0x%08x", cpu_mode, read_spsr(regs, cpu_mode));
+      end
+
       if (control_signals.ALU_set_flags && control_signals.pipeline_advance) begin
+
         if ((decoder_bus.word.Rd == 4'd15) && mode_has_spsr(cpu_mode)) begin
           regs.CPSR <= read_spsr(regs, cpu_mode);
 
@@ -298,11 +307,13 @@ module CPU (
         ALU_WB_REG_RS: `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rs, alu_bus.result)
         ALU_WB_REG_RN: begin
           $display("Writing back ALU result %0d to Rn (R%d)", alu_bus.result, decoder_bus.word.Rn);
-          `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rn, alu_bus.result)
+          `WRITE_REG(regs, control_signals.force_user_mode ? MODE_USR : cpu_mode,
+                     decoder_bus.word.Rn, alu_bus.result)
         end
         ALU_WB_REG_14: `WRITE_REG(regs, cpu_mode, 14, alu_bus.result)
         ALU_WB_REG_RP: begin
-          `WRITE_REG(regs, cpu_mode, control_signals.Rp_imm, alu_bus.result)
+          `WRITE_REG(regs, control_signals.force_user_mode ? MODE_USR : cpu_mode,
+                     control_signals.Rp_imm, alu_bus.result)
         end
       endcase
     end

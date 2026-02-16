@@ -182,7 +182,7 @@ module ControlUnit (
             $display("ControlUnit: Instr done is %b, cycle is %0d",
                      control_signals.pipeline_advance, cycle);
 
-            if (cycle == 8'd1 && decoder_bus.word.Rs == 4'd15) begin
+            if (decoder_bus.word.Rs == 4'd15) begin
               control_signals.pc_rs_add_4 = 1'b1;
               $display("ControlUnit: Rs is PC, adding 4 to value read from Rs");
             end
@@ -202,11 +202,11 @@ module ControlUnit (
                 alu_op_t'(decoder_bus.word.immediate.data_proc_reg_reg.opcode));
             control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_reg_reg.set_flags;
 
-            if (cycle == 8'd1 && decoder_bus.word.Rn == 4'd15) begin
+            if (decoder_bus.word.Rn == 4'd15) begin
               control_signals.pc_rn_add_4 = 1'b1;
             end
 
-            if (cycle == 8'd1 && decoder_bus.word.Rm == 4'd15) begin
+            if (decoder_bus.word.Rm == 4'd15) begin
               control_signals.pc_rm_add_4 = 1'b1;
             end
 
@@ -409,6 +409,14 @@ module ControlUnit (
 
         ARM_INSTR_LDM, ARM_INSTR_STM: begin
           regs_count = count_ones(decoder_bus.word.immediate.block.reg_list);
+          // control_signals.ALU_set_flags = decoder_bus.word.immediate.block.S;
+
+          control_signals.force_user_mode =
+            decoder_bus.word.immediate.block.S &&
+            (
+              (decoder_bus.word.instr_type == ARM_INSTR_STM) ||
+              (decoder_bus.word.instr_type == ARM_INSTR_LDM && !decoder_bus.word.immediate.block.reg_list[15])
+            );
 
           // First cycle: Prefetch and calculate first address
           if (cycle == 8'd0) begin
@@ -425,7 +433,7 @@ module ControlUnit (
             control_signals.B_bus_source = B_BUS_SRC_REG_RN;
 
             control_signals.A_bus_source = A_BUS_SRC_IMM;
-            control_signals.A_bus_imm = regs_count;
+            control_signals.A_bus_imm = regs_count * 4;
 
             // If its pre offset we add/subtract the offset to the base register before the memory access
             if (decoder_bus.word.immediate.block.P == ARM_LDR_STR_PRE_OFFSET) begin
@@ -433,18 +441,47 @@ module ControlUnit (
                 // Updating the base register with the offset is enabled so we 
                 // latch operand b for the writeback in the next cycle
                 control_signals.ALU_latch_op_b = 1'b1;
+
+                $display(
+                    "ControlUnit: Block load/store with pre-indexing and writeback, latching offset for writeback");
               end
 
-              control_signals.ALU_op = decoder_bus.word.immediate.block.U ? ALU_OP_ADD : ALU_OP_SUB_REVERSED;
-            end else begin
-              // Post offset, so we don't add/subtract operand a
-              // before its used to update the address bus
-              control_signals.ALU_op = ALU_OP_MOV;
+              if (decoder_bus.word.immediate.block.U == 1'b1) begin
+                control_signals.A_bus_imm = 6'd4;
 
-              // We also make sure to latch operand b so that we can 
-              // use it for the writeback in the next cycle
+                control_signals.ALU_op = ALU_OP_ADD;
+
+                $display(
+                    "ControlUnit: Block load/store with pre-indexing and writeback, adding offset to base register R%0d before memory access",
+                    decoder_bus.word.Rn);
+              end else begin
+                control_signals.A_bus_imm = 6'(regs_count) * 4;
+
+                control_signals.ALU_op = ALU_OP_SUB_REVERSED;
+
+                $display(
+                    "ControlUnit: Block load/store with pre-indexing and writeback, subtracting offset from base register R%0d before memory access",
+                    decoder_bus.word.Rn);
+              end
+            end else begin  // POST OFFSET 
+
+              // For block transfers, we must generate the FIRST transfer address here.
+
+              if (decoder_bus.word.immediate.block.U == 1'b1) begin
+                // Increment After (IA)
+                control_signals.ALU_op = ALU_OP_MOV;
+
+              end else begin
+                // Decrement After (DA)
+
+                control_signals.A_bus_source = A_BUS_SRC_IMM;
+                control_signals.A_bus_imm = (regs_count * 4) - 4;
+
+                control_signals.ALU_op = ALU_OP_SUB_REVERSED;
+              end
+
+              // Still latch for writeback
               control_signals.ALU_latch_op_b = 1'b1;
-
             end
 
             $display("ControlUnit: Cycle 0 of LDM instruction, calculating address");
@@ -461,25 +498,34 @@ module ControlUnit (
               control_signals.addr_bus_src = ADDR_SRC_INCR;
 
               control_signals.A_bus_source = A_BUS_SRC_IMM;
-              control_signals.A_bus_imm = regs_count;
+              control_signals.A_bus_imm = regs_count * 4;
 
               control_signals.ALU_op = decoder_bus.word.immediate.block.U ? ALU_OP_ADD : ALU_OP_SUB_REVERSED;
 
+              if (decoder_bus.word.immediate.block.P == ARM_LDR_STR_POST_OFFSET &&
+                  decoder_bus.word.immediate.block.U == 1'b0) begin
+
+                // First transfer for STMDB post-index must start at base - total + 4
+                control_signals.addr_bus_src = ADDR_SRC_INCR;
+
+              end else begin
+                control_signals.addr_bus_src = ADDR_SRC_INCR;
+              end
+
               // Do we writeback?
-              if (decoder_bus.word.immediate.block.P == ARM_LDR_STR_POST_OFFSET 
-                || decoder_bus.word.immediate.block.W == 1'b1) begin
+              if (decoder_bus.word.immediate.block.W == 1'b1) begin
                 // Since we are writing back to the base register, 
                 // we need to make sure to use the offset for the writeback
                 // which we latched in the previous cycle
                 control_signals.ALU_use_op_b_latch = 1'b1;
                 control_signals.ALU_writeback = ALU_WB_REG_RN;
 
-                $display("ControlUnit: Load instruction requires writeback to base register R%0d",
+                $display("[ControlUnit] Load instruction requires writeback to base register R%0d",
                          decoder_bus.word.Rn);
               end
 
               $display(
-                  "ControlUnit: Cycle 1 of LDM instruction, address calculation done, preparing for memory read");
+                  "[ControlUnit] Cycle 1 of LDM instruction, address calculation done, preparing for memory read");
             end else
 
             // Latch the last fetched word into the register file and 
@@ -518,8 +564,14 @@ module ControlUnit (
 
               control_signals.pipeline_advance = 1'b1;
 
+              if (decoder_bus.word.immediate.block.S && decoder_bus.word.immediate.block.reg_list[15]) begin
+                control_signals.restore_cpsr_from_spsr = 1'b1;
+                $display(
+                    "[ControlUnit] Load instruction with S bit set and PC in reg list, restoring CPSR from SPSR");
+              end
+
               $display(
-                  "ControlUnit: Cycle %0d of LDM instruction, latching final word and preparing for next instruction",
+                  "[ControlUnit] Cycle %0d of LDM instruction, latching final word and preparing for next instruction",
                   cycle);
             end
           end else if (decoder_bus.word.instr_type == ARM_INSTR_STM) begin
@@ -538,13 +590,12 @@ module ControlUnit (
               control_signals.addr_bus_src = ADDR_SRC_INCR;
 
               control_signals.A_bus_source = A_BUS_SRC_IMM;
-              control_signals.A_bus_imm = regs_count;
+              control_signals.A_bus_imm = regs_count * 4;
 
               control_signals.ALU_op = decoder_bus.word.immediate.block.U ? ALU_OP_ADD : ALU_OP_SUB_REVERSED;
 
               // Do we writeback?
-              if (decoder_bus.word.immediate.block.P == ARM_LDR_STR_POST_OFFSET 
-                || decoder_bus.word.immediate.block.W == 1'b1) begin
+              if (decoder_bus.word.immediate.block.W == 1'b1) begin
                 // Since we are writing back to the base register, 
                 // we need to make sure to use the offset for the writeback
                 // which we latched in the previous cycle

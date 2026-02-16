@@ -102,6 +102,10 @@ package control_types_pkg;
     /// An immediate value we can use to specify a register
     reg_index_t Rp_imm;
 
+    logic force_user_mode;
+
+    logic restore_cpsr_from_spsr;
+
     // ======================================================
     // Shift Bus
     // ======================================================
@@ -118,7 +122,7 @@ package control_types_pkg;
     A_bus_source_t A_bus_source;
 
     /// Immediate value to place on the A bus, if selected in `A_bus_source`
-    logic [3:0] A_bus_imm;
+    logic [5:0] A_bus_imm;
 
     // ======================================================
     // B Bus
