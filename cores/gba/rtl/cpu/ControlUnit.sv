@@ -27,11 +27,11 @@ module ControlUnit (
       cycle <= 8'd0;
     end else begin
       if (control_signals.pipeline_advance) begin
-        $display("\nControlUnit: Instruction complete, preparing for next instruction");
+        $display("\n[ControlUnit] Instruction complete, preparing for next instruction");
         cycle <= 8'd0;
       end else begin
         cycle <= cycle + 8'd1;
-        $display("\nControlUnit: Instruction not complete");
+        $display("\n[ControlUnit] Instruction not complete");
       end
     end
   end
@@ -41,16 +41,16 @@ module ControlUnit (
       /// Start with a flush so we can fetch the first instruction
       /// This will start flushing next cycle.
       flush_cnt <= 3'd3;
-      $display("ControlUnit: Reset, starting flush");
+      $display("[ControlUnit] Reset, starting flush");
       $fflush();
     end else if (flush_req) begin
       flush_cnt <= 3'd1;
-      $display("ControlUnit: Flush requested, starting flush");
+      $display("[ControlUnit] Flush requested, starting flush");
       $fflush();
 
     end else if (flush_cnt != 3'd0) begin
       flush_cnt <= flush_cnt - 3'd1;
-      $display("ControlUnit: Flushing, %0d cycles of flush remaining", flush_cnt);
+      $display("[ControlUnit] Flushing, %0d cycles of flush remaining", flush_cnt);
       $fflush();
     end
   end
@@ -85,7 +85,7 @@ module ControlUnit (
 
       control_signals.addr_bus_src = ADDR_SRC_PC;
 
-      $display("ControlUnit: In reset phase, preparing for flush");
+      $display("[ControlUnit] In reset phase, preparing for flush");
       $fflush();
 
     end else if (flush_cnt == 3'd2 || flush_req) begin
@@ -94,7 +94,7 @@ module ControlUnit (
       control_signals.incrementer_writeback = 1;
       control_signals.addr_bus_src = ADDR_SRC_INCR;
 
-      $display("\nControlUnit: Flush cycle 1, fetching instruction");
+      $display("\n[ControlUnit] Flush cycle 1, fetching instruction");
       $fflush();
 
     end else if (flush_cnt == 3'd1) begin
@@ -103,7 +103,7 @@ module ControlUnit (
       control_signals.addr_bus_src = ADDR_SRC_PC;
       control_signals.pipeline_advance = 1'b1;
 
-      $display("ControlUnit: Flush cycle 2, flushing instruction");
+      $display("[ControlUnit] Flush cycle 2, flushing instruction");
       $fflush();
 
     end else if (decoder_bus.word.condition_pass == 1'b0) begin
@@ -113,7 +113,8 @@ module ControlUnit (
       control_signals.addr_bus_src = ADDR_SRC_PC;
       control_signals.pipeline_advance = 1'b1;
 
-      $display("ControlUnit: Condition check failed, advancing pipeline to fetch next instruction");
+      $display(
+          "[ControlUnit] Condition check failed, advancing pipeline to fetch next instruction");
       $fflush();
 
     end else begin
@@ -346,7 +347,7 @@ module ControlUnit (
 
             if (cycle == 8'd2) begin
               $display(
-                  "ControlUnit: Cycle 2 of load instruction, latching read data and preparing for writeback");
+                  "[ControlUnit] Cycle 2 of load instruction, latching read data and preparing for writeback");
 
               control_signals.pipeline_advance = 1'b1;
 
@@ -390,7 +391,7 @@ module ControlUnit (
                 control_signals.ALU_use_op_b_latch = 1'b1;
                 control_signals.ALU_writeback = ALU_WB_REG_RN;
 
-                $display("ControlUnit: Store instruction requires writeback to base register R%0d",
+                $display("[ControlUnit] Store instruction requires writeback to base register R%0d",
                          decoder_bus.word.Rn);
               end
 
@@ -492,7 +493,7 @@ module ControlUnit (
                 control_signals.ALU_latch_op_b = 1'b1;
 
                 $display(
-                    "ControlUnit: Block load/store with pre-indexing and writeback, latching offset for writeback");
+                    "[ControlUnit] Block load/store with pre-indexing and writeback, latching offset for writeback");
               end
 
               if (decoder_bus.word.immediate.block.U == 1'b1) begin
@@ -501,7 +502,7 @@ module ControlUnit (
                 control_signals.ALU_op = ALU_OP_ADD;
 
                 $display(
-                    "ControlUnit: Block load/store with pre-indexing and writeback, adding offset to base register R%0d before memory access",
+                    "[ControlUnit] Block load/store with pre-indexing and writeback, adding offset to base register R%0d before memory access",
                     decoder_bus.word.Rn);
               end else begin
                 control_signals.A_bus_imm = 6'(regs_count) * 4;
@@ -509,7 +510,7 @@ module ControlUnit (
                 control_signals.ALU_op = ALU_OP_SUB_REVERSED;
 
                 $display(
-                    "ControlUnit: Block load/store with pre-indexing and writeback, subtracting offset from base register R%0d before memory access",
+                    "[ControlUnit] Block load/store with pre-indexing and writeback, subtracting offset from base register R%0d before memory access",
                     decoder_bus.word.Rn);
               end
             end else begin  // POST OFFSET 
@@ -533,7 +534,7 @@ module ControlUnit (
               control_signals.ALU_latch_op_b = 1'b1;
             end
 
-            $display("ControlUnit: Cycle 0 of LDM instruction, calculating address");
+            $display("[ControlUnit] Cycle 0 of LDM instruction, calculating address");
           end else if (decoder_bus.word.instr_type == ARM_INSTR_LDM) begin
 
             // Optionally writeback address to Rn and 
