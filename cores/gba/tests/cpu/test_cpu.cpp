@@ -247,8 +247,8 @@ static void verify_memory_writes(
 
 static void run_single_test(const json& testCase, const fs::path& source, const size_t index) {
 
-    // testing::internal::CaptureStdout();
-    // testing::internal::CaptureStderr();
+    testing::internal::CaptureStdout();
+    testing::internal::CaptureStderr();
 
     VerilatedContext ctx;
     ctx.debug(0);
@@ -330,27 +330,27 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
         verify_memory_writes(top, testCase, std::to_string(index));
     }
 
-    // std::string stdout_output = testing::internal::GetCapturedStdout();
-    // std::string stderr_output = testing::internal::GetCapturedStderr();
+    std::string stdout_output = testing::internal::GetCapturedStdout();
+    std::string stderr_output = testing::internal::GetCapturedStderr();
 
-    // if (::testing::Test::HasFailure()) {
-    //     std::cerr << "\n==== Captured stdout ====\n"
-    //               << stdout_output
-    //               << "\n==== Captured stderr ====\n"
-    //               << stderr_output;
+    if (::testing::Test::HasFailure()) {
+        std::cerr << "\n==== Captured stdout ====\n"
+                  << stdout_output
+                  << "\n==== Captured stderr ====\n"
+                  << stderr_output;
 
-    //     const fs::path log_path = fs::current_path() / "failed_test.log";
-    //     std::ofstream log_file(log_path);
-    //     log_file << "==== Captured stdout ====\n"
-    //              << stdout_output
-    //              << "\n==== Captured stderr ====\n"
-    //              << stderr_output;
-    //     log_file.close();
+        const fs::path log_path = fs::current_path() / "failed_test.log";
+        std::ofstream log_file(log_path);
+        log_file << "==== Captured stdout ====\n"
+                 << stdout_output
+                 << "\n==== Captured stderr ====\n"
+                 << stderr_output;
+        log_file.close();
 
-    //     std::cout << "Wrote logs to: " << log_path.string() << "\n";
+        std::cout << "Wrote logs to: " << log_path.string() << "\n";
 
-    //     dump_failed_test_to_file(testCase, source);
-    // }
+        dump_failed_test_to_file(testCase, source);
+    }
 }
 
 static void run_single_file(const fs::path& path) {
