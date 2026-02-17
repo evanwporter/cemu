@@ -1,3 +1,0 @@
-# CEMU
-
-C++ Emulator.
