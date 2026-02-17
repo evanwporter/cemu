@@ -6,10 +6,10 @@ int main(int argc, char** argv) {
 
     // TODO: Arg parse
     for (int i = 1; i < argc; ++i) {
-        if (std::string_view(argv[i]) == "--update") {
-            test_config().update = true;
-        } else if (std::string_view(argv[i]) == "--gui") {
-            test_config().gui = true;
+        std::string_view arg(argv[i]);
+        if (arg.rfind("--test-index=", 0) == 0) {
+            auto value = arg.substr(strlen("--test-index="));
+            test_config().test_index = std::stoul(std::string(value));
         }
     }
 

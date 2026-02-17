@@ -418,6 +418,57 @@ module ControlUnit (
               (decoder_bus.word.instr_type == ARM_INSTR_LDM && !decoder_bus.word.immediate.block.reg_list[15])
             );
 
+          if (decoder_bus.word.immediate.block.reg_list == 16'b0) begin
+
+            if (cycle == 8'd0) begin
+              control_signals.memory_latch_IR = 1'b1;
+              control_signals.memory_read_en = 1'b1;
+              control_signals.incrementer_writeback = 1'b1;
+
+              control_signals.A_bus_source = A_BUS_SRC_IMM;
+              control_signals.A_bus_imm = 7'h40;
+
+              control_signals.B_bus_source = B_BUS_SRC_REG_RN;
+
+              control_signals.ALU_op = decoder_bus.word.immediate.block.U 
+                ? ALU_OP_ADD 
+                : ALU_OP_SUB_REVERSED;
+
+              $display(
+                  "[ControlUnit] Block transfer with no registers, calculating address for memory access");
+
+              control_signals.addr_bus_src = ADDR_SRC_ALU;
+            end
+
+            if (cycle == 8'd1) begin
+              control_signals.ALU_writeback = ALU_WB_REG_RN;
+
+              control_signals.A_bus_source = A_BUS_SRC_IMM;
+              control_signals.A_bus_imm = 7'h40;
+
+              control_signals.B_bus_source = B_BUS_SRC_REG_RN;
+
+              control_signals.ALU_op = decoder_bus.word.immediate.block.U 
+                ? ALU_OP_ADD 
+                : ALU_OP_SUB_REVERSED;
+
+              if (decoder_bus.word.instr_type == ARM_INSTR_LDM) begin
+                control_signals.pipeline_advance = 1'b1;
+                control_signals.addr_bus_src = ADDR_SRC_PC;
+              end
+            end
+
+            if (cycle == 8'd2 && decoder_bus.word.instr_type == ARM_INSTR_STM) begin
+              control_signals.memory_write_en = 1'b1;
+              control_signals.B_bus_source = B_BUS_SRC_REG_RP;
+              control_signals.Rp_imm = 4'd15;
+
+              control_signals.pipeline_advance = 1'b1;
+
+              control_signals.addr_bus_src = ADDR_SRC_PC;
+            end
+          end else
+
           // First cycle: Prefetch and calculate first address
           if (cycle == 8'd0) begin
             // Perform a prefetch
@@ -447,7 +498,7 @@ module ControlUnit (
               end
 
               if (decoder_bus.word.immediate.block.U == 1'b1) begin
-                control_signals.A_bus_imm = 6'd4;
+                control_signals.A_bus_imm = 7'd4;
 
                 control_signals.ALU_op = ALU_OP_ADD;
 

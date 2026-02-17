@@ -122,7 +122,7 @@ package control_types_pkg;
     A_bus_source_t A_bus_source;
 
     /// Immediate value to place on the A bus, if selected in `A_bus_source`
-    logic [5:0] A_bus_imm;
+    logic [6:0] A_bus_imm;
 
     // ======================================================
     // B Bus

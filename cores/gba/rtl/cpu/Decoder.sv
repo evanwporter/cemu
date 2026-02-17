@@ -14,7 +14,7 @@ module Decoder (
   always_ff @(posedge clk) begin
     if (reset) begin
       // Reset logic here
-      IR = 32'h0;
+      IR <= 32'h0;
     end else begin
       if (bus.pipeline_advance) begin
         IR <= bus.IR;

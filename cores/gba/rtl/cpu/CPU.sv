@@ -172,6 +172,8 @@ module CPU (
       end
 
       B_BUS_SRC_REG_RN: begin
+        $display("Driving B bus with value from Rn (R%0d): %0d", decoder_bus.word.Rn, read_reg(
+                 regs, cpu_mode, decoder_bus.word.Rn));
         B_bus = read_reg(regs, cpu_mode, decoder_bus.word.Rn);
       end
 
@@ -326,12 +328,15 @@ module CPU (
   always_ff @(posedge clk) begin
     if (reset) begin
     end else begin
+      $display("[CPU] addr=%0d", bus.addr);
+
       unique case (control_signals.addr_bus_src)
         ADDR_SRC_NONE: begin
-          bus.addr <= 32'd0;
+          // bus.addr <= 32'd0;
         end
 
         ADDR_SRC_ALU: begin
+          $display("[CPU] Driving address bus with ALU result: %0d", alu_bus.result);
           bus.addr <= alu_bus.result;
         end
 

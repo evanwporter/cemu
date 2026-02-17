@@ -1,8 +1,10 @@
 #pragma once
 
+#include <cstddef>
+#include <optional>
+
 struct TestConfig {
-    bool update = false;
-    bool gui = false;
+    std::optional<std::size_t> test_index;
 };
 
 TestConfig& test_config();

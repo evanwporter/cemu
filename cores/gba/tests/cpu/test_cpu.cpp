@@ -8,6 +8,7 @@
 #include <Varm_cpu_top___024root.h>
 #include <verilated.h>
 
+#include "util/test_config.hpp"
 #include "util/util.hpp"
 
 #include "json_parser.hpp"
@@ -18,6 +19,8 @@ using json = nlohmann::json;
 
 using u8 = uint8_t;
 using u16 = uint16_t;
+
+static int g_single_test_index = -1; // -1 = run all
 
 static const fs::path kTestDir = fs::path(TEST_DIR) / "GameboyAdvanceCPUTests/v1";
 
@@ -244,8 +247,8 @@ static void verify_memory_writes(
 
 static void run_single_test(const json& testCase, const fs::path& source, const size_t index) {
 
-    testing::internal::CaptureStdout();
-    testing::internal::CaptureStderr();
+    // testing::internal::CaptureStdout();
+    // testing::internal::CaptureStderr();
 
     VerilatedContext ctx;
     ctx.debug(0);
@@ -327,27 +330,27 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
         verify_memory_writes(top, testCase, std::to_string(index));
     }
 
-    std::string stdout_output = testing::internal::GetCapturedStdout();
-    std::string stderr_output = testing::internal::GetCapturedStderr();
+    // std::string stdout_output = testing::internal::GetCapturedStdout();
+    // std::string stderr_output = testing::internal::GetCapturedStderr();
 
-    if (::testing::Test::HasFailure()) {
-        std::cerr << "\n==== Captured stdout ====\n"
-                  << stdout_output
-                  << "\n==== Captured stderr ====\n"
-                  << stderr_output;
+    // if (::testing::Test::HasFailure()) {
+    //     std::cerr << "\n==== Captured stdout ====\n"
+    //               << stdout_output
+    //               << "\n==== Captured stderr ====\n"
+    //               << stderr_output;
 
-        const fs::path log_path = fs::current_path() / "failed_test.log";
-        std::ofstream log_file(log_path);
-        log_file << "==== Captured stdout ====\n"
-                 << stdout_output
-                 << "\n==== Captured stderr ====\n"
-                 << stderr_output;
-        log_file.close();
+    //     const fs::path log_path = fs::current_path() / "failed_test.log";
+    //     std::ofstream log_file(log_path);
+    //     log_file << "==== Captured stdout ====\n"
+    //              << stdout_output
+    //              << "\n==== Captured stderr ====\n"
+    //              << stderr_output;
+    //     log_file.close();
 
-        std::cout << "Wrote logs to: " << log_path.string() << "\n";
+    //     std::cout << "Wrote logs to: " << log_path.string() << "\n";
 
-        dump_failed_test_to_file(testCase, source);
-    }
+    //     dump_failed_test_to_file(testCase, source);
+    // }
 }
 
 static void run_single_file(const fs::path& path) {
@@ -357,6 +360,13 @@ static void run_single_file(const fs::path& path) {
     size_t test_index = 0;
 
     while (stream.next(testCase)) {
+        if (test_config().test_index.has_value()) {
+            if (test_index != test_config().test_index.value()) {
+                ++test_index;
+                continue;
+            }
+        }
+
         run_single_test(testCase, path, test_index);
         if (::testing::Test::HasFailure())
             break;
