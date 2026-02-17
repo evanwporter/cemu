@@ -2,22 +2,16 @@ import control_types_pkg::*;
 import cpu_types_pkg::*;
 import cpu_util_pkg::*;
 import cpu_decoder_types_pkg::*;
+import control_util_pkg::*;
 
 `include "cpu/util.svh"
-
-// In the future just add these signals when pipeline_advance goes high
-`define FETCH_NEXT_INSTR(ctrl)        \
-  ctrl.memory_latch_IR = 1'b1;        \
-  ctrl.memory_read_en= 1'b1;          \
-  ctrl.incrementer_writeback = 1'b1;  \
-  ctrl.addr_bus_src= ADDR_SRC_PC;
 
 module ControlUnit (
     input logic clk,
     input logic reset,
     Decoder_if.ControlUnit_side decoder_bus,
     output control_t control_signals,
-    input flush_req
+    input logic flush_req
 );
 
   /// Cycle counter to keep track of which cycle of the instruction we are on
@@ -96,8 +90,7 @@ module ControlUnit (
 
     end else if (flush_cnt == 3'd2 || flush_req) begin
       /// Plan for fetch and decode next cycle.
-      control_signals.memory_read_en = 1;
-      control_signals.memory_latch_IR = 1;
+      control_signals |= fetch_next_instr();
       control_signals.incrementer_writeback = 1;
       control_signals.addr_bus_src = ADDR_SRC_INCR;
 
@@ -105,8 +98,7 @@ module ControlUnit (
       $fflush();
 
     end else if (flush_cnt == 3'd1) begin
-      control_signals.memory_read_en = 1;
-      control_signals.memory_latch_IR = 1;
+      control_signals |= fetch_next_instr();
       control_signals.incrementer_writeback = 1;
       control_signals.addr_bus_src = ADDR_SRC_PC;
       control_signals.pipeline_advance = 1'b1;
@@ -116,8 +108,7 @@ module ControlUnit (
 
     end else if (decoder_bus.word.condition_pass == 1'b0) begin
       // If the condition check fails, we still want to advance the pipeline and fetch the next instruction
-      control_signals.memory_read_en = 1;
-      control_signals.memory_latch_IR = 1;
+      control_signals |= fetch_next_instr();
       control_signals.incrementer_writeback = 1;
       control_signals.addr_bus_src = ADDR_SRC_PC;
       control_signals.pipeline_advance = 1'b1;
@@ -134,7 +125,7 @@ module ControlUnit (
         // ============================
 
         ARM_INSTR_DATAPROC_IMM: begin
-          $display("ControlUnit: Decoding data processing immediate instruction with IR=0x%08x",
+          $display("[ControlUnit] Decoding data processing immediate instruction with IR=0x%08x",
                    decoder_bus.word.IR);
           $fflush();
 
@@ -151,17 +142,16 @@ module ControlUnit (
             control_signals.ALU_writeback = cpu_util_pkg::get_alu_writeback(
                 alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode));
             control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_imm.set_flags;
-            $display("ControlUnit: ALU writeback source=%0d, set_flags=%b",
+            $display("[ControlUnit] ALU writeback source=%0d, set_flags=%b",
                      control_signals.ALU_writeback, control_signals.ALU_set_flags);
 
             control_signals.pipeline_advance = 1'b1;
 
             control_signals.addr_bus_src = ADDR_SRC_PC;
-            control_signals.memory_latch_IR = 1'b1;
-            control_signals.memory_read_en = 1'b1;
+            control_signals |= fetch_next_instr();
             control_signals.incrementer_writeback = 1'b1;
 
-            $display("ControlUnit: Decoding complete, preparing for next instruction");
+            $display("[ControlUnit] Decoding complete, preparing for next instruction");
           end
         end
 
@@ -179,12 +169,12 @@ module ControlUnit (
 
             control_signals.shift_latch_amt = 1'b1;
 
-            $display("ControlUnit: Instr done is %b, cycle is %0d",
+            $display("[ControlUnit] Instr done is %b, cycle is %0d",
                      control_signals.pipeline_advance, cycle);
 
             if (decoder_bus.word.Rs == 4'd15) begin
               control_signals.pc_rs_add_4 = 1'b1;
-              $display("ControlUnit: Rs is PC, adding 4 to value read from Rs");
+              $display("[ControlUnit] Rs is PC, adding 4 to value read from Rs");
             end
           end
 
@@ -210,10 +200,14 @@ module ControlUnit (
               control_signals.pc_rm_add_4 = 1'b1;
             end
 
-            $display("ControlUnit: 2 Instr done is %b, cycle is %0d",
+            $display("[ControlUnit] 2 Instr done is %b, cycle is %0d",
                      control_signals.pipeline_advance, cycle);
 
-            `FETCH_NEXT_INSTR(control_signals)
+            control_signals |= fetch_next_instr();
+
+            control_signals.incrementer_writeback = 1'b1;
+
+            control_signals.addr_bus_src = ADDR_SRC_PC;
 
             control_signals.pipeline_advance = 1'b1;
           end
@@ -242,7 +236,11 @@ module ControlUnit (
             control_signals.shift_use_rxx = 1'b1;
           end
 
-          `FETCH_NEXT_INSTR(control_signals)
+          control_signals |= fetch_next_instr();
+
+          control_signals.incrementer_writeback = 1'b1;
+
+          control_signals.addr_bus_src = ADDR_SRC_PC;
 
           control_signals.pipeline_advance = 1'b1;
         end
@@ -253,11 +251,10 @@ module ControlUnit (
 
         ARM_INSTR_STORE, ARM_INSTR_LOAD: begin
           if (cycle == 8'd0) begin
-            $display("ControlUnit: Cycle 0 of load/store instruction, calculating address");
+            $display("[ControlUnit] Cycle 0 of load/store instruction, calculating address");
 
             // Perform a fetch in this cycle
-            control_signals.memory_latch_IR = 1'b1;
-            control_signals.memory_read_en = 1'b1;
+            control_signals |= fetch_next_instr();
 
             // Write PC with Address + 1.
             // This ensures that we can return to the correct address after 
@@ -321,7 +318,7 @@ module ControlUnit (
             if (cycle == 8'd1) begin
 
               $display(
-                  "ControlUnit: Cycle 1 of load instruction, address calculation done, preparing for memory read and writeback");
+                  "[ControlUnit] Cycle 1 of load instruction, address calculation done, preparing for memory read and writeback");
 
               control_signals.ALU_op = decoder_bus.word.immediate.ls.U ? ALU_OP_ADD : ALU_OP_SUB;
 
@@ -334,7 +331,7 @@ module ControlUnit (
                 control_signals.ALU_use_op_b_latch = 1'b1;
                 control_signals.ALU_writeback = ALU_WB_REG_RN;
 
-                $display("ControlUnit: Load instruction requires writeback to base register R%0d",
+                $display("[ControlUnit] Load instruction requires writeback to base register R%0d",
                          decoder_bus.word.Rn);
               end
 
@@ -418,11 +415,12 @@ module ControlUnit (
               (decoder_bus.word.instr_type == ARM_INSTR_LDM && !decoder_bus.word.immediate.block.reg_list[15])
             );
 
+          // Handle empty/invalid reg list
           if (decoder_bus.word.immediate.block.reg_list == 16'b0) begin
 
             if (cycle == 8'd0) begin
-              control_signals.memory_latch_IR = 1'b1;
-              control_signals.memory_read_en = 1'b1;
+              control_signals |= fetch_next_instr();
+
               control_signals.incrementer_writeback = 1'b1;
 
               control_signals.A_bus_source = A_BUS_SRC_IMM;
@@ -458,6 +456,7 @@ module ControlUnit (
               end
             end
 
+            // STM takes an extra cycle to write PC to memory
             if (cycle == 8'd2 && decoder_bus.word.instr_type == ARM_INSTR_STM) begin
               control_signals.memory_write_en = 1'b1;
               control_signals.B_bus_source = B_BUS_SRC_REG_RP;
@@ -472,8 +471,7 @@ module ControlUnit (
           // First cycle: Prefetch and calculate first address
           if (cycle == 8'd0) begin
             // Perform a prefetch
-            control_signals.memory_latch_IR = 1'b1;
-            control_signals.memory_read_en = 1'b1;
+            control_signals |= fetch_next_instr();
 
             // Stash address + 4 in PC so we can return later
             control_signals.incrementer_writeback = 1'b1;
@@ -553,15 +551,8 @@ module ControlUnit (
 
               control_signals.ALU_op = decoder_bus.word.immediate.block.U ? ALU_OP_ADD : ALU_OP_SUB_REVERSED;
 
-              if (decoder_bus.word.immediate.block.P == ARM_LDR_STR_POST_OFFSET &&
-                  decoder_bus.word.immediate.block.U == 1'b0) begin
-
-                // First transfer for STMDB post-index must start at base - total + 4
-                control_signals.addr_bus_src = ADDR_SRC_INCR;
-
-              end else begin
-                control_signals.addr_bus_src = ADDR_SRC_INCR;
-              end
+              // First transfer for STMDB post-index must start at base - total + 4
+              control_signals.addr_bus_src = ADDR_SRC_INCR;
 
               // Do we writeback?
               if (decoder_bus.word.immediate.block.W == 1'b1) begin
@@ -653,7 +644,7 @@ module ControlUnit (
                 control_signals.ALU_use_op_b_latch = 1'b1;
                 control_signals.ALU_writeback = ALU_WB_REG_RN;
 
-                $display("ControlUnit: Store instruction requires writeback to base register R%0d",
+                $display("[ControlUnit] Store instruction requires writeback to base register R%0d",
                          decoder_bus.word.Rn);
               end
 
@@ -702,7 +693,7 @@ module ControlUnit (
 
           end
 
-          $display("ControlUnit: Detected multiple data transfer instruction.");
+          $display("[ControlUnit] Detected multiple data transfer instruction.");
         end
         default: ;
       endcase

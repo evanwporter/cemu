@@ -9,6 +9,7 @@ import cpu_types_pkg::*;
 package control_types_pkg;
 
   typedef enum logic [1:0] {
+    /// Don't change the current address on the address bus
     ADDR_SRC_NONE,
 
     /// Places the PC onto the address bus
@@ -102,8 +103,10 @@ package control_types_pkg;
     /// An immediate value we can use to specify a register
     reg_index_t Rp_imm;
 
+    /// TODO: Refactor
     logic force_user_mode;
 
+    /// TODO: Refactor
     logic restore_cpsr_from_spsr;
 
     // ======================================================
@@ -157,6 +160,7 @@ package control_types_pkg;
     /// TODO: Implement more instruction to see if I need this
     // logic memory_latch_read_bus;
 
+    /// Whether to transfer a byte (instead of a word) for memory read/write operations
     logic memory_byte_transfer;
 
     // ======================================================
@@ -173,10 +177,13 @@ package control_types_pkg;
     /// If true, then regardless of what the B_bus value is, the ALU will use zero as its B operand
     logic ALU_disable_op_b;
 
-    // TODO
+    // TODO: Perhaps remove this and instead perfer implied logic?
     logic ALU_set_flags;
+
+    /// The ALU operation to perform in the current cycle
     alu_op_t ALU_op;
 
+    // TODO: Refactor these into something cleaner
     logic pc_rn_add_4;
     logic pc_rs_add_4;
     logic pc_rm_add_4;

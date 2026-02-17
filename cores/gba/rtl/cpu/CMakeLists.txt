@@ -4,6 +4,7 @@ gba_add_rtl(
         ${CMAKE_CURRENT_SOURCE_DIR}/decoder_types.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/control_types.sv
         ${CMAKE_CURRENT_SOURCE_DIR}/util.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/control_util.sv
     INTERFACES
         ${CMAKE_CURRENT_SOURCE_DIR}/interface.sv
     SOURCES
