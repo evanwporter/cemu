@@ -2,15 +2,18 @@
 `define CPU_UTIL_SVH
 
 `define TRACE_CPU \
-  $display("[%0t] PC=%0d IR=%h instr=%0d flush=%b cycle=%0d WB=%0d Rd=%0d ALU=%h LatchedReadData=%0d mode=%s", \
+  $display("[%0t] PC=%0d IR=%h instr=%0d addr=%0d flush=%b cycle=%0d WB=%0d Rd=%0d A_bus=%0d B_bus=%0d ALU=%0d LatchedReadData=%0d mode=%s", \
     $time, \
     regs.user.r15, \
     IR, \
     decoder_bus.word.instr_type, \
+    bus.addr, \
     controlUnit.flush_cnt != 3'd0, \
     controlUnit.cycle, \
     control_signals.ALU_writeback, \
     decoder_bus.word.Rd, \
+    A_bus, \
+    B_bus, \
     alu_bus.result, \
     read_data, \
     cpu_mode.name() \
@@ -117,7 +120,7 @@
     $display("  U (add)    = %0b", (word).immediate.ls.U); \
     $display("  B (size)   = %s", (word).immediate.ls.B.name()); \
     $display("  W (write)  = %0b", (word).immediate.ls.wt); \
-    if ((word).immediate.ls.I == ARM_LDR_STR_SHIFTED) begin \
+    if ((word).immediate.ls.I == ARM_LDR_STR_REGISTER) begin \
       $display("Offset (register shifted):"); \
       $display("  shift type = %s", \
                (word).immediate.ls.offset.shifted.shift_type.name()); \
@@ -154,6 +157,50 @@
     end \
     $display(""); \
     $display("--------------------------------------------"); \
+    $fflush(); \
+  end
+
+`define DISPLAY_DECODED_LS_HALF(word) \
+  begin \
+    $display("---- DECODED WORD (LS_HALF: halfword/signed transfer) ----"); \
+    $display("IR           = 0x%08x", (word).IR); \
+    $display("instr_type   = %s", (word).instr_type.name()); \
+    $display("cond pass    = %0d", (word).condition_pass); \
+    $display("Rn (base)    = R%0d", (word).Rn); \
+    $display("Rd (dest)    = R%0d", (word).Rd); \
+    $display("Rm (offset)  = R%0d", (word).Rm); \
+    $display(""); \
+    $display("Addressing:"); \
+    $display("  P (index)  = %s", (word).immediate.ls_half.P.name()); \
+    $display("  U (add)    = %0b", (word).immediate.ls_half.U); \
+    $display("  I (offset) = %0b", (word).immediate.ls_half.I); \
+    $display("  W (wb)     = %0b", (word).immediate.ls_half.W); \
+    $display(""); \
+    $display("Transfer type (opcode) = %s", (word).immediate.ls_half.opcode.name()); \
+    unique case ((word).immediate.ls_half.opcode) \
+      ARM_LOAD_STORE_HALFWORD: begin \
+        $display("  Meaning: Unsigned halfword (LDRH/STRH)"); \
+      end \
+      ARM_LOAD_SIGNED_BYTE: begin \
+        $display("  Meaning: Signed byte load (LDRSB)"); \
+      end \
+      ARM_LOAD_SIGNED_HALFWORD: begin \
+        $display("  Meaning: Signed halfword load (LDRSH)"); \
+      end \
+      ARM_LOAD_STORE_INVALID: begin \
+        $display("  Meaning: INVALID/Reserved"); \
+      end \
+    endcase \
+    $display(""); \
+    if ((word).immediate.ls_half.I == ARM_LDR_STR_IMMEDIATE) begin \
+      $display("Offset (immediate imm8) = 0x%02h (%0d)", \
+               (word).immediate.ls_half.imm_offset, \
+               (word).immediate.ls_half.imm_offset); \
+    end else begin \
+      $display("Offset (register) = R%0d (unshifted for halfword/signed transfers)", \
+               (word).Rm); \
+    end \
+    $display("-----------------------------------------------"); \
     $fflush(); \
   end
 

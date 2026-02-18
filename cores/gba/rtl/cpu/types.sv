@@ -243,6 +243,12 @@ package cpu_types_pkg;
     /// STR
     ARM_INSTR_STORE,
 
+    /// LDRH / LDRSB / LDRSH
+    ARM_INSTR_LDR_HALF,
+
+    /// STRH
+    ARM_INSTR_STR_HALF,
+
     // ======================================================
     // Multiple Data Transfer
     // ======================================================
@@ -253,21 +259,8 @@ package cpu_types_pkg;
     /// STM
     ARM_INSTR_STM,
 
-    /// LDRH / STRH / LDRSB / LDRSH (immediate)
-    ARM_INSTR_LDR_STR_HALF_IMM,
-
-    /// LDRH / STRH / LDRSB / LDRSH (register)
-    ARM_INSTR_LDR_STR_HALF_REG,
-
     /// SWP / SWPB
     ARM_INSTR_SWAP,
-
-    // ======================================================
-    // Block Data Transfer
-    // ======================================================
-
-    /// LDM / STM
-    ARM_INSTR_LDM_STM,
 
     // ======================================================
     // PSR Transfer

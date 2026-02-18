@@ -93,7 +93,7 @@ module Decoder (
           bus.word.instr_type = ARM_INSTR_STORE;
         end
 
-        if (bus.word.immediate.ls.I == ARM_LDR_STR_SHIFTED) begin
+        if (bus.word.immediate.ls.I == ARM_LDR_STR_REGISTER) begin
           bus.word.immediate.ls.offset.shifted.shift_amount = IR[11:7];
           bus.word.immediate.ls.offset.shifted.shift_type   = shift_type_t'(IR[6:5]);
         end else begin
@@ -118,15 +118,24 @@ module Decoder (
         $display("[Decoder] Detected multiply long instruction with IR=0x%08x", IR);
       end
 
-      // Halfword Data Transfer Register
-      32'b????_000?_?0??_????_????_0000_1??1_????: begin
-        $display("[Decoder] Detected halfword data transfer register instruction with IR=0x%08x",
-                 IR);
-      end
+      // Halfword Data Transfer
+      32'b????_000?_????_????_????_????_1??1_????: begin
+        if (IR[20]) bus.word.instr_type = ARM_INSTR_LDR_HALF;
+        else bus.word.instr_type = ARM_INSTR_STR_HALF;
 
-      /// Halfword Data Transfer Immediate
-      32'b????_000?_?1??_????_????_????_1??1_????: begin
-        $display("[Decoder] Detected halfword data transfer immediate instruction with IR=0x%08x",
+        bus.word.immediate.ls_half.P = pre_post_offset_flag_t'(IR[24]);
+
+        bus.word.immediate.ls_half.U = IR[23];
+
+        bus.word.immediate.ls_half.I = IR[22];
+
+        bus.word.immediate.ls_half.W = IR[21];
+
+        bus.word.immediate.ls_half.imm_offset = {IR[11:8], IR[3:0]};
+
+        bus.word.immediate.ls_half.opcode = signed_halfword_flag_t'(IR[6:5]);
+
+        $display("[Decoder] Detected halfword data transfer register instruction with IR=0x%08x",
                  IR);
       end
 

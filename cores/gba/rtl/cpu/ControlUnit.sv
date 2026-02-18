@@ -68,6 +68,8 @@ module ControlUnit (
         `DISPLAY_DECODED_LS(decoder_bus.word)
       end else if (decoder_bus.word.instr_type == ARM_INSTR_LDM || decoder_bus.word.instr_type == ARM_INSTR_STM) begin
         `DISPLAY_DECODED_BLOCK(decoder_bus.word)
+      end else if (decoder_bus.word.instr_type == ARM_INSTR_LDR_HALF || decoder_bus.word.instr_type == ARM_INSTR_STR_HALF) begin
+        `DISPLAY_DECODED_LS_HALF(decoder_bus.word)
       end
     end
   end
@@ -399,6 +401,157 @@ module ControlUnit (
               control_signals.addr_bus_src = ADDR_SRC_PC;
             end
           end
+        end
+
+        ARM_INSTR_LDR_HALF, ARM_INSTR_STR_HALF: begin
+          // TODO: This is copied from above, but we need to put this into a function.
+          if (cycle == 8'd0) begin
+            $display("[ControlUnit] Cycle 0 of load/store instruction, calculating address");
+
+            // Perform a fetch in this cycle
+            control_signals |= fetch_next_instr();
+
+            // Write PC with Address + 1.
+            // This ensures that we can return to the correct address after 
+            // the memory access is complete.
+            control_signals.incrementer_writeback = 1'b1;
+
+            // Update the address bus to use the output of the ALU, which 
+            // will is the effective address for the memory access
+            control_signals.addr_bus_src = ADDR_SRC_ALU;
+
+            // Subtract (0) or add (1) the offset to the base register depending 
+            // on the U bit in the instruction.
+            control_signals.ALU_op = decoder_bus.word.immediate.ls_half.U ? ALU_OP_ADD : ALU_OP_SUB;
+
+            $display("[ControlUnit] ALU operation for address calculation is %s",
+                     control_signals.ALU_op == ALU_OP_ADD ? "ADD" : "SUB");
+
+            // If its pre offset we add/subtract the offset to the base register before the memory access
+            if (decoder_bus.word.immediate.ls_half.P == ARM_LDR_STR_PRE_OFFSET) begin
+              if (decoder_bus.word.immediate.ls_half.W == 1'b1) begin
+                // Updating the base register with the offset is enabled so we 
+                // latch operand b for the writeback in the next cycle
+                control_signals.ALU_latch_op_b = 1'b1;
+              end
+            end else begin
+              // Post offset, so we don't add/subtract operand b
+              // before its used to update the address bus
+              control_signals.ALU_disable_op_b = 1'b1;
+
+              // We also make sure to latch operand b so that we can 
+              // use it for the writeback in the next cycle
+              control_signals.ALU_latch_op_b   = 1'b1;
+            end
+
+            // Depending on the instruction, operand b can either be an immediate or 
+            // a register with optional shift
+            if (decoder_bus.word.immediate.ls_half.I) begin
+              // Immediate offset with an optional rotation/shift
+
+              control_signals.B_bus_source = B_BUS_SRC_IMM;
+              control_signals.B_bus_imm = 12'(decoder_bus.word.immediate.ls_half.imm_offset);
+
+              // No shift
+              control_signals.shift_type = SHIFT_LSL;
+              control_signals.shift_amount = 5'd0;
+
+            end else begin
+              // We are using a register offset
+
+              control_signals.B_bus_source = B_BUS_SRC_REG_RM;
+
+              // No shift
+              control_signals.shift_type   = SHIFT_LSL;
+              control_signals.shift_amount = 5'd0;
+            end
+          end
+
+          if (decoder_bus.word.instr_type == ARM_INSTR_LDR_HALF) begin
+            if (cycle == 8'd1) begin
+
+              $display(
+                  "[ControlUnit] Cycle 1 of load instruction, address calculation done, preparing for memory read and writeback");
+
+              control_signals.ALU_op = decoder_bus.word.immediate.ls_half.U ? ALU_OP_ADD : ALU_OP_SUB;
+
+              // Do we writeback?
+              if (decoder_bus.word.immediate.ls_half.P == ARM_LDR_STR_POST_OFFSET 
+                  || decoder_bus.word.immediate.ls_half.W == 1'b1) begin
+                // Since we are writing back to the base register, 
+                // we need to make sure to use the offset for the writeback
+                // which we latched in the previous cycle
+                control_signals.ALU_use_op_b_latch = 1'b1;
+                control_signals.ALU_writeback = ALU_WB_REG_RN;
+
+                $display("[ControlUnit] Load instruction requires writeback to base register R%0d",
+                         decoder_bus.word.Rn);
+              end
+
+              control_signals.memory_halfword_transfer = 1'b1;
+
+              control_signals.memory_read_en = 1'b1;
+
+              // Load the PC back into the address bus
+              control_signals.addr_bus_src = ADDR_SRC_PC;
+
+            end
+
+            if (cycle == 8'd2) begin
+              $display(
+                  "[ControlUnit] Cycle 2 of load instruction, latching read data and preparing for writeback");
+
+              control_signals.pipeline_advance = 1'b1;
+
+              // Allows op B to pass through the ALU unmodified
+              control_signals.ALU_op = ALU_OP_MOV;
+
+              // Uses the value read from memory as the value to write 
+              // back to the register file
+              control_signals.B_bus_source = B_BUS_SRC_READ_DATA;
+
+              // Write back to Rd from the ALU output, which is the 
+              // value read from memory
+              control_signals.ALU_writeback = ALU_WB_REG_RD;
+
+              control_signals.memory_halfword_transfer = 1'b1;
+
+              // Load the PC back into the address bus
+              control_signals.addr_bus_src = ADDR_SRC_PC;
+
+            end
+          end else if (decoder_bus.word.instr_type == ARM_INSTR_STR_HALF) begin
+            if (cycle == 8'd1) begin
+              control_signals.pipeline_advance = 1'b1;
+
+              control_signals.B_bus_source = B_BUS_SRC_REG_RD;
+
+              control_signals.ALU_op = decoder_bus.word.immediate.ls_half.U ? ALU_OP_ADD : ALU_OP_SUB;
+
+              control_signals.memory_write_en = 1'b1;
+
+              control_signals.memory_halfword_transfer = 1'b1;
+
+              // Do we writeback?
+              if (decoder_bus.word.immediate.ls_half.P == ARM_LDR_STR_POST_OFFSET 
+                  || decoder_bus.word.immediate.ls_half.W == 1'b1) begin
+                // Since we are writing back to the base register, 
+                // we need to make sure to use the offset for the writeback
+                // which we latched in the previous cycle
+                control_signals.ALU_use_op_b_latch = 1'b1;
+                control_signals.ALU_writeback = ALU_WB_REG_RN;
+
+                $display("[ControlUnit] Store instruction requires writeback to base register R%0d",
+                         decoder_bus.word.Rn);
+              end
+
+              // Load the PC back into the address bus
+              control_signals.addr_bus_src = ADDR_SRC_PC;
+            end
+          end
+
+          $display(
+              "[ControlUnit] Detected halfword load/store instruction, handling as normal load/store for now");
         end
 
         // ============================

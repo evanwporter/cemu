@@ -16,13 +16,20 @@ package cpu_decoder_types_pkg;
 
     /// Shifted Register Offset
     /// Offset it by a register value (Rm)
-    ARM_LDR_STR_SHIFTED
+    ARM_LDR_STR_REGISTER
   } mem_offset_flag_t;
 
   typedef enum logic {
     ARM_LDR_STR_POST_OFFSET,
     ARM_LDR_STR_PRE_OFFSET
   } pre_post_offset_flag_t;
+
+  typedef enum logic [1:0] {
+    ARM_LOAD_STORE_INVALID,
+    ARM_LOAD_STORE_HALFWORD,
+    ARM_LOAD_SIGNED_BYTE,
+    ARM_LOAD_SIGNED_HALFWORD
+  } signed_halfword_flag_t;
 
   typedef union packed {
 
@@ -84,7 +91,7 @@ package cpu_decoder_types_pkg;
 
 
     // ======================================================
-    // Single Data Transfer (Word / Byte / Halfword)
+    // Single Data Transfer (Word / Byte)
     // ======================================================
 
     /// ARM_INSTR_LOAD / ARM_INSTR_STORE
@@ -127,6 +134,38 @@ package cpu_decoder_types_pkg;
 
       // Uses Rm as offset register
     } ls;
+
+    // ======================================================
+    // Single Data Transfer (Doubleword / Halfword)
+    // ======================================================
+
+
+    /// ARM_INSTR_LOAD / ARM_INSTR_STORE
+    struct packed {
+      logic [9:0] _pad;
+
+      // Bit 24
+      pre_post_offset_flag_t P;
+
+      // Bit 23
+      logic U;
+
+      // Bit 22
+      logic I;
+
+      /// Writeback flag
+      // Bit 21
+      logic W;
+
+      logic [7:0] imm_offset;
+
+      // Rn
+      // Rd
+
+      signed_halfword_flag_t opcode;
+
+      // Uses Rm as offset register
+    } ls_half;
 
     // ======================================================
     // Block Data Transfer

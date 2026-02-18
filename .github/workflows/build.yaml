@@ -56,3 +56,4 @@ jobs:
           build\debug\cores\gba\tests\test_gba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_data_proc_*_json
           build\debug\cores\gba\tests\test_gba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_ldr_str_*_json
           build\debug\cores\gba\tests\test_gba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_ldm_stm_json
+          build\debug\cores\gba\tests\test_gba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_ldrh_strh_json

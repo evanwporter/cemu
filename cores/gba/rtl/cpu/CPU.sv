@@ -76,8 +76,16 @@ module CPU (
 
   assign bus.read_en = control_signals.memory_read_en;
   assign bus.write_en = control_signals.memory_write_en;
-  assign bus.wdata = control_signals.memory_byte_transfer ? {24'd0, B_bus[7:0]} : B_bus;
   assign bus.instruction_fetch = control_signals.memory_latch_IR;
+
+  always_comb begin
+    bus.wdata = B_bus;
+    if (control_signals.memory_byte_transfer) begin
+      bus.wdata = {24'd0, B_bus[7:0]};
+    end else if (control_signals.memory_halfword_transfer) begin
+      bus.wdata = {16'd0, B_bus[15:0]};
+    end
+  end
 
   /// TODO: Debug signal
   (* maybe_unused *)
@@ -158,6 +166,8 @@ module CPU (
       end
 
       B_BUS_SRC_REG_RM: begin
+        $display("Driving B bus with value from Rm (R%0d): %0d", decoder_bus.word.Rm, read_reg(
+                 regs, cpu_mode, decoder_bus.word.Rm));
         B_bus = control_signals.pc_rm_add_4 ? (read_reg(regs, cpu_mode, decoder_bus.word.Rm) + 32'd4
             ) : read_reg(regs, cpu_mode, decoder_bus.word.Rm);
       end
@@ -211,17 +221,42 @@ module CPU (
           $fflush();
 
         end else begin
-          read_data <= bus.rdata;
+          if (control_signals.memory_byte_transfer) begin
+            read_data <= {24'd0, bus.rdata[7:0]};
 
-          // Misaligned word-load rotate quirk (ARM7TDMI)
-          if (decoder_bus.word.instr_type == ARM_INSTR_LOAD && 
+            $display("Performing byte read, bus.rdata=0x%08x, B_bus[7:0]=0x%02x", bus.rdata,
+                     bus.rdata[7:0]);
+          end else if (control_signals.memory_halfword_transfer) begin
+
+            read_data <= {16'd0, bus.rdata[15:0]};
+
+            // ARM7TDMI unaligned halfword rotate quirk
+            if (bus.addr[0] == 1'b1) begin
+              read_data <= ror32(bus.rdata, 8);
+              $display("Unaligned LDRH: rotating right by 8");
+            end
+
+            $display("Performing halfword read, bus.rdata=0x%08x, B_bus[15:0]=0x%04x", bus.rdata,
+                     bus.rdata[15:0]);
+          end else if (control_signals.memory_signed_halfword_transfer) begin
+            read_data <= {{16{bus.rdata[15]}}, bus.rdata[15:0]};
+
+            $display("Performing signed halfword read, bus.rdata=0x%08x, B_bus[15:0]=0x%04x",
+                     bus.rdata, bus.rdata[15:0]);
+          end else begin
+            $display("Performing word read, bus.rdata=0x%08x", bus.rdata);
+            read_data <= bus.rdata;
+
+            // Misaligned word-load rotate quirk (ARM7TDMI)
+            if (decoder_bus.word.instr_type == ARM_INSTR_LOAD && 
               !control_signals.memory_byte_transfer) begin
-            logic [1:0] a;
-            a = bus.addr[1:0];
-            if (a != 2'b00) begin
-              $display("Misaligned word with a=%b, rotate=%d, prior=%d", a, ror32(
-                       bus.rdata, 32'({a, 3'b000})), bus.rdata);
-              read_data <= ror32(bus.rdata, 32'({a, 3'b000}));  // (a*8)
+              logic [1:0] a;
+              a = bus.addr[1:0];
+              if (a != 2'b00) begin
+                $display("Misaligned word with a=%b, rotate=%d, prior=%d", a, ror32(
+                         bus.rdata, 32'({a, 3'b000})), bus.rdata);
+                read_data <= ror32(bus.rdata, 32'({a, 3'b000}));  // (a*8)
+              end
             end
           end
         end
@@ -301,10 +336,8 @@ module CPU (
       unique case (control_signals.ALU_writeback)
         ALU_WB_NONE:   ;
         ALU_WB_REG_RD: begin
-          word_t value_to_write;
-          value_to_write = alu_bus.result;
-          `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rd, value_to_write)
-          $display("Writing back ALU result %0d to Rd (R%d)", value_to_write, decoder_bus.word.Rd);
+          `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rd, alu_bus.result)
+          $display("Writing back ALU result %0d to Rd (R%d)", alu_bus.result, decoder_bus.word.Rd);
         end
         ALU_WB_REG_RS: `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rs, alu_bus.result)
         ALU_WB_REG_RN: begin
@@ -341,7 +374,6 @@ module CPU (
         end
 
         ADDR_SRC_PC: begin
-          // PC
           $display("Setting address bus to PC value: 0x%08x", read_reg(regs, cpu_mode, 15));
           bus.addr <= read_reg(regs, cpu_mode, 15);
         end

@@ -160,8 +160,14 @@ package control_types_pkg;
     /// TODO: Implement more instruction to see if I need this
     // logic memory_latch_read_bus;
 
+    // TODO: Combine following three logic into two bit enum
+
     /// Whether to transfer a byte (instead of a word) for memory read/write operations
     logic memory_byte_transfer;
+
+    logic memory_halfword_transfer;
+
+    logic memory_signed_halfword_transfer;
 
     // ======================================================
     // ALU
