@@ -224,21 +224,49 @@ module CPU (
           if (control_signals.memory_byte_transfer) begin
             read_data <= {24'd0, bus.rdata[7:0]};
 
+            if (control_signals.memory_signed_transfer) begin
+              read_data <= {{24{bus.rdata[7]}}, bus.rdata[7:0]};
+
+              $display("Performing signed byte read, bus.rdata=0x%08x, B_bus[7:0]=0x%02x",
+                       bus.rdata, bus.rdata[7:0]);
+            end
+
             $display("Performing byte read, bus.rdata=0x%08x, B_bus[7:0]=0x%02x", bus.rdata,
                      bus.rdata[7:0]);
           end else if (control_signals.memory_halfword_transfer) begin
 
-            read_data <= {16'd0, bus.rdata[15:0]};
+            word_t result;
+
+            result = {16'b0, bus.rdata[15:0]};
 
             // ARM7TDMI unaligned halfword rotate quirk
+            // https://mgba-emu.github.io/gbatek/#mis-aligned-ldrhldrsh-does-or-does-not-do-strange-things
             if (bus.addr[0] == 1'b1) begin
-              read_data <= ror32(bus.rdata, 8);
-              $display("Unaligned LDRH: rotating right by 8");
-            end
+              result = ror32(bus.rdata, 8);
+              $display(
+                  "Performing unaligned halfword read with rotate, bus.addr[0]=%b, bus.rdata=0x%08x, rotated result=0x%08x",
+                  bus.addr[0], bus.rdata, result);
+
+              if (control_signals.memory_signed_transfer) begin
+                result = {{24{result[7]}}, result[7:0]};
+
+                $display(
+                    "Performing signed byte read (due to unaligned halfword), bus.rdata=0x%08x, B_bus[7:0]=0x%02x, result=0x%08x",
+                    bus.rdata, bus.rdata[7:0], result);
+              end
+            end else if (control_signals.memory_signed_transfer) begin
+              result = {{16{result[15]}}, result[15:0]};
+
+              $display(
+                  "Performing signed halfword read, sign=%b, bus.rdata=0x%08x, B_bus[15:0]=0x%04x, result=0x%08x",
+                  bus.rdata[15], bus.rdata, bus.rdata[15:0], result);
+            end else result = {16'd0, result[15:0]};
 
             $display("Performing halfword read, bus.rdata=0x%08x, B_bus[15:0]=0x%04x", bus.rdata,
                      bus.rdata[15:0]);
-          end else if (control_signals.memory_signed_halfword_transfer) begin
+
+            read_data <= result;
+          end else if (control_signals.memory_signed_transfer) begin
             read_data <= {{16{bus.rdata[15]}}, bus.rdata[15:0]};
 
             $display("Performing signed halfword read, bus.rdata=0x%08x, B_bus[15:0]=0x%04x",
@@ -248,8 +276,7 @@ module CPU (
             read_data <= bus.rdata;
 
             // Misaligned word-load rotate quirk (ARM7TDMI)
-            if (decoder_bus.word.instr_type == ARM_INSTR_LOAD && 
-              !control_signals.memory_byte_transfer) begin
+            if (decoder_bus.word.instr_type == ARM_INSTR_LOAD) begin
               logic [1:0] a;
               a = bus.addr[1:0];
               if (a != 2'b00) begin

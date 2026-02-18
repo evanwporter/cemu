@@ -488,12 +488,20 @@ module ControlUnit (
                          decoder_bus.word.Rn);
               end
 
-              control_signals.memory_halfword_transfer = 1'b1;
+              if (decoder_bus.word.immediate.ls_half.opcode == ARM_LOAD_STORE_HALFWORD) begin
+                control_signals.memory_halfword_transfer = 1'b1;
+              end else if (decoder_bus.word.immediate.ls_half.opcode == ARM_LOAD_SIGNED_HALFWORD) begin
+                control_signals.memory_signed_transfer   = 1'b1;
+                control_signals.memory_halfword_transfer = 1'b1;
+              end else if (decoder_bus.word.immediate.ls_half.opcode == ARM_LOAD_SIGNED_BYTE) begin
+                control_signals.memory_byte_transfer   = 1'b1;
+                control_signals.memory_signed_transfer = 1'b1;
+              end
 
               control_signals.memory_read_en = 1'b1;
 
               // Load the PC back into the address bus
-              control_signals.addr_bus_src = ADDR_SRC_PC;
+              control_signals.addr_bus_src   = ADDR_SRC_PC;
 
             end
 
@@ -514,7 +522,15 @@ module ControlUnit (
               // value read from memory
               control_signals.ALU_writeback = ALU_WB_REG_RD;
 
-              control_signals.memory_halfword_transfer = 1'b1;
+              if (decoder_bus.word.immediate.ls_half.opcode == ARM_LOAD_STORE_HALFWORD) begin
+                control_signals.memory_halfword_transfer = 1'b1;
+              end else if (decoder_bus.word.immediate.ls_half.opcode == ARM_LOAD_SIGNED_HALFWORD) begin
+                control_signals.memory_signed_transfer   = 1'b1;
+                control_signals.memory_halfword_transfer = 1'b1;
+              end else if (decoder_bus.word.immediate.ls_half.opcode == ARM_LOAD_SIGNED_BYTE) begin
+                control_signals.memory_byte_transfer   = 1'b1;
+                control_signals.memory_signed_transfer = 1'b1;
+              end
 
               // Load the PC back into the address bus
               control_signals.addr_bus_src = ADDR_SRC_PC;

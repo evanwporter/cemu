@@ -25,10 +25,10 @@ package cpu_decoder_types_pkg;
   } pre_post_offset_flag_t;
 
   typedef enum logic [1:0] {
-    ARM_LOAD_STORE_INVALID,
-    ARM_LOAD_STORE_HALFWORD,
-    ARM_LOAD_SIGNED_BYTE,
-    ARM_LOAD_SIGNED_HALFWORD
+    ARM_LOAD_STORE_INVALID = 2'd0,
+    ARM_LOAD_STORE_HALFWORD = 2'd1,
+    ARM_LOAD_SIGNED_BYTE = 2'd2,
+    ARM_LOAD_SIGNED_HALFWORD = 2'd3
   } signed_halfword_flag_t;
 
   typedef union packed {

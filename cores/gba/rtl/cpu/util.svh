@@ -33,6 +33,8 @@
   $display("memory_read_en        : %0b", ctrl.memory_read_en); \
   $display("memory_latch_IR       : %0b", ctrl.memory_latch_IR); \
   $display("memory_byte_transfer  : %0b", ctrl.memory_byte_transfer); \
+  $display("memory_half_transfer  : %0b", ctrl.memory_halfword_transfer); \
+  $display("memory_signed_transfer: %0b", ctrl.memory_signed_transfer); \
   $display("ALU_latch_op_b        : %0b", ctrl.ALU_latch_op_b); \
   $display("ALU_use_op_b_latch    : %0b", ctrl.ALU_use_op_b_latch); \
   $display("ALU_disable_op_b      : %0b", ctrl.ALU_disable_op_b); \

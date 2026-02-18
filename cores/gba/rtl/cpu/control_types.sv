@@ -167,7 +167,7 @@ package control_types_pkg;
 
     logic memory_halfword_transfer;
 
-    logic memory_signed_halfword_transfer;
+    logic memory_signed_transfer;
 
     // ======================================================
     // ALU
