@@ -1,15 +1,12 @@
-# CEMU
+# VEMU
 
-(name in the works)
+(systemVerilog EMUlator)
 
-There are three parts to this project
-(1) C++ Gameboy emulator
-(2) FPGA Gameboy emulator
-(3) FPGA Gameboy Advance emulator
+There are currently two cores; a Gameboy emulator and a Gameboy Advance emulator
 
-The Gameboy emulators are working. The GBA emulator is WIP.
+The Gameboy emulator is working. The GBA emulator is WIP.
 
-Here is the SystemVerilog Emulator simulated using Verilator.
+Here is the Gameboy Emulator simulated using Verilator.
 
 ![](./display.gif)
 
