@@ -205,6 +205,30 @@
     $fflush(); \
   end
 
+`define DISPLAY_DECODED_BRANCH(word) \
+  begin \
+    logic signed [31:0] signed_imm; \
+    logic signed [31:0] shifted_imm; \
+    signed_imm  = {{8{(word).immediate.branch.imm24[23]}}, \
+                   (word).immediate.branch.imm24}; \
+    shifted_imm = signed_imm <<< 2; \
+    $display("---- DECODED WORD (BRANCH) ----"); \
+    $display("IR           = 0x%08x", (word).IR); \
+    $display("instr_type   = %s", (word).instr_type.name()); \
+    $display("cond pass    = %0d", (word).condition_pass); \
+    $display("Rn (base)    = R%0d", (word).Rn); \
+    $display("Rd (dest)    = R%0d", (word).Rd); \
+    $display(""); \
+    $display("imm24 raw    = 0x%06h", \
+             (word).immediate.branch.imm24); \
+    $display("imm24 signed = %0d (0x%08x)", \
+             signed_imm, signed_imm); \
+    $display("imm24<<2     = %0d (0x%08x)", \
+             shifted_imm, shifted_imm); \
+    $display("--------------------------------"); \
+    $fflush(); \
+  end
+
 `define WRITE_REG(REGS, MODE, REGNUM, VALUE) \
   begin \
     unique case (REGNUM) \

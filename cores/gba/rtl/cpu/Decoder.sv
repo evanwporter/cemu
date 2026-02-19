@@ -66,11 +66,25 @@ module Decoder (
 
       /// Branch
       32'b????_1010_????_????_????_????_????_????: begin
+        bus.word.instr_type = ARM_INSTR_BRANCH;
+        bus.word.immediate.branch.imm24 = IR[23:0];
+
+        // Overwrite Rn and Rd
+        bus.word.Rn = 4'd15;
+        bus.word.Rd = 4'd14;
+
         $display("[Decoder] Detected B instruction with IR=0x%08x", IR);
       end
 
       /// Branch with Link
       32'b????_1011_????_????_????_????_????_????: begin
+        bus.word.instr_type = ARM_INSTR_BRANCH_LINK;
+        bus.word.immediate.branch.imm24 = IR[23:0];
+
+        // Overwrite Rn and Rd
+        bus.word.Rn = 4'd15;
+        bus.word.Rd = 4'd14;
+
         $display("[Decoder] Detected BL instruction with IR=0x%08x", IR);
       end
 

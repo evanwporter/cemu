@@ -157,12 +157,18 @@ module CPU (
       end
 
       B_BUS_SRC_IMM: begin
-        B_bus = {20'b0, control_signals.B_bus_imm};
+        if (control_signals.B_bus_sign_extend) begin
+          B_bus = {{8{control_signals.B_bus_imm[23]}}, control_signals.B_bus_imm};
+          $display("Driving B bus with sign-extended immediate: %0d", B_bus);
+        end else begin
+          B_bus = {8'b0, control_signals.B_bus_imm};
+          $display("Driving B bus with zero-extended immediate: %0d", B_bus);
+        end
       end
 
       B_BUS_SRC_READ_DATA: begin
         B_bus = read_data;
-        $display("Driving B bus with read_data value: 0x%08x", read_data);
+        $display("Driving B bus with read_data value: %0d", read_data);
       end
 
       B_BUS_SRC_REG_RM: begin

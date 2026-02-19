@@ -22,6 +22,60 @@ using u16 = uint16_t;
 
 static const fs::path kTestDir = fs::path(TEST_DIR) / "GameboyAdvanceCPUTests/v1";
 
+class TestLogger {
+    const fs::path log_path = fs::current_path() / "failed_test.log";
+
+    const json& testCase;
+
+    static void dump_failed_test_to_file(const json& test) {
+        fs::path out = fs::current_path() / "failed_test.json";
+
+        std::ofstream f(out);
+        if (!f.is_open())
+            return;
+
+        f << test.dump(2);
+        f << std::endl;
+
+        std::cerr << "Wrote failing test to: " << out.string() << "\n";
+    }
+
+public:
+    TestLogger(const json& testCase) :
+        testCase(testCase) {
+        testing::internal::CaptureStdout();
+        testing::internal::CaptureStderr();
+    };
+
+    ~TestLogger() {
+        std::string stdout_output = testing::internal::GetCapturedStdout();
+        std::string stderr_output = testing::internal::GetCapturedStderr();
+
+        if (::testing::Test::HasFailure() || ::testing::Test::HasFatalFailure()) {
+            std::cerr << "\n==== Captured stdout ====\n"
+                      << stdout_output
+                      << "\n==== Captured stderr ====\n"
+                      << stderr_output;
+
+            std::ofstream log_file(log_path);
+            log_file << "==== Captured stdout ====\n"
+                     << stdout_output
+                     << "\n==== Captured stderr ====\n"
+                     << stderr_output;
+            log_file.close();
+
+            std::cout << "Wrote logs to: " << log_path.string() << "\n";
+
+            dump_failed_test_to_file(testCase);
+        }
+    }
+
+    TestLogger(TestLogger&&) = delete;
+    TestLogger(const TestLogger&) = delete;
+    TestLogger& operator=(const TestLogger&) = delete;
+    TestLogger& operator=(TestLogger&&) = delete;
+};
+
 static fs::path get_test_dir() {
     if (test_config().test_dir.has_value()) {
         return test_config().test_dir.value() / "GameboyAdvanceCPUTests/v1";
@@ -65,19 +119,6 @@ static void tick(Varm_cpu_top& top, VerilatedContext& ctx) {
     top.clk = 1;
     top.eval();
     ctx.timeInc(5);
-}
-
-static void dump_failed_test_to_file(const json& test, const fs::path& source) {
-    fs::path out = fs::current_path() / "failed_test.json";
-
-    std::ofstream f(out);
-    if (!f.is_open())
-        return;
-
-    f << test.dump(2);
-    f << std::endl;
-
-    std::cerr << "Wrote failing test to: " << out.string() << "\n";
 }
 
 static bool apply_instruction_memory(Varm_cpu_top& top, const json& test) {
@@ -252,8 +293,7 @@ static void verify_memory_writes(
 
 static void run_single_test(const json& testCase, const fs::path& source, const size_t index) {
 
-    testing::internal::CaptureStdout();
-    testing::internal::CaptureStderr();
+    TestLogger logger(testCase);
 
     VerilatedContext ctx;
     ctx.debug(0);
@@ -333,28 +373,6 @@ static void run_single_test(const json& testCase, const fs::path& source, const 
 
         verify_registers(top, testCase["final"], std::to_string(index));
         verify_memory_writes(top, testCase, std::to_string(index));
-    }
-
-    std::string stdout_output = testing::internal::GetCapturedStdout();
-    std::string stderr_output = testing::internal::GetCapturedStderr();
-
-    if (::testing::Test::HasFailure()) {
-        std::cerr << "\n==== Captured stdout ====\n"
-                  << stdout_output
-                  << "\n==== Captured stderr ====\n"
-                  << stderr_output;
-
-        const fs::path log_path = fs::current_path() / "failed_test.log";
-        std::ofstream log_file(log_path);
-        log_file << "==== Captured stdout ====\n"
-                 << stdout_output
-                 << "\n==== Captured stderr ====\n"
-                 << stderr_output;
-        log_file.close();
-
-        std::cout << "Wrote logs to: " << log_path.string() << "\n";
-
-        dump_failed_test_to_file(testCase, source);
     }
 }
 

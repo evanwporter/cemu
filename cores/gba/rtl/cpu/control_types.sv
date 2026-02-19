@@ -72,6 +72,7 @@ package control_types_pkg;
 
   typedef enum logic [3:0] {
     ALU_WB_NONE,
+
     /// Write back ALU output to register Rd
     ALU_WB_REG_RD,
 
@@ -136,7 +137,9 @@ package control_types_pkg;
     B_bus_source_t B_bus_source;
 
     /// Immediate value to place on the B bus, if selected in `B_bus_source`
-    logic [11:0] B_bus_imm;
+    logic [23:0] B_bus_imm;
+
+    logic B_bus_sign_extend;
 
     // ======================================================
     // Address Module
@@ -215,6 +218,9 @@ package control_types_pkg;
     // ======================================================
 
     logic pipeline_flush;
+
+    /// Control unit will handle the flush instead of the PC triggering one
+    logic pipeline_handle_flush;
 
     logic pipeline_advance;
 

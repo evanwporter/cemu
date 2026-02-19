@@ -70,6 +70,10 @@ module ControlUnit (
         `DISPLAY_DECODED_BLOCK(decoder_bus.word)
       end else if (decoder_bus.word.instr_type == ARM_INSTR_LDR_HALF || decoder_bus.word.instr_type == ARM_INSTR_STR_HALF) begin
         `DISPLAY_DECODED_LS_HALF(decoder_bus.word)
+      end else if (decoder_bus.word.instr_type == ARM_INSTR_BRANCH || decoder_bus.word.instr_type == ARM_INSTR_BRANCH_LINK) begin
+        `DISPLAY_DECODED_BRANCH(decoder_bus.word)
+      end else begin
+        $display("[ControlUnit] Decoded instruction type is undefined");
       end
     end
   end
@@ -134,7 +138,7 @@ module ControlUnit (
 
           if (cycle == 8'd0) begin
             control_signals.B_bus_source = B_BUS_SRC_IMM;
-            control_signals.B_bus_imm = 12'(decoder_bus.word.immediate.data_proc_imm.imm8);
+            control_signals.B_bus_imm = 24'(decoder_bus.word.immediate.data_proc_imm.imm8);
 
             control_signals.shift_amount = {decoder_bus.word.immediate.data_proc_imm.rotate, 1'b0};
 
@@ -290,7 +294,7 @@ module ControlUnit (
               // Immediate offset with an optional rotation/shift
 
               control_signals.B_bus_source = B_BUS_SRC_IMM;
-              control_signals.B_bus_imm = decoder_bus.word.immediate.ls.offset.imm12;
+              control_signals.B_bus_imm = 24'(decoder_bus.word.immediate.ls.offset.imm12);
 
               // No shift
               control_signals.shift_type = SHIFT_LSL;
@@ -445,7 +449,7 @@ module ControlUnit (
               // Immediate offset with an optional rotation/shift
 
               control_signals.B_bus_source = B_BUS_SRC_IMM;
-              control_signals.B_bus_imm = 12'(decoder_bus.word.immediate.ls_half.imm_offset);
+              control_signals.B_bus_imm = 24'(decoder_bus.word.immediate.ls_half.imm_offset);
 
               // No shift
               control_signals.shift_type = SHIFT_LSL;
@@ -859,6 +863,65 @@ module ControlUnit (
           end
 
           $display("[ControlUnit] Detected multiple data transfer instruction.");
+        end
+
+        // ============================
+        // Branch & Branch with Link
+        // ============================
+
+        ARM_INSTR_BRANCH: begin
+          $display("[ControlUnit] Detected branch instruction, preparing to update PC");
+          if (cycle == 8'd0) begin
+            control_signals.ALU_op = ALU_OP_ADD;
+            control_signals.addr_bus_src = ADDR_SRC_ALU;
+
+            control_signals.A_bus_source = A_BUS_SRC_RN;
+
+            control_signals.ALU_writeback = ALU_WB_REG_RN;
+
+            control_signals.B_bus_source = B_BUS_SRC_IMM;
+            control_signals.B_bus_imm = decoder_bus.word.immediate.branch.imm24;
+            control_signals.B_bus_sign_extend = 1'b1;
+
+            control_signals.shift_type = SHIFT_LSL;
+            control_signals.shift_amount = 5'd2;
+
+            control_signals.pipeline_advance = 1'b1;
+          end
+        end
+
+        // TODO: Currently this instr lasts an extra cycle. We need to overlap the fetch and cycle 2.
+        ARM_INSTR_BRANCH_LINK: begin
+          if (cycle == 8'd0) begin
+            // Rd should be R14 (LR)
+            control_signals.ALU_writeback = ALU_WB_REG_14;
+
+            control_signals.ALU_op = ALU_OP_SUB;
+            control_signals.A_bus_source = A_BUS_SRC_RN;
+
+            control_signals.B_bus_source = B_BUS_SRC_IMM;
+            control_signals.B_bus_imm = 24'd4;
+
+            $display("[ControlUnit] Branch with Link instruction, writing return address to R14");
+          end
+
+          if (cycle == 8'd1) begin
+            control_signals.ALU_op = ALU_OP_ADD;
+            control_signals.addr_bus_src = ADDR_SRC_ALU;
+
+            control_signals.A_bus_source = A_BUS_SRC_RN;
+
+            control_signals.ALU_writeback = ALU_WB_REG_RN;
+
+            control_signals.B_bus_source = B_BUS_SRC_IMM;
+            control_signals.B_bus_imm = decoder_bus.word.immediate.branch.imm24;
+            control_signals.B_bus_sign_extend = 1'b1;
+
+            control_signals.shift_type = SHIFT_LSL;
+            control_signals.shift_amount = 5'd2;
+
+            control_signals.pipeline_advance = 1'b1;
+          end
         end
         default: ;
       endcase

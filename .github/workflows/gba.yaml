@@ -74,6 +74,7 @@ jobs:
           - arm_ldr_str_register_offset
           - arm_ldrh_strh
           - arm_ldrsb_ldrsh
+          - arm_b_bl
 
     steps:
       - uses: actions/checkout@v4
