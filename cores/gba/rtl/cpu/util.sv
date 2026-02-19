@@ -45,32 +45,32 @@ package cpu_util_pkg;
       4'd7: read_reg = regs.common.r7;
 
       // R8–R12 : banked only for FIQ
-      4'd8:  read_reg = (mode == MODE_FIQ) ? regs.fiq.r8 : regs.user.r8;
-      4'd9:  read_reg = (mode == MODE_FIQ) ? regs.fiq.r9 : regs.user.r9;
-      4'd10: read_reg = (mode == MODE_FIQ) ? regs.fiq.r10 : regs.user.r10;
-      4'd11: read_reg = (mode == MODE_FIQ) ? regs.fiq.r11 : regs.user.r11;
-      4'd12: read_reg = (mode == MODE_FIQ) ? regs.fiq.r12 : regs.user.r12;
+      4'd8:  read_reg = (mode == CPU_MODE_FIQ) ? regs.fiq.r8 : regs.user.r8;
+      4'd9:  read_reg = (mode == CPU_MODE_FIQ) ? regs.fiq.r9 : regs.user.r9;
+      4'd10: read_reg = (mode == CPU_MODE_FIQ) ? regs.fiq.r10 : regs.user.r10;
+      4'd11: read_reg = (mode == CPU_MODE_FIQ) ? regs.fiq.r11 : regs.user.r11;
+      4'd12: read_reg = (mode == CPU_MODE_FIQ) ? regs.fiq.r12 : regs.user.r12;
 
       // R13 / R14 : fully banked
       4'd13: begin
         unique case (mode)
-          MODE_USR, MODE_SYS: read_reg = regs.user.r13;
-          MODE_FIQ: read_reg = regs.fiq.r13;
-          MODE_SVC: read_reg = regs.supervisor.r13;
-          MODE_ABT: read_reg = regs.abort.r13;
-          MODE_IRQ: read_reg = regs.irq.r13;
-          MODE_UND: read_reg = regs.undefined.r13;
+          CPU_MODE_USR, CPU_MODE_SYS: read_reg = regs.user.r13;
+          CPU_MODE_FIQ: read_reg = regs.fiq.r13;
+          CPU_MODE_SVC: read_reg = regs.supervisor.r13;
+          CPU_MODE_ABT: read_reg = regs.abort.r13;
+          CPU_MODE_IRQ: read_reg = regs.irq.r13;
+          CPU_MODE_UND: read_reg = regs.undefined.r13;
         endcase
       end
 
       4'd14: begin
         unique case (mode)
-          MODE_USR, MODE_SYS: read_reg = regs.user.r14;
-          MODE_FIQ: read_reg = regs.fiq.r14;
-          MODE_SVC: read_reg = regs.supervisor.r14;
-          MODE_ABT: read_reg = regs.abort.r14;
-          MODE_IRQ: read_reg = regs.irq.r14;
-          MODE_UND: read_reg = regs.undefined.r14;
+          CPU_MODE_USR, CPU_MODE_SYS: read_reg = regs.user.r14;
+          CPU_MODE_FIQ: read_reg = regs.fiq.r14;
+          CPU_MODE_SVC: read_reg = regs.supervisor.r14;
+          CPU_MODE_ABT: read_reg = regs.abort.r14;
+          CPU_MODE_IRQ: read_reg = regs.irq.r14;
+          CPU_MODE_UND: read_reg = regs.undefined.r14;
         endcase
       end
 
@@ -83,19 +83,19 @@ package cpu_util_pkg;
 
   function automatic logic mode_has_spsr(cpu_mode_t mode);
     unique case (mode)
-      MODE_FIQ, MODE_IRQ, MODE_SVC, MODE_ABT, MODE_UND: mode_has_spsr = 1'b1;
-      MODE_USR, MODE_SYS:                               mode_has_spsr = 1'b0;  // USR/SYS
+      CPU_MODE_FIQ, CPU_MODE_IRQ, CPU_MODE_SVC, CPU_MODE_ABT, CPU_MODE_UND: mode_has_spsr = 1'b1;
+      CPU_MODE_USR, CPU_MODE_SYS: mode_has_spsr = 1'b0;  // USR/SYS
     endcase
   endfunction
 
   function automatic word_t read_spsr(input cpu_regs_t regs, input cpu_mode_t mode);
     unique case (mode)
-      MODE_FIQ: read_spsr = regs.SPSR.fiq;
-      MODE_IRQ: read_spsr = regs.SPSR.irq;
-      MODE_SVC: read_spsr = regs.SPSR.supervisor;
-      MODE_ABT: read_spsr = regs.SPSR.abort;
-      MODE_UND: read_spsr = regs.SPSR.undefined;
-      MODE_USR, MODE_SYS: read_spsr = regs.CPSR;  // don't-care; should not be used
+      CPU_MODE_FIQ: read_spsr = regs.SPSR.fiq;
+      CPU_MODE_IRQ: read_spsr = regs.SPSR.irq;
+      CPU_MODE_SVC: read_spsr = regs.SPSR.supervisor;
+      CPU_MODE_ABT: read_spsr = regs.SPSR.abort;
+      CPU_MODE_UND: read_spsr = regs.SPSR.undefined;
+      CPU_MODE_USR, CPU_MODE_SYS: read_spsr = regs.CPSR;  // don't-care; should not be used
     endcase
   endfunction
 
@@ -137,5 +137,18 @@ package cpu_util_pkg;
     end
     return 4'd0;
   endfunction : get_ith_bit
+
+  function automatic logic [4:0] update_cspr_mode(input exception_t exception);
+    unique case (exception)
+      EXCEPTION_NONE: update_cspr_mode = 5'b10000;  // USR
+      EXCEPTION_RESET: update_cspr_mode = 5'b10000;  // TODO
+      EXCEPTION_UNDEFINED: update_cspr_mode = 5'b11011;  // UND
+      EXCEPTION_SWI: update_cspr_mode = 5'b10011;  // SVC
+      EXCEPTION_PABT: update_cspr_mode = 5'b10111;  // ABT
+      EXCEPTION_DABT: update_cspr_mode = 5'b10111;  // ABT
+      EXCEPTION_IRQ: update_cspr_mode = 5'b10010;  // IRQ
+      EXCEPTION_FIQ: update_cspr_mode = 5'b10001;  // FIQ
+    endcase
+  endfunction : update_cspr_mode
 
 endpackage : cpu_util_pkg

@@ -90,6 +90,14 @@ module Decoder (
 
       /// Software Interrupt
       32'b????_1111_????_????_????_????_????_????: begin
+        // TODO: Decode comments from ARM SWI IR.
+
+        bus.word.instr_type = ARM_INSTR_SWI;
+
+        // Overwrite Rn and Rd
+        bus.word.Rn = 4'd15;
+        bus.word.Rd = 4'd14;
+
         $display("[Decoder] Detected SWI instruction with IR=0x%08x", IR);
       end
 

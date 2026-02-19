@@ -894,7 +894,7 @@ module ControlUnit (
         ARM_INSTR_BRANCH_LINK: begin
           if (cycle == 8'd0) begin
             // Rd should be R14 (LR)
-            control_signals.ALU_writeback = ALU_WB_REG_14;
+            control_signals.ALU_writeback = ALU_WB_REG_RD;
 
             control_signals.ALU_op = ALU_OP_SUB;
             control_signals.A_bus_source = A_BUS_SRC_RN;
@@ -902,7 +902,8 @@ module ControlUnit (
             control_signals.B_bus_source = B_BUS_SRC_IMM;
             control_signals.B_bus_imm = 24'd4;
 
-            $display("[ControlUnit] Branch with Link instruction, writing return address to R14");
+            $display("[ControlUnit] Branch with Link instruction, writing return address to R%0d",
+                     decoder_bus.word.Rd);
           end
 
           if (cycle == 8'd1) begin
@@ -919,6 +920,27 @@ module ControlUnit (
 
             control_signals.shift_type = SHIFT_LSL;
             control_signals.shift_amount = 5'd2;
+
+            control_signals.pipeline_advance = 1'b1;
+          end
+        end
+
+        ARM_INSTR_SWI: begin
+          if (cycle == 8'd0) begin
+            // Rd should be R14 (LR)
+            control_signals.ALU_writeback = ALU_WB_REG_RD;
+
+            control_signals.ALU_op = ALU_OP_SUB;
+            control_signals.A_bus_source = A_BUS_SRC_RN;
+
+            control_signals.B_bus_source = B_BUS_SRC_IMM;
+            control_signals.B_bus_imm = 24'd4;
+
+            control_signals.exception = EXCEPTION_SWI;
+
+            $display(
+                "[ControlUnit] Software Interrupt instruction, writing return address to R%0d and preparing for exception handling",
+                decoder_bus.word.Rd);
 
             control_signals.pipeline_advance = 1'b1;
           end

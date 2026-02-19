@@ -88,6 +88,7 @@ package cpu_types_pkg;
     /**
       From: https://mgba-emu.github.io/gbatek/#current-program-status-register-cpsr
       
+      ```plain
       Bit   Expl.
       31    N - Sign Flag       (0=Not Signed, 1=Signed)               ;\
       30    Z - Zero Flag       (0=Not Zero, 1=Zero)                   ; Condition
@@ -99,6 +100,7 @@ package cpu_types_pkg;
       6     F - FIQ disable     (0=Enable, 1=Disable)                     ; Control
       5     T - State Bit       (0=ARM, 1=THUMB) - Do not change manually!; Bits
       4-0   M4-M0 - Mode Bits   (See below)         
+      ```
     */
     word_t CPSR;
 
@@ -112,14 +114,92 @@ package cpu_types_pkg;
 
   } cpu_regs_t;
 
-  typedef enum logic [3:0] {
-    MODE_USR = 4'b0000,
-    MODE_FIQ = 4'b0001,
-    MODE_IRQ = 4'b0010,
-    MODE_SVC = 4'b0011,
-    MODE_ABT = 4'b0111,
-    MODE_UND = 4'b1011,
-    MODE_SYS = 4'b1111
+  // TODO: figure out priority
+  typedef enum logic [2:0] {
+    /// No exception
+    EXCEPTION_NONE = 3'd0,
+
+    /// Reset
+    EXCEPTION_RESET = 3'd1,
+
+    /// Undefined instruction (attempting to execute an undefined / illegal instruction)
+    EXCEPTION_UNDEFINED = 3'd2,
+
+    /// Software Interrupt (SWI)
+    EXCEPTION_SWI = 3'd3,
+
+    /// Prefetch abort (fetching instruction from memory failed)
+    EXCEPTION_PABT = 3'd4,
+
+    /// Data abort (data access from memory failed)
+    EXCEPTION_DABT = 3'd5,
+
+    /// Interrupt Request (IRQ)
+    EXCEPTION_IRQ = 3'd6,
+
+    /// Fast Interrupt Request (FIQ)
+    EXCEPTION_FIQ = 3'd7
+  } exception_t;
+
+  localparam logic [31:0] VECTOR_TABLE[0:7] = '{
+      32'hXXXX_XXXX,  // NONE (illegal / unused)
+      32'h0000_0000,  // RESET
+      32'h0000_0004,  // UNDEFINED
+      32'h0000_0008,  // SWI
+      32'h0000_000C,  // PREFETCH_ABORT
+      32'h0000_0010,  // DATA_ABORT
+      32'h0000_0018,  // IRQ
+      32'h0000_001C  // FIQ
+  };
+
+  typedef enum logic [2:0] {
+
+    SET_CPU_MODE_NONE = 3'b000,
+
+    /// User mode (USR)
+    SET_CPU_MODE_USR,
+
+    /// Fast Interrupt Request mode (FIQ)
+    SET_CPU_MODE_FIQ,
+
+    /// Interrupt Request mode (IRQ)
+    SET_CPU_MODE_IRQ,
+
+    /// Supervisor mode (SVC)
+    SET_CPU_MODE_SVC,
+
+    /// Abort mode (ABT)
+    SET_CPU_MODE_ABT,
+
+    /// Undefined mode (UND)
+    SET_CPU_MODE_UND,
+
+    /// System mode (SYS)
+    SET_CPU_MODE_SYS
+  } set_cpu_mode_t;
+
+  typedef enum logic [2:0] {
+
+    /// User mode (USR)
+    CPU_MODE_USR,
+
+    /// Fast Interrupt Request mode (FIQ)
+    CPU_MODE_FIQ,
+
+    /// Interrupt Request mode (IRQ)
+    CPU_MODE_IRQ,
+
+    /// Supervisor mode (SVC)
+    CPU_MODE_SVC,
+
+    /// Abort mode (ABT)
+    CPU_MODE_ABT,
+
+    /// Undefined mode (UND)
+    CPU_MODE_UND,
+
+    /// System mode (SYS)
+    CPU_MODE_SYS
   } cpu_mode_t;
 
   typedef enum logic [1:0] {

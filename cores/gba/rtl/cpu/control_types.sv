@@ -110,6 +110,11 @@ package control_types_pkg;
     /// TODO: Refactor
     logic restore_cpsr_from_spsr;
 
+    // TODO: Refactor
+    set_cpu_mode_t set_mode;
+
+    exception_t exception;
+
     // ======================================================
     // Shift Bus
     // ======================================================

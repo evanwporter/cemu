@@ -21,6 +21,7 @@
 
 `define DISPLAY_CONTROL(ctrl) \
   $display("---- CONTROL WORD ----"); \
+  $display("Exception             : %s", ctrl.exception.name()); \
   $display("incrementer_writeback : %0b", ctrl.incrementer_writeback); \
   $display("ALU_writeback         : %s", ctrl.ALU_writeback.name()); \
   $display("shift_source          : %s", ctrl.shift_source.name()); \
@@ -241,47 +242,71 @@
       4'd6:  (REGS).common.r6  <= (VALUE); \
       4'd7:  (REGS).common.r7  <= (VALUE); \
       4'd8: begin \
-        if ((MODE) == MODE_FIQ) (REGS).fiq.r8  <= (VALUE); \
+        if ((MODE) == CPU_MODE_FIQ) (REGS).fiq.r8  <= (VALUE); \
         else (REGS).user.r8 <= (VALUE); \
       end \
       4'd9: begin \
-        if ((MODE) == MODE_FIQ) (REGS).fiq.r9  <= (VALUE); \
+        if ((MODE) == CPU_MODE_FIQ) (REGS).fiq.r9  <= (VALUE); \
         else (REGS).user.r9 <= (VALUE); \
       end \
       4'd10: begin \
-        if ((MODE) == MODE_FIQ) (REGS).fiq.r10 <= (VALUE); \
+        if ((MODE) == CPU_MODE_FIQ) (REGS).fiq.r10 <= (VALUE); \
         else (REGS).user.r10<= (VALUE); \
       end \
       4'd11: begin \
-        if ((MODE) == MODE_FIQ) (REGS).fiq.r11 <= (VALUE); \
+        if ((MODE) == CPU_MODE_FIQ) (REGS).fiq.r11 <= (VALUE); \
         else (REGS).user.r11<= (VALUE); \
       end \
       4'd12: begin \
-        if ((MODE) == MODE_FIQ) (REGS).fiq.r12 <= (VALUE); \
+        if ((MODE) == CPU_MODE_FIQ) (REGS).fiq.r12 <= (VALUE); \
         else (REGS).user.r12<= (VALUE); \
       end \
       4'd13: begin \
         unique case (MODE) \
-          MODE_USR, MODE_SYS: (REGS).user.r13 <= (VALUE); \
-          MODE_FIQ: (REGS).fiq.r13 <= (VALUE); \
-          MODE_SVC: (REGS).supervisor.r13 <= (VALUE); \
-          MODE_ABT: (REGS).abort.r13 <= (VALUE); \
-          MODE_IRQ: (REGS).irq.r13 <= (VALUE); \
-          MODE_UND: (REGS).undefined.r13 <= (VALUE);  \
+          CPU_MODE_USR, CPU_MODE_SYS: (REGS).user.r13 <= (VALUE); \
+          CPU_MODE_FIQ: (REGS).fiq.r13 <= (VALUE); \
+          CPU_MODE_SVC: (REGS).supervisor.r13 <= (VALUE); \
+          CPU_MODE_ABT: (REGS).abort.r13 <= (VALUE); \
+          CPU_MODE_IRQ: (REGS).irq.r13 <= (VALUE); \
+          CPU_MODE_UND: (REGS).undefined.r13 <= (VALUE);  \
         endcase \
       end \
       4'd14: begin \
         unique case (MODE) \
-          MODE_USR, MODE_SYS: (REGS).user.r14 <= (VALUE); \
-          MODE_FIQ: (REGS).fiq.r14 <= (VALUE); \
-          MODE_SVC: (REGS).supervisor.r14 <= (VALUE); \
-          MODE_ABT: (REGS).abort.r14 <= (VALUE); \
-          MODE_IRQ: (REGS).irq.r14 <= (VALUE); \
-          MODE_UND: (REGS).undefined.r14 <= (VALUE); \
+          CPU_MODE_USR, CPU_MODE_SYS: (REGS).user.r14 <= (VALUE); \
+          CPU_MODE_FIQ: (REGS).fiq.r14 <= (VALUE); \
+          CPU_MODE_SVC: (REGS).supervisor.r14 <= (VALUE); \
+          CPU_MODE_ABT: (REGS).abort.r14 <= (VALUE); \
+          CPU_MODE_IRQ: (REGS).irq.r14 <= (VALUE); \
+          CPU_MODE_UND: (REGS).undefined.r14 <= (VALUE); \
         endcase \
       end \
       4'd15: (REGS).user.r15 <= (VALUE); \
     endcase \
   end
+
+  `define WRITE_SPSR(REGS, MODE, VALUE) \
+    begin \
+      unique case (MODE) \
+        CPU_MODE_USR, CPU_MODE_SYS: ;  /* No SPSR for USR/SYS */ \
+        CPU_MODE_FIQ: (REGS).SPSR.fiq <= (VALUE); \
+        CPU_MODE_IRQ: (REGS).SPSR.irq <= (VALUE); \
+        CPU_MODE_SVC: (REGS).SPSR.supervisor <= (VALUE); \
+        CPU_MODE_ABT: (REGS).SPSR.abort <= (VALUE); \
+        CPU_MODE_UND: (REGS).SPSR.undefined <= (VALUE); \
+      endcase \
+    end
+
+  `define PC_WRITE_EXCEPTION(REGS, MODE) \
+    begin \
+      unique case (MODE) \
+        CPU_MODE_USR, CPU_MODE_SYS: (REGS).user.r15 <= 32'h00000004; \
+        CPU_MODE_UND: (REGS).undefined.r15 <= 32'h00000018; \
+        CPU_MODE_SVC: (REGS).supervisor.r15 <= 32'h0000000C; \
+        CPU_MODE_FIQ: (REGS).fiq.r15 <= 32'h00000008; \
+        CPU_MODE_ABT: (REGS).abort.r15 <= 32'h00000010; \
+        CPU_MODE_IRQ: (REGS).irq.r15 <= 32'h00000014; \
+      endcase \
+    end
 
 `endif // CPU_UTIL_SVH

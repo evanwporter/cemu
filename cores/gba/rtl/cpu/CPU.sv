@@ -12,7 +12,6 @@ module CPU (
     Bus_if.Master_side bus
 );
 
-  /// TODO: Remove
   control_t control_signals;
 
   word_t IR;
@@ -31,26 +30,40 @@ module CPU (
   word_t read_data;
 
   always_comb begin
-    unique casez (regs.CPSR[4:0])
+    if (control_signals.exception != EXCEPTION_NONE) begin
+      // TODO: think about combining with `update_cspr_mode`
+      unique case (control_signals.exception)
+        EXCEPTION_NONE: cpu_mode = CPU_MODE_USR;  // Impossible to reach
+        EXCEPTION_RESET: cpu_mode = CPU_MODE_USR;  // TODO;
+        EXCEPTION_UNDEFINED: cpu_mode = CPU_MODE_UND;
+        EXCEPTION_SWI: cpu_mode = CPU_MODE_SVC;
+        EXCEPTION_PABT: cpu_mode = CPU_MODE_ABT;
+        EXCEPTION_DABT: cpu_mode = CPU_MODE_ABT;
+        EXCEPTION_IRQ: cpu_mode = CPU_MODE_IRQ;
+        EXCEPTION_FIQ: cpu_mode = CPU_MODE_FIQ;
+      endcase
+    end else begin
+      unique casez (regs.CPSR[4:0])
 
-      5'b0??00: cpu_mode = MODE_USR;  // Old User
-      5'b0??01: cpu_mode = MODE_FIQ;  // Old FIQ
-      5'b0??10: cpu_mode = MODE_IRQ;  // Old IRQ
-      5'b0??11: cpu_mode = MODE_SVC;  // Old Supervisor
+        5'b0??00: cpu_mode = CPU_MODE_USR;  // Old User
+        5'b0??01: cpu_mode = CPU_MODE_FIQ;  // Old FIQ
+        5'b0??10: cpu_mode = CPU_MODE_IRQ;  // Old IRQ
+        5'b0??11: cpu_mode = CPU_MODE_SVC;  // Old Supervisor
 
-      5'b10000: cpu_mode = MODE_USR;  // User
-      5'b10001: cpu_mode = MODE_FIQ;  // FIQ
-      5'b10010: cpu_mode = MODE_IRQ;  // IRQ
-      5'b10011: cpu_mode = MODE_SVC;  // Supervisor
-      5'b10111: cpu_mode = MODE_ABT;  // Abort
-      5'b11011: cpu_mode = MODE_UND;  // Undefined
-      5'b11111: cpu_mode = MODE_SYS;  // System
+        5'b10000: cpu_mode = CPU_MODE_USR;  // User
+        5'b10001: cpu_mode = CPU_MODE_FIQ;  // FIQ
+        5'b10010: cpu_mode = CPU_MODE_IRQ;  // IRQ
+        5'b10011: cpu_mode = CPU_MODE_SVC;  // Supervisor
+        5'b10111: cpu_mode = CPU_MODE_ABT;  // Abort
+        5'b11011: cpu_mode = CPU_MODE_UND;  // Undefined
+        5'b11111: cpu_mode = CPU_MODE_SYS;  // System
 
-      default: begin
-        cpu_mode = MODE_USR;
-        $warning("Illegal CPSR mode encoding: %b", regs.CPSR[4:0]);
-      end
-    endcase
+        default: begin
+          cpu_mode = CPU_MODE_USR;
+          $warning("Illegal CPSR mode encoding: %b", regs.CPSR[4:0]);
+        end
+      endcase
+    end
   end
 
   Decoder_if decoder_bus (
@@ -195,7 +208,7 @@ module CPU (
       B_BUS_SRC_REG_RP: begin
         $display("Driving B bus with value from Rp (R%0d): %0d", control_signals.Rp_imm, read_reg(
                  regs, cpu_mode, control_signals.Rp_imm));
-        B_bus = read_reg(regs, control_signals.force_user_mode ? MODE_USR : cpu_mode,
+        B_bus = read_reg(regs, control_signals.force_user_mode ? CPU_MODE_USR : cpu_mode,
                          control_signals.Rp_imm);
       end
     endcase
@@ -365,6 +378,21 @@ module CPU (
         end
       end
 
+      if (control_signals.exception != EXCEPTION_NONE) begin
+        `WRITE_SPSR(regs, cpu_mode, regs.CPSR)
+
+        regs.user.r15 <= VECTOR_TABLE[control_signals.exception];
+
+        regs.CPSR[7] <= 1'b1;  // Disable IRQ
+
+        regs.CPSR[4:0] <= update_cspr_mode(control_signals.exception);
+
+        flush_req <= 1'b1;
+
+        $display("Performing CPU exception handling from %0d to %0d", cpu_mode,
+                 control_signals.exception);
+      end
+
       unique case (control_signals.ALU_writeback)
         ALU_WB_NONE:   ;
         ALU_WB_REG_RD: begin
@@ -374,12 +402,12 @@ module CPU (
         ALU_WB_REG_RS: `WRITE_REG(regs, cpu_mode, decoder_bus.word.Rs, alu_bus.result)
         ALU_WB_REG_RN: begin
           $display("Writing back ALU result %0d to Rn (R%d)", alu_bus.result, decoder_bus.word.Rn);
-          `WRITE_REG(regs, control_signals.force_user_mode ? MODE_USR : cpu_mode,
+          `WRITE_REG(regs, control_signals.force_user_mode ? CPU_MODE_USR : cpu_mode,
                      decoder_bus.word.Rn, alu_bus.result)
         end
         ALU_WB_REG_14: `WRITE_REG(regs, cpu_mode, 14, alu_bus.result)
         ALU_WB_REG_RP: begin
-          `WRITE_REG(regs, control_signals.force_user_mode ? MODE_USR : cpu_mode,
+          `WRITE_REG(regs, control_signals.force_user_mode ? CPU_MODE_USR : cpu_mode,
                      control_signals.Rp_imm, alu_bus.result)
         end
       endcase
