@@ -173,8 +173,7 @@ module CPU (
       end
 
       B_BUS_SRC_REG_RS: begin
-        B_bus = control_signals.pc_rs_add_4 ? (read_reg(regs, cpu_mode, decoder_bus.word.Rs) + 32'd4
-            ) : read_reg(regs, cpu_mode, decoder_bus.word.Rs);
+        B_bus = read_reg(regs, cpu_mode, decoder_bus.word.Rs);
       end
 
       B_BUS_SRC_REG_RD: begin

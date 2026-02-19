@@ -139,7 +139,6 @@ package cpu_decoder_types_pkg;
     // Single Data Transfer (Doubleword / Halfword)
     // ======================================================
 
-
     /// ARM_INSTR_LOAD / ARM_INSTR_STORE
     struct packed {
       logic [9:0] _pad;

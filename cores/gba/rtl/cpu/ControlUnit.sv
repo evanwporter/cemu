@@ -174,11 +174,6 @@ module ControlUnit (
 
             $display("[ControlUnit] Instr done is %b, cycle is %0d",
                      control_signals.pipeline_advance, cycle);
-
-            if (decoder_bus.word.Rs == 4'd15) begin
-              control_signals.pc_rs_add_4 = 1'b1;
-              $display("[ControlUnit] Rs is PC, adding 4 to value read from Rs");
-            end
           end
 
           if (cycle == 8'd1) begin

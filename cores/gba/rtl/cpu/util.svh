@@ -42,7 +42,6 @@
   $display("ALU_set_flags         : %0b", ctrl.ALU_set_flags); \
   $display("ALU_op                : %s", ctrl.ALU_op.name()); \
   $display("pc_rn_add_4           : %0b", ctrl.pc_rn_add_4); \
-  $display("pc_rs_add_4           : %0b", ctrl.pc_rs_add_4); \
   $display("pc_rm_add_4           : %0b", ctrl.pc_rm_add_4); \
   $display("shift_latch_amt       : %0b", ctrl.shift_latch_amt); \
   $display("shift_use_latch       : %0b", ctrl.shift_use_latch); \

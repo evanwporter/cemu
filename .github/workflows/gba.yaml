@@ -1,0 +1,89 @@
+name: gba
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    paths: [core/gba/**]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Ninja
+        uses: seanmiddleditch/gha-setup-ninja@v6
+
+      - name: Set up OSS CAD Suite
+        uses: YosysHQ/setup-oss-cad-suite@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          version: "2026-02-16"
+
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            vcpkg
+            build/vcpkg_installed
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+
+      - name: Install vcpkg
+        shell: pwsh
+        run: |
+          if (!(Test-Path vcpkg)) {
+            git clone https://github.com/microsoft/vcpkg.git
+            git -C vcpkg checkout 80d025e8299d442c13b29751fc9451711b7c6c8e
+            vcpkg\bootstrap-vcpkg.bat
+          }
+          echo "VCPKG_ROOT=${{github.workspace}}\vcpkg" >> $env:GITHUB_ENV
+
+      - name: Configure
+        run: cmake --preset debug -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebug -DVCPKG_TARGET_TRIPLET=x64-windows-static
+
+      - name: Build
+        run: cmake --build --preset debug --target test_gba
+
+      - name: Upload test binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: test_gba
+          path: build/debug/cores/gba/tests/test_gba.exe
+
+  test:
+    runs-on: windows-latest
+    needs: build
+
+    strategy:
+      fail-fast: true
+      matrix:
+        test:
+          - arm_data_proc_immediate
+          - arm_data_proc_immediate_shift
+          - arm_data_proc_register_shift
+          - arm_ldm_stm
+          - arm_ldr_str_immediate_offset
+          - arm_ldr_str_register_offset
+          - arm_ldrh_strh
+          - arm_ldrsb_ldrsh
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: test_gba
+
+      - name: Run GBA tests
+        run: |
+          .\test_gba.exe --gtest_filter=*${{ matrix.test }}_json --test-dir=${{ github.workspace }}/tests/

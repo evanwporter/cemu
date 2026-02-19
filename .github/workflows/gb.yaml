@@ -1,20 +1,18 @@
-name: vemu
+name: gb
 
 on:
   workflow_dispatch:
   push:
+    branches: [main]
   pull_request:
+    paths: [core/gb/**]
 
 jobs:
   build-and-test:
     runs-on: windows-latest
 
     strategy:
-      fail-fast: false
-      matrix:
-        test:
-          - test_gb
-          - test_gba
+      fail-fast: true
 
     steps:
       - uses: actions/checkout@v4
@@ -45,17 +43,7 @@ jobs:
         run: cmake --preset debug
 
       - name: Build
-        run: cmake --build --preset debug --target ${{ matrix.test }}
+        run: cmake --build --preset debug --target test_gb
 
-      - name: Run gameboy tests
-        if: matrix.test == 'test_gb'
+      - name: Run tests
         run: ctest --test-dir build/debug/ -R ^test_gb$ -V
-
-      - name: Run gameboy gba tests
-        if: matrix.test == 'test_gba'
-        run: |
-          build\debug\cores\gba\tests\test_gba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_ldrsb_ldrsh_json
-          build\debug\cores\gba\tests\test_gba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_ldrh_strh_json
-          build\debug\cores\gba\tests\test_gba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_ldr_str_*_json
-          build\debug\cores\gba\tests\test_gba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_ldm_stm_json
-          build\debug\cores\gba\tests\test_gba.exe --gtest_filter=CPUTests/GameboyAdvanceOpcodeTest.Run/arm_data_proc_*_json

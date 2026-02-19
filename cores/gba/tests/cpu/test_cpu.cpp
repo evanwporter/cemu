@@ -20,9 +20,14 @@ using json = nlohmann::json;
 using u8 = uint8_t;
 using u16 = uint16_t;
 
-static int g_single_test_index = -1; // -1 = run all
-
 static const fs::path kTestDir = fs::path(TEST_DIR) / "GameboyAdvanceCPUTests/v1";
+
+static fs::path get_test_dir() {
+    if (test_config().test_dir.has_value()) {
+        return test_config().test_dir.value() / "GameboyAdvanceCPUTests/v1";
+    }
+    return kTestDir;
+}
 
 static inline u16 get_u16(u8 hi, u8 lo) {
     return static_cast<u16>((hi << 8) | lo);
@@ -357,7 +362,7 @@ static void run_single_file(const fs::path& path) {
     TestStream stream(path.string());
 
     json testCase;
-    size_t test_index = 0;
+    std::size_t test_index = 0;
 
     while (stream.next(testCase)) {
         if (test_config().test_index.has_value()) {
@@ -384,6 +389,6 @@ INSTANTIATE_TEST_SUITE_P(
     CPUTests,
     GameboyAdvanceOpcodeTest,
     ::testing::ValuesIn(collect_files_in_directory(
-        kTestDir,
+        get_test_dir(),
         ".bin")),
     get_test_name);
