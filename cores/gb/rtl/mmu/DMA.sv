@@ -1,6 +1,6 @@
-import mmu_addresses_pkg::*;
+import gb_mmu_addresses_pkg::*;
 
-`include "util/logger.svh"
+`include "gb/util/logger.svh"
 
 typedef enum logic [1:0] {
   T1,
@@ -9,12 +9,12 @@ typedef enum logic [1:0] {
   T4
 } t_phase_t;
 
-module DMA (
+module GB_DMA (
     input logic clk,
     input logic reset,
 
-    Bus_if.Slave_side bus,
-    DMA_if.DMA_side   mmu_bus
+    GB_Bus_if.Slave_side bus,
+    GB_DMA_if.DMA_side   mmu_bus
 );
   // DMA
   logic [7:0] DMA;

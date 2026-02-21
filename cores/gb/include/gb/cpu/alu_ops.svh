@@ -1,9 +1,8 @@
 `ifndef CPU_ALU_SVH
 `define CPU_ALU_SVH
 
-`include "cpu/opcodes.svh"
-
-import cpu_types_pkg::*;
+import gb_cpu_opcodes_pkg::*;
+import gb_cpu_types_pkg::*;
 
 typedef struct packed {
   logic [7:0] result;  // The ALU output value

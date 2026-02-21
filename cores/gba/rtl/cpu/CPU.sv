@@ -1,15 +1,15 @@
-import types_pkg::*;
-import cpu_types_pkg::*;
-import control_types_pkg::*;
-import cpu_util_pkg::*;
+import gba_types_pkg::*;
+import gba_cpu_types_pkg::*;
+import gba_control_types_pkg::*;
+import gba_cpu_util_pkg::*;
 
-`include "cpu/util.svh"
+`include "cpu/gba_util.svh"
 
-module CPU (
+module ARM7TMDI (
     input logic clk,
     input logic reset,
 
-    Bus_if.Master_side bus
+    GBA_Bus_if.Master_side bus
 );
 
   control_t control_signals;
@@ -66,13 +66,13 @@ module CPU (
     end
   end
 
-  Decoder_if decoder_bus (
+  GBA_Decoder_if decoder_bus (
       .IR(IR),
       .flags(regs.CPSR[31:28])
   );
 
-  ALU_if alu_bus (.op_a(A_bus));
-  Shifter_if shifter_bus (.R_in(B_bus));
+  GBA_ALU_if alu_bus (.op_a(A_bus));
+  GBA_Shifter_if shifter_bus (.R_in(B_bus));
 
   assign shifter_bus.shift_latch_amt = control_signals.shift_latch_amt;
   assign shifter_bus.shift_use_latch = control_signals.shift_use_latch;
@@ -113,7 +113,7 @@ module CPU (
       .shifter_bus(shifter_bus)
   );
 
-  Decoder decoder_inst (
+  GBA_Decoder decoder_inst (
       .clk  (clk),
       .reset(reset),
       .bus  (decoder_bus)
@@ -127,7 +127,7 @@ module CPU (
       .flush_req(flush_req)
   );
 
-  BarrelShifter shifter_inst (
+  GBA_BarrelShifter shifter_inst (
       .clk  (clk),
       .reset(reset),
       .bus  (shifter_bus)
@@ -445,4 +445,4 @@ module CPU (
     end
   end
 
-endmodule : CPU
+endmodule : ARM7TMDI

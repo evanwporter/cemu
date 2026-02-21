@@ -23,6 +23,10 @@ function(gb_add_rtl)
     endif()
 endfunction()
 
+set(GB_INCLUDE_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
 add_subdirectory(rtl)
 
 target_sources(libgb PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/sim/gb.cpp)

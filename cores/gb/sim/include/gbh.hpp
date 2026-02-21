@@ -18,12 +18,12 @@
 
 class GB {
 private:
-    struct CPU {
+    struct SM83 {
     private:
         VGameboy_cpu_regs_t__struct__0& cpu_regs;
 
     public:
-        CPU(VGameboy& top) :
+        SM83(VGameboy& top) :
             cpu_regs(top.rootp->Gameboy__DOT__cpu_inst__DOT__regs) { }
 
         u8& get_A() { return cpu_regs.__PVT__a; }
@@ -56,7 +56,7 @@ public:
     GB(Options options) :
         options(options) { }
 
-    std::optional<CPU> cpu;
+    std::optional<SM83> cpu;
 
     /// Sets up the Gameboy with the given ROM.
     bool setup(const std::filesystem::path& rom_path);
@@ -64,7 +64,7 @@ public:
     /// Advances the simulation by one tick (clock).
     bool tick();
 
-    /// Advance the simulation by one CPU instruction.
+    /// Advance the simulation by one SM83 instruction.
     bool step();
 
     /// Runs the Gameboy until completion.

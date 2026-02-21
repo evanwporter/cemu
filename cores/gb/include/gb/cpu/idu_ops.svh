@@ -1,9 +1,8 @@
 `ifndef CPU_IDU_OPS_SVH
 `define CPU_IDU_OPS_SVH
 
-`include "cpu/opcodes.svh"
-
-import cpu_types_pkg::*;
+import gb_cpu_opcodes_pkg::*;
+import gb_cpu_types_pkg::*;
 
 `define APPLY_IDU_OP(SRC, DST, OP, REGS) \
   begin \

@@ -1,8 +1,8 @@
-import types_pkg::*;
-import cpu_types_pkg::*;
-import control_types_pkg::*;
+import gba_types_pkg::*;
+import gba_cpu_types_pkg::*;
+import gba_control_types_pkg::*;
 
-package cpu_util_pkg;
+package gba_cpu_util_pkg;
 
   function automatic logic eval_cond(input logic [3:0] cond, input logic N, input logic Z,
                                      input logic C, input logic V);
@@ -151,4 +151,4 @@ package cpu_util_pkg;
     endcase
   endfunction : update_cspr_mode
 
-endpackage : cpu_util_pkg
+endpackage : gba_cpu_util_pkg

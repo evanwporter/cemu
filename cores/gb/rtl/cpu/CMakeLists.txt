@@ -1,5 +1,10 @@
 gb_add_rtl(
-    PACKAGES ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
+    PACKAGES 
+        ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/opcodes.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/control_words.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/cb_control_words.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/interrupt_control_words.sv
     INTERFACES
     SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/CPU.sv

@@ -1,30 +1,31 @@
 `ifndef CPU_SV
 `define CPU_SV 
 
-import cpu_types_pkg::*;
-import gameboy_types_pkg::*;
+import gb_cpu_types_pkg::*;
+import gb_types_pkg::*;
 
-`include "cpu/control_words.svh"
-`include "cpu/cb_control_words.svh"
-`include "cpu/interrupt_control_words.svh"
-`include "cpu/opcodes.svh"
+import gb_cpu_opcodes_pkg::*;
 
-`include "cpu/util.svh"
+import gb_cpu_control_words_pkg::*;
+import gb_cpu_cb_control_words_pkg::*;
+import gb_cpu_interrupt_control_words_pkg::*;
 
-`include "cpu/alu_ops.svh"
-`include "cpu/idu_ops.svh"
+`include "gb/cpu/util.svh"
 
-`include "util/logger.svh"
+`include "gb/cpu/alu_ops.svh"
+`include "gb/cpu/idu_ops.svh"
 
-module CPU (
+`include "gb/util/logger.svh"
+
+module SM83 (
     input logic clk,
     input logic reset,
 
     output t_phase_t t_phase,
 
-    Bus_if.Master_side bus,
-    Bus_if.Slave_side interrupt_bus,
-    Interrupt_if.CPU_side IF_bus
+    GB_Bus_if.Master_side bus,
+    GB_Bus_if.Slave_side interrupt_bus,
+    GB_Interrupt_if.CPU_side IF_bus
 );
 
   /// The CPU register

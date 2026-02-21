@@ -3,17 +3,17 @@
 
 // https://gbdev.io/pandocs/Timer_and_Divider_Registers.html#timer-and-divider-registers
 
-module Timer (
+module GB_Timer (
     input logic clk,
     input logic reset,
-    input gameboy_types_pkg::t_phase_t t_phase,
-    Bus_if.Slave_side bus,
-    Interrupt_if.Timer_side IF_bus
+    input gb_types_pkg::t_phase_t t_phase,
+    GB_Bus_if.Slave_side bus,
+    GB_Interrupt_if.Timer_side IF_bus
 );
   /// Divider Register
-  // To the CPU the DIV appears as an 8-bit register at address 0xFF04. However,
+  // To the SM83 the DIV appears as an 8-bit register at address 0xFF04. However,
   // internally it is a 16-bit counter that increments at every t-cycle, where
-  // only the upper 8 bits are exposed to the CPU.
+  // only the upper 8 bits are exposed to the SM83.
   // Source: https://github.com/Ashiepaws/GBEDG/blob/97f198d330a51be558aa8fc9f3f0760846d02d95/timers/index.md#ff04---divider-register-div
   logic [15:0] DIV;
 
@@ -121,7 +121,7 @@ module Timer (
           end
 
         end else begin
-          if (t_phase == gameboy_types_pkg::T1 && timer_enable) begin
+          if (t_phase == gb_types_pkg::T1 && timer_enable) begin
             if (TIMA == 8'd0) begin
               TIMA <= TMA;
               write_block <= 1'b1;

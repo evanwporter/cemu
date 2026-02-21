@@ -1,4 +1,4 @@
-package cpu_types_pkg;
+package gb_cpu_types_pkg;
 
 // When using Verilator I need it unpacked so I can access fields
 // from regs in C++.

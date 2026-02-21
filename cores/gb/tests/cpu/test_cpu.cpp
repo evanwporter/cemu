@@ -4,7 +4,7 @@
 #include <nlohmann/json.hpp>
 
 #include <Vcpu_top.h>
-#include <Vcpu_top_Bus_if.h>
+#include <Vcpu_top_GB_Bus_if.h>
 #include <Vcpu_top___024root.h>
 #include <verilated.h>
 

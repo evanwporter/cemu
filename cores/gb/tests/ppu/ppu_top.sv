@@ -13,11 +13,11 @@ module ppu_top (
     input logic reset
 );
 
-  Bus_if ppu_bus ();
-  Interrupt_if IF_bus ();
-  DMA_if dma_bus ();
+  GB_Bus_if ppu_bus ();
+  GB_Interrupt_if IF_bus ();
+  GB_DMA_if dma_bus ();
 
-  PPU ppu (
+  GB_PPU ppu (
       clk,
       reset,
       ppu_bus,

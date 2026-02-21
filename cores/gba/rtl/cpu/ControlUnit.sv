@@ -1,15 +1,15 @@
-import control_types_pkg::*;
-import cpu_types_pkg::*;
-import cpu_util_pkg::*;
-import cpu_decoder_types_pkg::*;
+import gba_control_types_pkg::*;
+import gba_cpu_types_pkg::*;
+import gba_cpu_util_pkg::*;
+import gba_cpu_decoder_types_pkg::*;
 import control_util_pkg::*;
 
-`include "cpu/util.svh"
+`include "cpu/gba_util.svh"
 
 module ControlUnit (
     input logic clk,
     input logic reset,
-    Decoder_if.ControlUnit_side decoder_bus,
+    GBA_Decoder_if.ControlUnit_side decoder_bus,
     output control_t control_signals,
     input logic flush_req
 );
@@ -146,7 +146,7 @@ module ControlUnit (
 
             control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode);
 
-            control_signals.ALU_writeback = cpu_util_pkg::get_alu_writeback(
+            control_signals.ALU_writeback = gba_cpu_util_pkg::get_alu_writeback(
                 alu_op_t'(decoder_bus.word.immediate.data_proc_imm.opcode));
             control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_imm.set_flags;
             $display("[ControlUnit] ALU writeback source=%0d, set_flags=%b",
@@ -190,7 +190,7 @@ module ControlUnit (
 
             control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_reg_reg.opcode);
 
-            control_signals.ALU_writeback = cpu_util_pkg::get_alu_writeback(
+            control_signals.ALU_writeback = gba_cpu_util_pkg::get_alu_writeback(
                 alu_op_t'(decoder_bus.word.immediate.data_proc_reg_reg.opcode));
             control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_reg_reg.set_flags;
 
@@ -228,7 +228,7 @@ module ControlUnit (
 
           control_signals.ALU_op = alu_op_t'(decoder_bus.word.immediate.data_proc_reg_imm.opcode);
 
-          control_signals.ALU_writeback = cpu_util_pkg::get_alu_writeback(
+          control_signals.ALU_writeback = gba_cpu_util_pkg::get_alu_writeback(
               alu_op_t'(decoder_bus.word.immediate.data_proc_reg_imm.opcode));
           control_signals.ALU_set_flags = decoder_bus.word.immediate.data_proc_reg_imm.set_flags;
 

@@ -1,13 +1,13 @@
 `ifndef MMU_SV
 `define MMU_SV 
 
-import types_pkg::*;
+import gba_types_pkg::*;
 
 module MockMMU (
     input logic clk,
     input logic reset,
 
-    Bus_if.Slave_side cpu_bus
+    GBA_Bus_if.Slave_side cpu_bus
 );
 
   (* maybe_unused *)

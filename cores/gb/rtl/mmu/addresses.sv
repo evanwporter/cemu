@@ -2,7 +2,7 @@
 // Game Boy Memory Map (DMG/CGB)
 //============================================================
 
-package mmu_addresses_pkg;
+package gb_mmu_addresses_pkg;
   typedef logic [15:0] address_t;
 
   //-------------------------------
@@ -148,4 +148,4 @@ package mmu_addresses_pkg;
   localparam address_t IE_end = 16'hFFFF;
   localparam address_t IE_len = IE_end - IE_start + 1;
 
-endpackage : mmu_addresses_pkg
+endpackage : gb_mmu_addresses_pkg

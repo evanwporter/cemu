@@ -1,9 +1,8 @@
 `ifndef CPU_UTIL_SV
 `define CPU_UTIL_SV 
 
-`include "cpu/opcodes.svh"
-
-import cpu_types_pkg::*;
+import gb_cpu_opcodes_pkg::*;
+import gb_cpu_types_pkg::*;
 
 `define DISPLAY_CONTROL_WORD(CW, i) \
   begin \

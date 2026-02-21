@@ -1,12 +1,12 @@
-import mmu_addresses_pkg::*;
+import gb_mmu_addresses_pkg::*;
 
 module Simulator (
     input logic clk,
     input logic reset
 );
 
-  Bus_if ram_bus ();
-  Bus_if hram_bus ();
+  GB_Bus_if ram_bus ();
+  GB_Bus_if hram_bus ();
 
   Memory #(
       .START_ADDR(HRAM_start),

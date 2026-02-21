@@ -14,13 +14,13 @@ module cpu_top (
     input logic reset
 );
 
-  gameboy_types_pkg::t_phase_t t_phase;
+  gb_types_pkg::t_phase_t t_phase;
 
-  Bus_if cpu_bus ();
-  Interrupt_if IF_bus ();
-  Bus_if interrupt_bus ();
+  GB_Bus_if cpu_bus ();
+  GB_Interrupt_if IF_bus ();
+  GB_Bus_if interrupt_bus ();
 
-  CPU cpu_inst (
+  SM83 cpu_inst (
       .clk(clk),
       .reset(reset),
       .t_phase(t_phase),

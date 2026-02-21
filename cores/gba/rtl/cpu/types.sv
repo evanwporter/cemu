@@ -1,6 +1,6 @@
-import types_pkg::*;
+import gba_types_pkg::*;
 
-package cpu_types_pkg;
+package gba_cpu_types_pkg;
 
   typedef logic [3:0] reg_index_t;
 
@@ -389,4 +389,4 @@ package cpu_types_pkg;
     ALU_OP_NOT = 4'hF
   } alu_op_t;
 
-endpackage : cpu_types_pkg
+endpackage : gba_cpu_types_pkg

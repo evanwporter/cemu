@@ -5,7 +5,7 @@ import ppu_types_pkg::*;
 import ppu_util_pkg::*;
 import ppu_fetcher_types_pkg::*;
 
-`include "util/logger.svh"
+`include "gb/util/logger.svh"
 
 module Fetcher (
     input logic clk,

@@ -1,4 +1,4 @@
-import types_pkg::*;
+import gba_types_pkg::*;
 import mmu_types_pkg::*;
 
 /// MMU bus interface
@@ -6,7 +6,7 @@ import mmu_types_pkg::*;
 /// CPU <--> MMU <--> Peripherals
 ///     BUS       BUS
 /// Most data between the CPU and peripherals flows through this bus.
-interface Bus_if;
+interface GBA_Bus_if;
   word_t addr;
   word_t wdata;
   word_t rdata;

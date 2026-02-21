@@ -12,9 +12,9 @@ module arm_cpu_top (
     input logic reset
 );
 
-  Bus_if bus ();
+  GBA_Bus_if bus ();
 
-  CPU cpu_inst (
+  ARM7TMDI cpu_inst (
       .clk  (clk),
       .reset(reset),
       .bus  (bus)

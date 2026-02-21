@@ -7,7 +7,7 @@ gba_add_rtl(
         ${CMAKE_CURRENT_SOURCE_DIR}/types.sv
     INTERFACES
     SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/Gameboy.sv
+        ${CMAKE_CURRENT_SOURCE_DIR}/GameboyAdvance.sv
 )
 
 add_subdirectory(cpu)
@@ -29,13 +29,13 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gba.f "${GBA_F_CONTENT}\n")
 file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/gba.f "+incdir+${CMAKE_CURRENT_SOURCE_DIR}\n")
 
 verilate(libgba
-    PREFIX VGameboy
+    PREFIX VGameboyAdvance
     SOURCES 
         ${GBA_PACKAGES}
         ${GBA_INTERFACES}
         ${GBA_SOURCES}
-        ${CMAKE_CURRENT_SOURCE_DIR}/Gameboy.sv
-    TOP_MODULE Gameboy
+        ${CMAKE_CURRENT_SOURCE_DIR}/GameboyAdvance.sv
+    TOP_MODULE GameboyAdvance
     VERILATOR_ARGS
         --sv
         --trace-vcd

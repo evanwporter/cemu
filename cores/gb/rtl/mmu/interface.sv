@@ -1,9 +1,11 @@
 /// MMU bus interface
 /// Connects CPU to MMU, and MMU to peripherals.
+/// ```plain
 /// CPU <--> MMU <--> Peripherals
 ///     BUS       BUS
+/// ```
 /// Most data between the CPU and peripherals flows through this bus.
-interface Bus_if;
+interface GB_Bus_if;
   logic [15:0] addr;
   logic [ 7:0] wdata;
   logic [ 7:0] rdata;
@@ -20,7 +22,7 @@ interface Bus_if;
 
 endinterface
 
-interface Interrupt_if;
+interface GB_Interrupt_if;
 
   /// VBlank interrupt request
   logic vblank_req;
@@ -70,7 +72,7 @@ interface Interrupt_if;
 
 endinterface
 
-interface DMA_if;
+interface GB_DMA_if;
   logic [15:0] addr;
   logic [ 7:0] wdata;
   logic [ 7:0] rdata;

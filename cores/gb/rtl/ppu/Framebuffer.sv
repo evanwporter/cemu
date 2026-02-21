@@ -1,7 +1,7 @@
 import ppu_types_pkg::*;
 import ppu_util_pkg::*;
 
-`include "util/logger.svh"
+`include "gb/util/logger.svh"
 
 module Framebuffer (
     input logic clk,

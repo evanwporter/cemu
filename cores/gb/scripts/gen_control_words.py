@@ -1239,7 +1239,7 @@ opcode_comments[0x76] = "HALT"
 def sv_literal(i: int, entry: dict | None, is_last=False) -> str:
     if not entry:
         comma = "," if not is_last else ""
-        return f"            {i}: `DEFAULT_CYCLE{comma}  // M-cycle {i + 1}\n"
+        return f"            {i}: DEFAULT_CYCLE{comma}  // M-cycle {i + 1}\n"
 
     filled = DEFAULT_FIELDS.copy()
     filled.update(entry)
@@ -1274,8 +1274,8 @@ def count_real_cycles(cycles: list) -> int:
 
 def generate_sv(control_words, opcode_comments) -> str:
     lines = []
-    lines.append("`ifndef CONTROL_WORDS_SV\n`define CONTROL_WORDS_SV\n")
-    lines.append('`include "cpu/opcodes.svh"\n\n')
+    lines.append("import gb_cpu_opcodes_pkg::*;\n\n")
+    lines.append("package gb_cpu_control_words_pkg;\n\n")
     lines.append("localparam control_word_t control_words [0:255] = '{\n")
 
     for opcode in range(256):
@@ -1309,7 +1309,7 @@ def generate_sv(control_words, opcode_comments) -> str:
             for i in range(MAX_CYCLES):
                 is_last = i == MAX_CYCLES - 1
                 comma = "" if is_last else ","
-                lines.append(f"            `DEFAULT_CYCLE{comma}  // M-cycle {i + 1}\n")
+                lines.append(f"            DEFAULT_CYCLE{comma}  // M-cycle {i + 1}\n")
             lines.append("        }\n    }")
 
         if opcode != 255:
@@ -1317,14 +1317,14 @@ def generate_sv(control_words, opcode_comments) -> str:
         else:
             lines.append("\n")
 
-    lines.append("};\n`endif // CONTROL_WORDS_SV\n")
+    lines.append("};\nendpackage : gb_cpu_control_words_pkg\n")
     return "".join(lines)
 
 
 def generate_cb_sv(cb_control_words, cb_opcode_comments) -> str:
     lines = []
-    lines.append("`ifndef CB_CONTROL_WORDS_SV\n`define CB_CONTROL_WORDS_SV\n")
-    lines.append('`include "cpu/opcodes.svh"\n\n')
+    lines.append("import gb_cpu_opcodes_pkg::*;\n\n")
+    lines.append("package gb_cpu_cb_control_words_pkg;\n\n")
     lines.append("localparam control_word_t cb_control_words [0:255] = '{\n")
 
     for opcode in range(256):
@@ -1352,7 +1352,7 @@ def generate_cb_sv(cb_control_words, cb_opcode_comments) -> str:
             for i in range(MAX_CYCLES):
                 is_last = i == MAX_CYCLES - 1
                 comma = "" if is_last else ","
-                lines.append(f"            `DEFAULT_CYCLE{comma}  // M-cycle {i + 1}\n")
+                lines.append(f"            DEFAULT_CYCLE{comma}  // M-cycle {i + 1}\n")
             lines.append("        }\n    }")
 
         if opcode != 255:
@@ -1360,15 +1360,15 @@ def generate_cb_sv(cb_control_words, cb_opcode_comments) -> str:
         else:
             lines.append("\n")
 
-    lines.append("};\n`endif // CB_CONTROL_WORDS_SV\n")
+    lines.append("};\nendpackage : gb_cpu_cb_control_words_pkg\n")
     return "".join(lines)
 
 
-output_path = "cores/gb/src/cpu/control_words.svh"
+output_path = "cores/gb/rtl/cpu/control_words.sv"
 with open(output_path, "w", newline="\n") as f:
     f.write(generate_sv(control_words, opcode_comments))
 
-output_path_cb = "cores/gb/src/cpu/cb_control_words.svh"
+output_path_cb = "cores/gb/rtl/cpu/cb_control_words.sv"
 with open(output_path_cb, "w", newline="\n") as f:
     f.write(generate_cb_sv(cb_control_words, cb_opcode_comments))
 
@@ -1418,10 +1418,8 @@ for index in range(5):
 
 def generate_interrupt_sv(interrupt_words):
     lines = []
-    lines.append(
-        "`ifndef INTERRUPT_CONTROL_WORDS_SV\n`define INTERRUPT_CONTROL_WORDS_SV\n"
-    )
-    lines.append('`include "cpu/opcodes.svh"\n\n')
+    lines.append("import gb_cpu_opcodes_pkg::*;\n\n")
+    lines.append("package gb_cpu_interrupt_control_words_pkg;\n\n")
     lines.append("localparam control_word_t interrupt_words [0:4] = '{\n")
 
     for index in range(5):
@@ -1444,10 +1442,10 @@ def generate_interrupt_sv(interrupt_words):
         else:
             lines.append("\n")
 
-    lines.append("};\n`endif // INTERRUPT_CONTROL_WORDS_SV\n")
+    lines.append("};\nendpackage : gb_cpu_interrupt_control_words_pkg\n")
     return "".join(lines)
 
 
-output_path_int = "cores/gb/src/cpu/interrupt_control_words.svh"
+output_path_int = "cores/gb/rtl/cpu/interrupt_control_words.sv"
 with open(output_path_int, "w", newline="\n") as f:
     f.write(generate_interrupt_sv(interrupt_words))

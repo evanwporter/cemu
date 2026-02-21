@@ -1,4 +1,4 @@
-import control_types_pkg::*;
+import gba_control_types_pkg::*;
 
 package control_util_pkg;
 

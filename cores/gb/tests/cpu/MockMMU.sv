@@ -5,7 +5,7 @@ module MockMMU (
     input logic clk,
     input logic reset,
 
-    Bus_if.Slave_side cpu_bus
+    GB_Bus_if.Slave_side cpu_bus
 );
 
   logic [7:0] memory[65535];

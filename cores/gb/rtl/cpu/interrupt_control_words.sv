@@ -1,6 +1,6 @@
-`ifndef INTERRUPT_CONTROL_WORDS_SV
-`define INTERRUPT_CONTROL_WORDS_SV
-`include "cpu/opcodes.svh"
+import gb_cpu_opcodes_pkg::*;
+
+package gb_cpu_interrupt_control_words_pkg;
 
 localparam control_word_t interrupt_words [0:4] = '{
     0: '{  // INTERRUPT VBLANK
@@ -76,7 +76,7 @@ localparam control_word_t interrupt_words [0:4] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     1: '{  // INTERRUPT STAT
@@ -152,7 +152,7 @@ localparam control_word_t interrupt_words [0:4] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     2: '{  // INTERRUPT TIMER
@@ -228,7 +228,7 @@ localparam control_word_t interrupt_words [0:4] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     3: '{  // INTERRUPT SERIAL
@@ -304,7 +304,7 @@ localparam control_word_t interrupt_words [0:4] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     4: '{  // INTERRUPT JOYPAD
@@ -380,8 +380,8 @@ localparam control_word_t interrupt_words [0:4] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     }
 };
-`endif // INTERRUPT_CONTROL_WORDS_SV
+endpackage : gb_cpu_interrupt_control_words_pkg

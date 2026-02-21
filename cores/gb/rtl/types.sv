@@ -1,4 +1,4 @@
-package gameboy_types_pkg;
+package gb_types_pkg;
 
   typedef enum logic [1:0] {
     T1,
@@ -7,4 +7,4 @@ package gameboy_types_pkg;
     T4
   } t_phase_t;
 
-endpackage : gameboy_types_pkg
+endpackage : gb_types_pkg

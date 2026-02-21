@@ -1,11 +1,11 @@
-module Memory #(
+module GB_Memory #(
     parameter logic [15:0] START_ADDR = 16'h0000,
     parameter logic [15:0] END_ADDR = 16'h0000,
     parameter logic [15:0] SIZE = 100
 ) (
     input logic clk,
     input logic reset,
-    Bus_if.Slave_side bus
+    GB_Bus_if.Slave_side bus
 );
 
   logic [7:0] mem[SIZE];

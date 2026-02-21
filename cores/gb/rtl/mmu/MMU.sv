@@ -1,26 +1,26 @@
-import mmu_addresses_pkg::*;
+import gb_mmu_addresses_pkg::*;
 
 import ppu_types_pkg::*;
 
-`include "util/logger.svh"
+`include "gb/util/logger.svh"
 
 /// MMU: Memory Mapper Unit
-/// Orchestrates memory accesses between CPU, DMA, and peripherals
+/// Orchestrates memory accesses between SM83, DMA, and peripherals
 /// Notably it doesn't have any memory of its own.
-module MMU (
-    Bus_if.Slave_side cpu_bus,
-    DMA_if.MMU_side   dma_bus,
+module GB_MMU (
+    GB_Bus_if.Slave_side cpu_bus,
+    GB_DMA_if.MMU_side   dma_bus,
 
-    Bus_if.Master_side ppu_bus,
-    Bus_if.Master_side apu_bus,
-    Bus_if.Master_side cart_bus,
-    Bus_if.Master_side ram_bus,
-    Bus_if.Master_side hram_bus,
-    Bus_if.Master_side serial_bus,
-    Bus_if.Master_side timer_bus,
-    Bus_if.Master_side input_bus,
-    Bus_if.Master_side dma_wrbus,
-    Bus_if.Master_side interrupt_bus
+    GB_Bus_if.Master_side ppu_bus,
+    GB_Bus_if.Master_side apu_bus,
+    GB_Bus_if.Master_side cart_bus,
+    GB_Bus_if.Master_side ram_bus,
+    GB_Bus_if.Master_side hram_bus,
+    GB_Bus_if.Master_side serial_bus,
+    GB_Bus_if.Master_side timer_bus,
+    GB_Bus_if.Master_side input_bus,
+    GB_Bus_if.Master_side dma_wrbus,
+    GB_Bus_if.Master_side interrupt_bus
 );
 
   wire [15:0] effective_addr = dma_bus.active ? dma_bus.addr : cpu_bus.addr;
@@ -121,7 +121,7 @@ module MMU (
 
 
       end else if (hram_selected) begin
-        // When DMA is active, only HRAM can be accessed by the CPU
+        // When DMA is active, only HRAM can be accessed by the SM83
         cpu_bus.rdata = hram_bus.rdata;
       end
 

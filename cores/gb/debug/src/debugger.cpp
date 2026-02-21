@@ -1,6 +1,6 @@
 #include "debugger.hpp"
 
-#include "VGameboy_Bus_if.h"
+#include "VGameboy_GB_Bus_if.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "backends/imgui_impl_sdlrenderer2.h"
 #include "gbh.hpp"

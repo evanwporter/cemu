@@ -1,8 +1,8 @@
-import types_pkg::*;
-import cpu_types_pkg::*;
-import cpu_decoder_types_pkg::*;
+import gba_types_pkg::*;
+import gba_cpu_types_pkg::*;
+import gba_cpu_decoder_types_pkg::*;
 
-interface Decoder_if (
+interface GBA_Decoder_if (
     input word_t  IR,
     input flags_t flags
 );
@@ -14,9 +14,9 @@ interface Decoder_if (
 
   modport ControlUnit_side(input word, output pipeline_advance);
 
-endinterface : Decoder_if
+endinterface : GBA_Decoder_if
 
-interface ALU_if (
+interface GBA_ALU_if (
     input word_t op_a
 );
 
@@ -43,9 +43,9 @@ interface ALU_if (
       input op_a, alu_op, flags_in, use_op_b_latch, disable_op_b, latch_op_b,
       output result, flags_out
   );
-endinterface : ALU_if
+endinterface : GBA_ALU_if
 
-interface Shifter_if (
+interface GBA_Shifter_if (
     input word_t R_in
 );
 
@@ -80,4 +80,4 @@ interface Shifter_if (
 
   modport ALU_side(input op_b, input carry_out);
 
-endinterface : Shifter_if
+endinterface : GBA_Shifter_if

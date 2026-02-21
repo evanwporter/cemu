@@ -3,9 +3,9 @@
 
 `define LOG_LEVEL_WARN 
 
-`include "util/logger.svh"
+`include "gb/util/logger.svh"
 
-import mmu_addresses_pkg::*;
+import gb_mmu_addresses_pkg::*;
 
 module Gameboy (
     input logic clk,
@@ -18,26 +18,26 @@ module Gameboy (
   end
 
   /// Current t-cycle within machine cycle
-  gameboy_types_pkg::t_phase_t t_phase;
+  gb_types_pkg::t_phase_t t_phase;
 
-  Bus_if cpu_bus ();
-  DMA_if dma_bus ();
+  GB_Bus_if cpu_bus ();
+  GB_DMA_if dma_bus ();
 
-  Bus_if ppu_bus ();
-  Bus_if apu_bus ();
+  GB_Bus_if ppu_bus ();
+  GB_Bus_if apu_bus ();
 
-  Bus_if cart_bus ();
-  Bus_if timer_bus ();
-  Bus_if input_bus ();
-  Bus_if ram_bus ();
-  Bus_if hram_bus ();
-  Bus_if serial_bus ();
-  Bus_if interrupt_bus ();
-  Bus_if dma_wrbus ();
+  GB_Bus_if cart_bus ();
+  GB_Bus_if timer_bus ();
+  GB_Bus_if input_bus ();
+  GB_Bus_if ram_bus ();
+  GB_Bus_if hram_bus ();
+  GB_Bus_if serial_bus ();
+  GB_Bus_if interrupt_bus ();
+  GB_Bus_if dma_wrbus ();
 
-  Interrupt_if IF_bus ();
+  GB_Interrupt_if IF_bus ();
 
-  CPU cpu_inst (
+  SM83 cpu_inst (
       .clk(clk),
       .reset(reset),
       .t_phase(t_phase),
@@ -46,14 +46,14 @@ module Gameboy (
       .IF_bus(IF_bus)
   );
 
-  DMA dma_inst (
+  GB_DMA dma_inst (
       .clk(clk),
       .reset(reset),
       .bus(dma_wrbus),
       .mmu_bus(dma_bus)
   );
 
-  MMU mmu_inst (
+  GB_MMU mmu_inst (
       .cpu_bus(cpu_bus),
       .dma_bus(dma_bus),
       .ppu_bus(ppu_bus),
@@ -68,7 +68,7 @@ module Gameboy (
       .dma_wrbus(dma_wrbus)
   );
 
-  PPU ppu_inst (
+  GB_PPU ppu_inst (
       .clk   (clk),
       .reset (reset),
       .bus   (ppu_bus),
@@ -76,13 +76,13 @@ module Gameboy (
       .dma_bus(dma_bus)
   );
 
-  Cartridge cart_inst (
+  GB_Cartridge cart_inst (
       .clk  (clk),
       .reset(reset),
       .bus  (cart_bus)
   );
 
-  Timer timer_inst (
+  GB_Timer timer_inst (
       .clk   (clk),
       .reset (reset),
       .t_phase(t_phase),
@@ -90,19 +90,19 @@ module Gameboy (
       .IF_bus(IF_bus)
   );
 
-  Input input_inst (
+  GB_Input input_inst (
       .clk  (clk),
       .reset(reset),
       .bus  (input_bus)
   );
 
-  Serial serial_inst (
+  GB_Serial serial_inst (
       .clk  (clk),
       .reset(reset),
       .bus  (serial_bus)
   );
 
-  Memory #(
+  GB_Memory #(
       .START_ADDR(HRAM_start),
       .END_ADDR  (HRAM_end),
       .SIZE      (HRAM_len)
@@ -112,7 +112,7 @@ module Gameboy (
       .bus  (hram_bus)
   );
 
-  Memory #(
+  GB_Memory #(
       .START_ADDR(WRAM_start),
       .END_ADDR  (WRAM_end),
       .SIZE      (WRAM_len)

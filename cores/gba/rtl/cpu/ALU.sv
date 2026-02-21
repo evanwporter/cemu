@@ -1,11 +1,11 @@
-import types_pkg::*;
-import cpu_types_pkg::*;
+import gba_types_pkg::*;
+import gba_cpu_types_pkg::*;
 
 module ALU (
     input clk,
     input reset,
-    ALU_if.ALU_side bus,
-    Shifter_if.ALU_side shifter_bus
+    GBA_ALU_if.ALU_side bus,
+    GBA_Shifter_if.ALU_side shifter_bus
 );
 
   word_t op_b_latch;

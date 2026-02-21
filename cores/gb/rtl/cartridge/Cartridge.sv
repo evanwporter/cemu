@@ -1,17 +1,17 @@
 `ifndef CARTRIDGE_SV
 `define CARTRIDGE_SV 
 
-import mmu_addresses_pkg::*;
+import gb_mmu_addresses_pkg::*;
 import Cartridge_pkg::*;
 
-`include "boot.svh"
+`include "gb/boot.svh"
 
-`include "util/logger.svh"
+`include "gb/util/logger.svh"
 
-module Cartridge (
+module GB_Cartridge (
     input logic clk,
     input logic reset,
-    Bus_if.Slave_side bus
+    GB_Bus_if.Slave_side bus
 );
 
   (* maybe_unused *)

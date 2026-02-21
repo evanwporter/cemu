@@ -3,12 +3,12 @@
 
 // https://gbdev.io/pandocs/Serial_Data_Transfer_(Link_Cable).html#serial-data-transfer-link-cable
 
-import mmu_addresses_pkg::*;
+import gb_mmu_addresses_pkg::*;
 
-module Serial (
+module GB_Serial (
     input logic clk,
     input logic reset,
-    Bus_if.Slave_side bus
+    GB_Bus_if.Slave_side bus
 );
   /// Serial transfer registers
   logic [7:0] SB;

@@ -1,12 +1,12 @@
 `ifndef INPUT_SV
 `define INPUT_SV 
 
-import mmu_addresses_pkg::*;
+import gb_mmu_addresses_pkg::*;
 
-module Input (
+module GB_Input (
     input logic clk,
     input logic reset,
-    Bus_if.Slave_side bus
+    GB_Bus_if.Slave_side bus
 );
   logic [7:0] JOYPAD_reg;
 

@@ -1,4 +1,4 @@
-import mmu_addresses_pkg::*;
+import gb_mmu_addresses_pkg::*;
 
 package MBC3_pkg;
   localparam address_t RAM_enable_start = 16'h0000;

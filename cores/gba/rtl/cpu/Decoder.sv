@@ -1,12 +1,12 @@
-import types_pkg::*;
-import cpu_types_pkg::*;
-import cpu_util_pkg::*;
-import cpu_decoder_types_pkg::*;
+import gba_types_pkg::*;
+import gba_cpu_types_pkg::*;
+import gba_cpu_util_pkg::*;
+import gba_cpu_decoder_types_pkg::*;
 
-module Decoder (
+module GBA_Decoder (
     input logic clk,
     input logic reset,
-    Decoder_if.Decoder_side bus
+    GBA_Decoder_if.Decoder_side bus
 );
 
   word_t IR;
@@ -18,7 +18,7 @@ module Decoder (
     end else begin
       if (bus.pipeline_advance) begin
         IR <= bus.IR;
-        $display("[Decoder] Latched instruction 0x%08x into IR", bus.IR);
+        $display("[GBA_Decoder] Latched instruction 0x%08x into IR", bus.IR);
       end
     end
   end
@@ -28,7 +28,7 @@ module Decoder (
         eval_cond(condition_t'(IR[31:28]), bus.flags.n, bus.flags.z, bus.flags.c, bus.flags.v);
 
     bus.word.Rn = IR[19:16];
-    $display("[Decoder] Extracted Rn = R%0d from IR %b", bus.word.Rn, IR[19:16]);
+    $display("[GBA_Decoder] Extracted Rn = R%0d from IR %b", bus.word.Rn, IR[19:16]);
     bus.word.Rd = IR[15:12];
     bus.word.Rs = IR[11:8];
     bus.word.Rm = IR[3:0];
@@ -39,12 +39,12 @@ module Decoder (
 
     bus.word.instr_type = ARM_INSTR_UNDEFINED;
 
-    $display("[Decoder] Decoding instruction 0x%08x", IR);
+    $display("[GBA_Decoder] Decoding instruction 0x%08x", IR);
 
     priority casez (IR)
       /// Branch and Branch Exchange
       32'b????_0001_0010_1111_1111_1111_0001_????: begin
-        $display("[Decoder] Detected BX instruction with IR=0x%08x", IR);
+        $display("[GBA_Decoder] Detected BX instruction with IR=0x%08x", IR);
       end
 
       /// Block Data Transfer
@@ -61,7 +61,7 @@ module Decoder (
           bus.word.instr_type = ARM_INSTR_STM;
         end
 
-        $display("[Decoder] Detected block data transfer instruction with IR=0x%08x", IR);
+        $display("[GBA_Decoder] Detected block data transfer instruction with IR=0x%08x", IR);
       end
 
       /// Branch
@@ -73,7 +73,7 @@ module Decoder (
         bus.word.Rn = 4'd15;
         bus.word.Rd = 4'd14;
 
-        $display("[Decoder] Detected B instruction with IR=0x%08x", IR);
+        $display("[GBA_Decoder] Detected B instruction with IR=0x%08x", IR);
       end
 
       /// Branch with Link
@@ -85,7 +85,7 @@ module Decoder (
         bus.word.Rn = 4'd15;
         bus.word.Rd = 4'd14;
 
-        $display("[Decoder] Detected BL instruction with IR=0x%08x", IR);
+        $display("[GBA_Decoder] Detected BL instruction with IR=0x%08x", IR);
       end
 
       /// Software Interrupt
@@ -98,7 +98,7 @@ module Decoder (
         bus.word.Rn = 4'd15;
         bus.word.Rd = 4'd14;
 
-        $display("[Decoder] Detected SWI instruction with IR=0x%08x", IR);
+        $display("[GBA_Decoder] Detected SWI instruction with IR=0x%08x", IR);
       end
 
       /// Single Data Transfer
@@ -122,22 +122,22 @@ module Decoder (
           bus.word.immediate.ls.offset.imm12 = IR[11:0];
         end
 
-        $display("[Decoder] Detected single data transfer instruction with IR=0x%08x", IR);
+        $display("[GBA_Decoder] Detected single data transfer instruction with IR=0x%08x", IR);
       end
 
       /// Single Data Swap
       32'b????_0001_0???_????_????_0000_1001_????: begin
-        $display("[Decoder] Detected single data swap instruction with IR=0x%08x", IR);
+        $display("[GBA_Decoder] Detected single data swap instruction with IR=0x%08x", IR);
       end
 
       /// Multiply
       32'b????_0000_0???_????_????_????_1001_????: begin
-        $display("[Decoder] Detected multiply instruction with IR=0x%08x", IR);
+        $display("[GBA_Decoder] Detected multiply instruction with IR=0x%08x", IR);
       end
 
       /// Multiply Long
       32'b????_0000_1???_????_????_????_1001_????: begin
-        $display("[Decoder] Detected multiply long instruction with IR=0x%08x", IR);
+        $display("[GBA_Decoder] Detected multiply long instruction with IR=0x%08x", IR);
       end
 
       // Halfword Data Transfer
@@ -157,24 +157,25 @@ module Decoder (
 
         bus.word.immediate.ls_half.opcode = signed_halfword_flag_t'(IR[6:5]);
 
-        $display("[Decoder] Detected halfword data transfer register instruction with IR=0x%08x",
-                 IR);
+        $display(
+            "[GBA_Decoder] Detected halfword data transfer register instruction with IR=0x%08x",
+            IR);
       end
 
       /// PSR Transfer MSR
       32'b????_0001_0?00_1111_????_????_????_????: begin
-        $display("[Decoder] Detected MSR instruction with IR=0x%08x", IR);
+        $display("[GBA_Decoder] Detected MSR instruction with IR=0x%08x", IR);
       end
 
       /// PSR Transfer MRS
       32'b????_00?1_0?10_????_1111_????_????_????: begin
-        $display("[Decoder] Detected MRS instruction with IR=0x%08x", IR);
+        $display("[GBA_Decoder] Detected MRS instruction with IR=0x%08x", IR);
       end
 
       /// Data Processing
       32'b????_00??_????_????_????_????_????_????: begin
 
-        $display("[Decoder] Detected data processing instruction with IR=0x%08x", IR);
+        $display("[GBA_Decoder] Detected data processing instruction with IR=0x%08x", IR);
         $fflush();
 
         // Notable bits
@@ -220,10 +221,10 @@ module Decoder (
 
       default: begin
         // TODO error
-        $display("[Decoder] Unrecognized instruction with IR=0x%08x", IR);
+        $display("[GBA_Decoder] Unrecognized instruction with IR=0x%08x", IR);
       end
     endcase
   end
   // end
 
-endmodule : Decoder
+endmodule : GBA_Decoder

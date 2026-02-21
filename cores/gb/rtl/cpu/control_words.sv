@@ -1,6 +1,6 @@
-`ifndef CONTROL_WORDS_SV
-`define CONTROL_WORDS_SV
-`include "cpu/opcodes.svh"
+import gb_cpu_opcodes_pkg::*;
+
+package gb_cpu_control_words_pkg;
 
 localparam control_word_t control_words [0:255] = '{
     'h00: '{  //  NOP
@@ -20,11 +20,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h01: '{  //  LD BC,d16
@@ -72,9 +72,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_BC,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h02: '{  //  LD (BC),A
@@ -108,10 +108,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h03: '{  //  INC BC
@@ -145,10 +145,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h04: '{  //  INC B
@@ -168,11 +168,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h05: '{  //  DEC B
@@ -192,11 +192,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h06: '{  //  LD B, n8
@@ -230,10 +230,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h07: '{  //  RLCA
@@ -253,11 +253,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h08: '{  //  LD (a16), SP
@@ -333,7 +333,7 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h09: '{  //  ADD HL, BC
@@ -367,10 +367,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h0A: '{  //  LD A,(BC)
@@ -404,10 +404,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h0B: '{  //  DEC BC
@@ -441,10 +441,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h0C: '{  //  INC C
@@ -464,11 +464,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h0D: '{  //  DEC C
@@ -488,11 +488,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h0E: '{  //  LD C, n8
@@ -526,10 +526,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h0F: '{  //  RRCA
@@ -549,22 +549,22 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h10: '{  //  UNDEFINED
         num_cycles : 3'd0,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            DEFAULT_CYCLE,  // M-cycle 1
+            DEFAULT_CYCLE,  // M-cycle 2
+            DEFAULT_CYCLE,  // M-cycle 3
+            DEFAULT_CYCLE,  // M-cycle 4
+            DEFAULT_CYCLE,  // M-cycle 5
+            DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h11: '{  //  LD DE,d16
@@ -612,9 +612,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_DE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h12: '{  //  LD (DE),A
@@ -648,10 +648,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h13: '{  //  INC DE
@@ -685,10 +685,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h14: '{  //  INC D
@@ -708,11 +708,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h15: '{  //  DEC D
@@ -732,11 +732,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h16: '{  //  LD D, n8
@@ -770,10 +770,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h17: '{  //  RLA
@@ -793,11 +793,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h18: '{  //  JR e
@@ -845,9 +845,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h19: '{  //  ADD HL, DE
@@ -881,10 +881,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h1A: '{  //  LD A,(DE)
@@ -918,10 +918,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h1B: '{  //  DEC DE
@@ -955,10 +955,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h1C: '{  //  INC E
@@ -978,11 +978,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h1D: '{  //  DEC E
@@ -1002,11 +1002,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h1E: '{  //  LD E, n8
@@ -1040,10 +1040,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h1F: '{  //  RRA
@@ -1063,11 +1063,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h20: '{  //  JR NZ, e
@@ -1115,8 +1115,8 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
             5: '{  // M-cycle 6
                 addr_src : ADDR_PC,
                 data_bus_src : DATA_BUS_SRC_IR,
@@ -1178,9 +1178,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_HL,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h22: '{  //  LD (HL+),A
@@ -1214,10 +1214,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h23: '{  //  INC HL
@@ -1251,10 +1251,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h24: '{  //  INC H
@@ -1274,11 +1274,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h25: '{  //  DEC H
@@ -1298,11 +1298,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h26: '{  //  LD H, n8
@@ -1336,10 +1336,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h27: '{  //  DAA
@@ -1359,11 +1359,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h28: '{  //  JR Z, e
@@ -1411,8 +1411,8 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
             5: '{  // M-cycle 6
                 addr_src : ADDR_PC,
                 data_bus_src : DATA_BUS_SRC_IR,
@@ -1460,10 +1460,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h2A: '{  //  LD A,(HL+)
@@ -1497,10 +1497,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h2B: '{  //  DEC HL
@@ -1534,10 +1534,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h2C: '{  //  INC L
@@ -1557,11 +1557,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h2D: '{  //  DEC L
@@ -1581,11 +1581,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h2E: '{  //  LD L, n8
@@ -1619,10 +1619,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h2F: '{  //  CPL
@@ -1642,11 +1642,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h30: '{  //  JR NC, e
@@ -1694,8 +1694,8 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
             5: '{  // M-cycle 6
                 addr_src : ADDR_PC,
                 data_bus_src : DATA_BUS_SRC_IR,
@@ -1757,9 +1757,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_SP,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h32: '{  //  LD (HL-),A
@@ -1793,10 +1793,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h33: '{  //  INC SP
@@ -1830,10 +1830,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h34: '{  //  INC (HL)
@@ -1881,9 +1881,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h35: '{  //  DEC (HL)
@@ -1931,9 +1931,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h36: '{  //  LD (HL), n8
@@ -1981,9 +1981,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h37: '{  //  SCF
@@ -2003,11 +2003,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h38: '{  //  JR C, e
@@ -2055,8 +2055,8 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
             5: '{  // M-cycle 6
                 addr_src : ADDR_PC,
                 data_bus_src : DATA_BUS_SRC_IR,
@@ -2104,10 +2104,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h3A: '{  //  LD A,(HL-)
@@ -2141,10 +2141,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h3B: '{  //  DEC SP
@@ -2178,10 +2178,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h3C: '{  //  INC A
@@ -2201,11 +2201,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h3D: '{  //  DEC A
@@ -2225,11 +2225,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h3E: '{  //  LD A, n8
@@ -2263,10 +2263,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h3F: '{  //  CCF
@@ -2286,11 +2286,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h40: '{  //  LD B, B
@@ -2310,11 +2310,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h41: '{  //  LD B, C
@@ -2334,11 +2334,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h42: '{  //  LD B, D
@@ -2358,11 +2358,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h43: '{  //  LD B, E
@@ -2382,11 +2382,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h44: '{  //  LD B, H
@@ -2406,11 +2406,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h45: '{  //  LD B, L
@@ -2430,11 +2430,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h46: '{  //  LD B, (HL)
@@ -2468,10 +2468,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h47: '{  //  LD B, A
@@ -2491,11 +2491,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h48: '{  //  LD C, B
@@ -2515,11 +2515,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h49: '{  //  LD C, C
@@ -2539,11 +2539,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h4A: '{  //  LD C, D
@@ -2563,11 +2563,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h4B: '{  //  LD C, E
@@ -2587,11 +2587,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h4C: '{  //  LD C, H
@@ -2611,11 +2611,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h4D: '{  //  LD C, L
@@ -2635,11 +2635,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h4E: '{  //  LD C, (HL)
@@ -2673,10 +2673,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h4F: '{  //  LD C, A
@@ -2696,11 +2696,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h50: '{  //  LD D, B
@@ -2720,11 +2720,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h51: '{  //  LD D, C
@@ -2744,11 +2744,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h52: '{  //  LD D, D
@@ -2768,11 +2768,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h53: '{  //  LD D, E
@@ -2792,11 +2792,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h54: '{  //  LD D, H
@@ -2816,11 +2816,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h55: '{  //  LD D, L
@@ -2840,11 +2840,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h56: '{  //  LD D, (HL)
@@ -2878,10 +2878,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h57: '{  //  LD D, A
@@ -2901,11 +2901,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h58: '{  //  LD E, B
@@ -2925,11 +2925,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h59: '{  //  LD E, C
@@ -2949,11 +2949,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h5A: '{  //  LD E, D
@@ -2973,11 +2973,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h5B: '{  //  LD E, E
@@ -2997,11 +2997,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h5C: '{  //  LD E, H
@@ -3021,11 +3021,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h5D: '{  //  LD E, L
@@ -3045,11 +3045,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h5E: '{  //  LD E, (HL)
@@ -3083,10 +3083,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h5F: '{  //  LD E, A
@@ -3106,11 +3106,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h60: '{  //  LD H, B
@@ -3130,11 +3130,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h61: '{  //  LD H, C
@@ -3154,11 +3154,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h62: '{  //  LD H, D
@@ -3178,11 +3178,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h63: '{  //  LD H, E
@@ -3202,11 +3202,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h64: '{  //  LD H, H
@@ -3226,11 +3226,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h65: '{  //  LD H, L
@@ -3250,11 +3250,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h66: '{  //  LD H, (HL)
@@ -3288,10 +3288,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h67: '{  //  LD H, A
@@ -3311,11 +3311,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h68: '{  //  LD L, B
@@ -3335,11 +3335,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h69: '{  //  LD L, C
@@ -3359,11 +3359,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h6A: '{  //  LD L, D
@@ -3383,11 +3383,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h6B: '{  //  LD L, E
@@ -3407,11 +3407,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h6C: '{  //  LD L, H
@@ -3431,11 +3431,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h6D: '{  //  LD L, L
@@ -3455,11 +3455,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h6E: '{  //  LD L, (HL)
@@ -3493,10 +3493,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h6F: '{  //  LD L, A
@@ -3516,11 +3516,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h70: '{  //  LD (HL), B
@@ -3554,10 +3554,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h71: '{  //  LD (HL), C
@@ -3591,10 +3591,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h72: '{  //  LD (HL), D
@@ -3628,10 +3628,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h73: '{  //  LD (HL), E
@@ -3665,10 +3665,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h74: '{  //  LD (HL), H
@@ -3702,10 +3702,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h75: '{  //  LD (HL), L
@@ -3739,10 +3739,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h76: '{  //  HALT
@@ -3762,11 +3762,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h77: '{  //  LD (HL), A
@@ -3800,10 +3800,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h78: '{  //  LD A, B
@@ -3823,11 +3823,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h79: '{  //  LD A, C
@@ -3847,11 +3847,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h7A: '{  //  LD A, D
@@ -3871,11 +3871,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h7B: '{  //  LD A, E
@@ -3895,11 +3895,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h7C: '{  //  LD A, H
@@ -3919,11 +3919,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h7D: '{  //  LD A, L
@@ -3943,11 +3943,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h7E: '{  //  LD A, (HL)
@@ -3981,10 +3981,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h7F: '{  //  LD A, A
@@ -4004,11 +4004,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h80: '{  //  ADD A, B
@@ -4028,11 +4028,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h81: '{  //  ADD A, C
@@ -4052,11 +4052,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h82: '{  //  ADD A, D
@@ -4076,11 +4076,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h83: '{  //  ADD A, E
@@ -4100,11 +4100,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h84: '{  //  ADD A, H
@@ -4124,11 +4124,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h85: '{  //  ADD A, L
@@ -4148,11 +4148,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h86: '{  //  ADD A, (HL)
@@ -4186,10 +4186,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h87: '{  //  ADD A, A
@@ -4209,11 +4209,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h88: '{  //  ADC A, B
@@ -4233,11 +4233,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h89: '{  //  ADC A, C
@@ -4257,11 +4257,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h8A: '{  //  ADC A, D
@@ -4281,11 +4281,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h8B: '{  //  ADC A, E
@@ -4305,11 +4305,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h8C: '{  //  ADC A, H
@@ -4329,11 +4329,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h8D: '{  //  ADC A, L
@@ -4353,11 +4353,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h8E: '{  //  ADC A, (HL)
@@ -4391,10 +4391,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h8F: '{  //  ADC A, A
@@ -4414,11 +4414,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h90: '{  //  SUB A, B
@@ -4438,11 +4438,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h91: '{  //  SUB A, C
@@ -4462,11 +4462,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h92: '{  //  SUB A, D
@@ -4486,11 +4486,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h93: '{  //  SUB A, E
@@ -4510,11 +4510,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h94: '{  //  SUB A, H
@@ -4534,11 +4534,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h95: '{  //  SUB A, L
@@ -4558,11 +4558,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h96: '{  //  SUB A, (HL)
@@ -4596,10 +4596,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h97: '{  //  SUB A, A
@@ -4619,11 +4619,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h98: '{  //  SBC A, B
@@ -4643,11 +4643,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h99: '{  //  SBC A, C
@@ -4667,11 +4667,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h9A: '{  //  SBC A, D
@@ -4691,11 +4691,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h9B: '{  //  SBC A, E
@@ -4715,11 +4715,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h9C: '{  //  SBC A, H
@@ -4739,11 +4739,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h9D: '{  //  SBC A, L
@@ -4763,11 +4763,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h9E: '{  //  SBC A, (HL)
@@ -4801,10 +4801,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'h9F: '{  //  SBC A, A
@@ -4824,11 +4824,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hA0: '{  //  AND A, B
@@ -4848,11 +4848,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hA1: '{  //  AND A, C
@@ -4872,11 +4872,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hA2: '{  //  AND A, D
@@ -4896,11 +4896,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hA3: '{  //  AND A, E
@@ -4920,11 +4920,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hA4: '{  //  AND A, H
@@ -4944,11 +4944,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hA5: '{  //  AND A, L
@@ -4968,11 +4968,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hA6: '{  //  AND A, (HL)
@@ -5006,10 +5006,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hA7: '{  //  AND A, A
@@ -5029,11 +5029,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hA8: '{  //  XOR A, B
@@ -5053,11 +5053,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hA9: '{  //  XOR A, C
@@ -5077,11 +5077,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hAA: '{  //  XOR A, D
@@ -5101,11 +5101,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hAB: '{  //  XOR A, E
@@ -5125,11 +5125,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hAC: '{  //  XOR A, H
@@ -5149,11 +5149,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hAD: '{  //  XOR A, L
@@ -5173,11 +5173,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hAE: '{  //  XOR A, (HL)
@@ -5211,10 +5211,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hAF: '{  //  XOR A, A
@@ -5234,11 +5234,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hB0: '{  //  OR A, B
@@ -5258,11 +5258,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hB1: '{  //  OR A, C
@@ -5282,11 +5282,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hB2: '{  //  OR A, D
@@ -5306,11 +5306,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hB3: '{  //  OR A, E
@@ -5330,11 +5330,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hB4: '{  //  OR A, H
@@ -5354,11 +5354,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hB5: '{  //  OR A, L
@@ -5378,11 +5378,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hB6: '{  //  OR A, (HL)
@@ -5416,10 +5416,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hB7: '{  //  OR A, A
@@ -5439,11 +5439,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hB8: '{  //  CP A, B
@@ -5463,11 +5463,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hB9: '{  //  CP A, C
@@ -5487,11 +5487,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hBA: '{  //  CP A, D
@@ -5511,11 +5511,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hBB: '{  //  CP A, E
@@ -5535,11 +5535,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hBC: '{  //  CP A, H
@@ -5559,11 +5559,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hBD: '{  //  CP A, L
@@ -5583,11 +5583,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hBE: '{  //  CP A, (HL)
@@ -5621,10 +5621,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hBF: '{  //  CP A, A
@@ -5644,11 +5644,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hC0: '{  //  RET NZ
@@ -5785,9 +5785,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hC2: '{  //  JP NZ, nn
@@ -5849,7 +5849,7 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            4: `DEFAULT_CYCLE,  // M-cycle 5
+            4: DEFAULT_CYCLE,  // M-cycle 5
             5: '{  // M-cycle 6
                 addr_src : ADDR_PC,
                 data_bus_src : DATA_BUS_SRC_IR,
@@ -5925,8 +5925,8 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hC4: '{  //  CALL NZ, nn
@@ -6077,8 +6077,8 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hC6: '{  //  ADD A, n8
@@ -6112,10 +6112,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hC7: '{  //  RST $00
@@ -6191,7 +6191,7 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hC8: '{  //  RET Z
@@ -6342,8 +6342,8 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hCA: '{  //  JP Z, nn
@@ -6405,7 +6405,7 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            4: `DEFAULT_CYCLE,  // M-cycle 5
+            4: DEFAULT_CYCLE,  // M-cycle 5
             5: '{  // M-cycle 6
                 addr_src : ADDR_PC,
                 data_bus_src : DATA_BUS_SRC_IR,
@@ -6439,11 +6439,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hCC: '{  //  CALL Z, nn
@@ -6655,10 +6655,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hCF: '{  //  RST $08
@@ -6734,7 +6734,7 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hD0: '{  //  RET NC
@@ -6871,9 +6871,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hD2: '{  //  JP NC, nn
@@ -6935,7 +6935,7 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            4: `DEFAULT_CYCLE,  // M-cycle 5
+            4: DEFAULT_CYCLE,  // M-cycle 5
             5: '{  // M-cycle 6
                 addr_src : ADDR_PC,
                 data_bus_src : DATA_BUS_SRC_IR,
@@ -6955,12 +6955,12 @@ localparam control_word_t control_words [0:255] = '{
     'hD3: '{  //  UNDEFINED
         num_cycles : 3'd0,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            DEFAULT_CYCLE,  // M-cycle 1
+            DEFAULT_CYCLE,  // M-cycle 2
+            DEFAULT_CYCLE,  // M-cycle 3
+            DEFAULT_CYCLE,  // M-cycle 4
+            DEFAULT_CYCLE,  // M-cycle 5
+            DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hD4: '{  //  CALL NC, nn
@@ -7111,8 +7111,8 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hD6: '{  //  SUB A, n8
@@ -7146,10 +7146,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hD7: '{  //  RST $10
@@ -7225,7 +7225,7 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hD8: '{  //  RET C
@@ -7376,8 +7376,8 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hDA: '{  //  JP C, nn
@@ -7439,7 +7439,7 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            4: `DEFAULT_CYCLE,  // M-cycle 5
+            4: DEFAULT_CYCLE,  // M-cycle 5
             5: '{  // M-cycle 6
                 addr_src : ADDR_PC,
                 data_bus_src : DATA_BUS_SRC_IR,
@@ -7459,12 +7459,12 @@ localparam control_word_t control_words [0:255] = '{
     'hDB: '{  //  UNDEFINED
         num_cycles : 3'd0,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            DEFAULT_CYCLE,  // M-cycle 1
+            DEFAULT_CYCLE,  // M-cycle 2
+            DEFAULT_CYCLE,  // M-cycle 3
+            DEFAULT_CYCLE,  // M-cycle 4
+            DEFAULT_CYCLE,  // M-cycle 5
+            DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hDC: '{  //  CALL C, nn
@@ -7559,12 +7559,12 @@ localparam control_word_t control_words [0:255] = '{
     'hDD: '{  //  UNDEFINED
         num_cycles : 3'd0,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            DEFAULT_CYCLE,  // M-cycle 1
+            DEFAULT_CYCLE,  // M-cycle 2
+            DEFAULT_CYCLE,  // M-cycle 3
+            DEFAULT_CYCLE,  // M-cycle 4
+            DEFAULT_CYCLE,  // M-cycle 5
+            DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hDE: '{  //  SBC A, n8
@@ -7598,10 +7598,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hDF: '{  //  RST $18
@@ -7677,7 +7677,7 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hE0: '{  //  LDH (a8), A
@@ -7725,9 +7725,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hE1: '{  //  POP HL
@@ -7775,9 +7775,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hE2: '{  //  LD (C), A
@@ -7811,32 +7811,32 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hE3: '{  //  UNDEFINED
         num_cycles : 3'd0,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            DEFAULT_CYCLE,  // M-cycle 1
+            DEFAULT_CYCLE,  // M-cycle 2
+            DEFAULT_CYCLE,  // M-cycle 3
+            DEFAULT_CYCLE,  // M-cycle 4
+            DEFAULT_CYCLE,  // M-cycle 5
+            DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hE4: '{  //  UNDEFINED
         num_cycles : 3'd0,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            DEFAULT_CYCLE,  // M-cycle 1
+            DEFAULT_CYCLE,  // M-cycle 2
+            DEFAULT_CYCLE,  // M-cycle 3
+            DEFAULT_CYCLE,  // M-cycle 4
+            DEFAULT_CYCLE,  // M-cycle 5
+            DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hE5: '{  //  PUSH HL
@@ -7898,8 +7898,8 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hE6: '{  //  AND A, n8
@@ -7933,10 +7933,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hE7: '{  //  RST $20
@@ -8012,7 +8012,7 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hE8: '{  //  UNDEFINED
@@ -8074,8 +8074,8 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_SP,
                 cond : COND_NONE
             },
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hE9: '{  //  UNDEFINED
@@ -8095,11 +8095,11 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hEA: '{  //  LD (nn), A
@@ -8161,41 +8161,41 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hEB: '{  //  UNDEFINED
         num_cycles : 3'd0,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            DEFAULT_CYCLE,  // M-cycle 1
+            DEFAULT_CYCLE,  // M-cycle 2
+            DEFAULT_CYCLE,  // M-cycle 3
+            DEFAULT_CYCLE,  // M-cycle 4
+            DEFAULT_CYCLE,  // M-cycle 5
+            DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hEC: '{  //  UNDEFINED
         num_cycles : 3'd0,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            DEFAULT_CYCLE,  // M-cycle 1
+            DEFAULT_CYCLE,  // M-cycle 2
+            DEFAULT_CYCLE,  // M-cycle 3
+            DEFAULT_CYCLE,  // M-cycle 4
+            DEFAULT_CYCLE,  // M-cycle 5
+            DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hED: '{  //  UNDEFINED
         num_cycles : 3'd0,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            DEFAULT_CYCLE,  // M-cycle 1
+            DEFAULT_CYCLE,  // M-cycle 2
+            DEFAULT_CYCLE,  // M-cycle 3
+            DEFAULT_CYCLE,  // M-cycle 4
+            DEFAULT_CYCLE,  // M-cycle 5
+            DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hEE: '{  //  XOR A, n8
@@ -8229,10 +8229,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hEF: '{  //  RST $28
@@ -8308,7 +8308,7 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hF0: '{  //  LDH A, n
@@ -8356,9 +8356,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hF1: '{  //  POP AF
@@ -8406,9 +8406,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hF2: '{  //  LD A, (C)
@@ -8442,10 +8442,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hF3: '{  //  DI
@@ -8465,22 +8465,22 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hF4: '{  //  UNDEFINED
         num_cycles : 3'd0,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            DEFAULT_CYCLE,  // M-cycle 1
+            DEFAULT_CYCLE,  // M-cycle 2
+            DEFAULT_CYCLE,  // M-cycle 3
+            DEFAULT_CYCLE,  // M-cycle 4
+            DEFAULT_CYCLE,  // M-cycle 5
+            DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hF5: '{  //  PUSH AF
@@ -8542,8 +8542,8 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hF6: '{  //  OR A, n8
@@ -8577,10 +8577,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hF7: '{  //  RST $30
@@ -8656,7 +8656,7 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hF8: '{  //  LD HL, SP + e8
@@ -8704,9 +8704,9 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hF9: '{  //  LD SP, HL
@@ -8740,10 +8740,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hFA: '{  //  LD A, (nn)
@@ -8805,8 +8805,8 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hFB: '{  //  EI
@@ -8826,33 +8826,33 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            1: `DEFAULT_CYCLE,  // M-cycle 2
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            1: DEFAULT_CYCLE,  // M-cycle 2
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hFC: '{  //  UNDEFINED
         num_cycles : 3'd0,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            DEFAULT_CYCLE,  // M-cycle 1
+            DEFAULT_CYCLE,  // M-cycle 2
+            DEFAULT_CYCLE,  // M-cycle 3
+            DEFAULT_CYCLE,  // M-cycle 4
+            DEFAULT_CYCLE,  // M-cycle 5
+            DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hFD: '{  //  UNDEFINED
         num_cycles : 3'd0,
         cycles : '{
-            `DEFAULT_CYCLE,  // M-cycle 1
-            `DEFAULT_CYCLE,  // M-cycle 2
-            `DEFAULT_CYCLE,  // M-cycle 3
-            `DEFAULT_CYCLE,  // M-cycle 4
-            `DEFAULT_CYCLE,  // M-cycle 5
-            `DEFAULT_CYCLE  // M-cycle 6
+            DEFAULT_CYCLE,  // M-cycle 1
+            DEFAULT_CYCLE,  // M-cycle 2
+            DEFAULT_CYCLE,  // M-cycle 3
+            DEFAULT_CYCLE,  // M-cycle 4
+            DEFAULT_CYCLE,  // M-cycle 5
+            DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hFE: '{  //  CP A, n8
@@ -8886,10 +8886,10 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            2: `DEFAULT_CYCLE,  // M-cycle 3
-            3: `DEFAULT_CYCLE,  // M-cycle 4
-            4: `DEFAULT_CYCLE,  // M-cycle 5
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            2: DEFAULT_CYCLE,  // M-cycle 3
+            3: DEFAULT_CYCLE,  // M-cycle 4
+            4: DEFAULT_CYCLE,  // M-cycle 5
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     },
     'hFF: '{  //  RST $38
@@ -8965,8 +8965,8 @@ localparam control_word_t control_words [0:255] = '{
                 misc_op_dst : MISC_OP_DST_NONE,
                 cond : COND_NONE
             },
-            5: `DEFAULT_CYCLE  // M-cycle 6
+            5: DEFAULT_CYCLE  // M-cycle 6
         }
     }
 };
-`endif // CONTROL_WORDS_SV
+endpackage : gb_cpu_control_words_pkg

@@ -35,6 +35,7 @@ verilate(test_cpu
         --trace
         -Wall
         -Wno-fatal
+        -I${GB_INCLUDE_DIR}
         -I${GB_SRC_DIR}
         -I${CMAKE_CURRENT_BINARY_DIR}/
 )

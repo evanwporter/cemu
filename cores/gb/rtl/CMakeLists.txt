@@ -32,7 +32,7 @@ ${GB_SOURCES}
 string(REPLACE ";" "\n" GB_F_CONTENT "${GB_F_CONTENT}")
 
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gb.f "${GB_F_CONTENT}\n")
-file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/gb.f "+incdir+${CMAKE_CURRENT_SOURCE_DIR}\n")
+file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/gb.f "+incdir+${GB_INCLUDE_DIR}\n")
 
 verilate(libgb
     PREFIX VGameboy
@@ -46,7 +46,7 @@ verilate(libgb
         --sv
         --trace-vcd
         # -Wall
-        -I${CMAKE_CURRENT_SOURCE_DIR}
+        -I${GB_INCLUDE_DIR}
         -O3
 )
 

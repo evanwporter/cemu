@@ -1,15 +1,15 @@
 import ppu_types_pkg::*;
-import mmu_addresses_pkg::*;
+import gb_mmu_addresses_pkg::*;
 import ppu_util_pkg::*;
 
-`include "util/logger.svh"
+`include "gb/util/logger.svh"
 
-module PPU (
+module GB_PPU (
     input logic clk,
     input logic reset,
-    Bus_if.Slave_side bus,
-    Interrupt_if.PPU_side IF_bus,
-    DMA_if.DMA_side dma_bus
+    GB_Bus_if.Slave_side bus,
+    GB_Interrupt_if.PPU_side IF_bus,
+    GB_DMA_if.DMA_side dma_bus
 );
 
   // Dot counters (resets after each line)

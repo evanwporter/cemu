@@ -1,10 +1,10 @@
-import types_pkg::*;
-import cpu_types_pkg::*;
+import gba_types_pkg::*;
+import gba_cpu_types_pkg::*;
 
-module BarrelShifter (
+module GBA_BarrelShifter (
     input clk,
     input reset,
-    Shifter_if.shifter_side bus
+    GBA_Shifter_if.shifter_side bus
 );
 
   /// I believe ARM7 stores it as a byte in the shifter, even 
@@ -100,4 +100,4 @@ module BarrelShifter (
     endcase
   end
 
-endmodule
+endmodule : GBA_BarrelShifter

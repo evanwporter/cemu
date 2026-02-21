@@ -4,7 +4,7 @@
 #include <nlohmann/json.hpp>
 
 #include <Varm_cpu_top.h>
-#include <Varm_cpu_top_Bus_if.h>
+#include <Varm_cpu_top_GBA_Bus_if.h>
 #include <Varm_cpu_top___024root.h>
 #include <verilated.h>
 

@@ -4,9 +4,9 @@
 //  Each module independently decides whether to accept or ignore the bus
 //   based on its control signals.
 
-import cpu_types_pkg::*;
+import gba_cpu_types_pkg::*;
 
-package control_types_pkg;
+package gba_control_types_pkg;
 
   typedef enum logic [1:0] {
     /// Don't change the current address on the address bus
@@ -231,4 +231,4 @@ package control_types_pkg;
 
   } control_t;
 
-endpackage : control_types_pkg
+endpackage : gba_control_types_pkg

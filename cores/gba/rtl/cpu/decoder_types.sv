@@ -1,7 +1,7 @@
-import types_pkg::*;
-import cpu_types_pkg::*;
+import gba_types_pkg::*;
+import gba_cpu_types_pkg::*;
 
-package cpu_decoder_types_pkg;
+package gba_cpu_decoder_types_pkg;
 
   typedef enum logic {
     ARM_LDR_STR_WORD,
@@ -261,4 +261,4 @@ package cpu_decoder_types_pkg;
     extra_t immediate;
   } decoded_word_t;
 
-endpackage : cpu_decoder_types_pkg
+endpackage : gba_cpu_decoder_types_pkg
